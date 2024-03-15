@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { Grid } from "gridjs"; //datagrid js
-import "./DataTable.css";
+import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { UilEye } from '@iconscout/react-unicons'
 
-const DataTable = () => {
+const UsageDataTable  = () => {
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -17,31 +16,20 @@ const DataTable = () => {
     search: true,
     columns: [
       "Serial No",
-      "Name",
-      "Issuer",
-      "Date",
-      "State",
-      "Region",
-      "Country",
-      "Validity",
-      "Status",
-      "Actions",
+      "Used On",
+      "Remark",
+      "Count"
     ],
     server: {
-      url: "http://localhost:8080/data",
+      url: "http://localhost:8080/usageData",
       method: "POST",
       then: (data) =>
-        data.map((ca) => [
-          ca.cert_serial_no,
-          ca.subject_name,
-          ca.issuer_name,
-          ca.issue_date,
-          ca.subject_state,
-          "region",
-          "India",
-          ca.expiry_date,
-          "Status",
-          "Actions",
+        data.map((use) => [
+          use.serial_number,
+          use.time_stamp,
+          use.remark,
+          use.count,
+          
         ]
         ),
     },
@@ -81,4 +69,4 @@ const DataTable = () => {
   );
 };
 
-export default DataTable;
+export default UsageDataTable ;

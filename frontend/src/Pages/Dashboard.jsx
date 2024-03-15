@@ -6,6 +6,8 @@ import UploadCertificate from "../Components/UploadCertificate/UploadCertificate
 import DataTable from "../Components/DataTable/DataTable ";
 import Account from "../Components/Account/Account";
 import RightSideAccount from "../Components/RightSideAccount/RightSideAccount";
+import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
+import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
 
 function Dashboard() {
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -29,7 +31,7 @@ function Dashboard() {
       break;
     case 1:
       content = (
-        <div className="appglass">
+        <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} />
           <DataTable />
           {/* <RightSide /> */}
@@ -38,25 +40,25 @@ function Dashboard() {
       break;
     case 2:
       content = (
-        <div className="appglass">
+        <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} />
-          <DataTable />
+          <RevokedDataTable />
           {/* <RightSide /> */}
         </div>
       );
       break;
     case 3:
       content = (
-        <div className="appglass">
+        <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} />
-          <DataTable />
+          <UsageDataTable />
           {/* <RightSide /> */}
         </div>
       );
       break;
     case 4:
       content = (
-        <div className="appglass">
+        <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} />
           <UploadCertificate />
           {/* <RightSide /> */}

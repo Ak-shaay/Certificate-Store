@@ -12,16 +12,31 @@
     width: 98%;
     background: var(--glass);
     border-radius: 2rem;
-    gap: 16px;
-    grid-template-columns: 11rem auto 20rem;
+    gap: 3rem;
+    grid-template-columns: 12rem auto 20rem;
     background-color: #ffffff;
 background-image: linear-gradient(315deg, #ffffff 0%, #9ec4f096 54%);
+}
+.appglass-other{
+  display: grid;
+  height: 98%;
+  width: 98%;
+  background: var(--glass);
+  border-radius: 2rem;
+  gap: 3rem;
+  grid-template-columns: 12rem auto;
+  background-color: #ffffff;
+  background-image: linear-gradient(315deg, #ffffff 0%, #9ec4f096 54%);
 }
 @media screen and (max-width: 1200px) {
   .appglass{
     grid-template-columns: 10% 50% auto;
     overflow-y: scroll;
   } 
+  .appglass-other{
+    grid-template-columns: 100%;
+    overflow-y: scroll;
+  }
 }
 
 @media screen and (max-width: 768px) {
