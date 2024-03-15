@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { Grid } from "gridjs"; //datagrid js
-import "./DataTable.css";
+import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { UilEye } from '@iconscout/react-unicons'
 
-const DataTable = () => {
+const RevokedDataTable = () => {
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -17,31 +16,18 @@ const DataTable = () => {
     search: true,
     columns: [
       "Serial No",
-      "Name",
-      "Issuer",
-      "Date",
-      "State",
-      "Region",
-      "Country",
-      "Validity",
-      "Status",
-      "Actions",
+      "Revokation Date",
+      "Reason",
     ],
     server: {
-      url: "http://localhost:8080/data",
+      url: "http://localhost:8080/revokedData",
       method: "POST",
       then: (data) =>
-        data.map((ca) => [
-          ca.cert_serial_no,
-          ca.subject_name,
-          ca.issuer_name,
-          ca.issue_date,
-          ca.subject_state,
-          "region",
-          "India",
-          ca.expiry_date,
-          "Status",
-          "Actions",
+        data.map((rev) => [
+          rev.serial_number,
+          rev.revoke_date_time,
+          rev.reason
+          
         ]
         ),
     },
@@ -81,4 +67,4 @@ const DataTable = () => {
   );
 };
 
-export default DataTable;
+export default RevokedDataTable;

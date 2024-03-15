@@ -41,9 +41,6 @@ async function logUserAction(sessionID, userId, action) {
   }
 }
 async function getCertData() {
-  //   const query =
-  //     "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id ORDER BY c.issue_date DESC LIMIT 8";
-
   try {
     const query = "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id ORDER BY c.issue_date DESC";
     return db.executeQuery(query);
@@ -51,10 +48,30 @@ async function getCertData() {
     console.log("Error while fetching certificate details: ", e);
   }
 }
+async function getRevokedCertData() {
+  try {
+    const query = "SELECT * FROM revocation_data";
+    return db.executeQuery(query);
+  } catch (e) {
+    console.log("Error while fetching certificate details: ", e);
+  }
+  
+}
+async function getCertUsageData() {
+  try {
+    const query = "SELECT * FROM cert_usage";
+    return db.executeQuery(query);
+  } catch (e) {
+    console.log("Error while fetching certificate details: ", e);
+  }
+  
+}
 module.exports = {
   findUserByUsername,
   createUser,
   logUserAction,
   authenticateUser,
   getCertData,
+  getRevokedCertData,
+  getCertUsageData
 };

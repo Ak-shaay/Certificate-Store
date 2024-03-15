@@ -162,6 +162,24 @@ async function fetchData(req, res) {
     res.status(500).json({ error: "Error." });
   }
 }
+async function fetchRevokedData(req, res) {
+  try {
+  const revokedCertDetails = await userModel.getRevokedCertData();
+    res.json(revokedCertDetails);
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
+  }
+}
+async function fetchUsageData(req, res) {
+  try {
+  const usageDetails = await userModel.getCertUsageData();
+    res.json(usageDetails);
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
+  }
+}
 
 
 module.exports = {
@@ -173,5 +191,7 @@ module.exports = {
   userDetails,
   userSessionInfo,
   certDetails,
-  fetchData
+  fetchData,
+  fetchRevokedData,
+  fetchUsageData
 };
