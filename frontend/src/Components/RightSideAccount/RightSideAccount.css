@@ -1,0 +1,77 @@
+.RightMain {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    margin-top: 15rem;
+    width: 95%;
+    justify-content: flex-start;
+}
+.ProfileContainer {
+    width: 85%;
+    align-self: center;
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+}
+
+.Profile {
+    background:#ffffff;
+    border-radius: 0.7rem;
+    padding: 1rem;
+    text-align: center;
+    height: 30vh;
+}
+
+
+.ProfileName {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #333;
+}
+.Profile img {
+    transform: translateY(-65%); 
+    width: 9rem;
+    height: 9rem;
+}
+.ProfileData {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-90px);
+}
+.ProfileStatus {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 1rem;
+}
+.ProfileStatus span{
+    font-weight: bold;
+    font-size: initial;
+}
+
+@media screen and (max-width: 1200px) {
+    .RightMain {
+        justify-content: flex-start;
+        margin-top: 11rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .RightMain {
+        width: 100%;
+        margin-top: 0;
+        order: 1;
+    }
+
+    /* .RightMain>div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    } */
+    .ProfileContainer {
+        margin-top: 2rem;
+    }
+}

@@ -1,0 +1,211 @@
+
+.Maindash{
+padding: 1rem 0 1rem 0;
+margin-top: 4rem;
+display: flex;
+height: -moz-fit-content;
+flex-direction: column;
+align-items: center;
+padding-top: 1rem;
+justify-content: flex-start;
+}
+
+.upload-files-container {
+  margin-top: 2rem;
+    background-color: #f7fff7;
+    width: 90%;
+    max-width: 600px;
+    padding: 30px 30px 10px 30px;
+    border-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 10px 20px, rgba(0, 0, 0, 0.28) 0px 6px 6px;
+}
+
+.file-area {
+    border: 2px dashed #59bfff;
+    border-radius: 20px;
+    margin: 10px 0 15px;
+    padding: 30px;
+    text-align: center;
+}
+
+.file-area label {
+    font-size: 1.2em;
+}
+
+.file-area label .browse-files-text {
+    color: #59bfff;
+    font-size: 0.8rem;
+    font-weight: bolder;
+    cursor: pointer;
+}
+.file-area label span {
+  font-size: 0.8rem;
+  /* font-weight: bolder; */
+  cursor: pointer;
+}
+
+.browse-files {
+    position: relative;
+    top: -25px;
+}
+
+.default-file-input {
+    opacity: 0;
+}
+
+.cannot-upload-message {
+    background-color: #ffc6c4;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    padding: 5px 10px 5px 30px;
+    border-radius: 5px;
+    color: #BB0000;
+    display: none;
+}
+
+.file-block {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    color: #59bfff;
+    /* background-color: #59bfff; */
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 15px;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.file-block span{
+  font-size: 1rem;
+  font-style: italic;
+  color: black;
+}
+.file-block label{
+  font-size: 1rem;
+}
+.file-icon {
+    margin-right: 10px;
+}
+
+.file-name, .file-size {
+    padding: 0 3px;
+}
+
+.remove-file-icon {
+    cursor: pointer;
+}
+
+.error-block {
+    /* display: none;
+    max-width: 400px;
+    margin: 10px 0 15px;
+    padding: 10px 20px; */
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 15px;
+    padding: 10px 20px;
+    border-radius: 15px;
+  }
+  
+  .error {
+    background-color: #ffc6c4;
+    font-size: 17px;
+    align-items: center;
+    margin: 5px 0;
+    padding: 5px 10px 5px 30px;
+    border-radius: 5px;
+    color: #BB0000;
+  }
+  
+ .file-info {
+    color: #59bfff;
+    border: 2px dashed #59bfff;
+    text-align: center;
+    position: relative;
+    display: none;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 10px 0 15px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    /* cursor: pointer; */
+  }
+
+  .file-name,.file-size{
+    font-size: 1rem;
+  }
+  
+  .upload-btn {
+    font-family: 'Montserrat';
+    padding: 15px 40px;
+    background: #59bfff;
+    border: 0;
+    border-radius: 18px;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 3px;
+    position: relative;
+    transition: all .4s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+  }
+  
+  .upload-btn::after,
+  .upload-btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0px;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all .4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  
+  .upload-btn::after {
+    width: 30px;
+    height: 1px;
+    background: white;
+    transform: translateX(-3px);
+    margin-top: 0px;
+  }
+  
+  .upload-btn::before {
+    content: "";
+    transform: rotate(-135deg) translateX(50%);
+    width: 11px;
+    height: 11px;
+    background: transparent;
+    border-left: 1px solid white;
+    border-bottom: 1px solid white;
+    margin-top: -1px;
+  }
+  
+  
+  .upload-btn:hover {
+    padding: 15px 60px 15px 20px;
+  }
+  
+  .upload-btn:hover::after,
+  .upload-btn:hover::before {
+    opacity: 1;
+    right: 15px;
+  }
+
+@media (max-width: 768px) {
+    .upload-files-container {
+        width: 80%;
+        justify-content:flex-start;
+        margin-top: 2rem;
+    }
+}
