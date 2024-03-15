@@ -1,0 +1,65 @@
+.MainTable {
+    padding: 1rem 0 1rem 0;
+    margin-top: 3rem;
+    display: flex;
+    height: -moz-fit-content;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+    justify-content: flex-start;
+    font-size: 0.8em;
+}
+
+.table-container {
+    /* margin-top: 4rem; */
+    width: 90%;
+    max-width: 950px;
+    border-radius: 20px;
+}
+
+.multi-select-row {
+    display: flex;
+    max-width: 950px;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px
+  }
+  .datepicker{
+   width: auto !important;
+   height: 2.2rem;
+   margin-top: auto;
+   box-sizing: border-box;
+   position: relative;
+   display: flex;
+   color: #666666;
+   background-color: white;
+   border: 1px solid #ccc;
+   border-radius: 2px;
+   padding: 2px 5px;
+   flex-direction: row;
+   direction: ltr;
+   align-items: center;
+   cursor: pointer;
+   
+  }
+.applybtn{
+    border: 1px solid #65b8df;
+     background-color: #89CFF0;
+    color: #ffffff;
+    height: 2rem;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        width: 80%;
+        justify-content: flex-start;
+        margin-top: 2rem;
+    }
+}
+
+/* override */
+.gridjs-pagination .gridjs-pages button {
+    color: #6b7280 !important;
+   
+}
