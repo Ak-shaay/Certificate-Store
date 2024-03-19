@@ -23,34 +23,71 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 5px
-  }
-  .datepicker{
-   width: auto !important;
-   height: 2.2rem;
-   margin-top: auto;
-   box-sizing: border-box;
-   position: relative;
-   display: flex;
-   color: #666666;
-   background-color: white;
-   border: 1px solid #ccc;
-   border-radius: 2px;
-   padding: 2px 5px;
-   flex-direction: row;
-   direction: ltr;
-   align-items: center;
-   cursor: pointer;
-   
-  }
-.applybtn{
+}
+
+.datepicker {
+    width: auto !important;
+    height: 2.2rem;
+    margin-top: auto;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    color: #666666;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px 5px;
+    flex-direction: row;
+    direction: ltr;
+    align-items: center;
+    cursor: pointer;
+
+}
+
+.applybtn {
     border: 1px solid #65b8df;
-     background-color: #89CFF0;
+    background-color: #89CFF0;
     color: #ffffff;
     height: 2rem;
     border-radius: 10px;
 }
 
+.actionbtn {
+
+    margin: 0 0.2rem 0 0.2rem;
+    border-radius: 30px;
+}
+
+.i {
+    border: 1px solid #65b8df;
+    background-color: #89CFF0;
+    color: #ffffff;
+}
+
+.b {
+    border: 1px solid #a5ac4a;
+    background-color: #d7df65;
+    color: #ffffff;
+}
+
+.d {
+    border: 1px solid #3daf26;
+    background-color: #43f121;
+    color: #ffffff;
+}
+
+@media (max-width: 1200px) {
+     /* fix this */
+    .MainTable {
+        margin: -32rem 0 0 3rem;
+    }
+}
+
 @media (max-width: 768px) {
+    .MainTable {
+        margin-top:3rem;
+    }
+     /* ==== */
     .table-container {
         width: 80%;
         justify-content: flex-start;
@@ -61,5 +98,5 @@
 /* override */
 .gridjs-pagination .gridjs-pages button {
     color: #6b7280 !important;
-   
+
 }

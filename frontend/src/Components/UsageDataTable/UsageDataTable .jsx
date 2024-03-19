@@ -49,7 +49,7 @@ const UsageDataTable  = () => {
   };
 
   return (
-    <div className="MainTable">
+    <div className="MainTableUsage">
       <div className="multi-select-row">
         <MultiSelect
           options={options}
