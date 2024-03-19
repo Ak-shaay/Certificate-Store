@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Grid } from "gridjs"; //datagrid js
+import { Grid, h } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
@@ -25,7 +25,25 @@ const DataTable = () => {
       "Country",
       "Validity",
       "Status",
-      "Actions",
+      { 
+        name: 'Actions',
+        formatter: (cell, row) => {
+          return h('div', {}, [
+            h('button', {
+              className: 'actionbtn i',
+              onClick: () => alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`)
+            }, 'i'),
+            h('button', {
+              className: 'actionbtn d',
+              onClick: () => alert(`download "${row.cells[0].data}" "${row.cells[1].data}"`)
+            }, 'D'),
+            h('button', {
+              className: 'actionbtn b',
+              onClick: () => alert(`Viewing "${row.cells[0].data}" "${row.cells[1].data}"`)
+            }, 'B')
+          ]);
+        }
+      },
     ],
     server: {
       url: "http://localhost:8080/data",
@@ -41,7 +59,7 @@ const DataTable = () => {
           "India",
           ca.expiry_date,
           "Status",
-          "Actions",
+         null,
         ]
         ),
     },

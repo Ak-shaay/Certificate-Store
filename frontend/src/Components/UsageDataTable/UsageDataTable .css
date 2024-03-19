@@ -1,4 +1,4 @@
-.MainTable {
+.MainTableUsage {
     padding: 1rem 0 1rem 0;
     margin-top: 3rem;
     display: flex;
@@ -42,15 +42,19 @@
    cursor: pointer;
    
   }
-.applybtn{
-    border: 1px solid #65b8df;
-     background-color: #89CFF0;
-    color: #ffffff;
-    height: 2rem;
-    border-radius: 10px;
+
+  @media (max-width: 1200px) {
+     /* fix this */
+    .MainTableUsage {
+        margin: -32rem 0 0 3rem;
+    }
 }
 
 @media (max-width: 768px) {
+    .MainTableUsage {
+        margin-top:3rem;
+    }
+     /* ==== */
     .table-container {
         width: 80%;
         justify-content: flex-start;

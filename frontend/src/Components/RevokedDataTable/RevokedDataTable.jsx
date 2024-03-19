@@ -47,7 +47,7 @@ const RevokedDataTable = () => {
   };
 
   return (
-    <div className="MainTable">
+    <div className="MainTableRevoked">
       <div className="multi-select-row">
         <MultiSelect
           options={options}
