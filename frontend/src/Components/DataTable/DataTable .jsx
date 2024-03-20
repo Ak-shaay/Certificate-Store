@@ -3,7 +3,10 @@ import { Grid, h } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { UilEye } from '@iconscout/react-unicons'
+import download from "../../Images/download.png";
+import verify from "../../Images/check-mark.png";
+import exclamation from "../../Images/exclamation.png";
+
 
 const DataTable = () => {
   const wrapperRef = useRef(null);
@@ -25,26 +28,32 @@ const DataTable = () => {
       "Country",
       "Validity",
       "Status",
-      { 
+      {
         name: 'Actions',
         formatter: (cell, row) => {
-          return h('div', {}, [
-            h('button', {
-              className: 'actionbtn i',
-              onClick: () => alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`)
-            }, 'i'),
-            h('button', {
-              className: 'actionbtn d',
-              onClick: () => alert(`download "${row.cells[0].data}" "${row.cells[1].data}"`)
-            }, 'D'),
-            h('button', {
-              className: 'actionbtn b',
-              onClick: () => alert(`Viewing "${row.cells[0].data}" "${row.cells[1].data}"`)
-            }, 'B')
-          ]);
+            return h('div', {className:'action-row'}, [
+                h('div', {
+                    className: '',
+                    onClick: () => alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`)
+                }, [
+                    h('img', { src: exclamation, alt: 'View' ,className: 'action-img',title:'View'})
+                ]),
+                h('div', {
+                    className: '',
+                    onClick: () => alert(`download "${row.cells[0].data}" "${row.cells[1].data}"`)
+                }, [
+                    h('img', { src: download, alt: 'Download',className: 'action-img', title:'Download' })
+                ]),
+                h('div', {
+                    className: '',
+                    onClick: () => alert(`Verify "${row.cells[0].data}" "${row.cells[1].data}"`)
+                }, [
+                    h('img', { src: verify, alt: 'Verifying' ,className: 'action-img', title:'Verify'})
+                ])
+            ]);
         }
-      },
-    ],
+    },
+],
     server: {
       url: "http://localhost:8080/data",
       method: "POST",

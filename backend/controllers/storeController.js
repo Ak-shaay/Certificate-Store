@@ -180,6 +180,15 @@ async function fetchUsageData(req, res) {
     res.status(500).json({ error: "Error." });
   }
 }
+async function fetchLogsData(req, res) {
+  try {
+  const logsDetails = await userModel.getLogsData();
+    res.json(logsDetails);
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
+  }
+}
 
 
 module.exports = {
@@ -193,5 +202,6 @@ module.exports = {
   certDetails,
   fetchData,
   fetchRevokedData,
-  fetchUsageData
+  fetchUsageData,
+  fetchLogsData
 };

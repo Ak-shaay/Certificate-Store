@@ -8,6 +8,7 @@ import Account from "../Components/Account/Account";
 import RightSideAccount from "../Components/RightSideAccount/RightSideAccount";
 import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
 import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
+import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 
 function Dashboard() {
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -74,6 +75,14 @@ function Dashboard() {
         </div>
       );
       break;
+      case 6:
+        content = (
+          <div className="appglass-other">
+            <Sidebar onIndexChange={handleIndexChange} />
+            <LogsDataTable/>
+          </div>
+        );
+        break;
     default:
       content = (
         <div className="appglass">
