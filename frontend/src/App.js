@@ -10,6 +10,7 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+import LandingPage from "./Components/LandingPage/LandingPage";
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
     <Routes>
         <Route path="/" element={<Layout/>}>
           {/* Public routes */}
+          <Route path="" element={<LandingPage/>}/>
           <Route path="login" element={<Login/>}/>
           <Route path="unauthorized" element={<Unauthorized/>}/>
           {/* Protected Routes */}

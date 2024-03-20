@@ -66,6 +66,16 @@ async function getCertUsageData() {
   }
   
 }
+async function getLogsData() {
+  try {
+    const query = "SELECT * FROM logs";
+    return db.executeQuery(query);
+  } catch (e) {
+    console.log("Error while fetching certificate details: ", e);
+  }
+  
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -73,5 +83,6 @@ module.exports = {
   authenticateUser,
   getCertData,
   getRevokedCertData,
-  getCertUsageData
+  getCertUsageData,
+  getLogsData
 };

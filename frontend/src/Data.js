@@ -43,6 +43,10 @@ export const SidebarData = [
     heading: "Account",
   },
   {
+    icon: UilPackage,
+    heading: "Logs",
+  },
+  {
     icon: UilSignOutAlt,
     heading: 'Signout'
   },
