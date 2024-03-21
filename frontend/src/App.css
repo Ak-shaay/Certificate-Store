@@ -15,7 +15,7 @@
     gap: 3rem;
     grid-template-columns: 12rem auto 20rem;
     background-color: #ffffff;
-background-image: linear-gradient(315deg, #ffffff 0%, #9ec4f096 54%);
+background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
 }
 .appglass-other{
   display: grid;
@@ -26,7 +26,7 @@ background-image: linear-gradient(315deg, #ffffff 0%, #9ec4f096 54%);
   gap: 3rem;
   grid-template-columns: 12rem auto;
   background-color: #ffffff;
-  background-image: linear-gradient(315deg, #ffffff 0%, #9ec4f096 54%);
+  background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
 }
 @media screen and (max-width: 1200px) {
   .appglass{

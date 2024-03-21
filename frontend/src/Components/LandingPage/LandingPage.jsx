@@ -13,7 +13,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <header class="head-bg">
+      <header class="head-bg gradient-background">
         <nav class="navbar">
           <img class="landing-logo" src={cdacLogo} alt="" />
           <div class="nav-container">
@@ -28,8 +28,8 @@ const LandingPage = () => {
         <div class="bg-circle-4"></div>
 
         <div class="header-container">
-          <h1 class="">CERTIFYING AUTHORITIES</h1>
-          <h1 class="">SMART DASHBOARD</h1>
+          <h1>CERTIFYING AUTHORITIES</h1>
+          <h1>SMART DASHBOARD</h1>
         </div>
       </header>
 
