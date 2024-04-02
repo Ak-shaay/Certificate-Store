@@ -51,17 +51,17 @@
 }
 
 
-@media (max-width: 1200px) {
-     /* fix this */
+/* fix this */
+/* @media (max-width: 1200px) {
     .MainTableRevoked {
         margin: -32rem 0 0 3rem;
     }
-}
+} */
 
 @media (max-width: 768px) {
-    .MainTableRevoked {
+    /* .MainTableRevoked {
         margin-top:3rem;
-    }
+    } */
      /* ==== */
     .table-container {
         width: 80%;

@@ -9,9 +9,11 @@
   right: 0;
   left: 0;
 }
-
+h1{
+  font-size: 1.5em;
+}
 .head-bg {
-  height: 40%;
+  height: 60%;
   width: 100vw;
   position: absolute;
   top: 0;
@@ -168,7 +170,7 @@ footer {
   display: flex;
   width: 100vw;
   background-color: #35374B;
-  height: 10rem;
+  height: 5rem;
   position: fixed;
   right: 0;
   left: 0;

@@ -63,8 +63,8 @@
     cursor: pointer;
 }
 
+/* fix this */
 @media (max-width: 1200px) {
-     /* fix this */
     .MainTable {
         margin: -32rem 0 0 3rem;
     }
