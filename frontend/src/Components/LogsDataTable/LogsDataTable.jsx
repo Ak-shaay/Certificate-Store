@@ -51,7 +51,7 @@ const LogsDataTable = () => {
   };
 
   return (
-    <div className="MainTableRevoked">
+    <div className="MainTableLogs">
       <div className="multi-select-row">
         <MultiSelect
           options={options}

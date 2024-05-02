@@ -1,4 +1,4 @@
-.MainTableRevoked {
+.MainTableLogs {
     padding: 1rem 0 1rem 0;
     margin-top: 3rem;
     display: flex;
@@ -51,17 +51,17 @@
 }
 
 
-@media (max-width: 1200px) {
-     /* fix this */
-    .MainTableRevoked {
+/* fix this */
+/* @media (max-width: 1200px) {
+    .MainTableLogs {
         margin: -32rem 0 0 3rem;
     }
-}
+} */
 
 @media (max-width: 768px) {
-    .MainTableRevoked {
+    /* .MainTableLogs {
         margin-top:3rem;
-    }
+    } */
      /* ==== */
     .table-container {
         width: 80%;

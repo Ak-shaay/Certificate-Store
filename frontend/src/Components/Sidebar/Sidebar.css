@@ -1,7 +1,7 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  position: relative;
+  /* position: relative;  signout button goes out of position */
   padding-top: 3rem;
   transition: all 300ms ease;
 }
@@ -59,7 +59,6 @@
 .menu .menuItem:last-child {
   position: absolute;
   bottom: 2.3rem;
-  width: 100%;
 }
 
 .active {
