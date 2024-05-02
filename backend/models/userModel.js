@@ -31,11 +31,11 @@ async function createUser(username, password) {
   const query = "INSERT INTO login (username, password) VALUES (?,?)";
   return db.executeQuery(query, [username, hashedPassword]);
 }
-async function logUserAction(sessionID, userId, action) {
+async function logUserAction(sessionID, userId, action, timeStamp) {
   const query =
-    "INSERT INTO logs (session_id, user_id, action) VALUES (?, ?, ?)";
+    "INSERT INTO logs (session_id,user_id, action, timestamp) VALUES (?, ?, ?, ?)";
   try {
-    await db.executeQuery(query, [sessionID, userId, action]);
+    await db.executeQuery(query, [sessionID, userId, action, timeStamp]);
   } catch (err) {
     console.log("Error while logging: ", err);
   }

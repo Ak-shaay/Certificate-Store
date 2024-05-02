@@ -9,8 +9,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const corsOptions = {
-  origin: '*',
-  credentials: false,
+  origin: 'http://localhost:3000',
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -38,7 +38,7 @@ app.use(
     resave: false,
     store: sessionStore,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: {maxAge: 24 * 60 * 60 * 1000 }// 1 day in milliseconds
   })
 );
 // Serve static files from the public directory

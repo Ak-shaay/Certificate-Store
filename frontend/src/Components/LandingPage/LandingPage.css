@@ -11,18 +11,17 @@
 }
 
 .head-bg {
-  height: 40%;
+  height: 61vh;
   width: 100vw;
   position: absolute;
   top: 0;
   overflow: hidden;
   padding-top: calc(7rem + 72px);
   padding-bottom: 7rem;
-  /* background: linear-gradient(0deg, #9EDDFF 0, #6499E9 100%); */
-  /* background-repeat: no-repeat; */
-  /* background-position: center center; */
+  justify-content: center;
+  display: flex;
+  align-items: center;
   background-attachment: scroll;
-  /* background-size: cover; */
 }
 .gradient-background {
   /* height: 600px; */
@@ -75,9 +74,12 @@
 
 .nav-item:hover {
   color: #6420AA;
+  border: 2px solid #6420AA;
+  padding: 6px;
+  border-radius: 10px;
 }
 
-.nav-item::after {
+/* .nav-item::after {
   content: "";
   position: absolute;
   bottom: -0.3rem;
@@ -87,7 +89,7 @@
   transform: translateX(-50%);
   background-color: rgb(100, 32, 170);
   transition: all 0.5s ease;
-}
+} */
 
 .landing-logo {
   height: 4rem;
@@ -156,19 +158,28 @@
 }
 
 .header-container {
-  z-index: inherit;
   display: flex;
-  color: azure;
-  font-size: 2rem;
+  color: #FFF;
+  font-size: 4vh;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+.header-container h1{
+  background-image: url(../../../public/landing.gif);
+  background-size: cover;
+  background-clip: text;
+  -moz-background-clip: text;
+	-webkit-background-clip: text;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  
 }
 footer {
   display: flex;
   width: 100vw;
   background-color: #35374B;
-  height: 10rem;
   position: fixed;
   right: 0;
   left: 0;

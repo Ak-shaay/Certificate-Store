@@ -7,7 +7,6 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: false,
         roles: [],
     });
-    console.log("Auth from authcontext:", auth);
     return (
         <AuthContext.Provider value={{ auth, setAuth}}>
             {children}

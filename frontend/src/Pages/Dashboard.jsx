@@ -10,7 +10,7 @@ import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
 import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
 import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 
-function Dashboard() {
+function Dashboard({username}) {
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
 
   //handle index change
@@ -25,7 +25,7 @@ function Dashboard() {
       content = (
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} />
-          <MainDash />
+          <MainDash username={username} />
           <RightSide />
         </div>
       );
