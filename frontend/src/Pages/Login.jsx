@@ -10,7 +10,7 @@ import {
 
 const LOGIN_URL = "http://localhost:8080/login";
 
-const Login = () => {
+const Login = ({setCurrentUser}) => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,7 +18,6 @@ const Login = () => {
 
   const userRef = useRef();
   const errRef = useRef();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
@@ -35,12 +34,13 @@ const Login = () => {
         { username, password },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: false,
+          withCredentials: true,
         }
       );
       if (response?.data?.accessToken) {
-        const { accessToken,refreshToken, role } = response?.data;
+        const { accessToken,refreshToken, role} = response?.data;
         setAuth({ accessToken, refreshToken , roles: [role] });
+        setCurrentUser(response.data.username)
         setUsername("");
         setPassword("");
         setErrMsg("");
@@ -51,6 +51,7 @@ const Login = () => {
         errRef.current.focus();
       }
     } catch (err) {
+      console.log("err:" , err)
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {

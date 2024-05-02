@@ -2,16 +2,38 @@ import React, { useState} from "react";
 import "./Sidebar.css";
 import Logo from "../../Images/cdaclogoRound.png";
 import { SidebarData } from "../../Data";
-import { UilBars } from "@iconscout/react-unicons";
+import { UilBars, UilTimes } from "@iconscout/react-unicons";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 const Sidebar = ({ onIndexChange }) => {
   const [selected, setSelected] = useState(0);
   const [expanded, setExpanded] = useState(true);
 
+  const handleLogout = async () => {
+    try {
+      // Make a request to the logout endpoint on the backend
+      await axios.post('http://localhost:8080/logout');
+      // Clear token cookie
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; 
+      // Redirect to the login page or perform any other necessary actions
+      window.location.href = 'http://localhost:3000'; // Redirect to login page
+      console.log("logged out")
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Handle error if logout fails (e.g., display error message)
+    }
+  };
+
   const handleMenuItemClick = (index) => {
+    if (index === 7) {
+      onIndexChange(index);
+      handleLogout();
+    }
+    else{
     setSelected(index);
     onIndexChange(index);
+    }
   };
 
   const sidebarVariants = {
@@ -26,15 +48,15 @@ const Sidebar = ({ onIndexChange }) => {
     <>
       <div
         className="bars"
-        style={expanded ? { left: "60%" } : { left: "5%" }}
+        style={expanded ? { left: "50%" } : { left: "2%" }}
         onClick={() => setExpanded(!expanded)}
       >
-        <UilBars />
+        {expanded ? <UilTimes /> : <UilBars />}
       </div>
       <motion.div
         className="sidebar"
         variants={sidebarVariants}
-        animate={window.innerWidth <= 768 ? `${expanded}` : ""}
+        animate={window.innerWidth <= 768 ? `${expanded}` : false}
       >
         <div className="logo">
           <img src={Logo} alt="logo" />

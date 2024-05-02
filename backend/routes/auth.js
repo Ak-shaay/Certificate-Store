@@ -12,7 +12,7 @@ router.post('/revokedData', authController.fetchRevokedData);
 router.post('/usageData', authController.fetchUsageData);
 router.post('/logs', authController.fetchLogsData);
 router.get('/dashboard',authentication.authenticateUser ,authController.dashboard);
-router.get('/logout',authController.logout)
+router.post('/logout',authController.logout)
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
 router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo)
 router.post('/cert', authentication.authenticateUser, authController.certDetails)

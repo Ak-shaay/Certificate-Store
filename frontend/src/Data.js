@@ -10,7 +10,7 @@ import {
   UilFilesLandscapes,
   UilHome,
 } from "@iconscout/react-unicons";
-
+import axios from "axios";
 // Recent Card Imports
 import img1 from "./Images/cdaclogoRound.png";
 import img2 from "./Images/NSDL-eGov.jpg";
@@ -48,9 +48,10 @@ export const SidebarData = [
   },
   {
     icon: UilSignOutAlt,
-    heading: 'Signout'
+    heading: 'Signout',
   },
 ];
+
 
 // Analytics Cards Data
 export const cardsData = [
