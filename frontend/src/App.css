@@ -34,7 +34,7 @@ background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
     overflow-y: scroll;
   } 
   .appglass-other{
-    grid-template-columns: 100%;
+    /* grid-template-columns: 100%; */
     overflow-y: scroll;
   }
 }

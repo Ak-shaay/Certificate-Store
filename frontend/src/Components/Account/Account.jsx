@@ -6,7 +6,7 @@ const Account = () => {
       <h3>Edit Profile</h3>
       <div class="AccountContainer">
         <div class="header">My Account</div>
-        <hr />
+        <hr className="white"/>
         <form id="forms">
           <div class="row">
             <div class="column">
@@ -58,7 +58,7 @@ const Account = () => {
             </div>
           </div>
           <div class="header mg-tp">Address</div>
-          <hr />
+          <hr className="white"/>
           <div class="row">
             <div class="column">
               <div class="form-group">
@@ -93,6 +93,10 @@ const Account = () => {
                   placeholder="district"
                   disabled
                 ></input>
+              </div>
+            </div>
+            <div class="column">
+            <div class="form-group">
               </div>
             </div>
           </div>

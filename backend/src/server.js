@@ -25,7 +25,7 @@ initializeDatabase();
 // Configure express-session with MySQLStore after table creation
 const sessionStore = new MySQLStore(
   {
-    expiration: 3600000, // Session expiration time in milliseconds (1 hour in this example)
+    expiration: 3600000, // Session expiration time in milliseconds (1 hour)
     createDatabaseTable: true, // We don't need to create the table here since we did it manually
   },
   pool
