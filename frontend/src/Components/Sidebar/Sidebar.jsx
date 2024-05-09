@@ -12,12 +12,12 @@ const Sidebar = ({ onIndexChange }) => {
 
   const handleLogout = async () => {
     try {
+      // Clear token cookie
+      localStorage.removeItem('token');
       // Make a request to the logout endpoint on the backend
       await axios.post('http://localhost:8080/logout');
-      // Clear token cookie
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; 
       // Redirect to the login page or perform any other necessary actions
-      window.location.href = 'http://localhost:3000'; // Redirect to login page
+      window.location.href = 'http://localhost:3000'; // Redirect to landing page
       console.log("logged out")
     } catch (error) {
       console.error('Logout failed:', error);

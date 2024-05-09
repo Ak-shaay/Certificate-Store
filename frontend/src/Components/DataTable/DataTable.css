@@ -64,11 +64,11 @@
 }
 
 /* fix this */
-@media (max-width: 1200px) {
+/* @media (max-width: 1200px) {
     .MainTable {
         margin: -32rem 0 0 3rem;
     }
-}
+} */
 
 @media (max-width: 768px) {
     .MainTable {

@@ -34,7 +34,6 @@ async function login(req, res) {
     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
     if (passwordMatch) {
       try {
-        console.log("Access token:", process.env.ACCESS_TOKEN_SECRET)
         //create jwt
         const accessToken = jwt.sign(
           { username: userExist[0].username, role: userExist[0].role },
@@ -51,8 +50,8 @@ async function login(req, res) {
         req.session.username = userExist[0].username;
         req.session.userid = userExist[0].id; // Store user information in the session
         req.session.userRole = userExist[0].role;
-        await userModel.logUserAction(req.sessionID, userExist[0].id, "login", Date.now());
-        res.json({accessToken, refreshToken, role: userExist[0].role, username: userExist[0].username });
+        await userModel.logUserAction(req.sessionID, userExist[0].id, "login");
+        res.json({accessToken, refreshToken});
       } catch (err) {
         console.log("err:",err)
         res.status(500).json({ error: "Internal server error" });
@@ -66,7 +65,9 @@ async function login(req, res) {
 }
 
 async function dashboard(req, res) {
-  if (req.session && req.session.username) {
+  console.log("Dashboard function is being called.")
+  if (req.session) {
+    console.log("req.session: ",req.session)
     if (req.session.views) {
       req.session.views++;
       res.send(`You have visited this page ${req.session.views} times`);
@@ -75,8 +76,7 @@ async function dashboard(req, res) {
       console.log("session.views", req.session.views)
       res.send('Welcome to the session demo. Refresh the page to increment the visit count.');
   }
-
-    return res.render("dashboard", { username: req.session.username });
+    return res.status(200);
   } else {
     return res.redirect("/");
   }

@@ -10,7 +10,7 @@ import {
 
 const LOGIN_URL = "http://localhost:8080/login";
 
-const Login = ({setCurrentUser}) => {
+const Login = () => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,9 +38,7 @@ const Login = ({setCurrentUser}) => {
         }
       );
       if (response?.data?.accessToken) {
-        const { accessToken,refreshToken, role} = response?.data;
-        setAuth({ accessToken, refreshToken , roles: [role] });
-        setCurrentUser(response.data.username)
+        localStorage.setItem('token', JSON.stringify(response.data))
         setUsername("");
         setPassword("");
         setErrMsg("");
