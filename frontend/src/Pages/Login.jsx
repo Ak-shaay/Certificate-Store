@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState,useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdaclogoRound.png";
 import axios from "axios";
@@ -8,9 +8,9 @@ import {
   useLocation,
 } from "react-router-dom";
 
-const LOGIN_URL = "http://10.182.3.247:8080/login";
+const LOGIN_URL = "http://localhost:8080/login";
 
-const Login = ({setCurrentUser}) => {
+const Login = () => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,20 +52,20 @@ const Login = ({setCurrentUser}) => {
       alert("Please enable location services to proceed.");
       return;
     }
+
     try {
       setLoading(true);
+
       const response = await axios.post(
         LOGIN_URL,
         { username, password, latitude, longitude },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: false,
+          withCredentials: true,
         }
       );
       if (response?.data?.accessToken) {
-        const { accessToken, refreshToken, role } = response?.data;
-        setAuth({ accessToken, refreshToken, roles: [role] });
-        setCurrentUser(response.data.username)
+        localStorage.setItem('token', JSON.stringify(response.data))
         setUsername("");
         setPassword("");
         setErrMsg("");
@@ -76,7 +76,7 @@ const Login = ({setCurrentUser}) => {
         errRef.current.focus();
       }
     } catch (err) {
-      console.log("err:", err)
+      console.log("err:" , err)
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
@@ -121,7 +121,7 @@ const Login = ({setCurrentUser}) => {
               disabled={loading}
             />
             <a href="#">Forgot your password?</a>
-            <button className="loginbtn" type="submit" disabled={loading}>
+            <button class="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
             <p
@@ -136,9 +136,9 @@ const Login = ({setCurrentUser}) => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              <img className="bg-img" src={cdaclogo} alt='logo'/>
-              <h1>Hello!</h1>
-              <p>Enter your login credentials for a seamless experience.</p>
+            <img class="bg-img"src={cdaclogo} alt='logo'/>
+                        <h1>Hello!</h1>
+                        <p>Enter your login credentials for a seamless experience.</p>
             </div>
           </div>
         </div>

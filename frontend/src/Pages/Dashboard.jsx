@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import MainDash from "../Components/MainDash/MainDash";
 import RightSide from "../Components/RigtSide/RightSide";
@@ -9,10 +10,39 @@ import RightSideAccount from "../Components/RightSideAccount/RightSideAccount";
 import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
 import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
 import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
+import {
+  useNavigate,
+} from "react-router-dom";
 
-function Dashboard({username}) {
+function Dashboard() {
+  const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
-
+  //api call for backend authentication
+  useEffect(()=>{
+    const fetchData = async () => {
+      try {
+        const Dashboard_URL = "http://localhost:8080/dashboard";
+        const response = await axios.get(Dashboard_URL, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        });
+  
+        if (response.status === 200) {
+          // Dashboard data received successfully
+        } else {
+          // Redirect to login page if authentication fails
+          navigate('/login', { replace: true });
+        }
+      } catch (error) {
+        // Handle error from API call
+        console.error("Error fetching dashboard data:", error);
+        // Redirect to login page if there's an error
+        navigate('/login', { replace: true });
+      }
+    };
+  
+    fetchData(); 
+  },[])
   //handle index change
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
@@ -25,7 +55,7 @@ function Dashboard({username}) {
       content = (
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} />
-          <MainDash username={username} />
+          <MainDash/>
           <RightSide />
         </div>
       );
