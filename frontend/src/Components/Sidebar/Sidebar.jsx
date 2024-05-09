@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState,useEffect } from "react";
 import "./Sidebar.css";
 import Logo from "../../Images/cdaclogoRound.png";
 import { SidebarData } from "../../Data";
@@ -9,18 +9,57 @@ import axios from "axios";
 const Sidebar = ({ onIndexChange }) => {
   const [selected, setSelected] = useState(0);
   const [expanded, setExpanded] = useState(true);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+
+  useEffect(() => {
+    geolocation();
+  }, []);
+
+  function geolocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
 
   const handleLogout = async () => {
+    if (latitude === null || longitude === null) {
+      alert("Please enable location services to proceed.");
+      return;
+    }
+
+    
+
     try {
-      // Make a request to the logout endpoint on the backend
-      await axios.post('http://localhost:8080/logout');
       // Clear token cookie
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; 
+      const token = localStorage.getItem("token");
+      const decodedToken = token ? JSON.parse(atob(token.split(".")[1])) : null;
+      const userID = decodedToken ? decodedToken.userId : [];
+      localStorage.removeItem("token");
+      // Make a request to the logout endpoint on the backend
+      await axios.post(
+        "http://localhost:8080/logout",
+        { userID, latitude, longitude },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
       // Redirect to the login page or perform any other necessary actions
-      window.location.href = 'http://localhost:3000'; // Redirect to login page
-      console.log("logged out")
+      window.location.href = "http://localhost:3000"; // Redirect to landing page
+      console.log("logged out");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
       // Handle error if logout fails (e.g., display error message)
     }
   };
@@ -29,10 +68,9 @@ const Sidebar = ({ onIndexChange }) => {
     if (index === 7) {
       onIndexChange(index);
       handleLogout();
-    }
-    else{
-    setSelected(index);
-    onIndexChange(index);
+    } else {
+      setSelected(index);
+      onIndexChange(index);
     }
   };
 
@@ -74,9 +112,7 @@ const Sidebar = ({ onIndexChange }) => {
                 onClick={() => handleMenuItemClick(index)}
               >
                 <item.icon />
-                <span>
-                  {item.heading}
-                </span>
+                <span>{item.heading}</span>
               </div>
             );
           })}

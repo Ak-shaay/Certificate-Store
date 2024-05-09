@@ -52,7 +52,7 @@ const LogsDataTable = () => {
 
   return (
     <div className="MainTableLogs">
-      {/* <div className="multi-select-row">
+      <div className="multi-select-row">
         <MultiSelect
           options={options}
           placeholder="Select CA"
@@ -65,7 +65,7 @@ const LogsDataTable = () => {
         <input type="date" class="datepicker"/>
         <input type="date" class="datepicker"/>
         <button class="applybtn">Apply</button>
-      </div> */}
+      </div>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

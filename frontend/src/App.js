@@ -13,18 +13,17 @@ import {
 import LandingPage from "./Components/LandingPage/LandingPage";
 
 function App() {
-  const [currentUser, setCurrentUser] = useState("");
 
   return (
     <Routes>
         <Route path="/" element={<Layout/>}>
           {/* Public routes */}
           <Route path="" element={<LandingPage/>}/>
-          <Route path="login" element={<Login setCurrentUser={setCurrentUser}/>}/>
+          <Route path="login" element={<Login />}/>
           <Route path="unauthorized" element={<Unauthorized/>}/>
           {/* Protected Routes */}
           <Route element={<RequireAuth allowedRoles={["CA", "CCA", "Admin"]}/>}>
-          <Route path="dashboard" element={<Dashboard username={currentUser}/>}/>
+          <Route path="dashboard" element={<Dashboard />}/>
           </Route>
           {/* catch all for missing routes */}
           <Route path="*" element={<Missing/>}/>
