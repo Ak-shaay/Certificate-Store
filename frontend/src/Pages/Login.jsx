@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdaclogoRound.png";
 import axios from "axios";
@@ -8,7 +8,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
-const LOGIN_URL = "http://localhost:8080/login";
+const LOGIN_URL = "http://10.182.3.247:8080/login";
 
 const Login = ({setCurrentUser}) => {
   const { setAuth } = useAuth();
@@ -22,24 +22,49 @@ const Login = ({setCurrentUser}) => {
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+
+  useEffect(() => {
+    geolocation(); 
+  }, []);
+
+  function geolocation(){
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (latitude === null || longitude === null) {
+      alert("Please enable location services to proceed.");
+      return;
+    }
     try {
       setLoading(true);
-
       const response = await axios.post(
         LOGIN_URL,
-        { username, password },
+        { username, password, latitude, longitude },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
+          withCredentials: false,
         }
       );
       if (response?.data?.accessToken) {
-        const { accessToken,refreshToken, role} = response?.data;
-        setAuth({ accessToken, refreshToken , roles: [role] });
+        const { accessToken, refreshToken, role } = response?.data;
+        setAuth({ accessToken, refreshToken, roles: [role] });
         setCurrentUser(response.data.username)
         setUsername("");
         setPassword("");
@@ -51,7 +76,7 @@ const Login = ({setCurrentUser}) => {
         errRef.current.focus();
       }
     } catch (err) {
-      console.log("err:" , err)
+      console.log("err:", err)
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
@@ -96,7 +121,7 @@ const Login = ({setCurrentUser}) => {
               disabled={loading}
             />
             <a href="#">Forgot your password?</a>
-            <button class="loginbtn" type="submit" disabled={loading}>
+            <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
             <p
@@ -111,9 +136,9 @@ const Login = ({setCurrentUser}) => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-            <img class="bg-img"src={cdaclogo} alt='logo'/>
-                        <h1>Hello!</h1>
-                        <p>Enter your login credentials for a seamless experience.</p>
+              <img className="bg-img" src={cdaclogo} alt='logo'/>
+              <h1>Hello!</h1>
+              <p>Enter your login credentials for a seamless experience.</p>
             </div>
           </div>
         </div>

@@ -84,15 +84,7 @@ function Dashboard({username}) {
         );
         break;
     default:
-      content = (
-        <div className="appglass">
-          <Sidebar onIndexChange={handleIndexChange} />
-          <>
-            <h1>Nothing to see here !!!</h1>
-          </>
-          <RightSide />
-        </div>
-      );
+      break;
   }
 
   return <>{content}</>;

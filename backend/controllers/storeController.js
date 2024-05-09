@@ -1,9 +1,12 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const { error } = require("console");
 const jwt = require("jsonwebtoken");
 const fsPromises = require("fs").promises;
 const path = require("path");
-require('dotenv').config();
+require("dotenv").config();
+
+const tempToken = "asdfghjkl";
 
 async function signup(req, res) {
   const { username, password } = req.body;
@@ -23,42 +26,88 @@ async function signup(req, res) {
   }
 }
 
+// update the user status 
+async function loginAttempt(userExist) {
+  if (userExist.status == "inactive") {
+    const currentTime = new Date();
+    const timeDifferenceMs = currentTime - userExist.last_attempt;
+    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
+
+    // Check if the time difference is greater than 24 hours
+    if (timeDifferenceHours > 24) {
+      //updates the database
+      await userModel.updateStatus(userExist.username, "active");
+      await userModel.updateAttempts(userExist.username, 2);
+      return true;
+    } else {
+      // console.log("The time difference is not greater than 24 hours.");
+      return false;
+    }
+  }
+  else {
+   return true
+  }
+}
+
 async function login(req, res) {
-  const { username, password } = req.body;
+// console.log("ip addddd",req.ip);
+  const { username, password ,latitude, longitude} = req.body;
   try {
+    console.log("location",latitude, longitude);
     const userExist = await userModel.findUserByUsername(username);
     if (!userExist.length) {
       return res.status(400).json({ error: "User does not exist" });
     }
     const storedHashedPassword = userExist[0].password;
     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
-    if (passwordMatch) {
+
+    if (passwordMatch && await loginAttempt(userExist[0])) {
       try {
-        console.log("Access token:", process.env.ACCESS_TOKEN_SECRET)
+        console.log("Access token:", process.env.ACCESS_TOKEN_SECRET);
         //create jwt
         const accessToken = jwt.sign(
           { username: userExist[0].username, role: userExist[0].role },
-          process.env.ACCESS_TOKEN_SECRET,
+          tempToken,
           { expiresIn: "300s" }
         );
         const refreshToken = jwt.sign(
           { username: userExist[0].username, role: userExist[0].role },
-          process.env.REFRESH_TOKEN_SECRET,
+          tempToken,
           { expiresIn: "1d" }
         );
 
         console.log("userExist[0]: ", userExist[0]);
         req.session.username = userExist[0].username;
-        req.session.userid = userExist[0].id; // Store user information in the session
+        req.session.userid = userExist[0].login_id; // Store user information in the session
         req.session.userRole = userExist[0].role;
-        await userModel.logUserAction(req.sessionID, userExist[0].id, "login", Date.now());
-        res.json({accessToken, refreshToken, role: userExist[0].role, username: userExist[0].username });
+        console.log("session: ",req.session)
+        await userModel.updateAttempts(req.session.username, 2);//update attempt if login is successful
+        await userModel.logUserAction(req.sessionID, userExist[0].login_id, "login",req.ip, latitude,longitude);
+        
+        res.json({
+          accessToken,
+          refreshToken,
+          role: userExist[0].role,
+          username: userExist[0].username,
+        });
       } catch (err) {
-        console.log("err:",err)
+        console.log("err:", err);
         res.status(500).json({ error: "Internal server error" });
       }
     } else {
-      res.status(501).json({error: "Incorrect credentials"})
+      try {
+        if (userExist[0].attempts > 0) {
+          let attempt = (userExist[0].attempts -= 1);
+          userModel.updateAttempts(userExist[0].username, attempt);
+        } else {
+          userModel.updateStatus(userExist[0].username, "inactive");
+          const currentTime = new Date();
+          res.status(423).json({ timpeStamp: currentTime-userExist[0].last_attempt})
+        }
+      } catch (err) {
+        console.log("Error occurred", err);
+      }
+      res.status(501).json({ error: "Incorrect credentials" });
     }
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
@@ -70,11 +119,13 @@ async function dashboard(req, res) {
     if (req.session.views) {
       req.session.views++;
       res.send(`You have visited this page ${req.session.views} times`);
-  } else {
+    } else {
       req.session.views = 1;
-      console.log("session.views", req.session.views)
-      res.send('Welcome to the session demo. Refresh the page to increment the visit count.');
-  }
+      console.log("session.views", req.session.views);
+      res.send(
+        "Welcome to the session demo. Refresh the page to increment the visit count."
+      );
+    }
 
     return res.render("dashboard", { username: req.session.username });
   } else {
@@ -153,16 +204,16 @@ async function logout(req, res) {
   const userid = req.session.userid;
   req.session.destroy((err) => {
     if (err) {
-      res.status(500).json({msg:"Error while logging out."})
+      res.status(500).json({ msg: "Error while logging out." });
     }
     userModel.logUserAction(req.sessionID, userid, "logout");
-    res.status(200).json({msg:"Logged out successfully!"})
+    res.status(200).json({ msg: "Logged out successfully!" });
   });
 }
 
 async function fetchData(req, res) {
   try {
-  const certDetails = await userModel.getCertData();
+    const certDetails = await userModel.getCertData();
     res.json(certDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -171,7 +222,7 @@ async function fetchData(req, res) {
 }
 async function fetchRevokedData(req, res) {
   try {
-  const revokedCertDetails = await userModel.getRevokedCertData();
+    const revokedCertDetails = await userModel.getRevokedCertData();
     res.json(revokedCertDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -180,7 +231,7 @@ async function fetchRevokedData(req, res) {
 }
 async function fetchUsageData(req, res) {
   try {
-  const usageDetails = await userModel.getCertUsageData();
+    const usageDetails = await userModel.getCertUsageData();
     res.json(usageDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -189,14 +240,13 @@ async function fetchUsageData(req, res) {
 }
 async function fetchLogsData(req, res) {
   try {
-  const logsDetails = await userModel.getLogsData();
+    const logsDetails = await userModel.getLogsData();
     res.json(logsDetails);
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Error." });
   }
 }
-
 
 module.exports = {
   signup,
@@ -210,5 +260,5 @@ module.exports = {
   fetchData,
   fetchRevokedData,
   fetchUsageData,
-  fetchLogsData
+  fetchLogsData,
 };

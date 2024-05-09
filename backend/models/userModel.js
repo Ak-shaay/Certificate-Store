@@ -31,18 +31,36 @@ async function createUser(username, password) {
   const query = "INSERT INTO login (username, password) VALUES (?,?)";
   return db.executeQuery(query, [username, hashedPassword]);
 }
-async function logUserAction(sessionID, userId, action, timeStamp) {
+async function logUserAction(
+  sessionID,
+  userId,
+  action,
+  ip,
+  latitude,
+  longitude,
+  timeStamp
+) {
   const query =
-    "INSERT INTO logs (session_id,user_id, action, timestamp) VALUES (?, ?, ?, ?)";
+    "INSERT INTO logs (session_id,user_id, action,ip_address, latitude,longitude,timestamp) VALUES (?, ?, ?, ?, ?, ?,?)";
   try {
-    await db.executeQuery(query, [sessionID, userId, action, timeStamp]);
+    await db.executeQuery(query, [
+      sessionID,
+      userId,
+      action,
+      ip,
+      latitude,
+      longitude,
+      timeStamp,
+    ]);
   } catch (err) {
     console.log("Error while logging: ", err);
   }
 }
+
 async function getCertData() {
   try {
-    const query = "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id ORDER BY c.issue_date DESC";
+    const query =
+      "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id ORDER BY c.issue_date DESC";
     return db.executeQuery(query);
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
@@ -55,7 +73,6 @@ async function getRevokedCertData() {
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
-  
 }
 async function getCertUsageData() {
   try {
@@ -64,7 +81,6 @@ async function getCertUsageData() {
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
-  
 }
 async function getLogsData() {
   try {
@@ -73,7 +89,24 @@ async function getLogsData() {
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
-  
+}
+
+async function updateStatus(username, status, timestamp) {
+  try {
+    const query =
+      "UPDATE login SET status = ? ,last_attempt = ? WHERE username = ?";
+    return db.executeQuery(query, [status, timestamp, username]);
+  } catch (e) {
+    console.log("Error while fetching user: ", e);
+  }
+}
+async function updateAttempts(username, attempts) {
+  try {
+    const query = "UPDATE login SET attempts = ? WHERE username = ?";
+    return db.executeQuery(query, [attempts, username]);
+  } catch (e) {
+    console.log("Error while fetching user: ", e);
+  }
 }
 
 module.exports = {
@@ -84,5 +117,7 @@ module.exports = {
   getCertData,
   getRevokedCertData,
   getCertUsageData,
-  getLogsData
+  getLogsData,
+  updateStatus,
+  updateAttempts,
 };
