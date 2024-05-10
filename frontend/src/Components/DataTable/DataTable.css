@@ -147,7 +147,7 @@
 #filter {
     display: none;
     background-color: white;
-    width: 500px;
+    width: auto;
     height: auto;
     z-index: 99;
     position: fixed;
