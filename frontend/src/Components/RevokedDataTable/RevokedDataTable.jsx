@@ -38,9 +38,9 @@ const RevokedDataTable = () => {
   }, []);
 
   const options = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
+    { label: "Certificate compromised", value: "Certificate compromised" },
+    { label: "Key compromised", value: "Key compromised" },
+    { label: "Other", value: "other" },
   ];
   const handleMultiSelectChange = (selectedItems) => {
     console.log("Selected items:", selectedItems);
@@ -49,15 +49,11 @@ const RevokedDataTable = () => {
   return (
     <div className="MainTableRevoked">
       <div className="multi-select-row">
-        <MultiSelect
+      <MultiSelect
           options={options}
-          placeholder="Select CA"
+          placeholder="Select Reason"
           onChange={handleMultiSelectChange}
         />
-        <MultiSelect options={options} placeholder="Select Issuer" />
-        <MultiSelect options={options} placeholder="Select State" />
-        <MultiSelect options={options} placeholder="Select Region" />
-        <MultiSelect options={options} placeholder="Select Country" />
         <input type="date" class="datepicker"/>
         <input type="date" class="datepicker"/>
         <button class="applybtn">Apply</button>

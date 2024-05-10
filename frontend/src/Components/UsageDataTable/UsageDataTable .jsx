@@ -40,9 +40,9 @@ const UsageDataTable  = () => {
   }, []);
 
   const options = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
+    { label: "Signing", value: "Signing" },
+    { label: "Encryption", value: "Encryption" },
+    { label: "other", value: "other" },
   ];
   const handleMultiSelectChange = (selectedItems) => {
     console.log("Selected items:", selectedItems);
@@ -51,15 +51,11 @@ const UsageDataTable  = () => {
   return (
     <div className="MainTableUsage">
       <div className="multi-select-row">
-        <MultiSelect
+      <MultiSelect
           options={options}
-          placeholder="Select CA"
+          placeholder="Select Usage"
           onChange={handleMultiSelectChange}
         />
-        <MultiSelect options={options} placeholder="Select Issuer" />
-        <MultiSelect options={options} placeholder="Select State" />
-        <MultiSelect options={options} placeholder="Select Region" />
-        <MultiSelect options={options} placeholder="Select Country" />
         <input type="date" class="datepicker"/>
         <input type="date" class="datepicker"/>
         <button class="applybtn">Apply</button>

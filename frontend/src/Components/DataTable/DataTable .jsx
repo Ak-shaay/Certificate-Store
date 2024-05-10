@@ -9,6 +9,93 @@ import exclamation from "../../Images/exclamation.png";
 
 
 const DataTable = () => {
+
+  function getIndianRegion(state) {
+    const regions = {
+        'Andhra Pradesh': 'South',
+        'Arunachal Pradesh': 'Northeast',
+        'Assam': 'Northeast',
+        'Bihar': 'East',
+        'Chhattisgarh': 'Central',
+        'Goa': 'West',
+        'Gujarat': 'West',
+        'Haryana': 'North',
+        'Himachal Pradesh': 'North',
+        'Jharkhand': 'East',
+        'Karnataka': 'South',
+        'Kerala': 'South',
+        'Madhya Pradesh': 'Central',
+        'Maharashtra': 'West',
+        'Manipur': 'Northeast',
+        'Meghalaya': 'Northeast',
+        'Mizoram': 'Northeast',
+        'Nagaland': 'Northeast',
+        'Odisha': 'East',
+        'Punjab': 'North',
+        'Rajasthan': 'West',
+        'Sikkim': 'Northeast',
+        'Tamil Nadu': 'South',
+        'Telangana': 'South',
+        'Tripura': 'Northeast',
+        'Uttar Pradesh': 'North',
+        'Uttarakhand': 'North',
+        'West Bengal': 'East',
+        'Andaman and Nicobar Islands': 'South',
+        'Chandigarh': 'North',
+        'Dadra and Nagar Haveli': 'West',
+        'Daman and Diu': 'West',
+        'Delhi': 'North',
+        'Lakshadweep': 'South',
+        'Puducherry': 'South',
+        'AP': 'South',
+        'AR': 'Northeast',
+        'AS': 'Northeast',
+        'BR': 'East',
+        'CG': 'Central',
+        'GA': 'West',
+        'GJ': 'West',
+        'HR': 'North',
+        'HP': 'North',
+        'JH': 'East',
+        'KA': 'South',
+        'KL': 'South',
+        'MP': 'Central',
+        'MH': 'West',
+        'MN': 'Northeast',
+        'ML': 'Northeast',
+        'MZ': 'Northeast',
+        'NL': 'Northeast',
+        'OD': 'East',
+        'PB': 'North',
+        'RJ': 'West',
+        'SK': 'Northeast',
+        'TN': 'South',
+        'TS': 'South',
+        'TR': 'Northeast',
+        'UP': 'North',
+        'UK': 'North',
+        'WB': 'East',
+        'AN': 'South',
+        'CH': 'North',
+        'DN': 'West',
+        'DD': 'West',
+        'DL': 'North',
+        'LD': 'South',
+        'PY': 'South'
+    };
+    
+    return regions[state] || 'Unknown';
+}
+
+const handleFilters = (e) => {
+  const filtersElement = document.getElementById('filter');
+      filtersElement.style.display = 'block';
+}
+
+const handleFilterClose = (e) => {
+  const filtersElement = document.getElementById('filter');
+      filtersElement.style.display = 'none';
+}
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -64,7 +151,7 @@ const DataTable = () => {
           ca.issuer_name,
           ca.issue_date,
           ca.subject_state,
-          "region",
+          getIndianRegion( ca.subject_state),
           "India",
           ca.expiry_date,
           "Status",
@@ -89,20 +176,23 @@ const DataTable = () => {
 
   return (
     <div className="MainTable">
-      <div className="multi-select-row">
-        <MultiSelect
+      <div className="filterWindow" id="filter">
+        <span className="close" onClick={handleFilterClose}>X</span>
+        <div className="multi-select-row">
+      <MultiSelect
           options={options}
-          placeholder="Select CA"
+          placeholder="Select Issuer"
           onChange={handleMultiSelectChange}
         />
-        <MultiSelect options={options} placeholder="Select Issuer" />
         <MultiSelect options={options} placeholder="Select State" />
         <MultiSelect options={options} placeholder="Select Region" />
-        <MultiSelect options={options} placeholder="Select Country" />
         <input type="date" class="datepicker"/>
         <input type="date" class="datepicker"/>
-        <button class="applybtn">Apply</button>
+       <button className="apply-btn">Apply</button>
+       </div>
       </div>
+      <button class="filter-btn" onClick={handleFilters}>Filters</button>
+      
       <div className="table-container" ref={wrapperRef} />
     </div>
   );
