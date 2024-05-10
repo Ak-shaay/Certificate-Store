@@ -118,8 +118,5 @@
     z-index: 100;
     transition: all 400ms ease;
   }
-  .close{
-    left: -60%;
-  }
 }
 
