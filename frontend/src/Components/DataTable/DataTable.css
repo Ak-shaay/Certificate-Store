@@ -22,7 +22,8 @@
     max-width: 85vw;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 5px
+    margin-bottom: 5px;
+    margin-left: 2.2rem;
 }
 
 .datepicker {
@@ -44,46 +45,123 @@
 
 }
 
-.applybtn {
-    border: 1px solid #65b8df;
-    background-color: #89CFF0;
+/* .filter-btn {
+    border: 1px solid #0e5171;
+    background-color: #4aa7d3;
     color: #ffffff;
     height: 2rem;
+    width: 7rem;
+    position: absolute;
+    right: 5rem;
+    top: 6rem;
+    z-index: 10;
     border-radius: 10px;
-}
+} */
 
-.action-row{
+.filter-btn {
+    padding: 10px 13px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 0;
+    position: absolute;
+    right: 5rem;
+    top: 6rem;
+    z-index: 10;
+    background-color: white;
+    box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+    letter-spacing: 1px;
+    font-size: 14px;
+    transition: all 0.5s ease;
+  }
+  
+  .filter-btn:hover {
+    letter-spacing: 3px;
+    background-color: #64c3f0;
+    color: hsl(0, 0%, 100%);
+    box-shadow: #64c3f0 0px 7px 29px 0px;
+  }
+  
+  .filter-btn:active {
+    letter-spacing: 3px;
+    background-color: #4aa7d3;
+    color: hsl(0, 0%, 100%);
+    box-shadow: #4aa7d3 0px 0px 0px 0px;
+    transform: translateY(5px);
+    transition: 100ms;
+  }
+  
+
+.action-row {
     display: flex;
     flex-direction: row;
     gap: 4px;
 }
-.action-img{
+
+.action-img {
     max-width: 1.5rem;
     height: auto;
     cursor: pointer;
 }
 
-/* fix this */
-/* @media (max-width: 1200px) {
-    .MainTable {
-        margin: -32rem 0 0 3rem;
-    }
-} */
 
 @media (max-width: 768px) {
     .MainTable {
-        margin-top:3rem;
+        margin-top: 3rem;
     }
-     /* ==== */
+
     .table-container {
         width: 80%;
         justify-content: flex-start;
         margin-top: 2rem;
     }
+
+    .filter-btn {
+        right: 6rem;
+        top: 8rem;
+    }
 }
+
+@media (max-width: 580px) {
+    .filter-btn {
+        left: 4rem;
+        top: 4.8rem;
+        width: 5em;
+    }
+}
+
 
 /* override */
 .gridjs-pagination .gridjs-pages button {
     color: #6b7280 !important;
 
+}
+
+#filter {
+    display: none;
+    background-color: white;
+    width: 500px;
+    height: 200px;
+    z-index: 99;
+    position: fixed;
+    padding: 2rem;
+}
+
+.apply-btn{
+    border: 1px solid #0e5171;
+  background-color: #4aa7d3;
+  color: #ffffff;
+  height: 2rem;
+  width: 5rem;
+
+}
+.close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    font-size: medium;
+    color: black;
+    cursor: pointer;
+}
+.close:hover{
+    color: red;
 }

@@ -19,7 +19,10 @@ const LogsDataTable = () => {
       "Session Id",
       "User Id",
       "Action",
+      "IP address",
       "Timestamp",
+      "Latitude",
+      "Longitude",
     ],
     server: {
       url: "http://localhost:8080/logs",
@@ -30,7 +33,10 @@ const LogsDataTable = () => {
          log.session_id,
          log.user_id,
          log.action,
-         log.timestamp
+         log.ip_address,
+         log.timestamp,
+         log.latitude,
+         log.longitude
           
         ]
         ),

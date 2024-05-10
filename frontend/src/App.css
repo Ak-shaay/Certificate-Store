@@ -23,7 +23,7 @@ background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
   width: 98%;
   background: var(--glass);
   border-radius: 2rem;
-  gap: 3rem;
+  gap: 0.1rem;
   grid-template-columns: 12rem auto;
   background-color: #ffffff;
   background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
@@ -57,4 +57,18 @@ background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff  54%);
 
 .App-link {
   color: #61dafb;
+}
+
+
+@media only screen and (max-width: 1200px) {
+  .appglass-other {
+    gap: 0.1rem;
+    grid-template-columns: 4rem auto;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .appglass-other {
+      grid-template-columns: 100%;
+  }
 }

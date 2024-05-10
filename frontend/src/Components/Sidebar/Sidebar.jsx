@@ -86,7 +86,7 @@ const Sidebar = ({ onIndexChange }) => {
     <>
       <div
         className="bars"
-        style={expanded ? { left: "50%" } : { left: "2%" }}
+        style={expanded ? { left: "35%" } : { left: "2%" }}
         onClick={() => setExpanded(!expanded)}
       >
         {expanded ? <UilTimes /> : <UilBars />}
