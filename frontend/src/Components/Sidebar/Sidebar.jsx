@@ -38,8 +38,6 @@ const Sidebar = ({ onIndexChange }) => {
       return;
     }
 
-    
-
     try {
       // Clear token cookie
       const token = localStorage.getItem("token");
