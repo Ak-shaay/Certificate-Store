@@ -12,8 +12,8 @@
 
 h1 {
 	font-weight: bold;
-  margin: 0;
-  z-index: 10;
+	margin: 0;
+	z-index: 10;
 }
 
 h2 {
@@ -36,13 +36,15 @@ a {
 	text-decoration: none;
 	margin: 15px 0;
 }
-.bg-img{
+
+.bg-img {
 	height: 80%;
 	width: auto;
 	opacity: .15;
 	position: absolute;
 	z-index: -1;
 }
+
 .loginbtn {
 	border-radius: 20px;
 	border: 1px solid #408be0;
@@ -54,6 +56,7 @@ a {
 	letter-spacing: 1px;
 	text-transform: uppercase;
 }
+
 .loginbtn:hover {
 	border: 1px solid #89CFF0;
 	background-color: #89CFF0;
@@ -77,14 +80,15 @@ button.ghost {
 
 form {
 	background-color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 0 50px;
-    height: 100%;
-    text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	padding: 0 50px;
+	height: 100%;
+	text-align: center;
 }
+
 input {
 	background-color: #eee;
 	border: none;
@@ -136,6 +140,7 @@ input {
 }
 
 @keyframes show {
+
 	0%,
 	49.99% {
 		opacity: 0;
@@ -202,7 +207,7 @@ input {
 
 .overlay-left {
 	transform: translateX(-20%);
-	left:-40px;
+	left: -40px;
 }
 
 .container.right-panel-active .overlay-left {
@@ -218,3 +223,48 @@ input {
 	transform: translateX(20%);
 }
 
+@media only screen and (max-width: 768px) {
+	.container{
+		height: 80vh;
+		width: 80vw;
+	}
+	.sign-in-container {
+		left: 0;
+		width: 100%;
+		height: 140%;
+
+	}
+
+	.form-container {
+		position: absolute;
+		top: 0;
+		height: 125%;
+	}
+
+	form {
+		padding: 0px 50px;
+	}
+
+	.overlay-container {
+		top: 0;
+		left: 0;
+		bottom: 50%;
+		width: 100%;
+		height: 25%;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.sign-in-container {
+		left: 0;
+		width: 100%;
+		height: 130%;
+	}
+
+	.form-container {
+		height: 120%;
+	}
+	.loginbtn{
+		padding: 10px 15px;
+	}
+}
