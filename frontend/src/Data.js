@@ -1,16 +1,13 @@
 // Sidebar imports
 import {
   UilEstate,
-  UilClipboardAlt,
   UilUsersAlt,
   UilPackage,
   UilSignOutAlt,
-  UilFileCheckAlt,
   UilTransaction, 
   UilFilesLandscapes,
   UilHome,
 } from "@iconscout/react-unicons";
-import axios from "axios";
 // Recent Card Imports
 import img1 from "./Images/cdaclogoRound.png";
 import img2 from "./Images/NSDL-eGov.jpg";
@@ -127,3 +124,82 @@ export const UpdatesData = [
     time: "2 hours ago",
   },
 ];
+
+//Region Data of Indian states
+
+export function getIndianRegion(state) {
+  const regions = {
+      'Andhra Pradesh': 'South',
+      'Arunachal Pradesh': 'Northeast',
+      'Assam': 'Northeast',
+      'Bihar': 'East',
+      'Chhattisgarh': 'Central',
+      'Goa': 'West',
+      'Gujarat': 'West',
+      'Haryana': 'North',
+      'Himachal Pradesh': 'North',
+      'Jharkhand': 'East',
+      'Karnataka': 'South',
+      'Kerala': 'South',
+      'Madhya Pradesh': 'Central',
+      'Maharashtra': 'West',
+      'Manipur': 'Northeast',
+      'Meghalaya': 'Northeast',
+      'Mizoram': 'Northeast',
+      'Nagaland': 'Northeast',
+      'Odisha': 'East',
+      'Punjab': 'North',
+      'Rajasthan': 'West',
+      'Sikkim': 'Northeast',
+      'Tamil Nadu': 'South',
+      'Telangana': 'South',
+      'Tripura': 'Northeast',
+      'Uttar Pradesh': 'North',
+      'Uttarakhand': 'North',
+      'West Bengal': 'East',
+      'Andaman and Nicobar Islands': 'South',
+      'Chandigarh': 'North',
+      'Dadra and Nagar Haveli': 'West',
+      'Daman and Diu': 'West',
+      'Delhi': 'North',
+      'Lakshadweep': 'South',
+      'Puducherry': 'South',
+      'AP': 'South',
+      'AR': 'Northeast',
+      'AS': 'Northeast',
+      'BR': 'East',
+      'CG': 'Central',
+      'GA': 'West',
+      'GJ': 'West',
+      'HR': 'North',
+      'HP': 'North',
+      'JH': 'East',
+      'KA': 'South',
+      'KL': 'South',
+      'MP': 'Central',
+      'MH': 'West',
+      'MN': 'Northeast',
+      'ML': 'Northeast',
+      'MZ': 'Northeast',
+      'NL': 'Northeast',
+      'OD': 'East',
+      'PB': 'North',
+      'RJ': 'West',
+      'SK': 'Northeast',
+      'TN': 'South',
+      'TS': 'South',
+      'TR': 'Northeast',
+      'UP': 'North',
+      'UK': 'North',
+      'WB': 'East',
+      'AN': 'South',
+      'CH': 'North',
+      'DN': 'West',
+      'DD': 'West',
+      'DL': 'North',
+      'LD': 'South',
+      'PY': 'South'
+  };
+  
+  return regions[state] || 'Unknown';
+}
