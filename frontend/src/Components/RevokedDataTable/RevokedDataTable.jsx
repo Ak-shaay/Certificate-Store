@@ -5,6 +5,17 @@ import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 
 const RevokedDataTable = () => {
+  
+  const handleFilters = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "block";
+  };
+
+  const handleFilterClose = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "none";
+  };
+
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -48,16 +59,34 @@ const RevokedDataTable = () => {
 
   return (
     <div className="MainTableRevoked">
-      <div className="multi-select-row">
-      <MultiSelect
-          options={options}
-          placeholder="Select Reason"
-          onChange={handleMultiSelectChange}
-        />
-        <input type="date" class="datepicker"/>
-        <input type="date" class="datepicker"/>
-        <button class="applybtn">Apply</button>
+       <div className="filterWindow" id="filter">
+        <span className="close" onClick={handleFilterClose}>
+          X
+        </span>
+        <div className="multi-select-row">
+          <MultiSelect
+            options={options}
+            placeholder="Select Reason"
+            onChange={handleMultiSelectChange}
+          />
+          </div>
+          <div className="col">
+          <div className="row date_picker">
+            <label className="dateLable">Start Date</label>
+            <input type="date" className="datepicker" />
+            <label className="dateLable">End Date</label>
+            <input type="date" className="datepicker" />
+          </div>
+          <br/>
+          <div className="row date_picker">
+          <button className="apply-btn">Apply</button>
+        </div>
+        </div>
       </div>
+      <button class="filter-btn" onClick={handleFilters}>
+        Filters
+      </button>
+
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

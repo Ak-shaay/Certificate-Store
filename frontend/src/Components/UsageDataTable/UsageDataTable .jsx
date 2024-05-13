@@ -4,7 +4,16 @@ import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 
-const UsageDataTable  = () => {
+const UsageDataTable = () => {
+  const handleFilters = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "block";
+  };
+
+  const handleFilterClose = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "none";
+  };
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -14,12 +23,7 @@ const UsageDataTable  = () => {
     },
     sort: true,
     search: true,
-    columns: [
-      "Serial No",
-      "Used On",
-      "Remark",
-      "Count"
-    ],
+    columns: ["Serial No", "Used On", "Remark", "Count"],
     server: {
       url: "http://localhost:8080/usageData",
       method: "POST",
@@ -29,14 +33,11 @@ const UsageDataTable  = () => {
           use.time_stamp,
           use.remark,
           use.count,
-          
-        ]
-        ),
+        ]),
     },
   });
   useEffect(() => {
     grid.render(wrapperRef.current);
-    
   }, []);
 
   const options = [
@@ -50,19 +51,36 @@ const UsageDataTable  = () => {
 
   return (
     <div className="MainTableUsage">
-      <div className="multi-select-row">
-      <MultiSelect
-          options={options}
-          placeholder="Select Usage"
-          onChange={handleMultiSelectChange}
-        />
-        <input type="date" class="datepicker"/>
-        <input type="date" class="datepicker"/>
-        <button class="applybtn">Apply</button>
+      <div className="filterWindow" id="filter">
+        <span className="close" onClick={handleFilterClose}>
+          X
+        </span>
+        <div className="multi-select-row">
+          <MultiSelect
+            options={options}
+            placeholder="Select Usage"
+            onChange={handleMultiSelectChange}
+          />
+          </div>
+          <div className="col">
+          <div className="row date_picker">
+            <label className="dateLable">Start Date</label>
+            <input type="date" className="datepicker" />
+            <label className="dateLable">End Date</label>
+            <input type="date" className="datepicker" />
+          </div>
+          <br/>
+          <div className="row date_picker">
+          <button className="apply-btn">Apply</button>
+        </div>
+        </div>
       </div>
+      <button class="filter-btn" onClick={handleFilters}>
+        Filters
+      </button>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );
 };
 
-export default UsageDataTable ;
+export default UsageDataTable;

@@ -17,52 +17,16 @@
     border-radius: 20px;
 }
 
-.multi-select-row {
-    display: flex;
-    max-width: 85vw;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 5px
-  }
-  .datepicker{
-   width: auto !important;
-   height: 2.2rem;
-   margin-top: auto;
-   box-sizing: border-box;
-   position: relative;
-   display: flex;
-   color: #666666;
-   background-color: white;
-   border: 1px solid #ccc;
-   border-radius: 2px;
-   padding: 2px 5px;
-   flex-direction: row;
-   direction: ltr;
-   align-items: center;
-   cursor: pointer;
-   
-  }
-.applybtn{
+.applybtn {
     border: 1px solid #65b8df;
-     background-color: #89CFF0;
+    background-color: #89CFF0;
     color: #ffffff;
     height: 2rem;
     border-radius: 10px;
 }
 
 
-/* fix this */
-/* @media (max-width: 1200px) {
-    .MainTableLogs {
-        margin: -32rem 0 0 3rem;
-    }
-} */
-
 @media (max-width: 768px) {
-    /* .MainTableLogs {
-        margin-top:3rem;
-    } */
-     /* ==== */
     .table-container {
         width: 80%;
         justify-content: flex-start;
@@ -73,5 +37,43 @@
 /* override */
 .gridjs-pagination .gridjs-pages button {
     color: #6b7280 !important;
-   
+
+}
+
+
+/* filters */
+#filter {
+    display: none;
+    background-color: white;
+    width: auto;
+    height: auto;
+    z-index: 99;
+    position: fixed;
+    padding: 2rem;
+    border: 1px solid black;
+}
+
+.apply-btn {
+    border: 1px solid #0e5171;
+    background-color: #4aa7d3;
+    color: #ffffff;
+    height: 2rem;
+    width: 5rem;
+    cursor: pointer;
+}
+.apply-btn:hover {
+    background-color: #0e5171;
+}
+
+.close {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    font-size: medium;
+    color: black;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: red;
 }

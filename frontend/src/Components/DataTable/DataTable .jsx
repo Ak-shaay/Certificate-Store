@@ -6,7 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import { getIndianRegion } from "../../Data";
+import { getIndianRegion,Issuers,IndianStates,IndianRegion } from "../../Data";
 
 
 const DataTable = () => {
@@ -116,12 +116,6 @@ const DataTable = () => {
   useEffect(() => {
     grid.render(wrapperRef.current);
   }, []);
-
-  const options = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
-  ];
   const handleMultiSelectChange = (selectedItems) => {
     console.log("Selected items:", selectedItems);
   };
@@ -134,12 +128,12 @@ const DataTable = () => {
         </span>
         <div className="multi-select-row">
           <MultiSelect
-            options={options}
+            options={Issuers}
             placeholder="Select Issuer"
             onChange={handleMultiSelectChange}
           />
-          <MultiSelect options={options} placeholder="Select State" />
-          <MultiSelect options={options} placeholder="Select Region" />
+          <MultiSelect options={IndianStates} placeholder="Select State" />
+          <MultiSelect options={IndianRegion} placeholder="Select Region" />
           </div>
           <div className="col">
           <div className="row date_picker">
