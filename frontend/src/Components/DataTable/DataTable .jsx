@@ -36,7 +36,6 @@ const handleFilterClose = (e) => {
       "Date",
       "State",
       "Region",
-      "Country",
       "Validity",
       "Status",
       {
@@ -76,7 +75,6 @@ const handleFilterClose = (e) => {
           ca.issue_date,
           ca.subject_state,
           getIndianRegion( ca.subject_state),
-          "India",
           ca.expiry_date,
           "Status",
          null,
