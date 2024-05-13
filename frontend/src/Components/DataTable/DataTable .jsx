@@ -11,15 +11,15 @@ import { getIndianRegion } from "../../Data";
 
 const DataTable = () => {
 
-const handleFilters = (e) => {
-  const filtersElement = document.getElementById('filter');
-      filtersElement.style.display = 'block';
-}
+  const handleFilters = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "block";
+  };
 
-const handleFilterClose = (e) => {
-  const filtersElement = document.getElementById('filter');
-      filtersElement.style.display = 'none';
-}
+  const handleFilterClose = (e) => {
+    const filtersElement = document.getElementById("filter");
+    filtersElement.style.display = "none";
+  };
   const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -39,31 +39,63 @@ const handleFilterClose = (e) => {
       "Validity",
       "Status",
       {
-        name: 'Actions',
+        name: "Actions",
         formatter: (cell, row) => {
-            return h('div', {className:'action-row'}, [
-                h('div', {
-                    className: '',
-                    onClick: () => alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`)
-                }, [
-                    h('img', { src: exclamation, alt: 'View' ,className: 'action-img',title:'View'})
-                ]),
-                h('div', {
-                    className: '',
-                    onClick: () => alert(`download "${row.cells[0].data}" "${row.cells[1].data}"`)
-                }, [
-                    h('img', { src: download, alt: 'Download',className: 'action-img', title:'Download' })
-                ]),
-                h('div', {
-                    className: '',
-                    onClick: () => alert(`Verify "${row.cells[0].data}" "${row.cells[1].data}"`)
-                }, [
-                    h('img', { src: verify, alt: 'Verifying' ,className: 'action-img', title:'Verify'})
-                ])
-            ]);
-        }
-    },
-],
+          return h("div", { className: "action-row" }, [
+            h(
+              "div",
+              {
+                className: "",
+                onClick: () =>
+                  alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`),
+              },
+              [
+                h("img", {
+                  src: exclamation,
+                  alt: "View",
+                  className: "action-img",
+                  title: "View",
+                }),
+              ]
+            ),
+            h(
+              "div",
+              {
+                className: "",
+                onClick: () =>
+                  alert(
+                    `download "${row.cells[0].data}" "${row.cells[1].data}"`
+                  ),
+              },
+              [
+                h("img", {
+                  src: download,
+                  alt: "Download",
+                  className: "action-img",
+                  title: "Download",
+                }),
+              ]
+            ),
+            h(
+              "div",
+              {
+                className: "",
+                onClick: () =>
+                  alert(`Verify "${row.cells[0].data}" "${row.cells[1].data}"`),
+              },
+              [
+                h("img", {
+                  src: verify,
+                  alt: "Verifying",
+                  className: "action-img",
+                  title: "Verify",
+                }),
+              ]
+            ),
+          ]);
+        },
+      },
+    ],
     server: {
       url: "http://localhost:8080/data",
       method: "POST",
@@ -77,14 +109,12 @@ const handleFilterClose = (e) => {
           getIndianRegion( ca.subject_state),
           ca.expiry_date,
           "Status",
-         null,
-        ]
-        ),
+          null,
+        ]),
     },
   });
   useEffect(() => {
     grid.render(wrapperRef.current);
-    
   }, []);
 
   const options = [
@@ -99,22 +129,35 @@ const handleFilterClose = (e) => {
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
-        <span className="close" onClick={handleFilterClose}>X</span>
+        <span className="close" onClick={handleFilterClose}>
+          X
+        </span>
         <div className="multi-select-row">
-      <MultiSelect
-          options={options}
-          placeholder="Select Issuer"
-          onChange={handleMultiSelectChange}
-        />
-        <MultiSelect options={options} placeholder="Select State" />
-        <MultiSelect options={options} placeholder="Select Region" />
-        <input type="date" class="datepicker"/>
-        <input type="date" class="datepicker"/>
-       <button className="apply-btn">Apply</button>
-       </div>
+          <MultiSelect
+            options={options}
+            placeholder="Select Issuer"
+            onChange={handleMultiSelectChange}
+          />
+          <MultiSelect options={options} placeholder="Select State" />
+          <MultiSelect options={options} placeholder="Select Region" />
+          </div>
+          <div className="col">
+          <div className="row date_picker">
+            <label className="dateLable">Start Date</label>
+            <input type="date" className="datepicker" />
+            <label className="dateLable">End Date</label>
+            <input type="date" className="datepicker" />
+          </div>
+          <br/>
+          <div className="row date_picker">
+          <button className="apply-btn">Apply</button>
+        </div>
+        </div>
       </div>
-      <button class="filter-btn" onClick={handleFilters}>Filters</button>
-      
+      <button class="filter-btn" onClick={handleFilters}>
+        Filters
+      </button>
+
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

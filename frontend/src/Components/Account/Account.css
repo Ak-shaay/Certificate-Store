@@ -17,7 +17,8 @@
     border-radius: 10px;
     box-shadow: rgb(249, 213, 155) 0px 10px 20px 0px;
     background: linear-gradient(rgba(248, 212, 154, 0.98) -146.42%, rgba(255, 202, 113, 0.76) -46.42%);
-    color: #5e4545;;
+    color: #5e4545;
+    margin-bottom: 2rem;
 }
 
 .header {

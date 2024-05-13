@@ -45,6 +45,14 @@
 
 }
 
+.dateLable{
+    margin: 1rem;
+}
+.date_picker{
+    display: flex;
+    flex-direction: row;
+}
+
 /* .filter-btn {
     border: 1px solid #0e5171;
     background-color: #4aa7d3;
@@ -139,11 +147,12 @@
 #filter {
     display: none;
     background-color: white;
-    width: 500px;
-    height: 200px;
+    width: auto;
+    height: auto;
     z-index: 99;
     position: fixed;
     padding: 2rem;
+    border: 1px solid black;
 }
 
 .apply-btn{
@@ -152,7 +161,6 @@
   color: #ffffff;
   height: 2rem;
   width: 5rem;
-
 }
 .close {
     position: absolute;
