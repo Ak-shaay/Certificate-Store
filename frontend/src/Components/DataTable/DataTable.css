@@ -17,55 +17,14 @@
     border-radius: 20px;
 }
 
-.multi-select-row {
-    display: flex;
-    max-width: 85vw;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 5px;
-    margin-left: 2.2rem;
-}
-
-.datepicker {
-    width: auto !important;
-    height: 2.2rem;
-    margin-top: auto;
-    box-sizing: border-box;
-    position: relative;
-    display: flex;
-    color: #666666;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    padding: 2px 5px;
-    flex-direction: row;
-    direction: ltr;
-    align-items: center;
-    cursor: pointer;
-
-}
-
-.dateLable{
+.dateLable {
     margin: 1rem;
 }
-.date_picker{
+
+.date_picker {
     display: flex;
     flex-direction: row;
 }
-
-/* .filter-btn {
-    border: 1px solid #0e5171;
-    background-color: #4aa7d3;
-    color: #ffffff;
-    height: 2rem;
-    width: 7rem;
-    position: absolute;
-    right: 5rem;
-    top: 6rem;
-    z-index: 10;
-    border-radius: 10px;
-} */
-
 .filter-btn {
     padding: 10px 13px;
     border-radius: 5px;
@@ -80,24 +39,24 @@
     letter-spacing: 1px;
     font-size: 14px;
     transition: all 0.5s ease;
-  }
-  
-  .filter-btn:hover {
+}
+
+.filter-btn:hover {
     letter-spacing: 3px;
     background-color: #64c3f0;
     color: hsl(0, 0%, 100%);
     box-shadow: #64c3f0 0px 7px 29px 0px;
-  }
-  
-  .filter-btn:active {
+}
+
+.filter-btn:active {
     letter-spacing: 3px;
     background-color: #4aa7d3;
     color: hsl(0, 0%, 100%);
     box-shadow: #4aa7d3 0px 0px 0px 0px;
     transform: translateY(5px);
     transition: 100ms;
-  }
-  
+}
+
 
 .action-row {
     display: flex;
@@ -144,6 +103,7 @@
 
 }
 
+/* filters */
 #filter {
     display: none;
     background-color: white;
@@ -155,13 +115,18 @@
     border: 1px solid black;
 }
 
-.apply-btn{
+.apply-btn {
     border: 1px solid #0e5171;
-  background-color: #4aa7d3;
-  color: #ffffff;
-  height: 2rem;
-  width: 5rem;
+    background-color: #4aa7d3;
+    color: #ffffff;
+    height: 2rem;
+    width: 5rem;
+    cursor: pointer;
 }
+.apply-btn:hover {
+    background-color: #0e5171;
+}
+
 .close {
     position: absolute;
     top: 1em;
@@ -170,6 +135,7 @@
     color: black;
     cursor: pointer;
 }
-.close:hover{
+
+.close:hover {
     color: red;
 }

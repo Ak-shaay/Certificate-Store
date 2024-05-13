@@ -2,3 +2,29 @@
     background-color: #fff !important;
     border: 1px solid #d2d6dc;
 }
+.multi-select-row {
+    display: flex;
+    max-width: 85vw;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  
+.datepicker {
+    width: auto !important;
+    height: 2.2rem;
+    margin-top: auto;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    color: #666666;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    padding: 2px 5px;
+    flex-direction: row;
+    direction: ltr;
+    align-items: center;
+    cursor: pointer;
+
+}

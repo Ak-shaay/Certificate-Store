@@ -203,3 +203,78 @@ export function getIndianRegion(state) {
   
   return regions[state] || 'Unknown';
 }
+
+
+export const Issuers = [
+  { label: "CCA", value: "CCA" },
+  { label: "Safescrypt", value: "Safescrypt" },
+  { label: "IDRBT", value: "IDRBT" },
+  { label: "(n)Code Solutions", value: "(n)Code Solutions" },
+  { label: "e-Mudhra", value: "e-Mudhra" },
+  { label: "CDAC", value: "CDAC" },
+  { label: "Capricorn", value: "Capricorn" },
+  { label: "Protean (NSDL e-Gov)", value: "Protean (NSDL e-Gov)" },
+  { label: "Vsign (Verasys)", value: "Vsign (Verasys)" },
+  { label: "Indian Air Force", value: "Indian Air Force" },
+  { label: "CSC", value: "CSC" },
+  { label: "RISL (RajComp)", value: "RISL (RajComp)" },
+  { label: "Indian Army", value: "Indian Army" },
+  { label: "IDSign", value: "IDSign" },
+  { label: "CDSL Ventures", value: "CDSL Ventures" },
+  { label: "Panta Sign", value: "Panta Sign" },
+  { label: "xtra Trust", value: "xtra Trust" },
+  { label: "Indian Navy", value: "Indian Navy" },
+  { label: "ProDigiSign", value: "ProDigiSign" },
+  { label: "SignX", value: "SignX" },
+  { label: "JPSL", value: "JPSL" },
+  { label: "Care 4 Sign", value: "Care 4 Sign" },
+  { label: "IGCAR", value: "IGCAR" }
+];
+
+export const IndianStates = [
+  { label: "Andaman and Nicobar Islands", value: "Andaman and Nicobar Islands" },
+  { label: "Andhra Pradesh", value: "Andhra Pradesh" },
+  { label: "Arunachal Pradesh", value: "Arunachal Pradesh" },
+  { label: "Assam", value: "Assam" },
+  { label: "Bihar", value: "Bihar" },
+  { label: "Chandigarh", value: "Chandigarh" },
+  { label: "Chhattisgarh", value: "Chhattisgarh" },
+  { label: "Dadra and Nagar Haveli and Daman and Diu", value: "Dadra and Nagar Haveli and Daman and Diu" },
+  { label: "Delhi", value: "Delhi" },
+  { label: "Goa", value: "Goa" },
+  { label: "Gujarat", value: "Gujarat" },
+  { label: "Haryana", value: "Haryana" },
+  { label: "Himachal Pradesh", value: "Himachal Pradesh" },
+  { label: "Jammu and Kashmir", value: "Jammu and Kashmir" },
+  { label: "Jharkhand", value: "Jharkhand" },
+  { label: "Karnataka", value: "Karnataka" },
+  { label: "Kerala", value: "Kerala" },
+  { label: "Ladakh", value: "Ladakh" },
+  { label: "Lakshadweep", value: "Lakshadweep" },
+  { label: "Madhya Pradesh", value: "Madhya Pradesh" },
+  { label: "Maharashtra", value: "Maharashtra" },
+  { label: "Manipur", value: "Manipur" },
+  { label: "Meghalaya", value: "Meghalaya" },
+  { label: "Mizoram", value: "Mizoram" },
+  { label: "Nagaland", value: "Nagaland" },
+  { label: "Odisha", value: "Odisha" },
+  { label: "Puducherry", value: "Puducherry" },
+  { label: "Punjab", value: "Punjab" },
+  { label: "Rajasthan", value: "Rajasthan" },
+  { label: "Sikkim", value: "Sikkim" },
+  { label: "Tamil Nadu", value: "Tamil Nadu" },
+  { label: "Telangana", value: "Telangana" },
+  { label: "Tripura", value: "Tripura" },
+  { label: "Uttar Pradesh", value: "Uttar Pradesh" },
+  { label: "Uttarakhand", value: "Uttarakhand" },
+  { label: "West Bengal", value: "West Bengal" }
+];
+
+export const IndianRegion = [
+  { label: "South" ,value: "South" },
+  { label: "East" ,value: "East" },
+  { label: "West" ,value: "West" },
+  { label: "North" ,value: "North" },
+  { label: "Northeast" ,value: "Northeast" },
+  { label: "Central" ,value: "Central" },
+]
