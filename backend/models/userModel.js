@@ -6,8 +6,7 @@ const saltRounds = 10;
 //authenticate user
 
 async function authenticateUser(req, res, next) {
-  // console.log("Inside authenticate user function.");
-  console.log("session: ", req.session)
+  // console.log("session: ", req.session)
   if (!req.session || !req.session.username) {
     return res.status(401).json({ error: "Unauthorized" });
   }

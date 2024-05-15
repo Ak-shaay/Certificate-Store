@@ -28,3 +28,8 @@
     cursor: pointer;
 
 }
+
+.react-dropdown-select-dropdown{
+    /* width: 147.5px !important; */
+    width: auto !important;
+}

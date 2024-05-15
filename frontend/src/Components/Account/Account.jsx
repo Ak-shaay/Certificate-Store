@@ -3,10 +3,10 @@ import "./Account.css";
 const Account = () => {
   return (
     <div class="MainAccount">
-      <h3>Edit Profile</h3>
+      <h3>Account</h3>
       <div class="AccountContainer">
         <div class="header">My Account</div>
-        <hr className="white"/>
+        <hr className="" />
         <form id="forms">
           <div class="row">
             <div class="column">
@@ -41,10 +41,10 @@ const Account = () => {
                   disabled
                 ></input>
               </div>
-          </div>
+            </div>
           </div>
           <div class="header mg-tp">Address</div>
-          <hr className="white"/>
+          <hr className="" />
           <div class="row">
             <div class="column">
               <div class="form-group">
@@ -81,7 +81,7 @@ const Account = () => {
             </div>
           </div>
           <div class="header mg-tp">Change Password</div>
-          <hr className="white"/>
+          <hr className="" />
           <div class="row">
             <div class="column">
               <div class="form-group">
@@ -95,8 +95,8 @@ const Account = () => {
               </div>
             </div>
             <div class="column">
-            <div class="form-group">
-            <label for="district">New Password</label>
+              <div class="form-group">
+                <label for="district">New Password</label>
                 <input
                   type="text"
                   class="form-control"
