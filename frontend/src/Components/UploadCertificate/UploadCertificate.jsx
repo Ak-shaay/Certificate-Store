@@ -16,14 +16,14 @@ const [validity,setValidity]= useState();
 const [hash,setHash]= useState();
 
 const handleFileChange = (event) => {
-  setFile(event.target.files[0]);
+  const selectedFile = event.target.files[0];
+  console.log("Selected file:", selectedFile);
+  setFile(selectedFile);
 
-  if(file){
-    // console.log("file changed",file);
-    document.querySelector(".file-info").style.display='flex'
-  }
-  else{
-    document.querySelector(".file-info").style.display='none';
+  if (selectedFile) {
+    document.querySelector(".file-info").style.display = 'flex';
+  } else {
+    document.querySelector(".file-info").style.display = 'none';
   }
 };
 
@@ -31,11 +31,12 @@ const handleFileUpload = () => {
   if (file) {
     const data = new FormData();
     data.append('certificate', file);
-
+  
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
       url: 'http://10.182.3.247:8080/cert',
+      withCredentials: true,
       data: data
     };
     axios.request(config)
@@ -54,22 +55,21 @@ const handleFileUpload = () => {
         
       })
       .catch((error) => {
-        console.log(error);
+        console.log("error getting response",error);
         document.querySelector(".error-block").style.display='flex';
         document.querySelector(".file-block").style.display='none';
-
+  
       });
   } else {
     alert('No file selected.')
     console.log('No file selected.');
   }
+  
 }
   return (
     <div class="Maindash">
-      {/* <h1>Welcome!</h1> */}
       <div class="upload-files-container">
         <div class="file-area">
-          {/* <span class="material-icons-outlined upload-icon">file_upload</span> */}
           <h1 class="dynamic-message">Certificate Upload</h1>
           <label class="label">
             <span class="browse-files">

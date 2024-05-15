@@ -1,12 +1,9 @@
-import React, { useRef, useState,useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdaclogoRound.png";
 import axios from "axios";
 import useAuth from "../Hooks/useAuth";
-import {
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LOGIN_URL = "http://localhost:8080/login";
 
@@ -26,10 +23,10 @@ const Login = () => {
   const [longitude, setLongitude] = useState(null);
 
   useEffect(() => {
-    geolocation(); 
+    geolocation();
   }, []);
 
-  function geolocation(){
+  function geolocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -65,18 +62,18 @@ const Login = () => {
         }
       );
       if (response?.data?.accessToken) {
-        localStorage.setItem('token', JSON.stringify(response.data))
+        localStorage.setItem("token", JSON.stringify(response.data));
         setUsername("");
         setPassword("");
         setErrMsg("");
         navigate(from, { replace: true });
-        console.log("from", from)
+        console.log("from", from);
       } else {
         setErrMsg("Invalid username or password");
         errRef.current.focus();
       }
     } catch (err) {
-      console.log("err:" , err)
+      console.log("err:",err);
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
@@ -85,6 +82,8 @@ const Login = () => {
         );
       } else if (err.response.status === 401) {
         setErrMsg("Unauthorized access. Please check your credentials.");
+      } else if (err.response.status === 423) {
+        setErrMsg("Maximum attempts reached.Please try after 24 hr."+ err.response.data.timeStamp);
       } else {
         setErrMsg("Unexpected error occurred. Please try again later.");
       }
@@ -136,9 +135,9 @@ const Login = () => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-            <img class="bg-img"src={cdaclogo} alt='logo'/>
-                        <h1>Hello!</h1>
-                        <p>Enter your login credentials for a seamless experience.</p>
+              <img class="bg-img" src={cdaclogo} alt="logo" />
+              <h1>Hello!</h1>
+              <p>Enter your login credentials for a seamless experience.</p>
             </div>
           </div>
         </div>

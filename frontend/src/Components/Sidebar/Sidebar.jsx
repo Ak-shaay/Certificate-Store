@@ -55,7 +55,7 @@ const Sidebar = ({ onIndexChange }) => {
       );
       // Redirect to the login page or perform any other necessary actions
       window.location.href = "http://localhost:3000"; // Redirect to landing page
-      console.log("logged out");
+      // console.log("logged out");
     } catch (error) {
       console.error("Logout failed:", error);
       // Handle error if logout fails (e.g., display error message)

@@ -54,51 +54,44 @@ async function login(req, res) {
     const storedHashedPassword = userExist[0].password;
     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
     if (passwordMatch && (await loginAttempt(userExist[0]))) {
-      try {
-        //create jwt
-        const accessToken = jwt.sign(
-          { username: userExist[0].username, role: userExist[0].role, userId: userExist[0].login_id },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "300s" }
-        );
-        const refreshToken = jwt.sign(
-          { username: userExist[0].username, role: userExist[0].role },
-          process.env.REFRESH_TOKEN_SECRET,
-          { expiresIn: "1d" }
-        );
-        req.session.username = userExist[0].username;
-        req.session.userid = userExist[0].id; // Store user information in the session
-        req.session.userRole = userExist[0].role;
-        await userModel.updateAttempts(req.session.username, 2); //update attempt if login is successful
-        await userModel.logUserAction(
-          req.sessionID,
-          userExist[0].login_id,
-          "login",
-          req.ip,
-          latitude,
-          longitude
-        );
-        res.json({ accessToken, refreshToken });
-      } catch (err) {
-        // console.log("err:", err);
-        res.status(500).json({ error: "Internal server error" });
-      }
+      // Successful login
+      const accessToken = jwt.sign(
+        { username: userExist[0].username, role: userExist[0].role, userId: userExist[0].login_id },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "300s" }
+      );
+      const refreshToken = jwt.sign(
+        { username: userExist[0].username, role: userExist[0].role },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "1d" }
+      );
+      req.session.username = userExist[0].username;
+      req.session.userid = userExist[0].id;
+      req.session.userRole = userExist[0].role;
+      await userModel.updateAttempts(req.session.username, 2);
+      await userModel.logUserAction(
+        req.sessionID,
+        userExist[0].login_id,
+        "login",
+        req.ip,
+        latitude,
+        longitude
+      );
+      return res.json({ accessToken, refreshToken });
     } else {
-      try {
-        if (userExist[0].attempts > 0) {
-          let attempt = (userExist[0].attempts -= 1);
-          userModel.updateAttempts(userExist[0].username, attempt);
-        } else {
-          userModel.updateStatus(userExist[0].username, "inactive");
-          res.status(423).json({ timpeStamp: userExist[0].last_attempt });
-        }
-      } catch (err) {
-        console.log("Error occurred", err);
+      // Failed login attempt
+      if (userExist[0].attempts > 0) {
+        let attempt = (userExist[0].attempts -= 1);
+        await userModel.updateAttempts(userExist[0].username, attempt);
+      } else {
+        await userModel.updateStatus(userExist[0].username, "inactive");
+        return res.status(423).json({ timeStamp: userExist[0].last_attempt });
       }
-      res.status(501).json({ error: "Incorrect credentials" });
+      return res.status(401).json({ error: "Incorrect credentials" });
     }
   } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error occurred:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -187,8 +180,6 @@ async function certDetails(req, res) {
 }
 
 async function logout(req, res) {
-  
-  console.log("Logout testing", req.body);
   req.session.destroy((err) => {
     if (err) {
       res.status(500).json({ msg: "Error while logging out." });

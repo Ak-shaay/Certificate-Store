@@ -49,7 +49,7 @@ const RevokedDataTable = () => {
   }, []);
 
   const options = [
-    { label: "Certificate compromised", value: "Certificate compromised" },
+    { label: "Expired", value: "Expired" },
     { label: "Key compromised", value: "Key compromised" },
     { label: "Other", value: "other" },
   ];
