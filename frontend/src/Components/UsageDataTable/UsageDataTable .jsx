@@ -3,6 +3,7 @@ import { Grid } from "gridjs"; //datagrid js
 import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
+import { domain } from "../../Context/config";
 
 const UsageDataTable = () => {
   const handleFilters = (e) => {
@@ -25,7 +26,7 @@ const UsageDataTable = () => {
     search: true,
     columns: ["Serial No", "Used On", "Remark", "Count"],
     server: {
-      url: "http://localhost:8080/usageData",
+      url: "http://"+domain+":8080/usageData",
       method: "POST",
       then: (data) =>
         data.map((use) => [

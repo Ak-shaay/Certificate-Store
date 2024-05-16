@@ -4,6 +4,7 @@ import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import {Issuers} from "../../Data";
+import { domain } from "../../Context/config";
 
 const LogsDataTable = () => {
   const handleFilters = (e) => {
@@ -35,7 +36,7 @@ const LogsDataTable = () => {
       "Longitude",
     ],
     server: {
-      url: "http://localhost:8080/logs",
+      url: "http://"+domain+":8080/logs",
       method: "POST",
       then: (data) =>
         data.map((log) => [

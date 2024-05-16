@@ -3,7 +3,7 @@ import { Grid } from "gridjs"; //datagrid js
 import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-
+import { domain } from "../../Context/config";
 const RevokedDataTable = () => {
   
   const handleFilters = (e) => {
@@ -31,7 +31,7 @@ const RevokedDataTable = () => {
       "Reason",
     ],
     server: {
-      url: "http://localhost:8080/revokedData",
+      url: "http://"+domain+":8080/revokedData",
       method: "POST",
       then: (data) =>
         data.map((rev) => [

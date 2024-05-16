@@ -7,6 +7,7 @@ import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import { getIndianRegion,Issuers,IndianStates,IndianRegion } from "../../Data";
+import { domain } from "../../Context/config";
 
 
 const DataTable = () => {
@@ -97,7 +98,7 @@ const DataTable = () => {
       },
     ],
     server: {
-      url: "http://localhost:8080/data",
+      url: "http://"+domain+":8080/data",
       method: "POST",
       then: (data) =>
         data.map((ca) => [

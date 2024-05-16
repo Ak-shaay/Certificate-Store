@@ -14,15 +14,15 @@ const RightSideAccount = () => {
             <div class="ProfileStatus">
                 <div class="ProfileStatus1">
                     <span>Certificates</span>
-                    <p>2</p>
+                    <p>--</p>
                 </div>
                 <div class="ProfileStatus2">
                     <span>Issued</span>
-                    <p>100</p>
+                    <p>--</p>
                 </div>
                 <div class="ProfileStatus3">
                     <span>Active</span>
-                    <p>88</p>
+                    <p>--</p>
                 </div>
             </div>
         </div>

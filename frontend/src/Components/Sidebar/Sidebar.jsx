@@ -5,6 +5,7 @@ import { SidebarData } from "../../Data";
 import { UilBars, UilTimes } from "@iconscout/react-unicons";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { domain } from "../../Context/config";
 
 const Sidebar = ({ onIndexChange }) => {
   const [selected, setSelected] = useState(0);
@@ -33,10 +34,10 @@ const Sidebar = ({ onIndexChange }) => {
   }
 
   const handleLogout = async () => {
-    if (latitude === null || longitude === null) {
-      alert("Please enable location services to proceed.");
-      return;
-    }
+    // if (latitude === null || longitude === null) {
+    //   alert("Please enable location services to proceed.");
+    //   return;
+    // }
 
     try {
       // Clear token cookie
@@ -46,7 +47,7 @@ const Sidebar = ({ onIndexChange }) => {
       localStorage.removeItem("token");
       // Make a request to the logout endpoint on the backend
       await axios.post(
-        "http://localhost:8080/logout",
+        "http://"+domain+":8080/logout",
         { userID, latitude, longitude },
         {
           headers: { "Content-Type": "application/json" },
@@ -54,7 +55,7 @@ const Sidebar = ({ onIndexChange }) => {
         }
       );
       // Redirect to the login page or perform any other necessary actions
-      window.location.href = "http://localhost:3000"; // Redirect to landing page
+      window.location.href = "http://"+domain+":3000"; // Redirect to landing page
       // console.log("logged out");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -63,7 +64,7 @@ const Sidebar = ({ onIndexChange }) => {
   };
 
   const handleMenuItemClick = (index) => {
-    if (index === 7) {
+    if (index === 8) {
       onIndexChange(index);
       handleLogout();
     } else {

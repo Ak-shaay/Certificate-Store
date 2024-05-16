@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./UploadCertificate.css";
 import axios from "axios";
+import { domain } from "../../Context/config";
 
 const UploadCertificate = () => {
 
@@ -35,7 +36,7 @@ const handleFileUpload = () => {
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'http://10.182.3.247:8080/cert',
+      url: 'http://'+domain+':8080/cert',
       withCredentials: true,
       data: data
     };

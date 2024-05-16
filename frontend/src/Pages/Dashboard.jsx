@@ -13,7 +13,8 @@ import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 import {
   useNavigate,
 } from "react-router-dom";
-
+import { domain } from "../Context/config";
+import ChangePassword from "../Components/ChangePassword/ChangePassword";
 function Dashboard() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -21,7 +22,7 @@ function Dashboard() {
   useEffect(()=>{
     const fetchData = async () => {
       try {
-        const Dashboard_URL = "http://localhost:8080/dashboard";
+        const Dashboard_URL = "http://"+domain+":8080/dashboard";
         const response = await axios.get(Dashboard_URL, {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -113,6 +114,15 @@ function Dashboard() {
           </div>
         );
         break;
+        case 7:
+        content = (
+          <div className="appglass-other">
+            <Sidebar onIndexChange={handleIndexChange} />
+            <ChangePassword/>
+          </div>
+        );
+        break;
+        
     default:
       break;
   }
