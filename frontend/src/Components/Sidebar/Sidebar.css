@@ -5,8 +5,9 @@
   padding-top: 3rem;
   transition: all 300ms ease;
 }
+
 /* logo */
-.bars{
+.bars {
   display: none;
 }
 
@@ -20,12 +21,13 @@
   justify-content: center;
   height: 4%;
 }
-.logo > span > span {
+
+.logo>span>span {
   color: var(--light-blue);
   font-size: 1.5em;
 }
 
-.logo > img {
+.logo>img {
   width: 3rem;
   height: 3rem;
   margin-left: 1rem;
@@ -39,6 +41,7 @@
   flex-direction: column;
   gap: 2rem;
 }
+
 .menuItem {
   display: flex;
   align-items: center;
@@ -57,7 +60,8 @@
 }
 
 .menu .menuItem:last-child {
-  position: absolute;
+  position: relative;
+  margin-top: inherit;
   bottom: 2.3rem;
 }
 
@@ -66,6 +70,7 @@
   margin-left: 0;
   color: rgb(9, 140, 247);
 }
+
 .active::before {
   content: "";
   width: 8px;
@@ -77,20 +82,23 @@
 
 /* Tablets */
 @media screen and (max-width: 1200px) {
-  .menuItem>span{
+  .menuItem>span {
     display: none;
   }
-  .logo{
+
+  .logo {
     display: none;
   }
 }
-@media screen and (min-width: 767px){
-.sidebar{
-  left:0 !important;
+
+@media screen and (min-width: 767px) {
+  .sidebar {
+    left: 0 !important;
+  }
 }
-}
+
 @media screen and (max-width: 768px) {
-  .sidebar{
+  .sidebar {
     position: fixed;
     z-index: 99;
     background: #ffe0e0;
@@ -98,25 +106,28 @@
     padding-right: 1rem;
     height: 100%;
   }
-  .menuItem>span{
+
+  .menuItem>span {
     display: block;
   }
-  .logo{
+
+  .logo {
     display: flex;
   }
+
   .menu .menuItem:last-child {
     position: relative;
     margin-top: 6rem;
   }
-  .bars{
+
+  .bars {
     display: flex;
     position: fixed;
     top: 1rem;
-    background:#ffe0e0;
-    padding:10px;
+    background: #ffe0e0;
+    padding: 10px;
     border-radius: 10px;
     z-index: 100;
     transition: all 400ms ease;
   }
 }
-

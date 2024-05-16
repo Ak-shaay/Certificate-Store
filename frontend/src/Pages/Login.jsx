@@ -4,8 +4,9 @@ import cdaclogo from "../Images/cdaclogoRound.png";
 import axios from "axios";
 import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
+import { domain } from "../Context/config";
 
-const LOGIN_URL = "http://localhost:8080/login";
+const LOGIN_URL = "http://"+domain+":8080/login";
 
 const Login = () => {
   const { setAuth } = useAuth();
@@ -45,10 +46,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (latitude === null || longitude === null) {
-      alert("Please enable location services to proceed.");
-      return;
-    }
+    // if (latitude === null || longitude === null) {
+    //   alert("Please enable location services to proceed.");
+    //   return;
+    // }
 
     try {
       setLoading(true);

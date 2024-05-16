@@ -9,7 +9,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'http://10.182.3.247:3000',
   credentials: true,
 };
 app.use(cors(corsOptions));
