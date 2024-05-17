@@ -67,12 +67,25 @@ async function getCertData() {
     console.log("Error while fetching certificate details: ", e);
   }
 }
-async function getRevokedCertData() {
+async function getRevokedCertData(filterCriteria) {
   try {
-    const query = "SELECT * FROM revocation_data";
-    return db.executeQuery(query);
+    let query = "SELECT * FROM revocation_data WHERE 1=1";
+    if (filterCriteria) {
+      if (filterCriteria.reason && filterCriteria.reason.length > 0) {
+        const reasons = filterCriteria.reason.map(reason => `'${reason}'`).join(",");
+        query += ` AND reason IN (${reasons})`;
+      }
+      if (filterCriteria.startDate && filterCriteria.endDate) {
+        query += ` AND revoke_date_time BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+      }
+    }
+    console.log("Query to execute:", query);
+    const result = await db.executeQuery(query);
+    console.log("Result:", result);
+    return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
+    throw e; 
   }
 }
 async function getCertUsageData() {

@@ -149,7 +149,7 @@ const DataTable = () => {
         </div>
         </div>
       </div>
-      <button class="filter-btn" onClick={handleFilters}>
+      <button className="filter-btn" onClick={handleFilters}>
         Filters
       </button>
 

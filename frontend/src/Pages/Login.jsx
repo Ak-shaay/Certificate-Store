@@ -121,7 +121,7 @@ const Login = () => {
               disabled={loading}
             />
             <a href="#">Forgot your password?</a>
-            <button class="loginbtn" type="submit" disabled={loading}>
+            <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
             <p
@@ -136,7 +136,7 @@ const Login = () => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              <img class="bg-img" src={cdaclogo} alt="logo" />
+              <img className="bg-img" src={cdaclogo} alt="logo" />
               <h1>Hello!</h1>
               <p>Enter your login credentials for a seamless experience.</p>
             </div>
