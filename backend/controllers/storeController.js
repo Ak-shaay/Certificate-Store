@@ -207,7 +207,18 @@ async function fetchData(req, res) {
 }
 async function fetchRevokedData(req, res) {
   try {
-    const revokedCertDetails = await userModel.getRevokedCertData();
+    const { reasons, startDate, endDate } = req.body;
+    const filterCriteria = {};
+    if (reasons && reasons.length > 0) {
+      filterCriteria.reason = reasons;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+
+    const revokedCertDetails = await userModel.getRevokedCertData(filterCriteria);
+    
     res.json(revokedCertDetails);
   } catch (error) {
     console.error("Error:", error.message);

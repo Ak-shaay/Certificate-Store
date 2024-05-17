@@ -68,27 +68,27 @@ const handleFileUpload = () => {
   
 }
   return (
-    <div class="Maindash">
-      <div class="upload-files-container">
-        <div class="file-area">
-          <h1 class="dynamic-message">Certificate Upload</h1>
-          <label class="label">
-            <span class="browse-files">
-              <input type="file" class="default-file-input" onChange={handleFileChange} />
-              <span class="browse-files-text">browse file </span>
+    <div className="Maindash">
+      <div className="upload-files-container">
+        <div className="file-area">
+          <h1 className="dynamic-message">Certificate Upload</h1>
+          <label className="label">
+            <span className="browse-files">
+              <input type="file" className="default-file-input" onChange={handleFileChange} />
+              <span className="browse-files-text">browse file </span>
               <span> from device</span>
             </span>
           </label>
         </div>
-        <div class="file-info" id="file-info">
-          <span class="file-name">File Name : {file.name}</span> |
-          <span class="file-size">Size : {(file.size / 1024).toFixed(1)} KB</span>
+        <div className="file-info" id="file-info">
+          <span className="file-name">File Name : {file.name}</span> |
+          <span className="file-size">Size : {(file.size / 1024).toFixed(1)} KB</span>
         </div>
-        <button type="button" id="uploadCertificate" class="upload-btn" onClick={handleFileUpload}>
+        <button type="button" id="uploadCertificate" className="upload-btn" onClick={handleFileUpload}>
           Upload
         </button>
 
-        <div class="file-block">
+        <div className="file-block">
           <label>Serial Number : <span >{serialNo}</span></label>
           <br />
           <label>Common Name : <span>{commonName}</span></label>
@@ -106,8 +106,8 @@ const handleFileUpload = () => {
           <label>Hash : <span>{hash}</span> </label>
           <br />
         </div>
-        <div class="error-block">
-          <span class="error">Error uploading the file!!!</span>
+        <div className="error-block">
+          <span className="error">Error uploading the file!!!</span>
         </div>
       </div>
     </div>

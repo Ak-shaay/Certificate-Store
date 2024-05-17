@@ -4,23 +4,23 @@ import img1 from "../../Images/cdaclogoRound.png";
 const RightSideAccount = () => {
     
   return (
-    <div class="RightMain">
+    <div className="RightMain">
         <h3> </h3>
-        <div class="ProfileContainer">
-    <div class="Profile">
+        <div className="ProfileContainer">
+    <div className="Profile">
         <img src={img1} alt="profile image"/>
-        <div class="ProfileData">
-            <h3 class="ProfileName">CDAC</h3>
-            <div class="ProfileStatus">
-                <div class="ProfileStatus1">
+        <div className="ProfileData">
+            <h3 className="ProfileName">CDAC</h3>
+            <div className="ProfileStatus">
+                <div className="ProfileStatus1">
                     <span>Certificates</span>
                     <p>--</p>
                 </div>
-                <div class="ProfileStatus2">
+                <div className="ProfileStatus2">
                     <span>Issued</span>
                     <p>--</p>
                 </div>
-                <div class="ProfileStatus3">
+                <div className="ProfileStatus3">
                     <span>Active</span>
                     <p>--</p>
                 </div>

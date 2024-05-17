@@ -76,7 +76,7 @@ const UsageDataTable = () => {
         </div>
         </div>
       </div>
-      <button class="filter-btn" onClick={handleFilters}>
+      <button className="filter-btn" onClick={handleFilters}>
         Filters
       </button>
       <div className="table-container" ref={wrapperRef} />
