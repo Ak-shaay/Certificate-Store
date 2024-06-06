@@ -3,7 +3,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const fsPromises = require("fs").promises;
 const path = require("path");
+const forge = require("node-forge");
 require("dotenv").config();
+
 
 async function signup(req, res) {
   const { username, password } = req.body;
@@ -145,7 +147,7 @@ async function userSessionInfo(req, res) {
 async function certDetails(req, res) {
   const certificateFile = req.files.certificate;
   let Certificate = {};
-  if (!certificateFile) {
+  if (certificateFile==null) {
     res.status(400).json({ error: "Certificate file is required." });
     return;
   }
@@ -160,7 +162,7 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     }
-    // else{
+    else{
     Certificate = {
       serialNo: parsedCertificate.serialNumber,
       commonName: parsedCertificate.subject.attributes[7].value,
@@ -171,7 +173,7 @@ async function certDetails(req, res) {
       validity: parsedCertificate.validity.notAfter,
       hash: parsedCertificate.subject.hash,
     };
-    // }
+    }
     res.json({ ...Certificate });
   } catch (error) {
     console.error("Error parsing the certificate:", error.message);

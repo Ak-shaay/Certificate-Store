@@ -55,8 +55,12 @@
   font-size: 14px;
 }
 
-.menuItem:hover {
+.menuItem:not(.active):hover  {
   cursor: pointer;
+  background:cornsilk ;
+  padding: 0 0 0 1rem;
+  margin-left: 0;
+  color: rgb(9, 140, 247);
 }
 
 .menu .menuItem:last-child {
@@ -66,16 +70,17 @@
 }
 
 .active {
-  background: var(--activeItem);
+  background: cornsilk;
   margin-left: 0;
   color: rgb(9, 140, 247);
+  cursor: pointer;
 }
 
 .active::before {
   content: "";
   width: 8px;
   height: 100%;
-  background: var(--pink);
+  background: rgb(250, 236, 182);
   margin-right: calc(1rem - 8px);
 }
 

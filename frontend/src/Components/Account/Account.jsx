@@ -11,7 +11,7 @@ const Account = () => {
           <div className="row">
             <div className="column">
               <div className="form-group">
-                <label for="fname">Name</label>
+                <label htmlFor="fname">Name</label>
                 <input
                   type="text"
                   className="form-control"
@@ -22,7 +22,7 @@ const Account = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="email">Email</label>
+                <label htmlFor="email">Email</label>
                 <input
                   type="text"
                   className="form-control"
@@ -33,7 +33,7 @@ const Account = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="organization">Organization</label>
+                <label htmlFor="organization">Organization</label>
                 <input
                   type="text"
                   className="form-control"
@@ -48,7 +48,7 @@ const Account = () => {
           <div className="row">
             <div className="column">
               <div className="form-group">
-                <label for="address">Address</label>
+                <label htmlFor="address">Address</label>
                 <input
                   type="text"
                   className="form-control"
@@ -59,7 +59,7 @@ const Account = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="state">State</label>
+                <label htmlFor="state">State</label>
                 <input
                   type="text"
                   className="form-control"
@@ -70,7 +70,7 @@ const Account = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="district">District</label>
+                <label htmlFor="district">District</label>
                 <input
                   type="text"
                   className="form-control"

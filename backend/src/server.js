@@ -7,6 +7,8 @@ const cors = require("cors");
 const signupRoute = require("../routes/auth");
 const bodyParser = require("body-parser");
 const path = require("path");
+const fileUpload = require("express-fileupload");
+app.use(fileUpload());
 
 const corsOptions = {
   origin: 'http://10.182.3.247:3000',

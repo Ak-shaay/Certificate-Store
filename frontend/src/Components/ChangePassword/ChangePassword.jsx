@@ -11,7 +11,7 @@ const ChangePassword = () => {
           <div className="row">
             <div className="column">
               <div className="form-group">
-                <label for="district">Current Password</label>
+                <label htmlFor="district">Current Password</label>
                 <input
                   type="text"
                   className="form-control"
@@ -22,7 +22,7 @@ const ChangePassword = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="district">New Password</label>
+                <label htmlFor="district">New Password</label>
                 <input
                   type="text"
                   className="form-control"
@@ -33,7 +33,7 @@ const ChangePassword = () => {
             </div>
             <div className="column">
               <div className="form-group">
-                <label for="district">Confirm Password</label>
+                <label htmlFor="district">Confirm Password</label>
                 <input
                   type="text"
                   className="form-control"
