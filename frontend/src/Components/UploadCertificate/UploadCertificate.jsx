@@ -29,8 +29,9 @@ const handleFileChange = (event) => {
 };
 
 const handleFileUpload = () => {
-  if (file) {
+  if (file!=null) {
     const data = new FormData();
+    console.log("file upload==",file);
     data.append('certificate', file);
   
     let config = {

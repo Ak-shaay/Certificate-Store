@@ -79,9 +79,7 @@ async function getRevokedCertData(filterCriteria) {
         query += ` AND revoke_date_time BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-    console.log("Query to execute:", query);
     const result = await db.executeQuery(query);
-    console.log("Result:", result);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
