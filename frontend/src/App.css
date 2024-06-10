@@ -92,16 +92,23 @@
   border-radius: 10px;
 }
 
-.apply-btn {
-  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
-  color: #ffffff;
+.commonApply-btn {
   height: 2rem;
   width: 5rem;
   cursor: pointer;
+  border-radius: 5px;
+  border: 0;
+  z-index: 10;
+  background-color: white;
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
 }
 
-.apply-btn:hover {
-  background: #0e5171;
+.commonApply-btn:hover {
+  letter-spacing: 2px;
+  color: hsl(0, 0%, 100%);
 }
 
 .close {
@@ -115,4 +122,33 @@
 
 .close:hover {
   color: red;
+}
+.common-btn {
+  padding: 10px 13px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 0;
+  position: absolute;
+  right: 7.5rem;
+  top: 6rem;
+  z-index: 10;
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.common-btn:hover {
+  letter-spacing: 2px;
+  color: hsl(0, 0%, 100%);
+}
+
+.common-btn:active {
+  letter-spacing: 3px;
+  background-color: #4aa7d3;
+  color: hsl(0, 0%, 100%);
+  box-shadow: #4aa7d3 0px 0px 0px 0px;
+  transform: translateY(5px);
+  transition: 100ms;
 }

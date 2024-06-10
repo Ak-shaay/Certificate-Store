@@ -16,14 +16,6 @@
     border-radius: 20px;
 }
 
-.applybtn{
-    border: 1px solid #65b8df;
-     background-color: #89CFF0;
-    color: #ffffff;
-    height: 2rem;
-    border-radius: 10px;
-}
-
 
 @media (max-width: 768px) {
     .table-container {
@@ -37,41 +29,4 @@
 .gridjs-pagination .gridjs-pages button {
     color: #6b7280 !important;
    
-}
-
-
-/* filters */
-#filter {
-    display: none;
-    background-color: white;
-    width: auto;
-    height: auto;
-    z-index: 99;
-    position: fixed;
-    padding: 2rem;
-}
-
-.apply-btn {
-    border: 1px solid #0e5171;
-    background-color: #4aa7d3;
-    color: #ffffff;
-    height: 2rem;
-    width: 5rem;
-    cursor: pointer;
-}
-.apply-btn:hover {
-    background-color: #0e5171;
-}
-
-.close {
-    position: absolute;
-    top: 1em;
-    right: 1em;
-    font-size: medium;
-    color: black;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: red;
 }
