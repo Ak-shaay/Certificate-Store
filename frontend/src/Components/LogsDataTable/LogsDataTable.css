@@ -24,7 +24,19 @@
     height: 2rem;
     border-radius: 10px;
 }
-
+.download-btn {
+    border: 1px solid #65b8df;
+    background-color: #89CFF0!important;
+    color: #ffffff;
+    display: flow-root;
+    height: 2rem;
+    border-radius: 10px;
+    right: 0;
+    padding: 0 10px 0 10px !important;
+}
+.download-btn:hover {
+    background-color: #0e5171!important;
+}
 
 @media (max-width: 768px) {
     .table-container {

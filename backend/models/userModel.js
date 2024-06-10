@@ -96,7 +96,7 @@ async function getCertUsageData() {
 }
 async function getLogsData() {
   try {
-    const query = "SELECT * FROM logs";
+    const query = "SELECT * FROM logs ORDER BY timestamp DESC";
     return db.executeQuery(query);
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
