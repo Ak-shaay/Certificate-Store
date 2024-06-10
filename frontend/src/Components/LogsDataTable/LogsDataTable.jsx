@@ -1,12 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { Grid } from "gridjs"; //datagrid js
+import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import {Issuers} from "../../Data";
+import { Issuers } from "../../Data";
 import { domain } from "../../Context/config";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 
 const LogsDataTable = () => {
+  let logData = "";
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
@@ -16,8 +19,65 @@ const LogsDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
+
+  async function handleDownload(e) {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "landscape"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(10);
+
+    const title = "Report";
+    const headers = [
+      [
+        "Id",
+        "Session Id",
+        "User Id",
+        "Action",
+        "IP address",
+        "Timestamp",
+        "Latitude",
+        "Longitude",
+      ],
+    ];
+
+    const data = logData.map((log) => [
+      log.id,
+      log.session_id,
+      log.user_id,
+      log.action,
+      log.ip_address,
+      log.timestamp,
+      log.latitude,
+      log.longitude,
+    ]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: data,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+    };
+
+    doc.text(title, marginLeft, 40);
+    await doc.autoTable(content);
+    doc.save("report.pdf");
+  }
   const wrapperRef = useRef(null);
 
+  function DownloadButtonPlugin() {
+    return h(
+      "button",
+      { className: `download-btn`, onClick: handleDownload },
+      "Download Logs"
+    );
+  }
   const grid = new Grid({
     pagination: {
       enabled: true,
@@ -36,10 +96,11 @@ const LogsDataTable = () => {
       "Longitude",
     ],
     server: {
-      url: "http://"+domain+":8080/logs",
+      url: "http://" + domain + ":8080/logs",
       method: "POST",
-      then: (data) =>
-        data.map((log) => [
+      then: (data) => {
+        logData = data;
+        return data.map((log) => [
           log.id,
           log.session_id,
           log.user_id,
@@ -48,8 +109,14 @@ const LogsDataTable = () => {
           log.timestamp,
           log.latitude,
           log.longitude,
-        ]),
+        ]);
+      },
     },
+  });
+  grid.plugin.add({
+    id: "downloadPlugin",
+    component: () => DownloadButtonPlugin(),
+    position: PluginPosition.Footer,
   });
   useEffect(() => {
     grid.render(wrapperRef.current);
@@ -77,7 +144,7 @@ const LogsDataTable = () => {
             onChange={handleMultiSelectChange}
           />
           <MultiSelect options={options} placeholder="Select Action" />
-          </div>
+        </div>
         <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
