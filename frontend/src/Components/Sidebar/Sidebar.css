@@ -51,7 +51,7 @@
   margin-left: 2rem;
   position: relative;
   transition: all 300ms ease;
-  border-radius: 0.7rem;
+  border-radius: 0.3rem;
   font-size: 14px;
 }
 
@@ -70,9 +70,10 @@
 }
 
 .active {
-  background: cornsilk;
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  box-shadow: rgb(130, 243, 255) 0px 10px 20px 0px;
   margin-left: 0;
-  color: rgb(9, 140, 247);
+  color: rgb(255, 255, 255);
   cursor: pointer;
 }
 
@@ -80,7 +81,7 @@
   content: "";
   width: 8px;
   height: 100%;
-  background: rgb(250, 236, 182);
+  background: rgb(252, 146, 157);
   margin-right: calc(1rem - 8px);
 }
 

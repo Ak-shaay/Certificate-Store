@@ -80,6 +80,44 @@ const Account = () => {
               </div>
             </div>
           </div>
+          <div className="header mg-tp">Change Password</div>
+          <hr className="" />
+          <div className="row">
+            <div className="column">
+              <div className="form-group">
+                <label htmlFor="district">Current Password</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Current Password"
+                  disabled
+                ></input>
+              </div>
+            </div>
+            <div className="column">
+              <div className="form-group">
+                <label htmlFor="district">New Password</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="New Password"
+                  disabled
+                ></input>
+              </div>
+            </div>
+            <div className="column">
+              <div className="form-group">
+                <label htmlFor="district">Confirm Password</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Confirm Password"
+                  disabled
+                ></input>
+              </div>
+            </div>
+          </div>
+          <button className="loginbtn">Save</button>
         </form>
       </div>
     </div>

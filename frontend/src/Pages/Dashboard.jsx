@@ -14,7 +14,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { domain } from "../Context/config";
-import ChangePassword from "../Components/ChangePassword/ChangePassword";
 function Dashboard() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -114,14 +113,14 @@ function Dashboard() {
           </div>
         );
         break;
-        case 7:
-        content = (
-          <div className="appglass-other">
-            <Sidebar onIndexChange={handleIndexChange} />
-            <ChangePassword/>
-          </div>
-        );
-        break;
+        // case 7:
+        // content = (
+        //   <div className="appglass-other">
+        //     <Sidebar onIndexChange={handleIndexChange} />
+        //     <ChangePassword/>
+        //   </div>
+        // );
+        // break;
         
     default:
       break;
