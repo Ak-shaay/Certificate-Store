@@ -93,6 +93,9 @@
   }
 
   .logo {
+    display: block;
+  }
+  .logo>span>span {
     display: none;
   }
 }
@@ -119,6 +122,15 @@
 
   .logo {
     display: flex;
+    flex-direction: column;
+  }
+  .logo>img{
+    width: 4rem;
+    height: auto;
+  }
+  .logo>span>span {
+    display: flex;
+    font-size: small;
   }
 
   .menu .menuItem:last-child {
