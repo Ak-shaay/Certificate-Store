@@ -79,3 +79,40 @@
     grid-template-columns: 100%;
   }
 }
+/* filter button and component */
+#filter {
+  display: none;
+  background: linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%);
+  box-shadow: rgb(140, 140, 140) 0px 10px 20px 0px;
+  width: auto;
+  height: auto;
+  z-index: 99;
+  position: fixed;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.apply-btn {
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  color: #ffffff;
+  height: 2rem;
+  width: 5rem;
+  cursor: pointer;
+}
+
+.apply-btn:hover {
+  background: #0e5171;
+}
+
+.close {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  font-size: medium;
+  color: black;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: red;
+}

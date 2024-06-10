@@ -14,11 +14,17 @@ const DataTable = () => {
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
+    const blurFilter = document.getElementById("applyFilter")
+    blurFilter.style.filter = "blur(3px)";
+    blurFilter.style.pointerEvents="none";
     filtersElement.style.display = "block";
   };
 
   const handleFilterClose = (e) => {
     const filtersElement = document.getElementById("filter");
+    const blurFilter = document.getElementById("applyFilter")
+    blurFilter.style.filter = "blur(0px)";
+    blurFilter.style.pointerEvents="auto";
     filtersElement.style.display = "none";
   };
   const wrapperRef = useRef(null);
@@ -149,11 +155,11 @@ const DataTable = () => {
         </div>
         </div>
       </div>
-      <button className="filter-btn" onClick={handleFilters}>
+      <div><button className="filter-btn" onClick={handleFilters}>
         Filters
-      </button>
+      </button></div>
 
-      <div className="table-container" ref={wrapperRef} />
+      <div className="table-container" id="applyFilter" ref={wrapperRef} ></div>
     </div>
   );
 };

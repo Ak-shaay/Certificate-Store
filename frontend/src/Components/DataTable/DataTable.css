@@ -31,7 +31,7 @@
     cursor: pointer;
     border: 0;
     position: absolute;
-    right: 5rem;
+    right: 7.5rem;
     top: 6rem;
     z-index: 10;
     background-color: white;
@@ -42,7 +42,7 @@
 }
 
 .filter-btn:hover {
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     background-color: #64c3f0;
     color: hsl(0, 0%, 100%);
     box-shadow: #64c3f0 0px 7px 29px 0px;
@@ -124,7 +124,6 @@
     z-index: 99;
     position: fixed;
     padding: 2rem;
-    border: 1px solid black;
 }
 
 .apply-btn {
