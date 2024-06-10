@@ -154,11 +154,11 @@ const LogsDataTable = () => {
           </div>
           <br />
           <div className="row date_picker">
-            <button className="apply-btn">Apply</button>
+            <button className="commonApply-btn">Apply</button>
           </div>
         </div>
       </div>
-      <button className="filter-btn" onClick={handleFilters}>
+      <button className="common-btn" onClick={handleFilters}>
         Filters
       </button>
       <div className="table-container" ref={wrapperRef} />

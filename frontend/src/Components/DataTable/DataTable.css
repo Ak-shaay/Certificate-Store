@@ -25,38 +25,6 @@
     display: flex;
     flex-direction: row;
 }
-.filter-btn {
-    padding: 10px 13px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: 0;
-    position: absolute;
-    right: 7.5rem;
-    top: 6rem;
-    z-index: 10;
-    background-color: white;
-    box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
-    letter-spacing: 1px;
-    font-size: 14px;
-    transition: all 0.5s ease;
-}
-
-.filter-btn:hover {
-    letter-spacing: 2px;
-    background-color: #64c3f0;
-    color: hsl(0, 0%, 100%);
-    box-shadow: #64c3f0 0px 7px 29px 0px;
-}
-
-.filter-btn:active {
-    letter-spacing: 3px;
-    background-color: #4aa7d3;
-    color: hsl(0, 0%, 100%);
-    box-shadow: #4aa7d3 0px 0px 0px 0px;
-    transform: translateY(5px);
-    transition: 100ms;
-}
-
 
 .action-row {
     display: flex;
@@ -82,14 +50,14 @@
         margin-top: 2rem;
     }
 
-    .filter-btn {
+    .common-btn {
         right: 6rem;
         top: 8rem;
     }
 }
 
 @media (max-width: 580px) {
-    .filter-btn {
+    .common-btn {
         left: 4rem;
         top: 4.8rem;
         width: 5em;
@@ -116,37 +84,3 @@
   
     overflow: hidden;
   }
-#filter {
-    display: none;
-    background-color: white;
-    width: auto;
-    height: auto;
-    z-index: 99;
-    position: fixed;
-    padding: 2rem;
-}
-
-.apply-btn {
-    border: 1px solid #0e5171;
-    background-color: #4aa7d3;
-    color: #ffffff;
-    height: 2rem;
-    width: 5rem;
-    cursor: pointer;
-}
-.apply-btn:hover {
-    background-color: #0e5171;
-}
-
-.close {
-    position: absolute;
-    top: 1em;
-    right: 1em;
-    font-size: medium;
-    color: black;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: red;
-}

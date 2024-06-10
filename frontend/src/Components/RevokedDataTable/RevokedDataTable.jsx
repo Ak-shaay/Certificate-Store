@@ -116,11 +116,11 @@ const RevokedDataTable = () => {
           </div>
           <br />
           <div className="row date_picker">
-            <button className="apply-btn" onClick={applyFilter}>Apply</button>
+            <button className="commonApply-btn" onClick={applyFilter}>Apply</button>
           </div>
         </div>
       </div>
-      <button className="filter-btn" onClick={handleFilters}>
+      <button className="common-btn" onClick={handleFilters}>
         Filters
       </button>
 
