@@ -12,7 +12,7 @@ justify-content: flex-start;
 
 .upload-files-container {
   margin-top: 2rem;
-    background-color: #f7fff7;
+    background: linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%);;
     width: 90%;
     max-width: 600px;
     padding: 30px 30px 10px 30px;
@@ -21,7 +21,7 @@ justify-content: flex-start;
 }
 
 .file-area {
-    border: 2px dashed #59bfff;
+    border: 2px dashed #84a8ff;
     border-radius: 20px;
     margin: 10px 0 15px;
     padding: 30px;
@@ -33,7 +33,7 @@ justify-content: flex-start;
 }
 
 .file-area label .browse-files-text {
-    color: #59bfff;
+    color: #84a8ff;
     font-size: 0.8rem;
     font-weight: bolder;
     cursor: pointer;
@@ -69,8 +69,8 @@ justify-content: flex-start;
     display: none;
     flex-direction: column;
     width: 100%;
-    color: #59bfff;
-    /* background-color: #59bfff; */
+    color: #84a8ff;
+    /* background-color: #84a8ff; */
     position: relative;
     justify-content: space-between;
     align-items: center;
@@ -126,8 +126,8 @@ justify-content: flex-start;
   }
   
  .file-info {
-    color: #59bfff;
-    border: 2px dashed #59bfff;
+    color: #84a8ff;
+    border: 2px dashed #84a8ff;
     text-align: center;
     position: relative;
     display: none;
@@ -147,7 +147,7 @@ justify-content: flex-start;
   .upload-btn {
     font-family: 'Montserrat';
     padding: 15px 40px;
-    background: #59bfff;
+    background:linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
     border: 0;
     border-radius: 18px;
     color: #fff;
