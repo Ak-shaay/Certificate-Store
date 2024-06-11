@@ -86,7 +86,7 @@ const DataTable = () => {
     return h(
       "button",
       { className: `download-btn`, onClick: handleDownload },
-      "Download Logs"
+      "Download Report"
     );
   }
 

@@ -62,7 +62,7 @@ const UsageDataTable = () => {
     return h(
       "button",
       { className: `download-btn`, onClick: handleDownload },
-      "Download Logs"
+      "Download Report"
     );
   }
   const grid = new Grid({
