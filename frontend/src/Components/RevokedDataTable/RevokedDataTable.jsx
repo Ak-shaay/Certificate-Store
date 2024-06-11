@@ -118,7 +118,7 @@ const RevokedDataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Logs"),
+            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],
