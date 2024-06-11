@@ -152,3 +152,20 @@
   transform: translateY(5px);
   transition: 100ms;
 }
+
+/* sctroll bar */
+/* firefox */
+html {
+  scrollbar-color: rgb(132, 168, 255) 70% white;
+  scrollbar-width: thin;
+}
+/* chromium */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 3px;
+  background-color: rgb(132, 168, 255) 70%;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(132, 168, 255) 70%;
+  border-radius: 5px;
+}
