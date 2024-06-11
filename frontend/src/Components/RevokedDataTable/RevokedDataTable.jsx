@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Grid } from "gridjs"; //datagrid js
+import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 
 const RevokedDataTable = () => {
+  let revocationData = '';
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -21,6 +24,46 @@ const RevokedDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
+
+  async function handleDownload(e) {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "landscape"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(10);
+
+    const title = "Issuer Certificates";
+    const headers = [
+      [
+        "Serial No",
+        "Revokation Date",
+        "Reason",
+      ],
+    ];
+
+    const data = revocationData.map((rev) => [
+      rev.serial_number,
+      rev.revoke_date_time,
+      rev.reason,
+    ]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: data,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+    };
+
+    doc.text(title, marginLeft, 40);
+    await doc.autoTable(content);
+    doc.save("Revocation_report.pdf");
+  }
 
   const applyFilter = (e) => {
     e.preventDefault();
@@ -44,6 +87,7 @@ const RevokedDataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
+        revocationData=data;
         gridRef.current.updateConfig({
           data: data.map(rev => [rev.serial_number, rev.revoke_date_time, rev.reason])
         });
@@ -53,19 +97,31 @@ const RevokedDataTable = () => {
   };
 
   useEffect(() => {
-    gridRef.current = new Grid({ // Assigning the grid instance to the ref
-      pagination: {
-        enabled: true,
-        limit: 8,
-      },
+    gridRef.current = new Grid({
+      columns: ["Serial No", "Revokation Date", "Reason"],
+      data: [],
+      pagination: true,
       sort: true,
       search: true,
-      columns: [
-        "Serial No",
-        "Revokation Date",
-        "Reason",
+      style: {
+        th: {
+          backgroundColor: "rgb(132 168 255 / 70%)",
+          color: "white",
+          textAlign: "center",
+        },
+        td: {
+          borderRight: "none",
+          borderLeft: "none",
+        },
+      },
+      plugins: [
+        {
+          id: "downloadPlugin",
+          component: () =>
+            h("button", { className: "download-btn", onClick: handleDownload }, "Download Logs"),
+          position: PluginPosition.Footer,
+        },
       ],
-      data: [],
     });
 
     fetchData();
@@ -93,7 +149,6 @@ const RevokedDataTable = () => {
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
   };
-
   return (
     <div className="MainTableRevoked">
       <div className="filterWindow" id="filter">

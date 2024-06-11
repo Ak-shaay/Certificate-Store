@@ -112,6 +112,17 @@ const LogsDataTable = () => {
         ]);
       },
     },
+    style: {
+      th: {
+        'background-color': 'rgb(132 168 255 / 70%)',
+        color: 'white',
+        'text-align': 'center'
+      },
+      td:{
+        'border-right': 'none',
+        'border-left': 'none',
+      }
+    }
   });
   grid.plugin.add({
     id: "downloadPlugin",
