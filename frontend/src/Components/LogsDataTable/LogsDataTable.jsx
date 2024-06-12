@@ -148,6 +148,8 @@ const LogsDataTable = () => {
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
+        <h2 className="filter-head">Filter</h2>
+        <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
             options={Issuers}
@@ -164,7 +166,8 @@ const LogsDataTable = () => {
             <input type="date" className="datepicker" />
           </div>
           <br />
-          <div className="row date_picker">
+          <div className="filter-row">
+          <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
             <button className="commonApply-btn">Apply</button>
           </div>
         </div>
