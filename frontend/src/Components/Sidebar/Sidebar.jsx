@@ -38,7 +38,6 @@ const Sidebar = ({ onIndexChange }) => {
     //   alert("Please enable location services to proceed.");
     //   return;
     // }
-
     try {
       // Clear token cookie
       const token = localStorage.getItem("token");
@@ -64,7 +63,7 @@ const Sidebar = ({ onIndexChange }) => {
   };
 
   const handleMenuItemClick = (index) => {
-    if (index === 8) {
+    if (index === 7) {
       onIndexChange(index);
       handleLogout();
     } else {
