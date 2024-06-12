@@ -155,6 +155,8 @@ const RevokedDataTable = () => {
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
+        <h2 className="filter-head">Filter</h2>
+        <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
             options={options}
@@ -170,7 +172,8 @@ const RevokedDataTable = () => {
             <input type="date" className="datepicker" onChange={handleEndDateChange} />
           </div>
           <br />
-          <div className="row date_picker">
+          <div className="filter-row">
+          <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
             <button className="commonApply-btn" onClick={applyFilter}>Apply</button>
           </div>
         </div>
