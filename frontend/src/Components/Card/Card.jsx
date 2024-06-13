@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { motion, LayoutGroup,AnimateSharedLayout } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import closeIcon from '../../Images/Icons/cross.png';
 import Chart from "react-apexcharts";
 
