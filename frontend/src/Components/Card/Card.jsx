@@ -3,7 +3,7 @@ import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { motion, AnimateSharedLayout } from "framer-motion";
-import { UilTimes } from "@iconscout/react-unicons";
+import closeIcon from '../../Images/Icons/cross.png';
 import Chart from "react-apexcharts";
 
 // parent Card
@@ -42,7 +42,7 @@ function CompactCard({ param, setExpanded }) {
         <span>{param.title}</span>
       </div>
       <div className="detail">
-        <Png />
+      <img className="sidebar-icons invert" src={Png} alt="" />
         <span>{param.value}</span>
         <span>Last 24 hours</span>
       </div>
@@ -113,7 +113,7 @@ function ExpandedCard({ param, setExpanded }) {
       layoutId="expandableCard"
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
-        <UilTimes onClick={setExpanded} />
+        <img className="icons" src={closeIcon} onClick={setExpanded} alt="" />
       </div>
         <span>{param.title}</span>
       <div className="chartContainer">

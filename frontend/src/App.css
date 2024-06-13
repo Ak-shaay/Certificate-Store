@@ -67,6 +67,18 @@
 }
 
 
+.icons{
+  width: 24px;
+  height: 100%;
+}
+.icons:hover{
+  cursor: pointer;
+}
+.sidebar-icons{
+  width: 24px;
+  height: 24px;
+}
+
 @media only screen and (max-width: 1200px) {
   .appglass-other {
     gap: 0.1rem;
@@ -77,6 +89,14 @@
 @media only screen and (max-width: 768px) {
   .appglass-other {
     grid-template-columns: 100%;
+  }
+  .sidebar-icons{
+    width: 20px;
+    height: 20px;
+  }
+  .icons{
+    width: 18px;
+    height: 18px;
   }
 }
 /* filter button and component */
@@ -175,6 +195,7 @@
   background: linear-gradient(rgb(255 255 255) 0%, rgb(214 213 243) 100%);
 }
 
+.invert { filter: invert(100%); }
 /* sctroll bar */
 /* firefox */
 html {
