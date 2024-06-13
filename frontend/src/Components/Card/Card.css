@@ -86,7 +86,10 @@
 .chartContainer {
   width: 70%;
 }
-
+.card-close{
+  width: 20px;
+  height: 20px;
+}
 @media screen and (max-width: 1200px) {
   .ExpandedCard {
     top: 2rem;

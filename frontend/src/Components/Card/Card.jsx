@@ -113,7 +113,7 @@ function ExpandedCard({ param, setExpanded }) {
       layoutId={param.layoutId}
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
-        <img className="icons" src={closeIcon} onClick={setExpanded} alt="" />
+        <img className="card-close" src={closeIcon} onClick={setExpanded} alt="" />
       </div>
         <span>{param.title}</span>
       <div className="chartContainer">
