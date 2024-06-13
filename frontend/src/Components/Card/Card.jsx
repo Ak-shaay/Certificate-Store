@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { motion, AnimateSharedLayout } from "framer-motion";
+import { motion, LayoutGroup,AnimateSharedLayout } from "framer-motion";
 import closeIcon from '../../Images/Icons/cross.png';
 import Chart from "react-apexcharts";
 
@@ -11,13 +11,13 @@ import Chart from "react-apexcharts";
 const Card = (props) => {
   const [expanded, setExpanded] = useState(false);
   return (
-    <AnimateSharedLayout>
+    <LayoutGroup>
       {expanded ? (
         <ExpandedCard param={props} setExpanded={() => setExpanded(false)} />
       ) : (
         <CompactCard param={props} setExpanded={() => setExpanded(true)} />
       )}
-    </AnimateSharedLayout>
+    </LayoutGroup>
   );
 };
 
@@ -31,7 +31,7 @@ function CompactCard({ param, setExpanded }) {
         background: param.color.backGround,
         boxShadow: param.color.boxShadow,
       }}
-      layoutId="expandableCard"
+      layoutId= {param.layoutId}
       onClick={setExpanded}
     >
       <div className="radialBar">
@@ -110,7 +110,7 @@ function ExpandedCard({ param, setExpanded }) {
         background: param.color.backGround,
         boxShadow: param.color.boxShadow,
       }}
-      layoutId="expandableCard"
+      layoutId={param.layoutId}
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
         <img className="icons" src={closeIcon} onClick={setExpanded} alt="" />
