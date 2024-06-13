@@ -68,6 +68,7 @@ export const cardsData = [
         data: [31, 40, 28, 51, 42, 109],
       },
     ],
+    layoutId:"1",
   },
   {
     title: "Certificates Revoked",
@@ -84,6 +85,7 @@ export const cardsData = [
         data: [10, 100, 50, 70, 80, 30, 40],
       },
     ],
+    layoutId:"2",
   },
   {
     title: "Certificates Expired",
@@ -101,6 +103,7 @@ export const cardsData = [
         data: [10, 25, 15, 30, 12, 15, 20],
       },
     ],
+    layoutId:"3",
   },
 ];
 

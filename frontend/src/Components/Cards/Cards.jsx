@@ -17,6 +17,7 @@ const Cards = () => {
               value={card.value}
               png={card.png}
               series={card.series}
+              layoutId={card.layoutId}
             />
           </div>
         );
