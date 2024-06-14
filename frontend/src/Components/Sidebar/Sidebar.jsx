@@ -34,8 +34,7 @@ const Sidebar = ({ onIndexChange }) => {
     }
   }
 
-  const 
-  handleLogout = async () => {
+  const handleLogout = async () => {
     // if (latitude === null || longitude === null) {
     //   alert("Please enable location services to proceed.");
     //   return;
@@ -65,7 +64,7 @@ const Sidebar = ({ onIndexChange }) => {
   };
 
   const handleMenuItemClick = (index) => {
-    if (index === 8) {
+    if (index === 7) {
       onIndexChange(index);
       handleLogout();
     } else {
