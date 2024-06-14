@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { Grid } from "gridjs"; //datagrid js
+import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 
 const UsageDataTable = () => {
+  let usageData = '';
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
@@ -15,8 +18,53 @@ const UsageDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
+  async function handleDownload(e) {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "landscape"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(10);
+
+    const title = "Usage of Certificates";
+    const headers = [
+      [
+     "Serial No", "Used On", "Remark", "Count"
+      ],
+    ];
+
+    const data = usageData.map((use) => [
+      use.serial_number,
+          use.time_stamp,
+          use.remark,
+          use.count,
+    ]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: data,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+    };
+
+    doc.text(title, marginLeft, 40);
+    await doc.autoTable(content);
+    doc.save("Usage_of_Certificates_report.pdf");
+  }
   const wrapperRef = useRef(null);
 
+  function DownloadButtonPlugin() {
+    return h(
+      "button",
+      { className: `download-btn`, onClick: handleDownload },
+      "Download Report"
+    );
+  }
   const grid = new Grid({
     pagination: {
       enabled: true,
@@ -28,14 +76,32 @@ const UsageDataTable = () => {
     server: {
       url: "http://"+domain+":8080/usageData",
       method: "POST",
-      then: (data) =>
-        data.map((use) => [
+      then: (data) =>{
+        usageData=data;
+        return data.map((use) => [
           use.serial_number,
           use.time_stamp,
           use.remark,
           use.count,
-        ]),
+        ]);
+      },
     },
+    style: {
+      th: {
+        'background-color': 'rgb(132 168 255 / 70%)',
+        color: 'white',
+        'text-align': 'center'
+      },
+      td:{
+        'border-right': 'none',
+        'border-left': 'none',
+      }
+    }
+  });
+  grid.plugin.add({
+    id: "downloadPlugin",
+    component: () => DownloadButtonPlugin(),
+    position: PluginPosition.Footer,
   });
   useEffect(() => {
     grid.render(wrapperRef.current);
@@ -56,6 +122,8 @@ const UsageDataTable = () => {
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
+        <h2 className="filter-head">Filter</h2>
+        <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
             options={options}
@@ -71,7 +139,8 @@ const UsageDataTable = () => {
             <input type="date" className="datepicker" />
           </div>
           <br/>
-          <div className="row date_picker">
+          <div className="filter-row">
+          <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
           <button className="commonApply-btn">Apply</button>
         </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Grid, h } from "gridjs"; //datagrid js
+import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
@@ -8,10 +8,14 @@ import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import { getIndianRegion,Issuers,IndianStates,IndianRegion } from "../../Data";
 import { domain } from "../../Context/config";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+
 
 
 const DataTable = () => {
 
+  let issuerData=''
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     const blurFilter = document.getElementById("applyFilter")
@@ -27,7 +31,64 @@ const DataTable = () => {
     blurFilter.style.pointerEvents="auto";
     filtersElement.style.display = "none";
   };
+  async function handleDownload(e) {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "landscape"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(10);
+
+    const title = "Issuer Certificates";
+    const headers = [
+      [
+      "Serial No",
+      "Name",
+      "Issuer",
+      "Date",
+      "State",
+      "Region",
+      "Validity",
+      "Status",
+      ],
+    ];
+
+    const data = issuerData.map((ca) => [
+      ca.cert_serial_no,
+      ca.subject_name,
+      ca.issuer_name,
+      ca.issue_date,
+      ca.subject_state,
+      getIndianRegion( ca.subject_state),
+      ca.expiry_date,
+      "Status",
+    ]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: data,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+    };
+
+    doc.text(title, marginLeft, 40);
+    await doc.autoTable(content);
+    doc.save("Certificates_report.pdf");
+  }
   const wrapperRef = useRef(null);
+
+  function DownloadButtonPlugin() {
+    return h(
+      "button",
+      { className: `download-btn`, onClick: handleDownload },
+      "Download Report"
+    );
+  }
 
   const grid = new Grid({
     pagination: {
@@ -106,8 +167,9 @@ const DataTable = () => {
     server: {
       url: "http://"+domain+":8080/data",
       method: "POST",
-      then: (data) =>
-        data.map((ca) => [
+      then: (data) => {
+        issuerData = data;
+        return data.map((ca) => [
           ca.cert_serial_no,
           ca.subject_name,
           ca.issuer_name,
@@ -116,9 +178,25 @@ const DataTable = () => {
           getIndianRegion( ca.subject_state),
           ca.expiry_date,
           "Status",
-          null,
-        ]),
+        ]);
+      },
     },
+    style: {
+      th: {
+        'background-color': 'rgb(132 168 255 / 70%)',
+        color: 'white',
+        'text-align': 'center'
+      },
+      td:{
+        'border-right': 'none',
+        'border-left': 'none',
+      }
+    }
+  });
+  grid.plugin.add({
+    id: "downloadPlugin",
+    component: () => DownloadButtonPlugin(),
+    position: PluginPosition.Footer,
   });
   useEffect(() => {
     grid.render(wrapperRef.current);
@@ -133,6 +211,8 @@ const DataTable = () => {
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
+        <h2 className="filter-head">Filter</h2>
+        <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
             options={Issuers}
@@ -150,7 +230,9 @@ const DataTable = () => {
             <input type="date" className="datepicker" />
           </div>
           <br/>
-          <div className="row date_picker">
+          <hr/>
+          <div className="filter-row">
+          <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
           <button className="commonApply-btn">Apply</button>
         </div>
         </div>

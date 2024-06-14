@@ -2,7 +2,8 @@ import React, { useState,useEffect } from "react";
 import "./Sidebar.css";
 import Logo from "../../Images/cdaclogoRound.png";
 import { SidebarData } from "../../Data";
-import { UilBars, UilTimes } from "@iconscout/react-unicons";
+import menuIcon from '../../Images/Icons/menu.png';
+import closeIcon from '../../Images/Icons/cross.png';
 import { motion } from "framer-motion";
 import axios from "axios";
 import { domain } from "../../Context/config";
@@ -39,7 +40,6 @@ const Sidebar = ({ onIndexChange }) => {
     //   alert("Please enable location services to proceed.");
     //   return;
     // }
-
     try {
       // Clear token cookie
       const token = localStorage.getItem("token");
@@ -65,8 +65,7 @@ const Sidebar = ({ onIndexChange }) => {
   };
 
   const handleMenuItemClick = (index) => {
-    if (index === 7) {
-      console.log("Inside sidebar.")
+    if (index === 8) {
       onIndexChange(index);
       handleLogout();
     } else {
@@ -90,7 +89,7 @@ const Sidebar = ({ onIndexChange }) => {
         style={expanded ? { left: "35%" } : { left: "2%" }}
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? <UilTimes /> : <UilBars />}
+        {expanded ? <img className="icons" src={closeIcon} alt="" /> : <img className="icons" src={menuIcon} alt="" />}
       </div>
       <motion.div
         className="sidebar"
@@ -112,7 +111,7 @@ const Sidebar = ({ onIndexChange }) => {
                 key={index}
                 onClick={() => handleMenuItemClick(index)}
               >
-                <item.icon />
+                <img className="sidebar-icons" src={item.icon} alt=""/>
                 <span>{item.heading}</span>
               </div>
             );

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { motion, AnimateSharedLayout } from "framer-motion";
-import { UilTimes } from "@iconscout/react-unicons";
+import { motion, LayoutGroup } from "framer-motion";
+import closeIcon from '../../Images/Icons/cross.png';
 import Chart from "react-apexcharts";
 
 // parent Card
@@ -11,13 +11,13 @@ import Chart from "react-apexcharts";
 const Card = (props) => {
   const [expanded, setExpanded] = useState(false);
   return (
-    <AnimateSharedLayout>
+    <LayoutGroup>
       {expanded ? (
         <ExpandedCard param={props} setExpanded={() => setExpanded(false)} />
       ) : (
         <CompactCard param={props} setExpanded={() => setExpanded(true)} />
       )}
-    </AnimateSharedLayout>
+    </LayoutGroup>
   );
 };
 
@@ -31,7 +31,7 @@ function CompactCard({ param, setExpanded }) {
         background: param.color.backGround,
         boxShadow: param.color.boxShadow,
       }}
-      layoutId="expandableCard"
+      layoutId= {param.layoutId}
       onClick={setExpanded}
     >
       <div className="radialBar">
@@ -42,7 +42,7 @@ function CompactCard({ param, setExpanded }) {
         <span>{param.title}</span>
       </div>
       <div className="detail">
-        <Png />
+      <img className="sidebar-icons invert" src={Png} alt="" />
         <span>{param.value}</span>
         <span>Last 24 hours</span>
       </div>
@@ -110,10 +110,10 @@ function ExpandedCard({ param, setExpanded }) {
         background: param.color.backGround,
         boxShadow: param.color.boxShadow,
       }}
-      layoutId="expandableCard"
+      layoutId={param.layoutId}
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
-        <UilTimes onClick={setExpanded} />
+        <img className="card-close" src={closeIcon} onClick={setExpanded} alt="" />
       </div>
         <span>{param.title}</span>
       <div className="chartContainer">
