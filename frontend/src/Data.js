@@ -1,13 +1,14 @@
 // Sidebar imports
-import {
-  UilEstate,
-  UilUsersAlt,
-  UilPackage,
-  UilSignOutAlt,
-  UilTransaction, 
-  UilFilesLandscapes,
-  UilHome,
-} from "@iconscout/react-unicons";
+import homeIcon from "./Images/Icons/home.png"
+import certIcon from "./Images/Icons/certificate.png"
+import removeIcon from "./Images/Icons/remove.png"
+import signIcon from "./Images/Icons/sign.png"
+import userIcon from "./Images/Icons/user.png"
+import uploadIcon from "./Images/Icons/upload.png"
+import logIcon from "./Images/Icons/history.png"
+import signoutIcon from "./Images/Icons/signout.png"
+import expiredtIcon from "./Images/Icons/expired.png"
+
 // Recent Card Imports
 import img1 from "./Images/cdaclogoRound.png";
 import img2 from "./Images/NSDL-eGov.jpg";
@@ -16,35 +17,35 @@ import img3 from "./Images/IDSign.png";
 // Sidebar Data
 export const SidebarData = [
   {
-    icon: UilEstate,
+    icon: homeIcon,
     heading: "Dashboard",
   },
   {
-    icon: UilPackage,
+    icon: certIcon,
     heading: "Issued Certificates",
   },
   {
-    icon: UilPackage,
+    icon: removeIcon,
     heading: "Revoked Certificates",
   },
   {
-    icon: UilPackage,
+    icon: signIcon,
     heading: "DSC Usages",
   },
   {
-    icon: UilPackage,
+    icon: uploadIcon,
     heading: "Add Your Certificate",
   },
   {
-    icon: UilUsersAlt,
+    icon: userIcon,
     heading: "Account",
   },
   {
-    icon: UilPackage,
+    icon: logIcon,
     heading: "Logs",
   },
   {
-    icon: UilSignOutAlt,
+    icon: signoutIcon,
     heading: 'Signout',
   },
 ];
@@ -60,13 +61,14 @@ export const cardsData = [
     },
     barValue: 60,
     value: "25,970",
-    png: UilHome,
+    png: homeIcon,
     series: [
       {
         name: "CA",
         data: [31, 40, 28, 51, 42, 109],
       },
     ],
+    layoutId:"1",
   },
   {
     title: "Certificates Revoked",
@@ -76,13 +78,14 @@ export const cardsData = [
     },
     barValue: 80,
     value: "14,270",
-    png: UilFilesLandscapes,
+    png: removeIcon,
     series: [
       {
         name: "Certificates",
         data: [10, 100, 50, 70, 80, 30, 40],
       },
     ],
+    layoutId:"2",
   },
   {
     title: "Certificates Expired",
@@ -93,13 +96,14 @@ export const cardsData = [
     },
     barValue: 60,
     value: "4,270",
-    png: UilTransaction,
+    png: expiredtIcon,
     series: [
       {
         name: "Transactions",
         data: [10, 25, 15, 30, 12, 15, 20],
       },
     ],
+    layoutId:"3",
   },
 ];
 
