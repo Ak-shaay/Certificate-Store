@@ -11,7 +11,7 @@ const fileUpload = require("express-fileupload");
 app.use(fileUpload());
 
 const corsOptions = {
-  origin: 'http://192.168.1.110:3000',
+  origin: 'http://192.168.10.248:3000',
   credentials: true,
 };
 app.use(cors(corsOptions));
