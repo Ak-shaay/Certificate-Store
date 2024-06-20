@@ -207,6 +207,9 @@
   color: black;
   background: linear-gradient(rgb(255 255 255) 0%, rgb(214 213 243) 100%);
 }
+.cancel:hover{
+  background: linear-gradient(rgb(255, 101, 101) 0%, rgb(255, 0, 0) 100%);
+}
 
 /* sctroll bar */
 /* firefox */
