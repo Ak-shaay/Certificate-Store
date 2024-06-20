@@ -15,7 +15,9 @@ import { autoTable } from "jspdf-autotable";
 
 const DataTable = () => {
 
-  let issuerData=''
+  let issuerData='';
+  const wrapperRef = useRef(null);
+  const gridRef = useRef(null);
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     const blurFilter = document.getElementById("applyFilter")
@@ -80,24 +82,42 @@ const DataTable = () => {
     await doc.autoTable(content);
     doc.save("Certificates_report.pdf");
   }
-  const wrapperRef = useRef(null);
 
-  function DownloadButtonPlugin() {
-    return h(
-      "button",
-      { className: `download-btn`, onClick: handleDownload },
-      "Download Report"
-    );
-  }
+  const fetchData = () => {
+    const filterData = {
+      
+    };
 
-  const grid = new Grid({
-    pagination: {
-      enabled: true,
-      limit: 8,
-    },
-    sort: true,
-    search: true,
-    columns: [
+    fetch(`http://${domain}:8080/data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(filterData)
+    })
+      .then(response => response.json())
+      .then(data => {
+        issuerData=data;
+        gridRef.current.updateConfig({
+          data: data.map((ca) => [
+          ca.cert_serial_no,
+          ca.subject_name,
+          ca.issuer_name,
+          ca.issue_date,
+          ca.subject_state,
+          getIndianRegion( ca.subject_state),
+          ca.expiry_date,
+          "Status",
+        ])
+        });
+        gridRef.current.forceRender();
+      })
+      .catch(error => console.error("Error fetching data:", error));
+  };
+
+  useEffect(() => {
+    gridRef.current = new Grid({
+      columns: [
       "Serial No",
       "Name",
       "Issuer",
@@ -164,42 +184,37 @@ const DataTable = () => {
         },
       },
     ],
-    server: {
-      url: "http://"+domain+":8080/data",
-      method: "POST",
-      then: (data) => {
-        issuerData = data;
-        return data.map((ca) => [
-          ca.cert_serial_no,
-          ca.subject_name,
-          ca.issuer_name,
-          ca.issue_date,
-          ca.subject_state,
-          getIndianRegion( ca.subject_state),
-          ca.expiry_date,
-          "Status",
-        ]);
+      data: [],
+      pagination: true,
+      sort: true,
+      search: true,
+      style: {
+        th: {
+          backgroundColor: "rgb(132 168 255 / 70%)",
+          color: "white",
+          textAlign: "center",
+        },
+        td: {
+          borderRight: "none",
+          borderLeft: "none",
+        },
       },
-    },
-    style: {
-      th: {
-        'background-color': 'rgb(132 168 255 / 70%)',
-        color: 'white',
-        'text-align': 'center'
-      },
-      td:{
-        'border-right': 'none',
-        'border-left': 'none',
-      }
-    }
-  });
-  grid.plugin.add({
-    id: "downloadPlugin",
-    component: () => DownloadButtonPlugin(),
-    position: PluginPosition.Footer,
-  });
-  useEffect(() => {
-    grid.render(wrapperRef.current);
+      plugins: [
+        {
+          id: "downloadPlugin",
+          component: () =>
+            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+          position: PluginPosition.Footer,
+        },
+      ],
+    });
+
+    fetchData();
+    gridRef.current.render(wrapperRef.current);
+
+    return () => {
+      gridRef.current.destroy();
+    };
   }, []);
   const handleMultiSelectChange = (selectedItems) => {
     console.log("Selected items:", selectedItems);
