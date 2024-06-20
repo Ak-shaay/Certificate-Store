@@ -9,6 +9,9 @@ import { autoTable } from "jspdf-autotable";
 
 const UsageDataTable = () => {
   let usageData = '';
+  const wrapperRef = useRef(null);
+  const gridRef = useRef(null);
+  
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
@@ -56,55 +59,69 @@ const UsageDataTable = () => {
     await doc.autoTable(content);
     doc.save("Usage_of_Certificates_report.pdf");
   }
-  const wrapperRef = useRef(null);
+ 
 
-  function DownloadButtonPlugin() {
-    return h(
-      "button",
-      { className: `download-btn`, onClick: handleDownload },
-      "Download Report"
-    );
-  }
-  const grid = new Grid({
-    pagination: {
-      enabled: true,
-      limit: 8,
-    },
-    sort: true,
-    search: true,
-    columns: ["Serial No", "Used On", "Remark", "Count"],
-    server: {
-      url: "http://"+domain+":8080/usageData",
+  const fetchData = () => {
+    const filterData = {
+    };
+
+    fetch(`http://${domain}:8080/usageData`, {
       method: "POST",
-      then: (data) =>{
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(filterData)
+    })
+      .then(response => response.json())
+      .then(data => {
         usageData=data;
-        return data.map((use) => [
+        gridRef.current.updateConfig({
+          data: data.map((use) => [
           use.serial_number,
           use.time_stamp,
           use.remark,
           use.count,
-        ]);
-      },
-    },
-    style: {
-      th: {
-        'background-color': 'rgb(132 168 255 / 70%)',
-        color: 'white',
-        'text-align': 'center'
-      },
-      td:{
-        'border-right': 'none',
-        'border-left': 'none',
-      }
-    }
-  });
-  grid.plugin.add({
-    id: "downloadPlugin",
-    component: () => DownloadButtonPlugin(),
-    position: PluginPosition.Footer,
-  });
+        ])
+        });
+        gridRef.current.forceRender();
+      })
+      .catch(error => console.error("Error fetching data:", error));
+  };
+
   useEffect(() => {
-    grid.render(wrapperRef.current);
+    gridRef.current = new Grid({
+      columns: ["Serial No", "Used On", "Remark", "Count"],
+      data: [],
+      pagination: true,
+      sort: true,
+      search: true,
+      style: {
+        th: {
+          backgroundColor: "rgb(132 168 255 / 70%)",
+          color: "white",
+          textAlign: "center",
+        },
+        td: {
+          borderRight: "none",
+          borderLeft: "none",
+        },
+      },
+      plugins: [
+        {
+          id: "downloadPlugin",
+          component: () =>
+            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+          position: PluginPosition.Footer,
+        },
+      ],
+    });
+
+    fetchData();
+    gridRef.current.render(wrapperRef.current);
+
+    return () => {
+      gridRef.current.destroy();
+    };
   }, []);
 
   const options = [

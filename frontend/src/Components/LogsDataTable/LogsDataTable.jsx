@@ -10,6 +10,9 @@ import { autoTable } from "jspdf-autotable";
 
 const LogsDataTable = () => {
   let logData = "";
+  const wrapperRef = useRef(null);
+  const gridRef = useRef(null);
+
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
@@ -69,23 +72,41 @@ const LogsDataTable = () => {
     await doc.autoTable(content);
     doc.save("report.pdf");
   }
-  const wrapperRef = useRef(null);
 
-  function DownloadButtonPlugin() {
-    return h(
-      "button",
-      { className: `download-btn`, onClick: handleDownload },
-      "Download Logs"
-    );
-  }
-  const grid = new Grid({
-    pagination: {
-      enabled: true,
-      limit: 8,
-    },
-    sort: true,
-    search: true,
-    columns: [
+  const fetchData = () => {
+    const filterData = {
+    };
+
+    fetch(`http://${domain}:8080/logs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(filterData)
+    })
+      .then(response => response.json())
+      .then(data => {
+        logData=data;
+        gridRef.current.updateConfig({
+          data: data.map((log) => [
+          log.id,
+          log.session_id,
+          log.user_id,
+          log.action,
+          log.ip_address,
+          log.timestamp,
+          log.latitude,
+          log.longitude,
+        ]),
+        });
+        gridRef.current.forceRender();
+      })
+      .catch(error => console.error("Error fetching data:", error));
+  };
+
+ useEffect(() => {
+    gridRef.current = new Grid({
+      columns: [
       "Id",
       "Session Id",
       "User Id",
@@ -95,43 +116,39 @@ const LogsDataTable = () => {
       "Latitude",
       "Longitude",
     ],
-    server: {
-      url: "http://" + domain + ":8080/logs",
-      method: "POST",
-      then: (data) => {
-        logData = data;
-        return data.map((log) => [
-          log.id,
-          log.session_id,
-          log.user_id,
-          log.action,
-          log.ip_address,
-          log.timestamp,
-          log.latitude,
-          log.longitude,
-        ]);
+      data: [],
+      pagination: true,
+      sort: true,
+      search: true,
+      style: {
+        th: {
+          backgroundColor: "rgb(132 168 255 / 70%)",
+          color: "white",
+          textAlign: "center",
+        },
+        td: {
+          borderRight: "none",
+          borderLeft: "none",
+        },
       },
-    },
-    style: {
-      th: {
-        'background-color': 'rgb(132 168 255 / 70%)',
-        color: 'white',
-        'text-align': 'center'
-      },
-      td:{
-        'border-right': 'none',
-        'border-left': 'none',
-      }
-    }
-  });
-  grid.plugin.add({
-    id: "downloadPlugin",
-    component: () => DownloadButtonPlugin(),
-    position: PluginPosition.Footer,
-  });
-  useEffect(() => {
-    grid.render(wrapperRef.current);
+      plugins: [
+        {
+          id: "downloadPlugin",
+          component: () =>
+            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+          position: PluginPosition.Footer,
+        },
+      ],
+    });
+
+    fetchData();
+    gridRef.current.render(wrapperRef.current);
+
+    return () => {
+      gridRef.current.destroy();
+    };
   }, []);
+
 
   const options = [
     { label: "Login", value: "Login" },
