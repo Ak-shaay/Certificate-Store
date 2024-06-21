@@ -200,7 +200,27 @@ async function logout(req, res) {
 
 async function fetchData(req, res) {
   try {
-    const certDetails = await userModel.getCertData();
+    const { issuer,state,region, startDate, endDate,validityStartDate,validityEnddate } = req.body;
+    const filterCriteria = {};
+
+    if (issuer && issuer.length > 0) {
+      filterCriteria.issuers = issuer;
+    }
+    if (state && state.length > 0) {
+      filterCriteria.states = state;
+    }
+    if (region && region.length > 0) {
+      filterCriteria.regions = region;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    if (validityStartDate && validityEnddate) {
+      filterCriteria.validityStartDate = validityStartDate;
+      filterCriteria.validityEnddate = validityEnddate;
+    }
+    const certDetails = await userModel.getCertData(filterCriteria);
     res.json(certDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -229,7 +249,16 @@ async function fetchRevokedData(req, res) {
 }
 async function fetchUsageData(req, res) {
   try {
-    const usageDetails = await userModel.getCertUsageData();
+    const { usage, startDate, endDate } = req.body;
+    const filterCriteria = {};
+    if (usage && usage.length > 0) {
+      filterCriteria.usage = usage;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    const usageDetails = await userModel.getCertUsageData(filterCriteria);
     res.json(usageDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -238,7 +267,19 @@ async function fetchUsageData(req, res) {
 }
 async function fetchLogsData(req, res) {
   try {
-    const logsDetails = await userModel.getLogsData();
+    const { user,action, startDate, endDate } = req.body;
+    const filterCriteria = {};
+    if (user && user.length > 0) {
+      filterCriteria.users = user;
+    }
+    if (action && action.length > 0) {
+      filterCriteria.actions = action;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    const logsDetails = await userModel.getLogsData(filterCriteria);
     res.json(logsDetails);
   } catch (error) {
     console.error("Error:", error.message);

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
@@ -16,8 +16,17 @@ import { autoTable } from "jspdf-autotable";
 const DataTable = () => {
 
   let issuerData='';
+  var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
+  const [issuer,setIssuer]=useState([])
+  const [state,setState]=useState([])
+  const [region,setRegion]=useState([])
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [validityStartDate, setValidityStartDate] = useState("");
+  const [validityEndDate, setValidityEndDate] = useState("");
+
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     const blurFilter = document.getElementById("applyFilter")
@@ -82,12 +91,22 @@ const DataTable = () => {
     await doc.autoTable(content);
     doc.save("Certificates_report.pdf");
   }
+  const applyFilter = (e) => {
+    e.preventDefault();
+    fetchData();
+    handleFilterClose();
+  };
 
   const fetchData = () => {
     const filterData = {
-      
+      issuer:issuer,
+      state:state,
+      region:region,
+      startDate: startDate,
+      endDate: endDate,
+      validityStartDate: validityStartDate,
+      validityEndDate: validityEndDate
     };
-
     fetch(`http://${domain}:8080/data`, {
       method: "POST",
       headers: {
@@ -216,10 +235,30 @@ const DataTable = () => {
       gridRef.current.destroy();
     };
   }, []);
-  const handleMultiSelectChange = (selectedItems) => {
-    console.log("Selected items:", selectedItems);
+
+  const handleIssuerFilter = (selectedItems) => {
+    setIssuer(selectedItems.map(item=> item.value))
+  };
+  const handleStateFilter = (selectedItems) => {
+    setState(selectedItems.map(item=> item.value))
+  };
+  const handleRegionFilter = (selectedItems) => {
+    setRegion(selectedItems.map(item=> item.value))
+  };
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
   };
 
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
+  const handleValidityStartDateChange = (e) => {
+    setValidityStartDate(e.target.value);
+  };
+
+  const handleValidityEndDateChange = (e) => {
+    setValidityEndDate(e.target.value);
+  };
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
@@ -232,23 +271,31 @@ const DataTable = () => {
           <MultiSelect
             options={Issuers}
             placeholder="Select Issuer"
-            onChange={handleMultiSelectChange}
+            onChange={handleIssuerFilter}
           />
-          <MultiSelect options={IndianStates} placeholder="Select State" />
-          <MultiSelect options={IndianRegion} placeholder="Select Region" />
+          <MultiSelect options={IndianStates} onChange={handleStateFilter} placeholder="Select State" />
+          <MultiSelect options={IndianRegion} onChange={handleRegionFilter} placeholder="Select Region" />
           </div>
           <div className="col">
           <div className="row date_picker">
-            <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" />
+          <span>Issued between</span>
+            <label className="dateLable"> Start Date</label>
+            <input id="startDate" onChange={handleStartDateChange} type="date" className="datepicker" max={today}/>
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" />
+            <input id="endDate" onChange={handleEndDateChange} type="date" className="datepicker" max={today} />
+          </div>
+          <div className="row date_picker">
+            <span>Valdity between</span>
+            <label className="dateLable"> Start Date</label>
+            <input id="startDate" onChange={handleValidityStartDateChange} type="date" className="datepicker" max={today}/>
+            <label className="dateLable">End Date</label>
+            <input id="endDate" onChange={handleValidityEndDateChange} type="date" className="datepicker" max={today} />
           </div>
           <br/>
           <hr/>
           <div className="filter-row">
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
-          <button className="commonApply-btn">Apply</button>
+          <button className="commonApply-btn" onClick={applyFilter}>Apply</button>
         </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect,useState, useRef } from "react";
 import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
@@ -10,6 +10,10 @@ import { autoTable } from "jspdf-autotable";
 
 const LogsDataTable = () => {
   let logData = "";
+  const [selectedUser, setSelectedUser] = useState([]);
+  const [selectedAction, setSelectedAction] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
 
@@ -73,8 +77,19 @@ const LogsDataTable = () => {
     doc.save("report.pdf");
   }
 
+  const applyFilter = (e) => {
+    e.preventDefault();
+    fetchData();
+    handleFilterClose();
+  };
+
   const fetchData = () => {
     const filterData = {
+      user:selectedUser,
+      action:selectedAction,
+      startDate: startDate,
+      endDate: endDate
+
     };
 
     fetch(`http://${domain}:8080/logs`, {
@@ -155,8 +170,18 @@ const LogsDataTable = () => {
     { label: "Logout", value: "Logout" },
     { label: "Other", value: "Other" },
   ];
-  const handleMultiSelectChange = (selectedItems) => {
-    console.log("Selected items:", selectedItems);
+  const handleUserFilter = (selectedItems) => {
+    setSelectedUser(selectedItems.map(item => item.value));
+  };
+  const handleActtionFIlter = (selectedItems) => {
+    setSelectedAction(selectedItems.map(item => item.value));
+  };
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
   };
 
   return (
@@ -171,21 +196,21 @@ const LogsDataTable = () => {
           <MultiSelect
             options={Issuers}
             placeholder="Select User"
-            onChange={handleMultiSelectChange}
+            onChange={handleUserFilter}
           />
-          <MultiSelect options={options} placeholder="Select Action" />
+          <MultiSelect options={options}  onChange={handleActtionFIlter} placeholder="Select Action" />
         </div>
         <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" onChange={handleStartDateChange} className="datepicker" />
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" onChange={handleEndDateChange} className="datepicker" />
           </div>
           <br />
           <div className="filter-row">
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
-            <button className="commonApply-btn">Apply</button>
+            <button className="commonApply-btn"  onClick={applyFilter} >Apply</button>
           </div>
         </div>
       </div>
