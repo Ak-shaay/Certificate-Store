@@ -1,6 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
-
+const regionMap = require("../config/regionMap");
 const saltRounds = 10;
 
 //authenticate user
@@ -71,10 +71,9 @@ async function getCertData(filterCriteria) {
           const states = filterCriteria.states.map(state => `'${state}'`).join(",");
           query += ` AND s.subj_ST IN (${states})`;
         }
-        // if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-        //   const regions = filterCriteria.regions.map(region => `'${region}'`).join(",");
-        //   query += ` AND s.subj_ST IN (${regions})`;
-        // }
+        if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+          query += ` AND s.subj_ST IN (${regionMap(filterCriteria.regions)})`;
+        }
         if (filterCriteria.startDate && filterCriteria.endDate) {
           query += ` AND c.issue_date BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
         }
