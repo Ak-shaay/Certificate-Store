@@ -27,7 +27,7 @@ const LogsDataTable = () => {
     filtersElement.style.display = "none";
   };
 
-  async function handleDownload(e) {
+  async function handleDownload(logData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -50,8 +50,33 @@ const LogsDataTable = () => {
         "Longitude",
       ],
     ];
+    let transformedData = [];
+    logData.forEach(entry => {
+    let id = entry[0];
+    let session_id = entry[1];
+    let user_id = entry[2];
+    let action = entry[3];
+    let ip_address = entry[4];
+    let timestamp = entry[6];
+    let latitude = entry[7];
+    let longitude = entry[8];
 
-    const data = logData.map((log) => [
+    // Creating object in desired format
+    let transformedObject = {
+        "id": id,
+        "session_id": session_id,
+        "user_id": user_id,
+        "action": action,
+        "ip_address": ip_address,
+        "timestamp": timestamp,
+        "latitude": latitude,
+        "longitude": longitude,
+
+    };
+    transformedData.push(transformedObject);
+});
+
+    const data = transformedData.map((log) => [
       log.id,
       log.session_id,
       log.user_id,
@@ -150,7 +175,7 @@ const LogsDataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],

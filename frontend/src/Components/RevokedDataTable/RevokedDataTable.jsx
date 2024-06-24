@@ -8,7 +8,6 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 
 const RevokedDataTable = () => {
-  let revocationData = '';
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -25,7 +24,7 @@ const RevokedDataTable = () => {
     filtersElement.style.display = "none";
   };
 
-  async function handleDownload(e) {
+  async function handleDownload(revocationData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -44,7 +43,22 @@ const RevokedDataTable = () => {
       ],
     ];
 
-    const data = revocationData.map((rev) => [
+    let transformedData = [];
+    revocationData.forEach(entry => {
+    let serial_number = entry[0];
+    let revoke_date_time = entry[1];
+    let reason = entry[2];
+
+    // Creating object in desired format
+    let transformedObject = {
+        "serial_number": serial_number,
+        "revoke_date_time": revoke_date_time,
+        "reason": reason,
+        
+    };
+    transformedData.push(transformedObject);
+});
+    const data = transformedData.map((rev) => [
       rev.serial_number,
       rev.revoke_date_time,
       rev.reason,
@@ -87,7 +101,6 @@ const RevokedDataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
-        revocationData=data;
         gridRef.current.updateConfig({
           data: data.map(rev => [rev.serial_number, rev.revoke_date_time, rev.reason])
         });
@@ -118,7 +131,7 @@ const RevokedDataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick: ()=>handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],

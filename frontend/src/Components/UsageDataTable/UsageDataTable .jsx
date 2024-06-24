@@ -8,7 +8,6 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 
 const UsageDataTable = () => {
-  let usageData = '';
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
   const [selectedUsage, setSelectedUsage] = useState([]);
@@ -24,7 +23,7 @@ const UsageDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
-  async function handleDownload(e) {
+  async function handleDownload(usageData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -41,7 +40,25 @@ const UsageDataTable = () => {
       ],
     ];
 
-    const data = usageData.map((use) => [
+    let transformedData = [];
+    usageData.forEach(entry => {
+    let serial_number = entry[0];
+    let time_stamp = entry[1];
+    let remark = entry[2];
+    let count = entry[3];
+
+
+    // Creating object in desired format
+    let transformedObject = {
+        "serial_number": serial_number,
+        "time_stamp": time_stamp,
+        "remark": remark,
+        "count": count,
+    };
+    transformedData.push(transformedObject);
+});
+
+    const data = transformedData.map((use) => [
       use.serial_number,
           use.time_stamp,
           use.remark,
@@ -83,7 +100,6 @@ const UsageDataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
-        usageData=data;
         gridRef.current.updateConfig({
           data: data.map((use) => [
           use.serial_number,
@@ -119,7 +135,7 @@ const UsageDataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],

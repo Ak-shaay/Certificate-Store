@@ -15,7 +15,6 @@ import { autoTable } from "jspdf-autotable";
 
 const DataTable = () => {
 
-  let issuerData='';
   var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
@@ -42,7 +41,7 @@ const DataTable = () => {
     blurFilter.style.pointerEvents="auto";
     filtersElement.style.display = "none";
   };
-  async function handleDownload(e) {
+  async function handleDownload(issuedData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -65,8 +64,28 @@ const DataTable = () => {
       "Status",
       ],
     ];
+    let transformedData = [];
+    issuedData.forEach(entry => {
+    let cert_serial_no = entry[0];
+    let subject_name = entry[1];
+    let issuer_name = entry[2];
+    let issue_date = entry[3];
+    let subject_state = entry[4];
+    let expiry_date = entry[6];
 
-    const data = issuerData.map((ca) => [
+    // Creating object in desired format
+    let transformedObject = {
+        "cert_serial_no": cert_serial_no,
+        "subject_name": subject_name,
+        "subject_state": subject_state,
+        "issuer_name": issuer_name,
+        "issue_date": issue_date,
+        "expiry_date": expiry_date
+    };
+    transformedData.push(transformedObject);
+});
+
+    const data = transformedData.map((ca) => [
       ca.cert_serial_no,
       ca.subject_name,
       ca.issuer_name,
@@ -116,7 +135,6 @@ const DataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
-        issuerData=data;
         gridRef.current.updateConfig({
           data: data.map((ca) => [
           ca.cert_serial_no,
@@ -222,7 +240,7 @@ const DataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick: ()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],
