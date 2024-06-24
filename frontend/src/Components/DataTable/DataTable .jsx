@@ -296,14 +296,14 @@ const DataTable = () => {
           </div>
           <div className="col">
           <div className="row date_picker">
-          <span>Issued between</span>
+          <span className="date_pick_label">Issued between</span>
             <label className="dateLable"> Start Date</label>
             <input id="startDate" onChange={handleStartDateChange} type="date" className="datepicker" max={today}/>
             <label className="dateLable">End Date</label>
             <input id="endDate" onChange={handleEndDateChange} type="date" className="datepicker" max={today} />
           </div>
           <div className="row date_picker">
-            <span>Valdity between</span>
+            <span className="date_pick_label">Valdity between</span>
             <label className="dateLable"> Start Date</label>
             <input id="startDate" onChange={handleValidityStartDateChange} type="date" className="datepicker" max={today}/>
             <label className="dateLable">End Date</label>
