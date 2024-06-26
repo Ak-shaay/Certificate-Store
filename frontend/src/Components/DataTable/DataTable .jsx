@@ -1,4 +1,4 @@
-import React, { useEffect, useRef,useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
@@ -16,9 +16,17 @@ import { autoTable } from "jspdf-autotable";
 const DataTable = () => {
   
 
-  let issuerData='';
+  var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
+  const [issuer,setIssuer]=useState([])
+  const [state,setState]=useState([])
+  const [region,setRegion]=useState([])
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [validityStartDate, setValidityStartDate] = useState("");
+  const [validityEndDate, setValidityEndDate] = useState("");
+
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     const blurFilter = document.getElementById("applyFilter")
@@ -34,7 +42,6 @@ const DataTable = () => {
     blurFilter.style.pointerEvents="auto";
     filtersElement.style.display = "none";
   };
-
   async function handleDownload(e) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -58,8 +65,28 @@ const DataTable = () => {
       "Status",
       ],
     ];
+    let transformedData = [];
+    issuedData.forEach(entry => {
+    let cert_serial_no = entry[0];
+    let subject_name = entry[1];
+    let issuer_name = entry[2];
+    let issue_date = entry[3];
+    let subject_state = entry[4];
+    let expiry_date = entry[6];
 
-    const data = issuerData.map((ca) => [
+    // Creating object in desired format
+    let transformedObject = {
+        "cert_serial_no": cert_serial_no,
+        "subject_name": subject_name,
+        "subject_state": subject_state,
+        "issuer_name": issuer_name,
+        "issue_date": issue_date,
+        "expiry_date": expiry_date
+    };
+    transformedData.push(transformedObject);
+});
+
+    const data = transformedData.map((ca) => [
       ca.cert_serial_no,
       ca.subject_name,
       ca.issuer_name,
@@ -84,12 +111,22 @@ const DataTable = () => {
     await doc.autoTable(content);
     doc.save("Certificates_report.pdf");
   }
+  const applyFilter = (e) => {
+    e.preventDefault();
+    fetchData();
+    handleFilterClose();
+  };
 
   const fetchData = () => {
     const filterData = {
-      
+      issuer:issuer,
+      state:state,
+      region:region,
+      startDate: startDate,
+      endDate: endDate,
+      validityStartDate: validityStartDate,
+      validityEndDate: validityEndDate
     };
-
     fetch(`http://${domain}:8080/data`, {
       method: "POST",
       headers: {
@@ -99,7 +136,6 @@ const DataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
-        issuerData=data;
         gridRef.current.updateConfig({
           data: data.map((ca) => [
           ca.cert_serial_no,
@@ -205,7 +241,7 @@ const DataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick: ()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],
@@ -218,10 +254,30 @@ const DataTable = () => {
       gridRef.current.destroy();
     };
   }, []);
-  const handleMultiSelectChange = (selectedItems) => {
-    console.log("Selected items:", selectedItems);
+
+  const handleIssuerFilter = (selectedItems) => {
+    setIssuer(selectedItems.map(item=> item.value))
+  };
+  const handleStateFilter = (selectedItems) => {
+    setState(selectedItems.map(item=> item.value))
+  };
+  const handleRegionFilter = (selectedItems) => {
+    setRegion(selectedItems.map(item=> item.value))
+  };
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
   };
 
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
+  const handleValidityStartDateChange = (e) => {
+    setValidityStartDate(e.target.value);
+  };
+
+  const handleValidityEndDateChange = (e) => {
+    setValidityEndDate(e.target.value);
+  };
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
@@ -234,23 +290,23 @@ const DataTable = () => {
           <MultiSelect
             options={Issuers}
             placeholder="Select Issuer"
-            onChange={handleMultiSelectChange}
+            onChange={handleIssuerFilter}
           />
-          <MultiSelect options={IndianStates} placeholder="Select State" />
-          <MultiSelect options={IndianRegion} placeholder="Select Region" />
+          <MultiSelect options={IndianStates} onChange={handleStateFilter} placeholder="Select State" />
+          <MultiSelect options={IndianRegion} onChange={handleRegionFilter} placeholder="Select Region" />
           </div>
           <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" id='startDate' className="datepicker" onChange=""/>
-            <label className="dateLable" >End Date</label>
-            <input type="date" className="datepicker"/>
+            <input type="date" className="datepicker" />
+            <label className="dateLable">End Date</label>
+            <input type="date" className="datepicker" />
           </div>
           <br/>
           <hr/>
           <div className="filter-row">
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
-          <button className="commonApply-btn">Apply</button>
+          <button className="commonApply-btn" onClick={applyFilter}>Apply</button>
         </div>
         </div>
       </div>

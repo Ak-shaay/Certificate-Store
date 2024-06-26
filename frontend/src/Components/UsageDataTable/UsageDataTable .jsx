@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
@@ -8,10 +8,12 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 
 const UsageDataTable = () => {
-  let usageData = '';
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
-  
+  const [selectedUsage, setSelectedUsage] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
@@ -21,7 +23,7 @@ const UsageDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
-  async function handleDownload(e) {
+  async function handleDownload(usageData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -38,7 +40,25 @@ const UsageDataTable = () => {
       ],
     ];
 
-    const data = usageData.map((use) => [
+    let transformedData = [];
+    usageData.forEach(entry => {
+    let serial_number = entry[0];
+    let time_stamp = entry[1];
+    let remark = entry[2];
+    let count = entry[3];
+
+
+    // Creating object in desired format
+    let transformedObject = {
+        "serial_number": serial_number,
+        "time_stamp": time_stamp,
+        "remark": remark,
+        "count": count,
+    };
+    transformedData.push(transformedObject);
+});
+
+    const data = transformedData.map((use) => [
       use.serial_number,
           use.time_stamp,
           use.remark,
@@ -59,12 +79,18 @@ const UsageDataTable = () => {
     await doc.autoTable(content);
     doc.save("Usage_of_Certificates_report.pdf");
   }
- 
+  const applyFilter = (e) => {
+    e.preventDefault();
+    fetchData();
+    handleFilterClose();
+  };
 
   const fetchData = () => {
     const filterData = {
+      usage:selectedUsage,
+      startDate: startDate,
+      endDate: endDate
     };
-
     fetch(`http://${domain}:8080/usageData`, {
       method: "POST",
       headers: {
@@ -74,7 +100,6 @@ const UsageDataTable = () => {
     })
       .then(response => response.json())
       .then(data => {
-        usageData=data;
         gridRef.current.updateConfig({
           data: data.map((use) => [
           use.serial_number,
@@ -110,7 +135,7 @@ const UsageDataTable = () => {
         {
           id: "downloadPlugin",
           component: () =>
-            h("button", { className: "download-btn", onClick: handleDownload }, "Download Report"),
+            h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
       ],
@@ -127,12 +152,22 @@ const UsageDataTable = () => {
   const options = [
     { label: "Signing", value: "Signing" },
     { label: "Encryption", value: "Encryption" },
+    { label: "Decryption", value: "Decryption" },
     { label: "other", value: "other" },
   ];
-  const handleMultiSelectChange = (selectedItems) => {
-    console.log("Selected items:", selectedItems);
+
+  const handleUsageFilter = (selectedItems) => {
+    setSelectedUsage(selectedItems.map(item => item.value));
+    console.log(selectedUsage);
   };
 
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
   return (
     <div className="MainTableUsage">
       <div className="filterWindow" id="filter">
@@ -145,20 +180,20 @@ const UsageDataTable = () => {
           <MultiSelect
             options={options}
             placeholder="Select Usage"
-            onChange={handleMultiSelectChange}
+            onChange={handleUsageFilter}
           />
           </div>
           <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" onChange={handleStartDateChange} className="datepicker" />
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" onChange={handleEndDateChange} className="datepicker" />
           </div>
           <br/>
           <div className="filter-row">
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
-          <button className="commonApply-btn">Apply</button>
+          <button className="commonApply-btn"  onClick={applyFilter}>Apply</button>
         </div>
         </div>
       </div>

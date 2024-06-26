@@ -1,6 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
-
+const regionMap = require("../config/regionMap");
 const saltRounds = 10;
 
 //authenticate user
@@ -56,11 +56,32 @@ async function logUserAction(
   }
 }
 
-async function getCertData() {
+async function getCertData(filterCriteria) {
   try {
-    const query =
-      "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id ORDER BY c.issue_date DESC";
-    return db.executeQuery(query);
+    let query =
+      "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id WHERE 1=1 ";
+      if (filterCriteria) {
+        if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+          const issuers = filterCriteria.issuers.map(issuer => `'${issuer}'`).join(",");
+          query += ` AND  i.issuer_CN IN (${issuers})`;
+        }
+        if (filterCriteria.states && filterCriteria.states.length > 0) {
+          const states = filterCriteria.states.map(state => `'${state}'`).join(",");
+          query += ` AND s.subj_ST IN (${states})`;
+        }
+        if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+          query += ` AND s.subj_ST IN (${regionMap(filterCriteria.regions)})`;
+        }
+        if (filterCriteria.startDate && filterCriteria.endDate) {
+          query += ` AND c.issue_date BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+        }
+        if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
+          query += ` AND c.issue_date BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+        }
+      }
+      query += "ORDER BY c.issue_date DESC"
+      const result = await db.executeQuery(query);
+    return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -86,18 +107,45 @@ async function getRevokedCertData(filterCriteria) {
     throw e;
   }
 }
-async function getCertUsageData() {
+async function getCertUsageData(filterCriteria) {
   try {
-    const query = "SELECT * FROM cert_usage";
-    return db.executeQuery(query);
+    let query = "SELECT * FROM cert_usage WHERE 1=1";
+    if (filterCriteria) {
+      if (filterCriteria.usage && filterCriteria.usage.length > 0) {
+        const usages = filterCriteria.usage.map(usage => `'${usage}'`).join(",");
+        query += ` AND remark IN (${usages})`;
+      }
+      if (filterCriteria.startDate && filterCriteria.endDate) {
+        query += ` AND time_stamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+      }
+    }
+
+    const result = await db.executeQuery(query);
+    return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
-async function getLogsData() {
+async function getLogsData(filterCriteria) {
   try {
-    const query = "SELECT * FROM logs ORDER BY timestamp DESC";
-    return db.executeQuery(query);
+    let query = "SELECT * FROM logs WHERE 1=1";
+    if (filterCriteria) {
+      if (filterCriteria.users && filterCriteria.users.length > 0) {
+        const users = filterCriteria.users.map(user => `'${user}'`).join(",");
+        query += ` AND user_id IN (${users})`;
+      }
+      if (filterCriteria.actions && filterCriteria.actions.length > 0) {
+        const actions = filterCriteria.actions.map(action => `'${action}'`).join(",");
+        query += ` AND action IN (${actions})`;
+      }
+      
+      if (filterCriteria.startDate && filterCriteria.endDate) {
+        query += ` AND revoke_date_time BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+      }
+    }
+    query += " ORDER BY timestamp DESC"
+      const result = await db.executeQuery(query);
+    return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
