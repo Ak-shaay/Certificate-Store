@@ -5,8 +5,7 @@ import axios from "axios";
 import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { domain } from "../Context/config";
-
-const LOGIN_URL = "http://"+domain+":8080/login";
+import api from "./axiosInstance";
 
 const Login = () => {
   const { setAuth } = useAuth();
@@ -54,16 +53,13 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        LOGIN_URL,
-        { username, password, latitude, longitude },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await api.axiosInstance.post("/login", {
+        username,
+        password,
+        latitude,
+        longitude,
+      });
       if (response?.data?.accessToken) {
-        localStorage.setItem("token", JSON.stringify(response.data));
         setUsername("");
         setPassword("");
         setErrMsg("");
@@ -74,7 +70,7 @@ const Login = () => {
         errRef.current.focus();
       }
     } catch (err) {
-      console.log("err:",err);
+      console.log("err:", err);
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
@@ -84,7 +80,10 @@ const Login = () => {
       } else if (err.response.status === 401) {
         setErrMsg("Unauthorized access. Please check your credentials.");
       } else if (err.response.status === 423) {
-        setErrMsg("Maximum attempts reached.Please try after 24 hr."+ err.response.data.timeStamp);
+        setErrMsg(
+          "Maximum attempts reached.Please try after 24 hr." +
+            err.response.data.timeStamp
+        );
       } else {
         setErrMsg("Unexpected error occurred. Please try again later.");
       }
@@ -102,7 +101,7 @@ const Login = () => {
             <h1>Sign in</h1>
             <input
               type="text"
-              placeholder="Name"
+              placeholder="Username"
               id="username"
               value={username}
               name="username"

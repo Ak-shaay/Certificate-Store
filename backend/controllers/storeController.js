@@ -1,12 +1,38 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const fsPromises = require("fs").promises;
-const path = require("path");
 const forge = require("node-forge");
 require("dotenv").config();
+const fs = require('fs');
 
+const TOKEN_FILE = "tokens.json";
+let refreshTokens = {};
 
+if (fs.existsSync(TOKEN_FILE)) {
+  refreshTokens = JSON.parse(fs.readFileSync(TOKEN_FILE));
+}
+
+const saveTokensToFile = () => {
+  fs.writeFileSync(TOKEN_FILE, JSON.stringify(refreshTokens));
+};
+
+const generateAccessToken = (userName, role, authNo) => {
+  return jwt.sign(
+    { username: userName, role: role, userId: authNo },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "30m" }
+  ); // Access token expires in 15 minutes
+};
+
+const generateRefreshToken = (userName, role) => {
+  const refreshToken = jwt.sign(
+    { username: userName, role: role },
+    process.env.REFRESH_TOKEN_SECRET
+  );
+  refreshTokens[userName] = refreshToken; // Store refresh token
+  saveTokensToFile();
+  return refreshToken;
+};
 async function signup(req, res) {
   const { username, password } = req.body;
   try {
@@ -29,14 +55,19 @@ async function signup(req, res) {
 async function loginAttempt(userExist) {
   if (userExist.status == "inactive") {
     const currentTime = new Date();
-    const timeDifferenceMs = currentTime - userExist.last_attempt;
+    console.log("currentTime: ", currentTime);
+    const timeDifferenceMs = currentTime - userExist.LastAttempt;
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
     // Check if the time difference is greater than 24 hours
     if (timeDifferenceHours > 24) {
       //updates the database
-      await userModel.updateStatus(userExist.username, "active");
-      await userModel.updateAttempts(userExist.username, 2);
+      await userModel.updateStatus(
+        userExist.UserName,
+        "active",
+        2,
+        currentTime
+      );
       return true;
     } else {
       // console.log("The time difference is not greater than 24 hours.");
@@ -46,6 +77,7 @@ async function loginAttempt(userExist) {
     return true;
   }
 }
+
 async function login(req, res) {
   const { username, password, latitude, longitude } = req.body;
   try {
@@ -53,29 +85,27 @@ async function login(req, res) {
     if (!userExist.length) {
       return res.status(400).json({ error: "User does not exist" });
     }
-    const storedHashedPassword = userExist[0].password;
+    const storedHashedPassword = userExist[0].Password;
     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
     if (passwordMatch && (await loginAttempt(userExist[0]))) {
       // Successful login
-      const accessToken = jwt.sign(
-        { username: userExist[0].username, role: userExist[0].role, userId: userExist[0].login_id },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "300s" }
+      const accessToken = generateAccessToken(
+        userExist[0].UserName,
+        userExist[0].Role,
+        userExist[0].AuthNo
       );
-      const refreshToken = jwt.sign(
-        { username: userExist[0].username, role: userExist[0].role },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
+      const refreshToken = generateRefreshToken(
+        userExist[0].UserName,
+        userExist[0].Role
       );
-      req.session.username = userExist[0].username;
-      req.session.userid = userExist[0].id;
-      req.session.userRole = userExist[0].role;
-      await userModel.updateAttempts(req.session.username, 2);
+      req.session.username = userExist[0].UserName;
+      req.session.userid = userExist[0].AuthNo;
+      req.session.userRole = userExist[0].Role;
       await userModel.logUserAction(
-        req.sessionID,
-        userExist[0].login_id,
-        "login",
+        userExist[0].UserName,
+        new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
+        "login",
         latitude,
         longitude
       );
@@ -83,11 +113,16 @@ async function login(req, res) {
     } else {
       // Failed login attempt
       if (userExist[0].attempts > 0) {
-        let attempt = (userExist[0].attempts -= 1);
-        await userModel.updateAttempts(userExist[0].username, attempt);
+        let attempt = (userExist[0].Attempts -= 1);
+        await userModel.updateAttempts(userExist[0].UserName, attempt);
       } else {
-        await userModel.updateStatus(userExist[0].username, "inactive");
-        return res.status(423).json({ timeStamp: userExist[0].last_attempt });
+        await userModel.updateStatus(
+          userExist[0].UserName,
+          "inactive",
+          0,
+          new Date().toISOString().replace("T", " ").slice(0, 19)
+        );
+        return res.status(423).json({ timeStamp: userExist[0].LastAttempt });
       }
       return res.status(401).json({ error: "Incorrect credentials" });
     }
@@ -147,7 +182,7 @@ async function userSessionInfo(req, res) {
 async function certDetails(req, res) {
   const certificateFile = req.files.certificate;
   let Certificate = {};
-  if (certificateFile==null) {
+  if (certificateFile == null) {
     res.status(400).json({ error: "Certificate file is required." });
     return;
   }
@@ -161,18 +196,17 @@ async function certDetails(req, res) {
       console.error("Error: Failed to parse the certificate.");
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
-    }
-    else{
-    Certificate = {
-      serialNo: parsedCertificate.serialNumber,
-      commonName: parsedCertificate.subject.attributes[7].value,
-      country: parsedCertificate.subject.attributes[0].value,
-      state: parsedCertificate.subject.attributes[4].value,
-      region: parsedCertificate.subject.attributes[5].value,
-      issuer: parsedCertificate.subject.attributes[2].value,
-      validity: parsedCertificate.validity.notAfter,
-      hash: parsedCertificate.subject.hash,
-    };
+    } else {
+      Certificate = {
+        serialNo: parsedCertificate.serialNumber,
+        commonName: parsedCertificate.subject.attributes[7].value,
+        country: parsedCertificate.subject.attributes[0].value,
+        state: parsedCertificate.subject.attributes[4].value,
+        region: parsedCertificate.subject.attributes[5].value,
+        issuer: parsedCertificate.subject.attributes[2].value,
+        validity: parsedCertificate.validity.notAfter,
+        hash: parsedCertificate.subject.hash,
+      };
     }
     res.json({ ...Certificate });
   } catch (error) {
@@ -180,17 +214,34 @@ async function certDetails(req, res) {
     res.status(500).json({ error: "Error parsing the certificate." });
   }
 }
+async function refreshToken(){
+  const refreshToken = req.cookies.refreshToken;
+  const username = req.body.username; // Assuming username is sent with the request
+
+  if (!refreshToken || refreshTokens[username] !== refreshToken) {
+    return res.status(401).json({ message: 'Refresh token is required or invalid' });
+  }
+
+  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid refresh token' });
+    }
+    const accessToken = generateAccessToken({ username: user.username });
+    res.json({ accessToken });
+  });
+}
 
 async function logout(req, res) {
+  const userName = req.session.username;
   req.session.destroy((err) => {
     if (err) {
       res.status(500).json({ msg: "Error while logging out." });
     }
     userModel.logUserAction(
-      req.sessionID,
-      req.body.userID,
-      "logout",
+      userName,
+      new Date().toISOString().replace("T", " ").slice(0, 19),
       req.ip,
+      "logout",
       req.body.latitude,
       req.body.longitude
     );
@@ -219,8 +270,10 @@ async function fetchRevokedData(req, res) {
       filterCriteria.endDate = endDate;
     }
 
-    const revokedCertDetails = await userModel.getRevokedCertData(filterCriteria);
-    
+    const revokedCertDetails = await userModel.getRevokedCertData(
+      filterCriteria
+    );
+
     res.json(revokedCertDetails);
   } catch (error) {
     console.error("Error:", error.message);
@@ -245,6 +298,17 @@ async function fetchLogsData(req, res) {
     res.status(500).json({ error: "Error." });
   }
 }
+async function profileData(req, res, next) {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+
+  const profileData = await profileData;
+}
 
 module.exports = {
   signup,
@@ -259,4 +323,6 @@ module.exports = {
   fetchRevokedData,
   fetchUsageData,
   fetchLogsData,
+  profileData,
+  refreshToken
 };

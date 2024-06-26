@@ -5,17 +5,20 @@ const authentication = require('../models/userModel')
 
 
 router.get('/', authController.landingPage)
+router.get('/profileData', authentication.authenticateUser, authController.profileData);
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/data', authController.fetchData);
+router.post('/refreshToken', authController.refreshToken);
 router.post('/revokedData', authController.fetchRevokedData);
 router.post('/usageData', authController.fetchUsageData);
 router.post('/logs', authController.fetchLogsData);
 router.get('/dashboard',authentication.authenticateUser,authController.dashboard);
-router.post('/logout',authController.logout)
+router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
-router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo)
-router.post('/cert', authentication.authenticateUser, authController.certDetails)
+router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo);
+router.post('/cert', authentication.authenticateUser, authController.certDetails);
+
 
 
 module.exports = router;

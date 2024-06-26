@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
@@ -14,6 +14,7 @@ import { autoTable } from "jspdf-autotable";
 
 
 const DataTable = () => {
+  
 
   let issuerData='';
   const wrapperRef = useRef(null);
@@ -33,6 +34,7 @@ const DataTable = () => {
     blurFilter.style.pointerEvents="auto";
     filtersElement.style.display = "none";
   };
+
   async function handleDownload(e) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -240,9 +242,9 @@ const DataTable = () => {
           <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" />
-            <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" id='startDate' className="datepicker" onChange=""/>
+            <label className="dateLable" >End Date</label>
+            <input type="date" className="datepicker"/>
           </div>
           <br/>
           <hr/>
