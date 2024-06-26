@@ -24,7 +24,7 @@ async function authenticateUser(req, res, next) {
 }
 
 function findUserByUsername(username) {
-  const query = "SELECT * FROM login WHERE username = ?";
+  const query = "SELECT * FROM login WHERE UserName = ?";
   return db.executeQuery(query, [username]);
 }
 async function createUser(username, password) {
@@ -33,25 +33,23 @@ async function createUser(username, password) {
   return db.executeQuery(query, [username, hashedPassword]);
 }
 async function logUserAction(
-  sessionID,
-  userId,
-  action,
+  UserName,
+  timeStamp,
   ip,
+  Action,
   latitude,
-  longitude,
-  timeStamp
+  longitude
 ) {
   const query =
-    "INSERT INTO logs (session_id,user_id, action,ip_address, latitude,longitude,timestamp) VALUES (?, ?, ?, ?, ?, ?,?)";
+    "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?)";
   try {
     await db.executeQuery(query, [
-      sessionID,
-      userId,
-      action,
+      UserName,
+      timeStamp,
       ip,
+      Action,
       latitude,
       longitude,
-      timeStamp,
     ]);
   } catch (err) {
     console.log("Error while logging: ", err);
@@ -72,7 +70,9 @@ async function getRevokedCertData(filterCriteria) {
     let query = "SELECT * FROM revocation_data WHERE 1=1";
     if (filterCriteria) {
       if (filterCriteria.reason && filterCriteria.reason.length > 0) {
-        const reasons = filterCriteria.reason.map(reason => `'${reason}'`).join(",");
+        const reasons = filterCriteria.reason
+          .map((reason) => `'${reason}'`)
+          .join(",");
         query += ` AND reason IN (${reasons})`;
       }
       if (filterCriteria.startDate && filterCriteria.endDate) {
@@ -83,7 +83,7 @@ async function getRevokedCertData(filterCriteria) {
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
-    throw e; 
+    throw e;
   }
 }
 async function getCertUsageData() {
@@ -103,11 +103,11 @@ async function getLogsData() {
   }
 }
 
-async function updateStatus(username, status, timestamp) {
+async function updateStatus(username, status, attempts, timestamp) {
   try {
     const query =
-      "UPDATE login SET status = ? ,last_attempt = ? WHERE username = ?";
-    return db.executeQuery(query, [status, timestamp, username]);
+      "UPDATE login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
+    return db.executeQuery(query, [status, attempts, timestamp, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }

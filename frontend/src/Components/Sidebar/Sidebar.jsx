@@ -7,8 +7,9 @@ import closeIcon from '../../Images/Icons/cross.png';
 import { motion } from "framer-motion";
 import axios from "axios";
 import { domain } from "../../Context/config";
+import axiosInstance from "../../Pages/axiosInstance";
 
-const Sidebar = ({ onIndexChange }) => {
+const Sidebar = ({ onIndexChange, role}) => {
   const [selected, setSelected] = useState(0);
   const [expanded, setExpanded] = useState(true);
   const [latitude, setLatitude] = useState(null);
@@ -41,19 +42,18 @@ const Sidebar = ({ onIndexChange }) => {
     // }
     try {
       // Clear token cookie
-      const token = localStorage.getItem("token");
+      const token = axiosInstance.getAccessToken();
       const decodedToken = token ? JSON.parse(atob(token.split(".")[1])) : null;
       const userID = decodedToken ? decodedToken.userId : [];
-      localStorage.removeItem("token");
+      if(token){
+        axiosInstance.setAuthHeader(token);
+      }
       // Make a request to the logout endpoint on the backend
-      await axios.post(
-        "http://"+domain+":8080/logout",
+      await axiosInstance.post(
+        "/logout",
         { userID, latitude, longitude },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
       );
+      axiosInstance.removeAccessToken();
       // Redirect to the login page or perform any other necessary actions
       window.location.href = "http://"+domain+":3000"; // Redirect to landing page
       // console.log("logged out");
@@ -103,19 +103,24 @@ const Sidebar = ({ onIndexChange }) => {
         </div>
 
         <div className="menu">
-          {SidebarData.map((item, index) => {
-            return (
-              <div
-                className={selected === index ? "menuItem active" : "menuItem"}
-                key={index}
-                onClick={() => handleMenuItemClick(index)}
-              >
-                <img className="sidebar-icons" src={item.icon} alt=""/>
-                <span>{item.heading}</span>
-              </div>
-            );
-          })}
-        </div>
+      {SidebarData.map((item, index) => {
+        // Skip index 6 if the user's role is admin
+        if (role != 'Admin' && index === 6) {
+          return null; 
+        }
+
+        return (
+          <div
+            className={selected === index ? "menuItem active" : "menuItem"}
+            key={index}
+            onClick={() => handleMenuItemClick(index)}
+          >
+            <img className="sidebar-icons" src={item.icon} alt=""/>
+            <span>{item.heading}</span>
+          </div>
+        );
+      })}
+    </div>
       </motion.div>
     </>
   );

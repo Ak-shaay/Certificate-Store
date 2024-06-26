@@ -10,10 +10,10 @@ import RightSideAccount from "../Components/RightSideAccount/RightSideAccount";
 import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
 import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
 import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
+import api from './axiosInstance';
 import {
   useNavigate,
 } from "react-router-dom";
-import { domain } from "../Context/config";
 function Dashboard() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -21,11 +21,11 @@ function Dashboard() {
   useEffect(()=>{
     const fetchData = async () => {
       try {
-        const Dashboard_URL = "http://"+domain+":8080/dashboard";
-        const response = await axios.get(Dashboard_URL, {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        });
+        const accessToken = api.getAccessToken();
+        if(accessToken){
+          api.setAuthHeader(accessToken);
+        }
+        const response = await api.axiosInstance.get("/dashboard")
   
         if (response.status === 200) {
           // Dashboard data received successfully
@@ -43,6 +43,11 @@ function Dashboard() {
   
     fetchData(); 
   },[])
+  //get the info from JWT token
+  const token = api.getAccessToken();
+  const decodedToken = token ? JSON.parse(atob(token.split('.')[1])): null;
+  const username = decodedToken ? decodedToken.username : "";
+  const role = decodedToken ? decodedToken.role: "";
   //handle index change
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
@@ -54,8 +59,8 @@ function Dashboard() {
     case 0:
       content = (
         <div className="appglass">
-          <Sidebar onIndexChange={handleIndexChange} />
-          <MainDash/>
+          <Sidebar onIndexChange={handleIndexChange} role={role}/>
+          <MainDash username={username}/>
           <RightSide />
         </div>
       );

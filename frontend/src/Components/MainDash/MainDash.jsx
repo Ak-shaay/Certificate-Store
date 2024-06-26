@@ -4,11 +4,7 @@ import Table from "../Table/Table";
 import "./MainDash.css";
 // import Cookies from "js-cookie";
 
-const MainDash = () => {
-  // const cookieValue = Cookies.get("userCookie");
-    const token = localStorage.getItem("token");
-    const decodedToken = token ? JSON.parse(atob(token.split('.')[1])): null;
-    const username = decodedToken ? decodedToken.username : "";
+const MainDash = ({username}) => {
   return (
     <div className="MainDash">
       
