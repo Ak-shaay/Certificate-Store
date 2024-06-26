@@ -38,7 +38,11 @@
     cursor: pointer;
 }
 
-
+.date_pick_label{
+    align-self: center;
+    font-weight: bold;
+    color: rgb(149, 146, 252);
+}
 @media (max-width: 768px) {
     .MainTable {
         margin-top: 3rem;
