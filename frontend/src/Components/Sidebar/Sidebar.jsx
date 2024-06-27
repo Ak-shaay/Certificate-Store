@@ -7,7 +7,7 @@ import closeIcon from '../../Images/Icons/cross.png';
 import { motion } from "framer-motion";
 import axios from "axios";
 import { domain } from "../../Context/config";
-import axiosInstance from "../../Pages/axiosInstance";
+import api from "../../Pages/axiosInstance";
 
 const Sidebar = ({ onIndexChange, role}) => {
   const [selected, setSelected] = useState(0);
@@ -42,18 +42,18 @@ const Sidebar = ({ onIndexChange, role}) => {
     // }
     try {
       // Clear token cookie
-      const token = axiosInstance.getAccessToken();
+      const token = api.getAccessToken();
       const decodedToken = token ? JSON.parse(atob(token.split(".")[1])) : null;
       const userID = decodedToken ? decodedToken.userId : [];
       if(token){
-        axiosInstance.setAuthHeader(token);
+        api.setAuthHeader(token);
       }
       // Make a request to the logout endpoint on the backend
-      await axiosInstance.post(
+      await api.axiosInstance.post(
         "/logout",
         { userID, latitude, longitude },
       );
-      axiosInstance.removeAccessToken();
+      api.removeAccessToken();
       // Redirect to the login page or perform any other necessary actions
       window.location.href = "http://"+domain+":3000"; // Redirect to landing page
       // console.log("logged out");
