@@ -48,11 +48,12 @@ axiosInstance.interceptors.response.use(
       try {
         // Example of token refresh logic
         const newToken = await getNewToken();
-        setAccessToken( newToken);
+        setAccessToken(newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
         // Redirect to login page if refresh fails
+        console.log("inside axiosinstance")
         removeAccessToken();
         window.location.href = '/login';
         return Promise.reject(error);
@@ -80,4 +81,4 @@ const getNewToken = async() =>{
         throw new Error('Failed to refresh token');
       }
 }
-export default {axiosInstance, getAccessToken, removeAccessToken, setAuthHeader};
+export default {axiosInstance, getAccessToken, removeAccessToken,setAccessToken, setAuthHeader};

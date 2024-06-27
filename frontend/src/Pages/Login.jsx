@@ -60,6 +60,7 @@ const Login = () => {
         longitude,
       });
       if (response?.data?.accessToken) {
+        api.setAccessToken(response.data.accessToken)
         setUsername("");
         setPassword("");
         setErrMsg("");
@@ -70,7 +71,6 @@ const Login = () => {
         errRef.current.focus();
       }
     } catch (err) {
-      console.log("err:", err);
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
