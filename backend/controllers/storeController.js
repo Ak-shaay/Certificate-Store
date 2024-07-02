@@ -20,7 +20,7 @@ const generateAccessToken = (userName, role, authNo) => {
   return jwt.sign(
     { username: userName, role: role, userId: authNo },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "30m" }
+    { expiresIn: "2m" }
   ); // Access token expires in 15 minutes
 };
 
@@ -53,9 +53,9 @@ async function signup(req, res) {
 
 // update the user status
 async function loginAttempt(userExist) {
-  if (userExist.status == "inactive") {
+
+  if (userExist.LoginStatus == "inactive") {
     const currentTime = new Date();
-    console.log("currentTime: ", currentTime);
     const timeDifferenceMs = currentTime - userExist.LastAttempt;
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
