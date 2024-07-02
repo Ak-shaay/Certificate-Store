@@ -24,12 +24,12 @@ async function authenticateUser(req, res, next) {
 }
 
 function findUserByUsername(username) {
-  const query = "SELECT * FROM login WHERE UserName = ?";
+  const query = "SELECT * FROM Login WHERE UserName = ?";
   return db.executeQuery(query, [username]);
 }
 async function createUser(username, password) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  const query = "INSERT INTO login (username, password) VALUES (?,?)";
+  const query = "INSERT INTO login (UserName, Password,Role,AuthNo) VALUES (?,?,?,?)";
   return db.executeQuery(query, [username, hashedPassword]);
 }
 async function logUserAction(
@@ -59,27 +59,27 @@ async function logUserAction(
 async function getCertData(filterCriteria) {
   try {
     let query =
-      "SELECT c.serial_number AS cert_serial_no, s.subj_CN AS subject_name, s.subj_ST AS subject_state, i.issuer_CN AS issuer_name, c.issue_date, c.expiry_date FROM Certificate c JOIN Subject s ON c.subj_srNo = s.subj_srNo JOIN Issuer_Certificate ic ON c.issuer_cert_srNo = ic.issuer_cert_srNo JOIN Issuer i ON ic.issuer_ID = i.issuer_id WHERE 1=1 ";
+      "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName WHERE 1=1  ";
       if (filterCriteria) {
         if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
           const issuers = filterCriteria.issuers.map(issuer => `'${issuer}'`).join(",");
-          query += ` AND  i.issuer_CN IN (${issuers})`;
+          query += ` AND  c.IssuerCommonName IN (${issuers})`;
         }
         if (filterCriteria.states && filterCriteria.states.length > 0) {
           const states = filterCriteria.states.map(state => `'${state}'`).join(",");
-          query += ` AND s.subj_ST IN (${states})`;
+          query += ` AND c.Subject_ST (${states})`;
         }
         if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-          query += ` AND s.subj_ST IN (${regionMap(filterCriteria.regions)})`;
+          query += ` AND c.Subject_ST (${regionMap(filterCriteria.regions)})`;
         }
         if (filterCriteria.startDate && filterCriteria.endDate) {
-          query += ` AND c.issue_date BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+          query += ` AND c.IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
         }
         if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
-          query += ` AND c.issue_date BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+          query += ` AND c.IssueDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
         }
       }
-      query += "ORDER BY c.issue_date DESC"
+      query += "ORDER BY c.IssueDate DESC"
       const result = await db.executeQuery(query);
     return result;
   } catch (e) {
@@ -88,16 +88,16 @@ async function getCertData(filterCriteria) {
 }
 async function getRevokedCertData(filterCriteria) {
   try {
-    let query = "SELECT * FROM revocation_data WHERE 1=1";
+    let query = "SELECT SerialNumber AS serial_number, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
     if (filterCriteria) {
       if (filterCriteria.reason && filterCriteria.reason.length > 0) {
         const reasons = filterCriteria.reason
           .map((reason) => `'${reason}'`)
           .join(",");
-        query += ` AND reason IN (${reasons})`;
+        query += ` AND Reason IN (${reasons})`;
       }
       if (filterCriteria.startDate && filterCriteria.endDate) {
-        query += ` AND revoke_date_time BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+        query += ` AND RevokeDateTime BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
     const result = await db.executeQuery(query);
@@ -109,14 +109,14 @@ async function getRevokedCertData(filterCriteria) {
 }
 async function getCertUsageData(filterCriteria) {
   try {
-    let query = "SELECT * FROM cert_usage WHERE 1=1";
+    let query = "SELECT SerialNumber AS serial_number, UsageDate AS time_stamp, Remark AS remark, Count AS count FROM Cert_Usage WHERE 1=1";
     if (filterCriteria) {
       if (filterCriteria.usage && filterCriteria.usage.length > 0) {
         const usages = filterCriteria.usage.map(usage => `'${usage}'`).join(",");
-        query += ` AND remark IN (${usages})`;
+        query += ` AND Remark IN (${usages})`;
       }
       if (filterCriteria.startDate && filterCriteria.endDate) {
-        query += ` AND time_stamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+        query += ` AND UsageDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
 
@@ -128,22 +128,22 @@ async function getCertUsageData(filterCriteria) {
 }
 async function getLogsData(filterCriteria) {
   try {
-    let query = "SELECT * FROM logs WHERE 1=1";
+    let query = "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
     if (filterCriteria) {
       if (filterCriteria.users && filterCriteria.users.length > 0) {
         const users = filterCriteria.users.map(user => `'${user}'`).join(",");
-        query += ` AND user_id IN (${users})`;
+        query += ` AND UserName IN (${users})`;
       }
       if (filterCriteria.actions && filterCriteria.actions.length > 0) {
         const actions = filterCriteria.actions.map(action => `'${action}'`).join(",");
-        query += ` AND action IN (${actions})`;
+        query += ` AND ActionType IN (${actions})`;
       }
       
       if (filterCriteria.startDate && filterCriteria.endDate) {
-        query += ` AND revoke_date_time BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+        query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-    query += " ORDER BY timestamp DESC"
+    query += " ORDER BY TimeStamp DESC"
       const result = await db.executeQuery(query);
     return result;
   } catch (e) {
@@ -154,7 +154,7 @@ async function getLogsData(filterCriteria) {
 async function updateStatus(username, status, attempts, timestamp) {
   try {
     const query =
-      "UPDATE login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
+      "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
     return db.executeQuery(query, [status, attempts, timestamp, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
@@ -162,7 +162,7 @@ async function updateStatus(username, status, attempts, timestamp) {
 }
 async function updateAttempts(username, attempts) {
   try {
-    const query = "UPDATE login SET attempts = ? WHERE username = ?";
+    const query = "UPDATE Login SET attempts = ? WHERE UserName = ?";
     return db.executeQuery(query, [attempts, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
