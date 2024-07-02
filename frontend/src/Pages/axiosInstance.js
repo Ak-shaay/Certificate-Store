@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { domain } from '../Context/config';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://192.168.10.248:8080', //base URL
+  baseURL: 'http://'+domain+':8080', //base URL
     headers: { "Content-Type": "application/json" },
     withCredentials: true,
 });
@@ -24,7 +25,7 @@ const setAuthHeader = (accessToken) => {
 // Request interceptor for adding JWT token to headers
 axiosInstance.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token');
+    const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
