@@ -92,7 +92,7 @@ const RevokedDataTable = () => {
       endDate: endDate
     };
 
-    fetch(`http://${domain}:8080/revokedData`, {
+    fetch(`http://${domain}:8081/revokedData`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
