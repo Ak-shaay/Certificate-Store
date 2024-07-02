@@ -86,7 +86,7 @@ function Dashboard() {
     case 3:
       content = (
         <div className="appglass-other">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleIndexChange} role={role}/>
           <UsageDataTable />
           {/* <RightSide /> */}
         </div>
@@ -113,7 +113,7 @@ function Dashboard() {
       case 6:
         content = (
           <div className="appglass-other">
-            <Sidebar onIndexChange={handleIndexChange} />
+            <Sidebar onIndexChange={handleIndexChange} role={role}/>
             <LogsDataTable/>
           </div>
         );
