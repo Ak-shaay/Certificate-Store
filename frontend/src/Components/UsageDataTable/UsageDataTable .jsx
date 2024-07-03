@@ -91,7 +91,7 @@ const UsageDataTable = () => {
       startDate: startDate,
       endDate: endDate
     };
-    fetch(`http://${domain}:8081/usageData`, {
+    fetch(`http://${domain}:8080/usageData`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
