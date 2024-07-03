@@ -117,7 +117,7 @@ const LogsDataTable = () => {
 
     };
 
-    fetch(`http://${domain}:8081/logs`, {
+    fetch(`http://${domain}:8080/logs`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

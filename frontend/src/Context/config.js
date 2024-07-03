@@ -1,1 +1,1 @@
-export const domain ="10.182.2.37"
+export const domain ="192.168.10.248"
