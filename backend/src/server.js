@@ -11,7 +11,7 @@ const fileUpload = require("express-fileupload");
 app.use(fileUpload());
 
 const corsOptions = {
-  origin: 'http://10.182.2.37:3030',
+  origin: 'http://192.168.10.248:3000',
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -47,7 +47,7 @@ app.use(
 // app.use(express.static("public"));
 // Routes
 app.use(signupRoute);
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
