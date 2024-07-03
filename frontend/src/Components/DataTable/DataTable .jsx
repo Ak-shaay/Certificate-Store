@@ -94,7 +94,8 @@ const DataTable = () => {
       ca.subject_state,
       getIndianRegion( ca.subject_state),
       ca.expiry_date,
-      "Status",
+      //"Status",
+      ca.reason
     ]);
 
     let content = {
@@ -127,7 +128,7 @@ const DataTable = () => {
       validityStartDate: validityStartDate,
       validityEndDate: validityEndDate
     };
-    fetch(`http://${domain}:8080/data`, {
+    fetch(`http://${domain}:8081/data`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -145,7 +146,8 @@ const DataTable = () => {
           ca.subject_state,
           getIndianRegion( ca.subject_state),
           ca.expiry_date,
-          "Status",
+          ca.reason
+          //"Status",
         ])
         });
         gridRef.current.forceRender();
