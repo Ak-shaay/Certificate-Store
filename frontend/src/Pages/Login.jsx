@@ -52,7 +52,6 @@ const Login = () => {
 
     try {
       setLoading(true);
-
       const response = await api.axiosInstance.post("/login", {
         username,
         password,

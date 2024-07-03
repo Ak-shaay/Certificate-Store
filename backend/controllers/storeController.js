@@ -80,6 +80,7 @@ async function loginAttempt(userExist) {
 
 async function login(req, res) {
   const { username, password, latitude, longitude } = req.body;
+  console.log("login request reached");
   try {
     const userExist = await userModel.findUserByUsername(username);
     if (!userExist.length) {
