@@ -9,7 +9,7 @@ const Account = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:8080/profileData", {
+        const response = await fetch("http://localhost:8081/profileData", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
