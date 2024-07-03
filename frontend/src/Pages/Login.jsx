@@ -59,7 +59,8 @@ const Login = () => {
         longitude,
       });
       if (response?.data?.accessToken) {
-        api.setAccessToken(response.data.accessToken)
+        const accessToken = await response.data.accessToken;
+        api.setAccessToken(accessToken)
         setUsername("");
         setPassword("");
         setErrMsg("");
