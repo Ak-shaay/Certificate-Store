@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const forge = require("node-forge");
 require("dotenv").config();
-const fs = require('fs');
+const fs = require("fs");
 
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
@@ -53,7 +53,6 @@ async function signup(req, res) {
 
 // update the user status
 async function loginAttempt(userExist) {
-
   if (userExist.LoginStatus == "inactive") {
     const currentTime = new Date();
     const timeDifferenceMs = currentTime - userExist.LastAttempt;
@@ -80,7 +79,6 @@ async function loginAttempt(userExist) {
 
 async function login(req, res) {
   const { username, password, latitude, longitude } = req.body;
-  console.log("login request reached");
   try {
     const userExist = await userModel.findUserByUsername(username);
     if (!userExist.length) {
@@ -215,17 +213,19 @@ async function certDetails(req, res) {
     res.status(500).json({ error: "Error parsing the certificate." });
   }
 }
-async function refreshToken(){
+async function refreshToken() {
   const refreshToken = req.cookies.refreshToken;
   const username = req.body.username; // Assuming username is sent with the request
 
   if (!refreshToken || refreshTokens[username] !== refreshToken) {
-    return res.status(401).json({ message: 'Refresh token is required or invalid' });
+    return res
+      .status(401)
+      .json({ message: "Refresh token is required or invalid" });
   }
 
   jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ message: 'Invalid refresh token' });
+      return res.status(403).json({ message: "Invalid refresh token" });
     }
     const accessToken = generateAccessToken({ username: user.username });
     res.json({ accessToken });
@@ -252,7 +252,15 @@ async function logout(req, res) {
 
 async function fetchData(req, res) {
   try {
-    const { issuer,state,region, startDate, endDate,validityStartDate,validityEnddate } = req.body;
+    const {
+      issuer,
+      state,
+      region,
+      startDate,
+      endDate,
+      validityStartDate,
+      validityEnddate,
+    } = req.body;
     const filterCriteria = {};
 
     if (issuer && issuer.length > 0) {
@@ -321,7 +329,7 @@ async function fetchUsageData(req, res) {
 }
 async function fetchLogsData(req, res) {
   try {
-    const { user,action, startDate, endDate } = req.body;
+    const { user, action, startDate, endDate } = req.body;
     const filterCriteria = {};
     if (user && user.length > 0) {
       filterCriteria.users = user;
@@ -366,5 +374,5 @@ module.exports = {
   fetchUsageData,
   fetchLogsData,
   profileData,
-  refreshToken
+  refreshToken,
 };

@@ -128,7 +128,7 @@ const DataTable = () => {
       validityStartDate: validityStartDate,
       validityEndDate: validityEndDate
     };
-    fetch(`http://${domain}:8081/data`, {
+    fetch(`http://${domain}:8080/data`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
