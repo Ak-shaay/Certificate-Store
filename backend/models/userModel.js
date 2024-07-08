@@ -1,28 +1,28 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const regionMap = require("../config/regionMap");
 const saltRounds = 10;
 
 //authenticate user
 
 async function authenticateUser(req, res, next) {
-  // console.log("session: ", req.session)
-  if (!req.session || !req.session.username) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-
-  // You might want to validate the session further, e.g., check if the user still exists in the database
-  const userExist = await findUserByUsername(req.session.username);
-
-  if (!userExist.length) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // You can attach user information to the request for future route handlers
-  req.user = userExist[0];
-  next();
+  else{
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        return res.sendStatus(403); // Forbidden
+      }
+      req.user = user; // Add the decoded user information to the request object
+    console.log("Authorized successfully");
+      next();
+  });
 }
-
+}
 function findUserByUsername(username) {
   const query = "SELECT * FROM Login WHERE UserName = ?";
   return db.executeQuery(query, [username]);

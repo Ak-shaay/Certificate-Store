@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Account.css";
+import api from "../../Pages/axiosInstance";
 const Account = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -8,21 +9,16 @@ const Account = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:8080/profileData", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
+        const accessToken = api.getAccessToken();
+        if (accessToken) {
+          api.setAuthHeader(accessToken);
+        }
+        const response = await api.axiosInstance.get("/profileData");
+        if (response.status !== 200) {
           throw new Error("Network response was not ok");
         }
-
-        const result = await response.json();
-        setData(result);
+    
+        setData(response.data.profileData);
       } catch (error) {
         setError(error);
       } finally {
@@ -49,6 +45,8 @@ const Account = () => {
   const updatePassword= ()=>{
     alert("Update password Onclick")
   }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
  return (
     <div className="MainAccount">
       <h3>Account</h3>
@@ -102,7 +100,7 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="name"
+                  placeholder={data[0].UserName}
                   disabled
                 ></input>
               </div>
