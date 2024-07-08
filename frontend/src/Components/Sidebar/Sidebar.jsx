@@ -53,7 +53,7 @@ const Sidebar = ({ onIndexChange, role}) => {
         "/logout",
         { userID, latitude, longitude },
       );
-      api.removeAccessToken();
+      api.removeTokens();
       // Redirect to the login page or perform any other necessary actions
       window.location.href = "http://"+domain+":3000"; // Redirect to landing page
       // console.log("logged out");

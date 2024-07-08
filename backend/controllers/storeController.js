@@ -16,23 +16,38 @@ const saveTokensToFile = () => {
   fs.writeFileSync(TOKEN_FILE, JSON.stringify(refreshTokens));
 };
 
+// Generate an access token
 const generateAccessToken = (userName, role, authNo) => {
-  return jwt.sign(
-    { username: userName, role: role, userId: authNo },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "2m" }
-  ); // Access token expires in 15 minutes
+  // Include the necessary claims (payload) in the token
+  const payload = {
+    username: userName,
+    role: role,
+    userId: authNo,
+  };
+
+  // Generate the token with an expiration time
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" }); // Adjust the expiration time as needed
 };
 
-const generateRefreshToken = (userName, role) => {
-  const refreshToken = jwt.sign(
-    { username: userName, role: role },
-    process.env.REFRESH_TOKEN_SECRET
-  );
-  refreshTokens[userName] = refreshToken; // Store refresh token
+// Generate a refresh token
+const generateRefreshToken = (userName, role, authNo) => {
+  // Include the necessary claims (payload) in the token
+  const payload = {
+    username: userName,
+    role: role,
+    userId: authNo,
+  };
+
+  // Generate the token
+  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" }); // Consider adding an expiration time
+
+  // Store the refresh token securely
+  refreshTokens[userName] = refreshToken;
   saveTokensToFile();
+
   return refreshToken;
 };
+
 async function signup(req, res) {
   const { username, password } = req.body;
   try {
@@ -131,8 +146,10 @@ async function login(req, res) {
   }
 }
 
-async function dashboard(req, res) {
-  if (req.session) {
+async function dashboard(req, res, next) {
+  if (!req.session && !req.session.username) {
+    return res.sendStatus(401);
+  } else {
     if (req.session.views) {
       req.session.views++;
       res.send(`You have visited this page ${req.session.views} times`);
@@ -143,8 +160,6 @@ async function dashboard(req, res) {
       );
     }
     return res.status(200);
-  } else {
-    return res.redirect("/");
   }
 }
 
@@ -213,8 +228,8 @@ async function certDetails(req, res) {
     res.status(500).json({ error: "Error parsing the certificate." });
   }
 }
-async function refreshToken() {
-  const refreshToken = req.cookies.refreshToken;
+async function refreshToken(req, res) {
+  const refreshToken = req.body.refreshToken;
   const username = req.body.username; // Assuming username is sent with the request
 
   if (!refreshToken || refreshTokens[username] !== refreshToken) {
@@ -227,8 +242,8 @@ async function refreshToken() {
     if (err) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
-    const accessToken = generateAccessToken({ username: user.username });
-    res.json({ accessToken });
+    const token = generateAccessToken({ username: user.username });
+    res.json({ token });
   });
 }
 
@@ -349,16 +364,23 @@ async function fetchLogsData(req, res) {
   }
 }
 async function profileData(req, res, next) {
-  const token = req.headers["authorization"]?.split(" ")[1];
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
 
-  const profileData = await profileData;
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const profileData = await userModel.findUserByUsername(user.username);
+      res.status(200).json({ profileData });
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+      res.sendStatus(500);
+    }
+  });
 }
+
 
 module.exports = {
   signup,

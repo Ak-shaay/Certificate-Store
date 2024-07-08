@@ -60,7 +60,9 @@ const Login = () => {
       });
       if (response?.data?.accessToken) {
         const accessToken = await response.data.accessToken;
+        const refreshToken = await response.data.refreshToken;
         api.setAccessToken(accessToken)
+        api.setRefreshToken(refreshToken)
         setUsername("");
         setPassword("");
         setErrMsg("");
