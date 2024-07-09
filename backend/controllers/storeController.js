@@ -26,7 +26,9 @@ const generateAccessToken = (userName, role, authNo) => {
   };
 
   // Generate the token with an expiration time
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" }); // Adjust the expiration time as needed
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  }); // Adjust the expiration time as needed
 };
 
 // Generate a refresh token
@@ -39,7 +41,9 @@ const generateRefreshToken = (userName, role, authNo) => {
   };
 
   // Generate the token
-  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" }); // Consider adding an expiration time
+  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  }); // Consider adding an expiration time
 
   // Store the refresh token securely
   refreshTokens[userName] = refreshToken;
@@ -238,12 +242,21 @@ async function refreshToken(req, res) {
       .json({ message: "Refresh token is required or invalid" });
   }
 
-  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ message: "Invalid refresh token" });
     }
-    const token = generateAccessToken({ username: user.username });
-    res.json({ token });
+    const token = generateAccessToken({
+      username: user.username,
+      role: user.role,
+      authNo: user.authNo,
+    });
+    const refreshToken = generateRefreshToken({
+      username: user.username,
+      role: user.role,
+      authNo: user.authNo,
+    });
+    res.json({ token, refreshToken });
   });
 }
 
@@ -380,7 +393,6 @@ async function profileData(req, res, next) {
     }
   });
 }
-
 
 module.exports = {
   signup,

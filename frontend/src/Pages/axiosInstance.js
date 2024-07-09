@@ -54,17 +54,24 @@ axiosInstance.interceptors.request.use(
 
 // Response interceptor for handling token refresh and other global responses
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
-    console.log("Inside axios Interceptor")
+    console.log("Inside axios Interceptor: ", error);
     const originalRequest = error.config;
-    
+
     // Handle token expiration and auto-refresh logic here
-    if (error.response && error.response.status === 401 && !originalRequest._retry){
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       try {
-        const newToken = await getNewToken();
+        const { newToken, refreshToken } = await getNewToken();
         setAccessToken(newToken);
+        setRefreshToken(refreshToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (error) {
@@ -79,7 +86,7 @@ axiosInstance.interceptors.response.use(
       // Other errors
       console.error("Error:", error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -91,7 +98,7 @@ const getNewToken = async () => {
       ? JSON.parse(atob(storedToken.split(".")[1]))
       : null;
     const username = decodedToken ? decodedToken.username : "";
-    
+
     // Example of how you might refresh the token
     const response = await axios.post(`${baseURL}/refreshToken`, {
       refreshToken: decodedToken.refreshToken,

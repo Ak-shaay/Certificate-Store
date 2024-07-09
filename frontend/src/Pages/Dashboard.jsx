@@ -20,15 +20,19 @@ function Dashboard() {
     const fetchData = async () => {
       try {
         const accessToken = api.getAccessToken();
+    
         if (accessToken) {
           api.setAuthHeader(accessToken);
-        }
-        const response = await api.axiosInstance.get("/dashboard");
-
-        if (response.status === 200) {
-          // Dashboard data received successfully
+          const response = await api.axiosInstance.get("/dashboard");
+    
+          if (response.status === 200) {
+            // Dashboard data received successfully
+          } else {
+            // Handle unexpected status codes if needed
+            console.error("Unexpected status code:", response.status);
+          }
         } else {
-          // Redirect to login page if authentication fails
+          // Redirect to login page if accessToken is not available
           navigate("/login", { replace: true });
         }
       } catch (error) {
