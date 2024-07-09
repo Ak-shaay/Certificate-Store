@@ -232,7 +232,7 @@ async function refreshToken(req, res) {
   const refreshToken = req.body.refreshToken;
   const username = req.body.username; // Assuming username is sent with the request
 
-  if (!refreshToken || refreshTokens[username] !== refreshToken) {
+  if (!refreshToken || refreshToken[username] !== refreshToken) {
     return res
       .status(401)
       .json({ message: "Refresh token is required or invalid" });

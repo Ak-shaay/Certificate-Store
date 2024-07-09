@@ -56,12 +56,12 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log("Inside axios Interceptor")
     const originalRequest = error.config;
     
     // Handle token expiration and auto-refresh logic here
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    if (error.response && error.response.status === 401 && !originalRequest._retry){
       originalRequest._retry = true;
-
       try {
         const newToken = await getNewToken();
         setAccessToken(newToken);
@@ -100,7 +100,7 @@ const getNewToken = async () => {
 
     return response.data.token; // Replace with the actual token received from refresh token endpoint
   } catch (error) {
-    throw new Error("Failed to refresh token");
+    throw new Error("Failed to refresh token: ", error);
   }
 };
 

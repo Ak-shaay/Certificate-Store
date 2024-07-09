@@ -15,10 +15,9 @@ async function authenticateUser(req, res, next) {
   else{
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
-        return res.sendStatus(403); // Forbidden
+        return res.sendStatus(401); // Forbidden
       }
       req.user = user; // Add the decoded user information to the request object
-    console.log("Authorized successfully");
       next();
   });
 }
