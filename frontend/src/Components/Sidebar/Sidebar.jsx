@@ -4,8 +4,7 @@ import Logo from "../../Images/cdaclogoRound.png";
 import { SidebarData } from "../../Data";
 import menuIcon from '../../Images/Icons/menu.png';
 import closeIcon from '../../Images/Icons/cross.png';
-import { motion } from "framer-motion";
-import axios from "axios";
+import { motion } from "framer-motion"; 
 import { domain } from "../../Context/config";
 import api from "../../Pages/axiosInstance";
 
@@ -54,6 +53,7 @@ const Sidebar = ({ onIndexChange, role}) => {
         { userID, latitude, longitude },
       );
       api.removeTokens();
+      document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       // Redirect to the login page or perform any other necessary actions
       window.location.href = "http://"+domain+":3000"; // Redirect to landing page
       // console.log("logged out");
