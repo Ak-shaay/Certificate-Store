@@ -57,21 +57,21 @@ const Account = () => {
         <h2 className="filter-head">Update Password</h2>
         <hr className="filter-line" />
         <input
-          id="inputpass"
+          id="authCode"
           type="password"
           name="authCode"
           placeholder="Authentication code"
           required
         />
         <input
-          id="inputpass"
+          id="newPassword"
           type="password"
           name="newPassword"
           placeholder="New password"
           required
         />
         <input
-          id="inputpass"
+          id="confirmPassword"
           type="password"
           name="confirmPassword"
           placeholder="Confirm new password"

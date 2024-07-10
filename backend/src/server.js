@@ -22,8 +22,13 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+//static routes for images
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 // Initialize the database and create a new table dynamically
 initializeDatabase();
+
 // Configure express-session with MySQLStore after table creation
 const sessionStore = new MySQLStore(
   {
