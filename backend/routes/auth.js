@@ -5,6 +5,7 @@ const authentication = require('../models/userModel')
 
 
 router.get('/', authController.landingPage)
+router.get('/profile', authentication.authenticateUser, authController.profile);
 router.get('/profileData', authentication.authenticateUser, authController.profileData);
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
