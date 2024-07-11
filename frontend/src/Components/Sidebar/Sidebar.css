@@ -103,11 +103,11 @@
   }
 }
 
-@media screen and (min-width: 767px) {
+/* @media screen and (min-width: 767px) {
   .sidebar {
     left: 0 !important;
   }
-}
+} */
 
 @media screen and (max-width: 768px) {
   .sidebar {

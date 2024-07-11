@@ -1,17 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdaclogoRound.png";
-import axios from "axios";
 import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
-import { domain } from "../Context/config";
 import api from "./axiosInstance";
 
 const Login = () => {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const userRef = useRef();
   const errRef = useRef();

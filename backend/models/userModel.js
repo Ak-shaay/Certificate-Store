@@ -161,7 +161,7 @@ async function updateStatus(username, status, attempts, timestamp) {
 }
 async function updateAttempts(username, attempts) {
   try {
-    const query = "UPDATE Login SET attempts = ? WHERE UserName = ?";
+    const query = "UPDATE Login SET Attempts = ? WHERE UserName = ?";
     return db.executeQuery(query, [attempts, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
