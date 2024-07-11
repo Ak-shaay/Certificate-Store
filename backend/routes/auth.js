@@ -18,7 +18,7 @@ router.get('/dashboard',authentication.authenticateUser,authController.dashboard
 router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
 router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo);
-router.post('/cert', authentication.authenticateUser, authController.certDetails);
+router.post('/cert', authController.certDetails);
 
 
 
