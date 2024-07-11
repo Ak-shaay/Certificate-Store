@@ -66,16 +66,16 @@ async function getCertData(filterCriteria) {
         }
         if (filterCriteria.states && filterCriteria.states.length > 0) {
           const states = filterCriteria.states.map(state => `'${state}'`).join(",");
-          query += ` AND c.Subject_ST (${states})`;
+          query += ` AND c.Subject_ST IN (${states})`;
         }
         if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-          query += ` AND c.Subject_ST (${regionMap(filterCriteria.regions)})`;
+          query += ` AND c.Subject_ST IN (${regionMap(filterCriteria.regions)})`;
         }
         if (filterCriteria.startDate && filterCriteria.endDate) {
           query += ` AND c.IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
         }
         if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
-          query += ` AND c.IssueDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+          query += ` AND c.ExpiryDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
         }
       }
       query += "ORDER BY c.IssueDate DESC"
@@ -167,6 +167,22 @@ async function updateAttempts(username, attempts) {
     console.log("Error while fetching user: ", e);
   }
 }
+async function getProfileStatus(authNo) {
+  try {
+    const query = "SELECT COUNT(c.SerialNumber) AS cert_count FROM cert c INNER JOIN auth_cert ac ON ac.SerialNumber = c.IssuerCert_SrNo WHERE ac.AuthNo = ?";
+    return db.executeQuery(query, [authNo]);
+  } catch (e) {
+    console.log("Error while fetching user: ", e);
+  }
+}
+async function getNumberofCertificates(authNo) {
+  try {
+    const query = "SELECT COUNT(SerialNumber) AS total_cert FROM auth_cert  WHERE  AuthNo = ?";
+    return db.executeQuery(query, [authNo]);
+  } catch (e) {
+    console.log("Error while fetching user: ", e);
+  }
+}
 
 module.exports = {
   findUserByUsername,
@@ -179,4 +195,6 @@ module.exports = {
   getLogsData,
   updateStatus,
   updateAttempts,
+  getProfileStatus,
+  getNumberofCertificates
 };

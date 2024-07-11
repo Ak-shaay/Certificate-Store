@@ -34,6 +34,7 @@
     /* width: 147.5px !important; */
     width: auto !important;
     background: antiquewhite !important;
+    z-index: 99 !important;
 }
 .react-dropdown-select-item-selected, .react-dropdown-select-option{
     background: rgb(255,202,113) !important;
