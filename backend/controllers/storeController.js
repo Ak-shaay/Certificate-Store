@@ -127,10 +127,11 @@ async function login(req, res) {
         latitude,
         longitude
       );
+      await userModel.updateAttempts(userExist[0].UserName, 2);
       return res.json({ accessToken, refreshToken });
     } else {
       // Failed login attempt
-      if (userExist[0].attempts > 0) {
+      if (userExist[0].Attempts > 0) {
         let attempt = (userExist[0].Attempts -= 1);
         await userModel.updateAttempts(userExist[0].UserName, attempt);
       } else {
@@ -393,6 +394,23 @@ async function profileData(req, res, next) {
     }
   });
 }
+async function profile(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const profile = await userModel.findUserByUsername(user.username);
+      res.status(200).json({profile});
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+      res.sendStatus(500);
+    }
+  });
+}
 
 module.exports = {
   signup,
@@ -407,6 +425,7 @@ module.exports = {
   fetchRevokedData,
   fetchUsageData,
   fetchLogsData,
+  profile,
   profileData,
   refreshToken,
 };

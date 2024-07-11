@@ -11,7 +11,7 @@ const fileUpload = require("express-fileupload");
 app.use(fileUpload());
 
 const corsOptions = {
-  origin: 'http://192.168.10.248:3000',
+  origin: 'http://10.182.3.123:3000',
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -22,8 +22,13 @@ app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+//static routes for images
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 // Initialize the database and create a new table dynamically
 initializeDatabase();
+
 // Configure express-session with MySQLStore after table creation
 const sessionStore = new MySQLStore(
   {
