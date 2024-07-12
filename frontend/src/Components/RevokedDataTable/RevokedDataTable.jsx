@@ -148,6 +148,7 @@ const RevokedDataTable = () => {
   const options = [
     { label: "Cessation of use", value: "Cessation of use" },
     { label: "Key compromised", value: "Key compromised" },
+    { label: "Expired", value: "Expired" },
     { label: "Other", value: "other" },
   ];
 

@@ -22,7 +22,7 @@ const generateAccessToken = (userName, role, authNo) => {
   const payload = {
     username: userName,
     role: role,
-    userId: authNo,
+    authNo: authNo,
   };
 
   // Generate the token with an expiration time
@@ -37,7 +37,7 @@ const generateRefreshToken = (userName, role, authNo) => {
   const payload = {
     username: userName,
     role: role,
-    userId: authNo,
+    authNo: authNo,
   };
 
   // Generate the token
@@ -288,7 +288,7 @@ async function fetchData(req, res) {
       startDate,
       endDate,
       validityStartDate,
-      validityEnddate,
+      validityEndDate,
     } = req.body;
     const filterCriteria = {};
 
@@ -305,9 +305,9 @@ async function fetchData(req, res) {
       filterCriteria.startDate = startDate;
       filterCriteria.endDate = endDate;
     }
-    if (validityStartDate && validityEnddate) {
+    if (validityStartDate && validityEndDate) {
       filterCriteria.validityStartDate = validityStartDate;
-      filterCriteria.validityEnddate = validityEnddate;
+      filterCriteria.validityEndDate = validityEndDate;
     }
     const certDetails = await userModel.getCertData(filterCriteria);
     res.json(certDetails);
@@ -399,12 +399,15 @@ async function profile(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
     if (err) return res.sendStatus(403);
 
     try {
-      const profile = await userModel.findUserByUsername(user.username);
-      res.status(200).json({profile});
+      // const profile = await userModel.findUserByUsername(user.username);
+      const total = await userModel.getNumberofCertificates(user.authNo)
+      const count = await userModel.getProfileStatus(user.authNo)
+
+      res.status(200).json({count,total});
     } catch (error) {
       console.error("Error fetching profile data:", error);
       res.sendStatus(500);
