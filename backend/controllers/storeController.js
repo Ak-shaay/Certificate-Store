@@ -313,7 +313,7 @@ async function fetchData(req, res) {
     res.json(certDetails);
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(500).json({ error: "Error." });
+    res.status(500).json({ "Error": error });
   }
 }
 async function fetchRevokedData(req, res) {
