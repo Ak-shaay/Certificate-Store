@@ -300,9 +300,16 @@ const DataTable = () => {
           <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" className="datepicker" onChange={handleStartDateChange}/>
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" />
+            <input type="date" className="datepicker" onChange={handleEndDateChange}/>
+          </div>
+
+          <div className="row date_picker">
+            <label className="dateLable">Validity Start Date</label>
+            <input type="date" className="datepicker" onChange={handleValidityStartDateChange}/>
+            <label className="dateLable">Validity End Date</label>
+            <input type="date" className="datepicker" onChange={handleValidityEndDateChange} />
           </div>
           <br/>
           <hr/>
