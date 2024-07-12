@@ -6,7 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import { getIndianRegion,Issuers,IndianStates,IndianRegion } from "../../Data";
+import { getIndianRegion,Issuers,IndianRegion,getStatesByRegions } from "../../Data";
 import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
@@ -26,6 +26,8 @@ const DataTable = () => {
   const [endDate, setEndDate] = useState("");
   const [validityStartDate, setValidityStartDate] = useState("");
   const [validityEndDate, setValidityEndDate] = useState("");
+
+  const [stateByRegion,setStateByRegion] = useState([])
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -265,7 +267,12 @@ const DataTable = () => {
   };
   const handleRegionFilter = (selectedItems) => {
     setRegion(selectedItems.map(item=> item.value))
+    setStateByRegion(getStatesByRegions(region))
   };
+
+  useEffect(() => {
+    setStateByRegion(getStatesByRegions(region))
+  },[region]);
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -294,8 +301,8 @@ const DataTable = () => {
             placeholder="Select Issuer"
             onChange={handleIssuerFilter}
           />
-          <MultiSelect options={IndianStates} onChange={handleStateFilter} placeholder="Select State" />
           <MultiSelect options={IndianRegion} onChange={handleRegionFilter} placeholder="Select Region" />
+          <MultiSelect options={stateByRegion} onChange={handleStateFilter} placeholder="Select State" />
           </div>
           <div className="col">
           <div className="row date_picker">
