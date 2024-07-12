@@ -145,11 +145,14 @@ const RevokedDataTable = () => {
     };
   }, []);
 
+  // from https://emudhra[dot]com/blog/certificate-revocation-list-crl
   const options = [
-    { label: "Cessation of use", value: "Cessation of use" },
-    { label: "Key compromised", value: "Key compromised" },
-    { label: "Expired", value: "Expired" },
-    { label: "Other", value: "other" },
+    { label: "Unspecified", value: "Unspecified" },
+    { label: "Key compromise", value: "Key compromise" },
+    { label: "CA Compromise", value: "CA Compromise" },
+    { label: "Affiliation Changed", value: "Affiliation Changed" },
+    { label: "Superseded", value: "Superseded" },
+    { label: "Cessation of Operation", value: "Cessation of Operation" },
   ];
 
   const handleMultiSelectChange = (selectedItems) => {

@@ -142,6 +142,7 @@ export function getIndianRegion(state) {
       'Gujarat': 'West',
       'Haryana': 'North',
       'Himachal Pradesh': 'North',
+      'Jammu and Kashmir':'North',
       'Jharkhand': 'East',
       'Karnataka': 'South',
       'Kerala': 'South',
@@ -176,7 +177,7 @@ export function getIndianRegion(state) {
       'GA': 'West',
       'GJ': 'West',
       'HR': 'North',
-      'HP': 'North',
+      'JK': 'North',
       'JH': 'East',
       'KA': 'South',
       'KL': 'South',
@@ -235,44 +236,7 @@ export const Issuers = [
   { label: "IGCAR", value: "IGCAR" }
 ];
 
-// export const IndianStates = [
-//   { label: "Andaman and Nicobar Islands", value: "Andaman and Nicobar Islands" },
-//   { label: "Andhra Pradesh", value: "Andhra Pradesh" },
-//   { label: "Arunachal Pradesh", value: "Arunachal Pradesh" },
-//   { label: "Assam", value: "Assam" },
-//   { label: "Bihar", value: "Bihar" },
-//   { label: "Chandigarh", value: "Chandigarh" },
-//   { label: "Chhattisgarh", value: "Chhattisgarh" },
-//   { label: "Dadra and Nagar Haveli and Daman and Diu", value: "Dadra and Nagar Haveli and Daman and Diu" },
-//   { label: "Delhi", value: "Delhi" },
-//   { label: "Goa", value: "Goa" },
-//   { label: "Gujarat", value: "Gujarat" },
-//   { label: "Haryana", value: "Haryana" },
-//   { label: "Himachal Pradesh", value: "Himachal Pradesh" },
-//   { label: "Jammu and Kashmir", value: "Jammu and Kashmir" },
-//   { label: "Jharkhand", value: "Jharkhand" },
-//   { label: "Karnataka", value: "Karnataka" },
-//   { label: "Kerala", value: "Kerala" },
-//   { label: "Ladakh", value: "Ladakh" },
-//   { label: "Lakshadweep", value: "Lakshadweep" },
-//   { label: "Madhya Pradesh", value: "Madhya Pradesh" },
-//   { label: "Maharashtra", value: "Maharashtra" },
-//   { label: "Manipur", value: "Manipur" },
-//   { label: "Meghalaya", value: "Meghalaya" },
-//   { label: "Mizoram", value: "Mizoram" },
-//   { label: "Nagaland", value: "Nagaland" },
-//   { label: "Odisha", value: "Odisha" },
-//   { label: "Puducherry", value: "Puducherry" },
-//   { label: "Punjab", value: "Punjab" },
-//   { label: "Rajasthan", value: "Rajasthan" },
-//   { label: "Sikkim", value: "Sikkim" },
-//   { label: "Tamil Nadu", value: "Tamil Nadu" },
-//   { label: "Telangana", value: "Telangana" },
-//   { label: "Tripura", value: "Tripura" },
-//   { label: "Uttar Pradesh", value: "Uttar Pradesh" },
-//   { label: "Uttarakhand", value: "Uttarakhand" },
-//   { label: "West Bengal", value: "West Bengal" }
-// ];
+
 export const IndianStates = [
   { label: "Andaman and Nicobar Islands", value: "AN" },
   { label: "Andhra Pradesh", value: "AP" },
@@ -321,3 +285,69 @@ export const IndianRegion = [
   { label: "Northeast" ,value: "Northeast" },
   { label: "Central" ,value: "Central" },
 ]
+
+
+export function getStatesByRegions(regions) {
+  const allRegions = {
+      "North": [
+          { label: "Jammu and Kashmir", value: "JK" },
+          { label: "Punjab", value: "PB" },
+          { label: "Haryana", value: "HR" },
+          { label: "Himachal Pradesh", value: "HP" },
+          { label: "Uttarakhand", value: "UK" },
+          { label: "Uttar Pradesh", value: "UP" },
+          { label: "Chandigarh", value: "CH" },
+          { label: "Delhi", value: "DL" }
+      ],
+      "South": [
+          { label: "Andhra Pradesh", value: "AP" },
+          { label: "Telangana", value: "TG" },
+          { label: "Karnataka", value: "KA" },
+          { label: "Kerala", value: "KL" },
+          { label: "Tamil Nadu", value: "TN" },
+          { label: "Puducherry", value: "PY" }
+      ],
+      "East": [
+          { label: "West Bengal", value: "WB" },
+          { label: "Odisha", value: "OD" },
+          { label: "Bihar", value: "BR" },
+          { label: "Jharkhand", value: "JH" }
+      ],
+      "West": [
+          { label: "Goa", value: "GA" },
+          { label: "Gujarat", value: "GJ" },
+          { label: "Maharashtra", value: "MH" },
+          { label: "Rajasthan", value: "RJ" }
+      ],
+      "Northeast": [
+          { label: "Assam", value: "AS" },
+          { label: "Arunachal Pradesh", value: "AR" },
+          { label: "Manipur", value: "MN" },
+          { label: "Meghalaya", value: "ML" },
+          { label: "Mizoram", value: "MZ" },
+          { label: "Nagaland", value: "NL" },
+          { label: "Tripura", value: "TR" },
+          { label: "Sikkim", value: "SK" }
+      ],
+      "Central": [
+          { label: "Madhya Pradesh", value: "MP" },
+          { label: "Chhattisgarh", value: "CG" }
+      ]
+  };
+
+  let states = [];
+//   let noState = [{
+//     "label": "Please select a Region",
+//     "value": ""
+// }]
+
+  regions.forEach(region => {
+      if (allRegions[region]) {
+          states = states.concat(allRegions[region]);
+      }
+  });
+
+  return states;
+  // if(states.length==0) return noState
+  // else return states
+}
