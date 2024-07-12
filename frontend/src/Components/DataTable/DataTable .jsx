@@ -10,6 +10,7 @@ import { getIndianRegion,Issuers,IndianRegion,getStatesByRegions } from "../../D
 import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
+import api from "../../Pages/axiosInstance";
 
 
 
@@ -120,7 +121,7 @@ const DataTable = () => {
     handleFilterClose();
   };
 
-  const fetchData = () => {
+  const fetchData = async() => {
     const filterData = {
       issuer:issuer,
       state:state,
@@ -130,31 +131,62 @@ const DataTable = () => {
       validityStartDate: validityStartDate,
       validityEndDate: validityEndDate
     };
-    fetch(`http://${domain}:8080/data`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(filterData)
-    })
-      .then(response => response.json())
-      .then(data => {
-        gridRef.current.updateConfig({
-          data: data.map((ca) => [
-          ca.cert_serial_no,
-          ca.subject_name,
-          ca.issuer_name,
-          ca.issue_date,
-          ca.subject_state,
-          getIndianRegion( ca.subject_state),
-          ca.expiry_date,
-          ca.reason
-          //"Status",
+try{
+  const accessToken = api.getAccessToken();
+
+  if(accessToken){
+    api.setAuthHeader(accessToken);
+    const response = await api.axiosInstance.post("/data", JSON.stringify(filterData));
+
+    if(response.data){
+      const data = await response.data;
+      gridRef.current.updateConfig({
+        data: data.map((cert)=>[
+          cert.cert_serial_no,
+          cert.subject_name,
+          cert.issuer_name,
+          cert.issue_date,
+          cert.subject_state,
+          getIndianRegion( cert.subject_state),
+          cert.expiry_date,
+          cert.reason,
+          "Status"
         ])
-        });
-        gridRef.current.forceRender();
-      })
-      .catch(error => console.error("Error fetching data:", error));
+      });
+      gridRef.current.forceRender();
+    }
+
+  }
+}
+catch(err){
+  console.error("Error fetching data:", err);
+}
+    
+    // fetch(`http://${domain}:8080/data`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(filterData)
+    // })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     gridRef.current.updateConfig({
+    //       data: data.map((ca) => [
+    //       ca.cert_serial_no,
+    //       ca.subject_name,
+    //       ca.issuer_name,
+    //       ca.issue_date,
+    //       ca.subject_state,
+    //       getIndianRegion( ca.subject_state),
+    //       ca.expiry_date,
+    //       ca.reason
+    //       //"Status",
+    //     ])
+    //     });
+    //     gridRef.current.forceRender();
+    //   })
+    //   .catch(error => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {
