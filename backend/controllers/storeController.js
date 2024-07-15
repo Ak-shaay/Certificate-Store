@@ -280,37 +280,48 @@ async function logout(req, res) {
 }
 
 async function fetchData(req, res) {
+  
   try {
-    const {
-      issuer,
-      state,
-      region,
-      startDate,
-      endDate,
-      validityStartDate,
-      validityEndDate,
-    } = req.body;
-    const filterCriteria = {};
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
 
-    if (issuer && issuer.length > 0) {
-      filterCriteria.issuers = issuer;
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+    else{
+      const {
+        issuer,
+        state,
+        region,
+        startDate,
+        endDate,
+        validityStartDate,
+        validityEndDate,
+      } = req.body;
+      const filterCriteria = {};
+  
+      if (issuer && issuer.length > 0) {
+        filterCriteria.issuers = issuer;
+      }
+      if (state && state.length > 0) {
+        filterCriteria.states = state;
+      }
+      if (region && region.length > 0) {
+        filterCriteria.regions = region;
+      }
+      if (startDate && endDate) {
+        filterCriteria.startDate = startDate;
+        filterCriteria.endDate = endDate;
+      }
+      if (validityStartDate && validityEndDate) {
+        filterCriteria.validityStartDate = validityStartDate;
+        filterCriteria.validityEndDate = validityEndDate;
+      }
+      const certDetails = await userModel.getCertData(filterCriteria,user.username);
+      res.json(certDetails);
     }
-    if (state && state.length > 0) {
-      filterCriteria.states = state;
-    }
-    if (region && region.length > 0) {
-      filterCriteria.regions = region;
-    }
-    if (startDate && endDate) {
-      filterCriteria.startDate = startDate;
-      filterCriteria.endDate = endDate;
-    }
-    if (validityStartDate && validityEndDate) {
-      filterCriteria.validityStartDate = validityStartDate;
-      filterCriteria.validityEndDate = validityEndDate;
-    }
-    const certDetails = await userModel.getCertData(filterCriteria);
-    res.json(certDetails);
+  });
+  
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ "Error": error });
