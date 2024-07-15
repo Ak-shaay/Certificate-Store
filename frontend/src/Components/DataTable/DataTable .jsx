@@ -137,7 +137,6 @@ try{
   if(accessToken){
     api.setAuthHeader(accessToken);
     const response = await api.axiosInstance.post("/data", JSON.stringify(filterData));
-
     if(response.data){
       const data = await response.data;
       gridRef.current.updateConfig({
@@ -160,8 +159,7 @@ try{
 }
 catch(err){
   console.error("Error fetching data:", err);
-}
-    
+}    
     // fetch(`http://${domain}:8080/data`, {
     //   method: "POST",
     //   headers: {

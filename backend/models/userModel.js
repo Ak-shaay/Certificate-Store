@@ -55,7 +55,7 @@ async function logUserAction(
   }
 }
 
-async function getCertData(filterCriteria) {
+async function getCertData(filterCriteria,username) {
   try {
     let query =
       "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName WHERE 1=1  ";
@@ -78,7 +78,7 @@ async function getCertData(filterCriteria) {
           query += ` AND c.ExpiryDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
         }
       }
-      query += "ORDER BY c.IssueDate DESC"
+      query += " ORDER BY c.IssueDate DESC"
       const result = await db.executeQuery(query);
     return result;
   } catch (e) {
