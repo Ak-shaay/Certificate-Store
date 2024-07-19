@@ -40,7 +40,7 @@ const RightSideAccount = () => {
     fetchData();
   }, []);
   return (
-    <div className="MainAccount">
+    <div className="MainAccountz">
       <div className="RightMain">
         <h3> </h3>
         <div className="ProfileContainer">
