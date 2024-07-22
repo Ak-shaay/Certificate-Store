@@ -7,17 +7,14 @@ import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import { getIndianRegion,Issuers,IndianRegion,getStatesByRegions } from "../../Data";
-import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import api from "../../Pages/axiosInstance";
-
-
+let hasExecuted = false;
 
 const DataTable = () => {
   
-
-  var today = (new Date()).toISOString().split('T')[0];
+  // var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
   const [issuer,setIssuer]=useState([])
@@ -27,8 +24,8 @@ const DataTable = () => {
   const [endDate, setEndDate] = useState("");
   const [validityStartDate, setValidityStartDate] = useState("");
   const [validityEndDate, setValidityEndDate] = useState("");
-
   const [stateByRegion,setStateByRegion] = useState([])
+  const [authNumber,setAuthNumber] = useState('');
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -133,7 +130,33 @@ const DataTable = () => {
     };
 try{
   const accessToken = api.getAccessToken();
+  const decodedToken = accessToken ? JSON.parse(atob(accessToken.split(".")[1])) : null;
+  const authNo = decodedToken ? decodedToken.authNo : [];
+  const username = decodedToken ? decodedToken.username : [];
+  setAuthNumber(authNo)
+  // handle filter values
+  async function findIndexByLabel(label) {
+    return Issuers.findIndex(issuer => issuer.label === label);
+  }
 
+  async function executeOnce() {
+    if (!hasExecuted) {
+      hasExecuted = true;
+  
+      try {
+        const index = await findIndexByLabel(username);
+      
+        if (authNo === 1) {
+          Issuers.splice(index, 1);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
+  
+  executeOnce();
+  
   if(accessToken){
     api.setAuthHeader(accessToken);
     const response = await api.axiosInstance.post("/data", JSON.stringify(filterData));
@@ -160,31 +183,6 @@ try{
 catch(err){
   console.error("Error fetching data:", err);
 }    
-    // fetch(`http://${domain}:8080/data`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify(filterData)
-    // })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     gridRef.current.updateConfig({
-    //       data: data.map((ca) => [
-    //       ca.cert_serial_no,
-    //       ca.subject_name,
-    //       ca.issuer_name,
-    //       ca.issue_date,
-    //       ca.subject_state,
-    //       getIndianRegion( ca.subject_state),
-    //       ca.expiry_date,
-    //       ca.reason
-    //       //"Status",
-    //     ])
-    //     });
-    //     gridRef.current.forceRender();
-    //   })
-    //   .catch(error => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {
@@ -326,11 +324,15 @@ catch(err){
         <h2 className="filter-head">Filter</h2>
         <hr className="filter-line"/>
         <div className="multi-select-row">
-          <MultiSelect
+          {
+            (authNumber==1 || authNumber==null)?
+            <MultiSelect
             options={Issuers}
             placeholder="Select Issuer"
             onChange={handleIssuerFilter}
-          />
+          />:
+            <></>
+          }
           <MultiSelect options={IndianRegion} onChange={handleRegionFilter} placeholder="Select Region" />
           <MultiSelect options={stateByRegion} onChange={handleStateFilter} placeholder="Select State" />
           </div>
@@ -339,14 +341,14 @@ catch(err){
             <label className="dateLable">Start Date</label>
             <input type="date" className="datepicker" onChange={handleStartDateChange}/>
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" disabled={startDate==""?true:false} onChange={handleEndDateChange}/>
+            <input type="date" className="datepicker" disabled={startDate===""?true:false} onChange={handleEndDateChange}/>
           </div>
 
           <div className="row date_picker">
             <label className="dateLable">Validity Start Date</label>
             <input type="date" className="datepicker" onChange={handleValidityStartDateChange}/>
             <label className="dateLable">Validity End Date</label>
-            <input type="date" className="datepicker" disabled={validityStartDate==""?true:false} onChange={handleValidityEndDateChange} />
+            <input type="date" className="datepicker" disabled={validityStartDate===""?true:false} onChange={handleValidityEndDateChange} />
           </div>
           <br/>
           <hr/>

@@ -317,7 +317,7 @@ async function fetchData(req, res) {
         filterCriteria.validityStartDate = validityStartDate;
         filterCriteria.validityEndDate = validityEndDate;
       }
-      const certDetails = await userModel.getCertData(filterCriteria,user.username);
+      const certDetails = await userModel.getCertData(filterCriteria,user.authNo);
       res.json(certDetails);
     }
   });

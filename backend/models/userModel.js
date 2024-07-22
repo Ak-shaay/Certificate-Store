@@ -54,11 +54,47 @@ async function logUserAction(
     console.log("Error while logging: ", err);
   }
 }
-
-async function getCertData(filterCriteria,username) {
+// auth based data fetching 
+async function getCertData(filterCriteria,authNo) {
   try {
+    let Finalresult='';
     let query =
-      "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName WHERE 1=1  ";
+      "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName WHERE 1=1";
+     
+    if(authNo != null){
+      let firstQuery = "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName INNER JOIN auth_cert ac ON c.IssuerCert_SrNo = ac.SerialNumber WHERE ac.AuthNo = ? ";
+      if (filterCriteria) {
+        if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+          const issuers = filterCriteria.issuers.map(issuer => `'${issuer}'`).join(",");
+          firstQuery += ` AND  c.IssuerCommonName IN (${issuers})`;
+        }
+        if (filterCriteria.states && filterCriteria.states.length > 0) {
+          const states = filterCriteria.states.map(state => `'${state}'`).join(",");
+          firstQuery += ` AND c.Subject_ST IN (${states})`;
+        }
+        if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+          firstQuery += ` AND c.Subject_ST IN (${regionMap(filterCriteria.regions)})`;
+        }
+        if (filterCriteria.startDate && filterCriteria.endDate) {
+          firstQuery += ` AND c.IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+        }
+        if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
+          firstQuery += ` AND c.ExpiryDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+        }
+      }
+      
+      const firstResult = await db.executeQuery(firstQuery,authNo);
+      
+      Finalresult = firstResult
+      
+      let resultArray = [];
+      for (i in Finalresult){
+        resultArray.push(`'${Finalresult[i].cert_serial_no}'`);
+      }
+      let formattedResult = `(${resultArray.join(', ')})`;
+      query = query + ' AND c.IssuerCert_SrNo IN  '+formattedResult
+  }
+    
       if (filterCriteria) {
         if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
           const issuers = filterCriteria.issuers.map(issuer => `'${issuer}'`).join(",");
@@ -80,11 +116,49 @@ async function getCertData(filterCriteria,username) {
       }
       query += " ORDER BY c.IssueDate DESC"
       const result = await db.executeQuery(query);
-    return result;
+      if(authNo != null){
+        const ogResult = result.concat(Finalresult);
+        return ogResult
+      }
+      else{
+        return result;
+      }
+     
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
+
+// async function getCertData(filterCriteria,authNo) {
+//   try {
+//     let query =
+//       "SELECT c.SerialNumber AS cert_serial_no, c.Subject_CommonName AS subject_name, c.Subject_ST AS subject_state, c.IssuerCommonName AS issuer_name, c.IssueDate AS issue_date, c.ExpiryDate AS expiry_date,rd.RevokeDateTime AS revoke_date_time,rd.Reason AS reason FROM Cert c LEFT JOIN Revocation_Data rd ON c.SerialNumber = rd.SerialNumber AND rd.IssuerCert_srno = c.IssuerCert_srno AND rd.IssuerCommonName = c.IssuerCommonName WHERE 1=1  ";
+//       if (filterCriteria) {
+//         if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+//           const issuers = filterCriteria.issuers.map(issuer => `'${issuer}'`).join(",");
+//           query += ` AND  c.IssuerCommonName IN (${issuers})`;
+//         }
+//         if (filterCriteria.states && filterCriteria.states.length > 0) {
+//           const states = filterCriteria.states.map(state => `'${state}'`).join(",");
+//           query += ` AND c.Subject_ST IN (${states})`;
+//         }
+//         if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+//           query += ` AND c.Subject_ST IN (${regionMap(filterCriteria.regions)})`;
+//         }
+//         if (filterCriteria.startDate && filterCriteria.endDate) {
+//           query += ` AND c.IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//         }
+//         if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
+//           query += ` AND c.ExpiryDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+//         }
+//       }
+//       query += " ORDER BY c.IssueDate DESC"
+//       const result = await db.executeQuery(query);
+//     return result;
+//   } catch (e) {
+//     console.log("Error while fetching certificate details: ", e);
+//   }
+// }
 async function getRevokedCertData(filterCriteria) {
   try {
     let query = "SELECT SerialNumber AS serial_number, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
