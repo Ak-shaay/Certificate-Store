@@ -4,6 +4,7 @@ import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
+import { revocationReasons } from "../../Data";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 
@@ -117,10 +118,14 @@ const RevokedDataTable = () => {
       sort: true,
       search: true,
       style: {
+        table: {
+          'font-size': '1.1em'
+        },
         th: {
           backgroundColor: "rgb(132 168 255 / 70%)",
           color: "white",
           textAlign: "center",
+          
         },
         td: {
           borderRight: "none",
@@ -145,15 +150,6 @@ const RevokedDataTable = () => {
     };
   }, []);
 
-  // from https://emudhra[dot]com/blog/certificate-revocation-list-crl
-  const options = [
-    { label: "Unspecified", value: "Unspecified" },
-    { label: "Key compromise", value: "Key compromise" },
-    { label: "CA Compromise", value: "CA Compromise" },
-    { label: "Affiliation Changed", value: "Affiliation Changed" },
-    { label: "Superseded", value: "Superseded" },
-    { label: "Cessation of Operation", value: "Cessation of Operation" },
-  ];
 
   const handleMultiSelectChange = (selectedItems) => {
     setSelectedReasons(selectedItems.map(item => item.value));
@@ -176,7 +172,7 @@ const RevokedDataTable = () => {
         <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
-            options={options}
+            options={revocationReasons}
             placeholder="Select Reason"
             onChange={handleMultiSelectChange}
           />
