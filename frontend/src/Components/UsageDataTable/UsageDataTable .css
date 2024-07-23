@@ -8,6 +8,7 @@
     padding-top: 1rem;
     justify-content: flex-start;
     font-size: 0.8em;
+    position: relative;
 }
 
 .table-container {
