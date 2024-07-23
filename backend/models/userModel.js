@@ -69,7 +69,7 @@ async function getCertData(filterCriteria, authNo) {
         const issuers = filterCriteria.issuers
           .map((issuer) => `'${issuer}'`)
           .join(",");
-        query += ` AND  IssuerCommonName IN (${issuers})`;
+        query += ` AND IssuerCommonName IN (WITH RECURSIVE hierarchy AS ( SELECT c.Subject_CommonName FROM cert c WHERE c.IssuerCommonName in (${issuers}) or c.Subject_CommonName in (${issuers}) UNION ALL SELECT e.Subject_CommonName FROM cert e INNER JOIN hierarchy eh ON e.IssuerCommonName = eh.Subject_CommonName ) SELECT * FROM hierarchy)`;
       }
       if (filterCriteria.states && filterCriteria.states.length > 0) {
         const states = filterCriteria.states
