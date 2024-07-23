@@ -62,7 +62,7 @@ const DataTable = () => {
       "State",
       "Region",
       "Validity",
-      "Status",
+      // "Status",
       ],
     ];
     let transformedData = [];
@@ -164,15 +164,15 @@ try{
       const data = await response.data;
       gridRef.current.updateConfig({
         data: data.map((cert)=>[
-          cert.cert_serial_no,
-          cert.subject_name,
-          cert.issuer_name,
-          cert.issue_date,
-          cert.subject_state,
-          getIndianRegion( cert.subject_state),
-          cert.expiry_date,
+          cert.SerialNumber,
+          cert.Subject_CommonName,
+          cert.IssuerCommonName,
+          cert.IssueDate,
+          cert.Subject_ST,
+          getIndianRegion( cert.Subject_ST),
+          cert.ExpiryDate,
           cert.reason,
-          "Status"
+          // "Status"
         ])
       });
       gridRef.current.forceRender();
@@ -195,7 +195,7 @@ catch(err){
       "State",
       "Region",
       "Validity",
-      "Status",
+      // "Status",
       {
         name: "Actions",
         formatter: (cell, row) => {

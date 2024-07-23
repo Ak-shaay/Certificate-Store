@@ -206,6 +206,23 @@ async function certDetails(req, res) {
     return;
   }
 
+  function isCertificateCA(cert) {
+    // Check if Basic Constraints extension is present
+    const extensions = cert.extensions;
+    for (let i = 0; i < extensions.length; ++i) {
+        const ext = extensions[i];
+        if (ext.name === 'basicConstraints') {
+            // basicConstraints extension found
+            if (ext.cA === true) {
+                // It is a CA certificate
+                return true;
+            }
+            break; // No need to check further
+        }
+    }
+    // Not a CA certificate
+    return false;
+}
   try {
     const pki = forge.pki;
     const buffer = certificateFile.data;
@@ -216,13 +233,14 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     } else {
+      console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate))
       Certificate = {
         serialNo: parsedCertificate.serialNumber,
         commonName: parsedCertificate.subject.attributes[7].value,
         country: parsedCertificate.subject.attributes[0].value,
         state: parsedCertificate.subject.attributes[4].value,
         region: parsedCertificate.subject.attributes[5].value,
-        issuer: parsedCertificate.subject.attributes[2].value,
+        issuer: parsedCertificate.issuer.attributes[2].value,
         validity: parsedCertificate.validity.notAfter,
         hash: parsedCertificate.subject.hash,
       };
@@ -329,6 +347,13 @@ async function fetchData(req, res) {
 }
 async function fetchRevokedData(req, res) {
   try {
+    const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+    else{
     const { reasons, startDate, endDate } = req.body;
     const filterCriteria = {};
     if (reasons && reasons.length > 0) {
@@ -340,10 +365,11 @@ async function fetchRevokedData(req, res) {
     }
 
     const revokedCertDetails = await userModel.getRevokedCertData(
-      filterCriteria
+      filterCriteria,user.authNo
     );
 
     res.json(revokedCertDetails);
+  }});
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Error." });
@@ -351,6 +377,13 @@ async function fetchRevokedData(req, res) {
 }
 async function fetchUsageData(req, res) {
   try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+  
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) return res.sendStatus(403);
+      else{
     const { usage, startDate, endDate } = req.body;
     const filterCriteria = {};
     if (usage && usage.length > 0) {
@@ -360,8 +393,9 @@ async function fetchUsageData(req, res) {
       filterCriteria.startDate = startDate;
       filterCriteria.endDate = endDate;
     }
-    const usageDetails = await userModel.getCertUsageData(filterCriteria);
+    const usageDetails = await userModel.getCertUsageData(filterCriteria,user.authNo);
     res.json(usageDetails);
+  }});
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Error." });
