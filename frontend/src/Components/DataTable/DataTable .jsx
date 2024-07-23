@@ -162,6 +162,7 @@ try{
     const response = await api.axiosInstance.post("/data", JSON.stringify(filterData));
     if(response.data){
       const data = await response.data;
+      console.log("response",data);
       gridRef.current.updateConfig({
         data: data.map((cert)=>[
           cert.SerialNumber,
