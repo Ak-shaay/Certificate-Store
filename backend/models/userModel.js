@@ -198,10 +198,17 @@ async function getRevokedCertData(filterCriteria,authNo) {
     throw e;
   }
 }
-async function getCertUsageData(filterCriteria) {
+async function getCertUsageData(filterCriteria,authNo) {
   try {
-    let query =
-      "SELECT SerialNumber AS serial_number, UsageDate AS time_stamp, Remark AS remark, Count AS count FROM Cert_Usage WHERE 1=1";
+    let query ='';
+    if (authNo == 1 || authNo == null) {
+    query =
+      "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE 1=1";
+    }
+    else{
+    query =
+      "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE C.IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
+    }
     if (filterCriteria) {
       if (filterCriteria.usage && filterCriteria.usage.length > 0) {
         const usages = filterCriteria.usage
@@ -213,8 +220,8 @@ async function getCertUsageData(filterCriteria) {
         query += ` AND UsageDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-
-    const result = await db.executeQuery(query);
+    query += " ORDER BY CU.UsageDate DESC";
+    const result = await db.executeQuery(query,authNo);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);

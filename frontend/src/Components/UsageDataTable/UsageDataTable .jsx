@@ -6,6 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
+import api from "../../Pages/axiosInstance";
 
 const UsageDataTable = () => {
   const wrapperRef = useRef(null);
@@ -36,21 +37,25 @@ const UsageDataTable = () => {
     const title = "Usage of Certificates";
     const headers = [
       [
-     "Serial No", "Used On", "Remark", "Count"
+     "Serial No","Subject Name","Issuer Name", "Used On", "Remark", "Count"
       ],
     ];
 
     let transformedData = [];
     usageData.forEach(entry => {
-    let serial_number = entry[0];
-    let time_stamp = entry[1];
-    let remark = entry[2];
-    let count = entry[3];
+    const serial_number = entry[0];
+    const IssuerCommonName = entry[1];
+    const commonName = entry[2]
+    const time_stamp = entry[3];
+    const remark = entry[4];
+    const count = entry[5];
 
 
     // Creating object in desired format
     let transformedObject = {
         "serial_number": serial_number,
+        "issuer_name":IssuerCommonName,
+        "commonName": commonName,
         "time_stamp": time_stamp,
         "remark": remark,
         "count": count,
@@ -60,6 +65,8 @@ const UsageDataTable = () => {
 
     const data = transformedData.map((use) => [
       use.serial_number,
+      use.issuer_name,
+      use.commonName,
           use.time_stamp,
           use.remark,
           use.count,
@@ -85,37 +92,40 @@ const UsageDataTable = () => {
     handleFilterClose();
   };
 
-  const fetchData = () => {
+  const fetchData = async() => {
     const filterData = {
       usage:selectedUsage,
       startDate: startDate,
       endDate: endDate
     };
-    fetch(`http://${domain}:8080/usageData`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(filterData)
-    })
-      .then(response => response.json())
-      .then(data => {
+
+    try{
+      const accessToken = api.getAccessToken();
+      api.setAuthHeader(accessToken);
+      const response = await api.axiosInstance.post("/usageData", JSON.stringify(filterData));
+      if(response.data){
+        const data= await response.data;
         gridRef.current.updateConfig({
-          data: data.map((use) => [
-          use.serial_number,
-          use.time_stamp,
-          use.remark,
-          use.count,
-        ])
-        });
+          data: data.map((use)=>[
+            use.serial_number,
+            use.subject_common_name,
+            use.IssuerCommonName,
+            use.time_stamp,
+            use.remark,
+            use.count
+          ])
+        })
         gridRef.current.forceRender();
-      })
-      .catch(error => console.error("Error fetching data:", error));
+      }
+    }
+    catch(err){
+      console.error("Error fetching data: ", err);
+    }
   };
 
   useEffect(() => {
     gridRef.current = new Grid({
-      columns: ["Serial No", "Used On", "Remark", "Count"],
+      columns: ["Serial No", "Subject Name","Issuer Name","Used On", "Remark", "Count"],
       data: [],
       pagination: true,
       sort: true,
