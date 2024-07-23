@@ -6,6 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
 import { revocationReasons } from "../../Data";
 import { jsPDF } from "jspdf";
+import api from "../../Pages/axiosInstance";
 import { autoTable } from "jspdf-autotable";
 
 const RevokedDataTable = () => {
@@ -39,6 +40,7 @@ const RevokedDataTable = () => {
     const headers = [
       [
         "Serial No",
+        "Issuer",
         "Revokation Date",
         "Reason",
       ],
@@ -46,13 +48,15 @@ const RevokedDataTable = () => {
 
     let transformedData = [];
     revocationData.forEach(entry => {
-    let serial_number = entry[0];
-    let revoke_date_time = entry[1];
-    let reason = entry[2];
+    const serial_number = entry[0];
+    const issuer = entry[1];
+    const revoke_date_time = entry[2];
+    const reason = entry[3];
 
     // Creating object in desired format
     let transformedObject = {
         "serial_number": serial_number,
+        "issuer":issuer,
         "revoke_date_time": revoke_date_time,
         "reason": reason,
         
@@ -61,6 +65,7 @@ const RevokedDataTable = () => {
 });
     const data = transformedData.map((rev) => [
       rev.serial_number,
+      rev.issuer,
       rev.revoke_date_time,
       rev.reason,
     ]);
@@ -86,33 +91,50 @@ const RevokedDataTable = () => {
     handleFilterClose();
   };
 
-  const fetchData = () => {
+  const fetchData = async () => {
     const filterData = {
       reasons: selectedReasons,
       startDate: startDate,
       endDate: endDate
     };
-
-    fetch(`http://${domain}:8080/revokedData`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(filterData)
-    })
-      .then(response => response.json())
-      .then(data => {
+    try{
+      const accessToken = api.getAccessToken();
+      const response = await api.axiosInstance.post("/revokedData", JSON.stringify(filterData));
+      if(response.data){
+        const data = await response.data;
         gridRef.current.updateConfig({
-          data: data.map(rev => [rev.serial_number, rev.revoke_date_time, rev.reason])
+          data:data.map((params)=>[
+            params.serial_number, params.IssuerCommonName, params.revoke_date_time, params.reason
+          ])
         });
         gridRef.current.forceRender();
-      })
-      .catch(error => console.error("Error fetching data:", error));
+      }
+    }
+    catch(err){
+      console.error("Error fetching data: ", err);
+    }
+
+
+    // fetch(`http://${domain}:8080/revokedData`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(filterData)
+    // })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     gridRef.current.updateConfig({
+    //       data: data.map(rev => [rev.serial_number,rev.IssuerCommonName, rev.revoke_date_time, rev.reason])
+    //     });
+    //     gridRef.current.forceRender();
+    //   })
+    //   .catch(error => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {
     gridRef.current = new Grid({
-      columns: ["Serial No", "Revokation Date", "Reason"],
+      columns: ["Serial No","Issuer", "Revokation Date", "Reason"],
       data: [],
       pagination: true,
       sort: true,
