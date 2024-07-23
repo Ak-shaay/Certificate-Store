@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
+import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
@@ -315,9 +316,8 @@ const DataTable = () => {
   };
 
   useEffect(() => {
-    setStateByRegion(getStatesByRegions(region));
-  }, [region]);
-  
+    setStateByRegion(getStatesByRegions(region))
+  },[region]);
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -408,11 +408,9 @@ const DataTable = () => {
           </div>
         </div>
       </div>
-      <div>
-        <button className="common-btn" onClick={handleFilters}>
-          Filters
-        </button>
-      </div>
+      <div><button className="common-btn" onClick={handleFilters}>
+        Filters
+      </button></div>
 
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
