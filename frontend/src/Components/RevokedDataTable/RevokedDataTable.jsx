@@ -99,6 +99,7 @@ const RevokedDataTable = () => {
     };
     try{
       const accessToken = api.getAccessToken();
+      api.setAuthHeader(accessToken);
       const response = await api.axiosInstance.post("/revokedData", JSON.stringify(filterData));
       if(response.data){
         const data = await response.data;
