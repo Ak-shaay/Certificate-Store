@@ -177,7 +177,7 @@ async function getRevokedCertData(filterCriteria,authNo) {
       "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
     }
     else{
-      query = "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? ) AND 1=1";
+      query = "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
  
     }
       if (filterCriteria) {
