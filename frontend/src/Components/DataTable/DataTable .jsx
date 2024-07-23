@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
-import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./DataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
