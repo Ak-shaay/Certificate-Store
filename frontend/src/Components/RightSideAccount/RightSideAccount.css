@@ -16,7 +16,7 @@
 }
 
 .Profile {
-    background:#ffffff;
+    background:linear-gradient(to bottom, #fff0f5, #ffe4e1);
     border-radius: 0.7rem;
     padding: 1rem;
     text-align: center;

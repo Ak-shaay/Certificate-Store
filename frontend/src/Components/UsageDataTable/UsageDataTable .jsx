@@ -148,6 +148,31 @@ const UsageDataTable = () => {
             h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
+        {
+          id: "titlePlugin",
+          component: () =>
+            h(
+              "h1",
+              {
+                className: "title-btn",
+              },
+              "Certificate Usage"
+            ),
+          position: PluginPosition.Header,
+        },
+        {
+          id: "filterPlugin",
+          component: () =>
+            h(
+              "button",
+              {
+                className: "filter-btn",
+                onClick: () => handleFilters(),
+              },
+              "Filters"
+            ),
+          position: PluginPosition.Header,
+        },
       ],
     });
 
@@ -207,9 +232,6 @@ const UsageDataTable = () => {
         </div>
         </div>
       </div>
-      <button className="common-btn" onClick={handleFilters}>
-        Filters
-      </button>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

@@ -7,16 +7,16 @@
 }
 .AccountContainer {
     margin-top: 4rem;
-    background-color: #ffffff00;
-    width: 90%;
-    max-width: 900px;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: rgb(240, 240, 201) 0px 10px 20px 0px;
+  background-color: #ffffff00;
+  width: 90%;
+  max-width: 900px;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: rgba(255, 255, 255, 0.41) 0px 10px 20px 0px;
   background: #FFDD70;
-  background: linear-gradient(135deg, #e5e7c5, #EADE77);
-    color: #4b4444;
-    margin-bottom: 2rem;
+  background: linear-gradient(to bottom, #d0f0ff, #b0e0ff);
+  color: #000;
+  margin-bottom: 2rem;
 }
 
 .header {

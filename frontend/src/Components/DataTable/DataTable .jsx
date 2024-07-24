@@ -13,7 +13,6 @@ import {
   getStatesByRegions,
 } from "../../Data";
 import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
 import api from "../../Pages/axiosInstance";
 let hasExecuted = false;
 
@@ -292,6 +291,31 @@ const DataTable = () => {
             ),
           position: PluginPosition.Footer,
         },
+        {
+          id: "titlePlugin",
+          component: () =>
+            h(
+              "h1",
+              {
+                className: "title-btn",
+              },
+              "Issued Certificate"
+            ),
+          position: PluginPosition.Header,
+        },
+        {
+          id: "filterPlugin",
+          component: () =>
+            h(
+              "button",
+              {
+                className: "filter-btn",
+                onClick: () => handleFilters(),
+              },
+              "Filters"
+            ),
+          position: PluginPosition.Header,
+        },
       ],
     });
 
@@ -388,7 +412,6 @@ const DataTable = () => {
             <input
               type="date"
               className="datepicker"
-              disabled={validityStartDate === "" ? true : false}
               onChange={handleValidityEndDateChange}
             />
           </div>
@@ -407,9 +430,7 @@ const DataTable = () => {
           </div>
         </div>
       </div>
-      <div><button className="common-btn" onClick={handleFilters}>
-        Filters
-      </button></div>
+     
 
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
