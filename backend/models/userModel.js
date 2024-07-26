@@ -215,6 +215,24 @@ async function getNumberofCertificates(authNo) {
     console.log("Error while fetching user: ", e);
   }
 }
+async function updatePassword(authCode, newPass, authNo){
+  try{
+    
+    const query = 'SELECT AuthCode FROM authorities WHERE AuthCode = ?';
+    const[result] = await db.executeQuery(query, [authCode]);
+    if (result.length === 0) {
+      return { success: false, message: 'Invalid authentication code.' };
+    }
+    const hashedPassword = await bcrypt.hash(newPass, saltRounds);
+    const updateQuery = 'UPDATE login SET Password = ? WHERE AuthNo = ?';
+    await db.executeQuery(updateQuery, [hashedPassword, authNo]);
+    return {success: true, message: 'Password updated successfully.'};
+  }
+  catch(err){
+    return { success: false, message: err };
+  }
+
+}
 
 module.exports = {
   findUserByUsername,
@@ -229,4 +247,5 @@ module.exports = {
   updateAttempts,
   getProfileStatus,
   getNumberofCertificates,
+  updatePassword
 };

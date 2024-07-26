@@ -173,6 +173,31 @@ const LogsDataTable = () => {
       },
       plugins: [
         {
+          id: "titlePlugin",
+          component: () =>
+            h(
+              "h1",
+              {
+                className: "title-btn",
+              },
+              "Activity Logs"
+            ),
+          position: PluginPosition.Header,
+        },
+        {
+          id: "filterPlugin",
+          component: () =>
+            h(
+              "button",
+              {
+                className: "filter-btn",
+                onClick: () => handleFilters(),
+              },
+              "Filters"
+            ),
+          position: PluginPosition.Header,
+        },
+        {
           id: "downloadPlugin",
           component: () =>
             h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
@@ -239,9 +264,6 @@ const LogsDataTable = () => {
           </div>
         </div>
       </div>
-      <button className="common-btn" onClick={handleFilters}>
-        Filters
-      </button>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

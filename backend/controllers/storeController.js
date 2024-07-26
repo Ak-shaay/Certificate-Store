@@ -460,6 +460,32 @@ jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
   });
 }
 
+async function updatePasswordController (req, res, next){
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+  try{
+    const {authCode, newPassword, confirmPassword} = req.body;
+    if(!authCode || !newPassword){
+      return res.status(400).json({message: "Auth code and new password is required"})
+    }
+    else if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match.' });
+    }
+    const result = await userModel.updatePassword(authCode, newPassword, req.user.authNo);
+   
+    if(result.success){
+      return res.status(200).json({message: result.message});
+    }
+    else{
+      return res.status(400).json({message: result.message})
+    }
+  }
+  catch(err){
+    res.status(500).json({ error: err });
+  }
+}
+
 module.exports = {
   signup,
   landingPage,
@@ -476,4 +502,5 @@ module.exports = {
   profile,
   profileData,
   refreshToken,
+  updatePasswordController
 };

@@ -20,6 +20,9 @@ const Login = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
 
+  const nameRegex = /^(?![@$!%*?&.])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+
   useEffect(() => {
     geolocation();
   }, []);
@@ -45,6 +48,15 @@ const Login = () => {
 
     // if (latitude === null || longitude === null) {
     //   alert("Please enable location services to proceed.");
+    //   return;
+    // }
+    
+    // if(!nameRegex.test(username)){
+    //   setErrMsg("Please enter a valid username");
+    //   return;
+    // }
+    // if(!passRegex.test(password)){
+    //   setErrMsg("Please enter a valid password");
     //   return;
     // }
 

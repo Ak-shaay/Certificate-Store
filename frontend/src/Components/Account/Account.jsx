@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Account.css";
 import api from "../../Pages/axiosInstance";
+import { domain } from "../../Context/config";
+
 const Account = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ const Account = () => {
         if (response.status !== 200) {
           throw new Error("Network response was not ok");
         }
-    
+
         setData(response.data.profileData);
       } catch (error) {
         setError(error);
@@ -42,12 +44,70 @@ const Account = () => {
     blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
-  const updatePassword= ()=>{
-    alert("Update password Onclick")
-  }
+  //update password api call
+  const updatePassword = async () => {
+    const accessToken = api.getAccessToken();
+    if (accessToken) {
+      try {
+        const authCode = document.getElementById("authCode").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (!authCode || !newPassword || !confirmPassword) {
+          document.getElementById("updatePasswordMsg").textContent =
+            "Please fill all the details.";
+          setTimeout(() => {
+            document.getElementById("updatePasswordMsg").textContent = "";
+          }, 3000);
+          return;
+        }
+
+        // Validation: Ensure newPassword and confirmPassword match
+        if (newPassword !== confirmPassword) {
+          document.getElementById("updatePasswordMsg").textContent =
+            "Passwords do not match.";
+          setTimeout(() => {
+            document.getElementById("updatePasswordMsg").textContent = "";
+          }, 3000);
+          return;
+        }
+
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post(
+          "/updatePassword",{authCode, newPassword, confirmPassword}
+        );
+        console.log(response)
+        if (response.status == 200) {
+          const passResp = response.data;
+          document.getElementById("updatePasswordMsg").textContent =
+          passResp.message + " Automatic logout processing...";
+        setTimeout(() => {
+          api.removeTokens();
+          document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          // Redirect to the login page or perform any other necessary actions
+          window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
+        }, 3800);
+        }
+        
+      } catch (err) {
+        document.getElementById("updatePasswordMsg").textContent =
+        err;
+        setTimeout(() => {
+          document.getElementById("updatePasswordMsg").textContent = "";
+        }, 8000);
+      }
+    } else {
+      document.getElementById("updatePasswordMsg").textContent =
+        "No access token found. Please log in.";
+      setTimeout(() => {
+        document.getElementById("updatePasswordMsg").textContent = "";
+      }, 3000);
+    }
+  };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
- return (
+  return (
     <div className="MainAccount">
       <h3>Account</h3>
       <div className="filterWindow" id="filter">
@@ -77,6 +137,7 @@ const Account = () => {
           placeholder="Confirm new password"
           required
         />
+        <span id="updatePasswordMsg"></span>
         <br />
         <hr />
         <div className="filter-row">
@@ -86,7 +147,9 @@ const Account = () => {
           >
             Cancel
           </button>
-          <button className="commonApply-btn" onClick={updatePassword}>Update</button>
+          <button className="commonApply-btn" onClick={updatePassword}>
+            Update
+          </button>
         </div>
       </div>
       <div className="AccountContainer" id="accountContainer">
@@ -165,12 +228,12 @@ const Account = () => {
               </div>
             </div>
           </div>
-          <br/>
+          <br />
           <span className="forgotPassword" onClick={handlePasswordChange}>
             Update password?
           </span>
           <div>
-          <button className="loginbtn">Save</button>
+            <button className="loginbtn">Save</button>
           </div>
         </form>
       </div>

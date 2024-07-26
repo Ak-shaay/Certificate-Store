@@ -113,7 +113,7 @@
   display: none;
   background: linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%);
   box-shadow: rgb(140, 140, 140) 0px 10px 20px 0px;
-  width: auto;
+  max-width: 34rem;
   height: auto;
   z-index: 99;
   position: fixed;

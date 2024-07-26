@@ -19,6 +19,7 @@ router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
 router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo);
 router.post('/cert', authController.certDetails);
+router.post('/updatePassword', authentication.authenticateUser, authController.updatePasswordController)
 
 
 
