@@ -465,20 +465,27 @@ async function updatePasswordController (req, res, next){
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
   try{
-    const {authCode, newPassword, confirmPassword} = req.body;
-    if(!authCode || !newPassword){
-      return res.status(400).json({message: "Auth code and new password is required"})
+    const {oldPassword, newPassword, confirmPassword} = req.body;
+    const userExist = await userModel.findUserByUsername(req.user.username);
+    const passwordMatch = await bcrypt.compare(oldPassword, userExist[0].Password)
+    if (!passwordMatch) {
+      return res.status(400).json({ message: "Old password is not correct!" });
     }
-    else if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match.' });
+    else if(!oldPassword || !newPassword){
+      return res.status(400).json({message: "Old and new password are required!"})
     }
-    const result = await userModel.updatePassword(authCode, newPassword, req.user.authNo);
-   
-    if(result.success){
-      return res.status(200).json({message: result.message});
+    else if(newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match!' });
     }
     else{
-      return res.status(400).json({message: result.message})
+      const result = await userModel.updatePassword(newPassword, req.user.authNo);
+     
+      if(result.success){
+        return res.status(200).json({message: result.message});
+      }
+      else{
+        return res.status(400).json({message: result.message})
+      }
     }
   }
   catch(err){
