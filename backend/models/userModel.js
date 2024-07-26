@@ -234,6 +234,29 @@ async function updatePassword(authCode, newPass, authNo){
 
 }
 
+
+function findAuthorities(role) {
+  try {
+    // let query= '';
+    // if(role == 'CCA'){
+    // query =
+    //   "SELECT AuthName FROM authorities WHERE AuthName NOT LIKE ?";
+    //   return db.executeQuery(query,role);
+    // }
+    // else{
+    //   query =
+    //     "SELECT AuthName FROM authorities";
+    //     return db.executeQuery(query);
+    //   }
+
+    let query = 'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
+    return db.executeQuery(query);
+  } catch (e) {
+    console.log("Error while fetching data: ", e);
+  }
+}
+
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -247,5 +270,6 @@ module.exports = {
   updateAttempts,
   getProfileStatus,
   getNumberofCertificates,
-  updatePassword
+  updatePassword,
+  findAuthorities
 };

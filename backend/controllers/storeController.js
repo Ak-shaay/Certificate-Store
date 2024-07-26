@@ -486,6 +486,31 @@ async function updatePasswordController (req, res, next){
   }
 }
 
+async function authorities(req, res) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const authoritiesData = await userModel.findAuthorities(user.role);
+      formattedAuthority = authoritiesData.map((authority) =>{
+        return{
+          label : authority.AuthName,
+          value : authority.AuthName
+        }
+      });
+      res.status(200).json(formattedAuthority);
+    } catch (error) {
+      console.error("Error fetching authorities data:", error);
+      res.sendStatus(500);
+    }
+  });
+}
+
+
 module.exports = {
   signup,
   landingPage,
@@ -502,5 +527,6 @@ module.exports = {
   profile,
   profileData,
   refreshToken,
-  updatePasswordController
+  updatePasswordController,
+  authorities
 };

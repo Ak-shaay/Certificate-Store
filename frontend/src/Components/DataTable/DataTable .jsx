@@ -8,13 +8,11 @@ import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import {
   getIndianRegion,
-  Issuers,
   IndianRegion,
   getStatesByRegions,
 } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
-let hasExecuted = false;
 
 const DataTable = () => {
   // var today = (new Date()).toISOString().split('T')[0];
@@ -29,6 +27,7 @@ const DataTable = () => {
   const [validityEndDate, setValidityEndDate] = useState("");
   const [stateByRegion, setStateByRegion] = useState([]);
   const [authNumber, setAuthNumber] = useState("");
+  const [authorities, setAuthorities] = useState();
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -45,6 +44,26 @@ const DataTable = () => {
     blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
+
+useEffect(() => {
+  const fetchIssuer = async () => {
+  try{
+    const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);
+    const response = await api.axiosInstance.post(
+      "/authorities")
+    if (response.data) {
+      // console.log("response:",response.data);
+      setAuthorities(response.data);
+    }
+  }
+  catch(err){
+    console.error("error : ",err);
+  }
+}
+fetchIssuer()
+  },[])
+
   async function handleDownload(issuedData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -139,28 +158,6 @@ const DataTable = () => {
       const authNo = decodedToken ? decodedToken.authNo : [];
       const username = decodedToken ? decodedToken.username : [];
       setAuthNumber(authNo);
-      // handle filter values
-      async function findIndexByLabel(label) {
-        return Issuers.findIndex((issuer) => issuer.label === label);
-      }
-
-      async function executeOnce() {
-        if (!hasExecuted) {
-          hasExecuted = true;
-
-          try {
-            const index = await findIndexByLabel(username);
-
-            if (authNo === 1) {
-              Issuers.splice(index, 1);
-            }
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }
-      }
-
-      executeOnce();
 
       if (accessToken) {
         api.setAuthHeader(accessToken);
@@ -355,6 +352,7 @@ const DataTable = () => {
   const handleValidityEndDateChange = (e) => {
     setValidityEndDate(e.target.value);
   };
+
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
@@ -366,7 +364,7 @@ const DataTable = () => {
         <div className="multi-select-row">
           {authNumber == 1 || authNumber == null ? (
             <MultiSelect
-              options={Issuers}
+              options={authorities}
               placeholder="Select Issuer"
               onChange={handleIssuerFilter}
             />
