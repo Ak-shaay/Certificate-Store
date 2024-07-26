@@ -49,12 +49,12 @@ const Account = () => {
     const accessToken = api.getAccessToken();
     if (accessToken) {
       try {
-        const authCode = document.getElementById("authCode").value;
+        const oldPassword = document.getElementById("oldPassword").value;
         const newPassword = document.getElementById("newPassword").value;
         const confirmPassword =
           document.getElementById("confirmPassword").value;
 
-        if (!authCode || !newPassword || !confirmPassword) {
+        if (!oldPassword || !newPassword || !confirmPassword) {
           document.getElementById("updatePasswordMsg").textContent =
             "Please fill all the details.";
           setTimeout(() => {
@@ -74,25 +74,25 @@ const Account = () => {
         }
 
         api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.post(
-          "/updatePassword",{authCode, newPassword, confirmPassword}
-        );
-        console.log(response)
+        const response = await api.axiosInstance.post("/updatePassword", {
+          oldPassword,
+          newPassword,
+          confirmPassword,
+        });
         if (response.status == 200) {
           const passResp = response.data;
           document.getElementById("updatePasswordMsg").textContent =
-          passResp.message + " Automatic logout processing...";
-        setTimeout(() => {
-          api.removeTokens();
-          document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-          // Redirect to the login page or perform any other necessary actions
-          window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
-        }, 3800);
+            passResp.message + " Automatic logout processing...";
+          setTimeout(() => {
+            api.removeTokens();
+            document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            // Redirect to the login page or perform any other necessary actions
+            window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
+          }, 3800);
         }
-        
       } catch (err) {
-        document.getElementById("updatePasswordMsg").textContent =
-        err;
+        console.log("this is error: ", err)
+        document.getElementById("updatePasswordMsg").textContent = err.response.data.message;
         setTimeout(() => {
           document.getElementById("updatePasswordMsg").textContent = "";
         }, 8000);
@@ -117,10 +117,10 @@ const Account = () => {
         <h2 className="filter-head">Update Password</h2>
         <hr className="filter-line" />
         <input
-          id="authCode"
+          id="oldPassword"
           type="password"
-          name="authCode"
-          placeholder="Authentication code"
+          name="oldPassword"
+          placeholder="Old Password"
           required
         />
         <input
