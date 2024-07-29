@@ -3,7 +3,6 @@ import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import api from "../../Pages/axiosInstance";

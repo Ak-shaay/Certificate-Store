@@ -59,10 +59,10 @@ async function getCertData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate FROM cert WHERE 1=1";
+        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType FROM cert WHERE 1=1";
     } else {
       query =
-        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
+        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subjectType FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
     }
     if (filterCriteria) {
       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
@@ -70,6 +70,12 @@ async function getCertData(filterCriteria, authNo) {
           .map((issuer) => `'${issuer}'`)
           .join(",");
         query += ` AND IssuerCommonName IN (WITH RECURSIVE hierarchy AS ( SELECT c.Subject_CommonName FROM cert c WHERE c.IssuerCommonName in (${issuers}) or c.Subject_CommonName in (${issuers}) UNION ALL SELECT e.Subject_CommonName FROM cert e INNER JOIN hierarchy eh ON e.IssuerCommonName = eh.Subject_CommonName ) SELECT * FROM hierarchy)`;
+      }
+      if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
+        const subjectTypes = filterCriteria.subjectType
+          .map((state) => `'${state}'`)
+          .join(",");
+        query += ` AND subjectType IN (${subjectTypes})`;
       }
       if (filterCriteria.states && filterCriteria.states.length > 0) {
         const states = filterCriteria.states

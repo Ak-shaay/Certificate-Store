@@ -322,13 +322,16 @@ async function fetchData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { issuer, state, region, startDate, endDate, validity } =
+        const { issuer,subjectType, state, region, startDate, endDate, validity } =
           req.body;
 
         const filterCriteria = {};
 
         if (issuer && issuer.length > 0) {
           filterCriteria.issuers = issuer;
+        }
+        if (subjectType && subjectType.length > 0) {
+          filterCriteria.subjectType = subjectType;
         }
         if (state && state.length > 0) {
           filterCriteria.states = state;

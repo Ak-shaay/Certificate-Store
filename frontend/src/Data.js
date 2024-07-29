@@ -322,3 +322,8 @@ export function getStatesByRegions(regions) {
   { label: "Superseded", value: "Superseded" },
   { label: "Cessation of Operation", value: "Cessation of Operation" },
 ];
+
+export const subType = [
+  { label: "CA", value: "CA" },
+  { label: "End-Entity", value: "End-Entity" },
+];

@@ -6,7 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import { getIndianRegion, IndianRegion, getStatesByRegions } from "../../Data";
+import { getIndianRegion, IndianRegion, getStatesByRegions, subType } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 
@@ -15,6 +15,7 @@ const DataTable = () => {
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
   const [issuer, setIssuer] = useState([]);
+  const [subjectType, setSubjectType] = useState([]);
   const [state, setState] = useState([]);
   const [region, setRegion] = useState([]);
   const [startDate, setStartDate] = useState("");
@@ -136,6 +137,7 @@ const DataTable = () => {
   const fetchData = async () => {
     const filterData = {
       issuer: issuer,
+      subjectType:subjectType,
       state: state,
       region: region,
       startDate: startDate,
@@ -319,6 +321,9 @@ const DataTable = () => {
   const handleIssuerFilter = (selectedItems) => {
     setIssuer(selectedItems.map((item) => item.value));
   };
+  const handleSubTypeFilter = (selectedItems) => {
+    setSubjectType(selectedItems.map((item) => item.value));
+  };
   const handleStateFilter = (selectedItems) => {
     setState(selectedItems.map((item) => item.value));
   };
@@ -359,6 +364,11 @@ const DataTable = () => {
           ) : (
             <></>
           )}
+          <MultiSelect
+          options={subType}
+          onChange={handleSubTypeFilter}
+            placeholder="Subject Type"
+          />
           <MultiSelect
             options={IndianRegion}
             onChange={handleRegionFilter}
