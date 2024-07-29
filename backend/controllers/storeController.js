@@ -210,19 +210,19 @@ async function certDetails(req, res) {
     // Check if Basic Constraints extension is present
     const extensions = cert.extensions;
     for (let i = 0; i < extensions.length; ++i) {
-        const ext = extensions[i];
-        if (ext.name === 'basicConstraints') {
-            // basicConstraints extension found
-            if (ext.cA === true) {
-                // It is a CA certificate
-                return true;
-            }
-            break; // No need to check further
+      const ext = extensions[i];
+      if (ext.name === "basicConstraints") {
+        // basicConstraints extension found
+        if (ext.cA === true) {
+          // It is a CA certificate
+          return true;
         }
+        break; // No need to check further
+      }
     }
     // Not a CA certificate
     return false;
-}
+  }
   try {
     const pki = forge.pki;
     const buffer = certificateFile.data;
@@ -233,7 +233,7 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     } else {
-      console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate))
+      console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
       Certificate = {
         serialNo: parsedCertificate.serialNumber,
         commonName: parsedCertificate.subject.attributes[7].value,
@@ -298,78 +298,104 @@ async function logout(req, res) {
 }
 
 async function fetchData(req, res) {
-  
-  try {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
+  function addYears(date, years) {
+    const dateCopy = new Date(date);
+    const yearsInt = parseInt(years, 10); // Ensure years is an integer
+    dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
+    const year = dateCopy.getFullYear();
+    const month = dateCopy.getMonth() + 1; // Months are zero-based
+    const day = dateCopy.getDate();
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    if (err) return res.sendStatus(403);
-    else{
-      const {
-        issuer,
-        state,
-        region,
-        startDate,
-        endDate,
-        validityStartDate,
-        validityEndDate,
-      } = req.body;
-      const filterCriteria = {};
-  
-      if (issuer && issuer.length > 0) {
-        filterCriteria.issuers = issuer;
+    // Format the month and day to always be two digits
+    const monthFormatted = month < 10 ? `0${month}` : month;
+    const dayFormatted = day < 10 ? `0${day}` : day;
+
+    // Return the formatted date in yyyy-mm-dd
+    return `${year}-${monthFormatted}-${dayFormatted}`;
+  }
+
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) return res.sendStatus(403);
+      else {
+        const { issuer, state, region, startDate, endDate, validity } =
+          req.body;
+
+        const filterCriteria = {};
+
+        if (issuer && issuer.length > 0) {
+          filterCriteria.issuers = issuer;
+        }
+        if (state && state.length > 0) {
+          filterCriteria.states = state;
+        }
+        if (region && region.length > 0) {
+          filterCriteria.regions = region;
+        }
+        if (startDate && endDate) {
+          filterCriteria.startDate = startDate;
+          filterCriteria.endDate = endDate;
+        }
+
+        // Add validity to filterCriteria if validity is provided and not zero
+        if (validity && validity !== 0) {
+          filterCriteria.validityStartDate = startDate;
+
+          // Ensure startDate is a valid date string for addYears function
+          const validityStartDate = new Date(startDate);
+          if (!isNaN(validityStartDate.getTime())) {
+            // Validate if startDate is a valid date
+            filterCriteria.validityEndDate = addYears(
+              validityStartDate,
+              validity
+            );
+          } else {
+            console.error("Invalid startDate format");
+          }
+        }
+        const certDetails = await userModel.getCertData(
+          filterCriteria,
+          user.authNo
+        );
+        res.json(certDetails);
       }
-      if (state && state.length > 0) {
-        filterCriteria.states = state;
-      }
-      if (region && region.length > 0) {
-        filterCriteria.regions = region;
-      }
-      if (startDate && endDate) {
-        filterCriteria.startDate = startDate;
-        filterCriteria.endDate = endDate;
-      }
-      if (validityStartDate && validityEndDate) {
-        filterCriteria.validityStartDate = validityStartDate;
-        filterCriteria.validityEndDate = validityEndDate;
-      }
-      const certDetails = await userModel.getCertData(filterCriteria,user.authNo);
-      res.json(certDetails);
-    }
-  });
-  
+    });
   } catch (error) {
     console.error("Error:", error.message);
-    res.status(500).json({ "Error": error });
+    res.status(500).json({ Error: error });
   }
 }
 async function fetchRevokedData(req, res) {
   try {
     const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    if (err) return res.sendStatus(403);
-    else{
-    const { reasons, startDate, endDate } = req.body;
-    const filterCriteria = {};
-    if (reasons && reasons.length > 0) {
-      filterCriteria.reason = reasons;
-    }
-    if (startDate && endDate) {
-      filterCriteria.startDate = startDate;
-      filterCriteria.endDate = endDate;
-    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) return res.sendStatus(403);
+      else {
+        const { reasons, startDate, endDate } = req.body;
+        const filterCriteria = {};
+        if (reasons && reasons.length > 0) {
+          filterCriteria.reason = reasons;
+        }
+        if (startDate && endDate) {
+          filterCriteria.startDate = startDate;
+          filterCriteria.endDate = endDate;
+        }
 
-    const revokedCertDetails = await userModel.getRevokedCertData(
-      filterCriteria,user.authNo
-    );
+        const revokedCertDetails = await userModel.getRevokedCertData(
+          filterCriteria,
+          user.authNo
+        );
 
-    res.json(revokedCertDetails);
-  }});
+        res.json(revokedCertDetails);
+      }
+    });
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Error." });
@@ -380,22 +406,26 @@ async function fetchUsageData(req, res) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.sendStatus(401);
-  
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
-      else{
-    const { usage, startDate, endDate } = req.body;
-    const filterCriteria = {};
-    if (usage && usage.length > 0) {
-      filterCriteria.usage = usage;
-    }
-    if (startDate && endDate) {
-      filterCriteria.startDate = startDate;
-      filterCriteria.endDate = endDate;
-    }
-    const usageDetails = await userModel.getCertUsageData(filterCriteria,user.authNo);
-    res.json(usageDetails);
-  }});
+      else {
+        const { usage, startDate, endDate } = req.body;
+        const filterCriteria = {};
+        if (usage && usage.length > 0) {
+          filterCriteria.usage = usage;
+        }
+        if (startDate && endDate) {
+          filterCriteria.startDate = startDate;
+          filterCriteria.endDate = endDate;
+        }
+        const usageDetails = await userModel.getCertUsageData(
+          filterCriteria,
+          user.authNo
+        );
+        res.json(usageDetails);
+      }
+    });
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Error." });
@@ -444,15 +474,15 @@ async function profile(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
 
-jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
     if (err) return res.sendStatus(403);
 
     try {
       // const profile = await userModel.findUserByUsername(user.username);
-      const total = await userModel.getNumberofCertificates(user.authNo)
-      const count = await userModel.getProfileStatus(user.authNo)
+      const total = await userModel.getNumberofCertificates(user.authNo);
+      const count = await userModel.getProfileStatus(user.authNo);
 
-      res.status(200).json({count,total});
+      res.status(200).json({ count, total });
     } catch (error) {
       console.error("Error fetching profile data:", error);
       res.sendStatus(500);
@@ -460,35 +490,38 @@ jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
   });
 }
 
-async function updatePasswordController (req, res, next){
+async function updatePasswordController(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
-  try{
-    const {oldPassword, newPassword, confirmPassword} = req.body;
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
     const userExist = await userModel.findUserByUsername(req.user.username);
-    const passwordMatch = await bcrypt.compare(oldPassword, userExist[0].Password)
+    const passwordMatch = await bcrypt.compare(
+      oldPassword,
+      userExist[0].Password
+    );
     if (!passwordMatch) {
       return res.status(400).json({ message: "Old password is not correct!" });
-    }
-    else if(!oldPassword || !newPassword){
-      return res.status(400).json({message: "Old and new password are required!"})
-    }
-    else if(newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match!' });
-    }
-    else{
-      const result = await userModel.updatePassword(newPassword, req.user.authNo);
-     
-      if(result.success){
-        return res.status(200).json({message: result.message});
+    } else if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Old and new password are required!" });
+    } else if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match!" });
+    } else {
+      const result = await userModel.updatePassword(
+        newPassword,
+        req.user.authNo
+      );
+
+      if (result.success) {
+        return res.status(200).json({ message: result.message });
+      } else {
+        return res.status(400).json({ message: result.message });
       }
-      else{
-        return res.status(400).json({message: result.message})
-      }
     }
-  }
-  catch(err){
+  } catch (err) {
     res.status(500).json({ error: err });
   }
 }
@@ -502,12 +535,12 @@ async function authorities(req, res) {
     if (err) return res.sendStatus(403);
 
     try {
-      const authoritiesData = await userModel.findAuthorities(user.role);
-      formattedAuthority = authoritiesData.map((authority) =>{
-        return{
-          label : authority.AuthName,
-          value : authority.AuthName
-        }
+      const authoritiesData = await userModel.findAuthorities();
+      formattedAuthority = authoritiesData.map((authority) => {
+        return {
+          label: authority.AuthName,
+          value: authority.AuthName,
+        };
       });
       res.status(200).json(formattedAuthority);
     } catch (error) {
@@ -516,7 +549,6 @@ async function authorities(req, res) {
     }
   });
 }
-
 
 module.exports = {
   signup,
@@ -535,5 +567,5 @@ module.exports = {
   profileData,
   refreshToken,
   updatePasswordController,
-  authorities
+  authorities,
 };

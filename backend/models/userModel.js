@@ -84,7 +84,7 @@ async function getCertData(filterCriteria, authNo) {
         query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
       if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
-        query += ` AND ExpiryDate BETWEEN '${filterCriteria.validityStartDate}' AND '${filterCriteria.validityEndDate}'`;
+        query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
       }
     }
     query += " ORDER BY IssueDate DESC";
@@ -234,9 +234,10 @@ async function updatePassword(authCode, newPass, authNo){
 
 }
 
-
-function findAuthorities(role) {
+// function to get all authorities
+function findAuthorities() {
   try {
+    // removed cca from authorities list
     // let query= '';
     // if(role == 'CCA'){
     // query =

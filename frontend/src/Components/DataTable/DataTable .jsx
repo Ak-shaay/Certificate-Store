@@ -6,11 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import {
-  getIndianRegion,
-  IndianRegion,
-  getStatesByRegions,
-} from "../../Data";
+import { getIndianRegion, IndianRegion, getStatesByRegions } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 
@@ -23,8 +19,7 @@ const DataTable = () => {
   const [region, setRegion] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [validityStartDate, setValidityStartDate] = useState("");
-  const [validityEndDate, setValidityEndDate] = useState("");
+  const [validity, setValidity] = useState("");
   const [stateByRegion, setStateByRegion] = useState([]);
   const [authNumber, setAuthNumber] = useState("");
   const [authorities, setAuthorities] = useState();
@@ -45,24 +40,22 @@ const DataTable = () => {
     filtersElement.style.display = "none";
   };
 
-useEffect(() => {
-  const fetchIssuer = async () => {
-  try{
-    const accessToken = api.getAccessToken();
-    api.setAuthHeader(accessToken);
-    const response = await api.axiosInstance.post(
-      "/authorities")
-    if (response.data) {
-      // console.log("response:",response.data);
-      setAuthorities(response.data);
-    }
-  }
-  catch(err){
-    console.error("error : ",err);
-  }
-}
-fetchIssuer()
-  },[])
+  useEffect(() => {
+    const fetchIssuer = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/authorities");
+        if (response.data) {
+          // console.log("response:",response.data);
+          setAuthorities(response.data);
+        }
+      } catch (err) {
+        console.error("error : ", err);
+      }
+    };
+    fetchIssuer();
+  }, []);
 
   async function handleDownload(issuedData) {
     const unit = "pt";
@@ -147,8 +140,7 @@ fetchIssuer()
       region: region,
       startDate: startDate,
       endDate: endDate,
-      validityStartDate: validityStartDate,
-      validityEndDate: validityEndDate,
+      validity: validity,
     };
     try {
       const accessToken = api.getAccessToken();
@@ -336,8 +328,8 @@ fetchIssuer()
   };
 
   useEffect(() => {
-    setStateByRegion(getStatesByRegions(region))
-  },[region]);
+    setStateByRegion(getStatesByRegions(region));
+  }, [region]);
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -345,12 +337,8 @@ fetchIssuer()
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
   };
-  const handleValidityStartDateChange = (e) => {
-    setValidityStartDate(e.target.value);
-  };
-
-  const handleValidityEndDateChange = (e) => {
-    setValidityEndDate(e.target.value);
+  const handleValidity = (e) => {
+    setValidity(e.target.value);
   };
 
   return (
@@ -400,18 +388,17 @@ fetchIssuer()
           </div>
 
           <div className="row date_picker">
-            <label className="dateLable">Validity Start Date</label>
+            <label className="dateLable">Validity </label>
             <input
-              type="date"
+             disabled={startDate === "" ? true : false}
+              type="number"
               className="datepicker"
-              onChange={handleValidityStartDateChange}
+              step="1"
+              min="0"
+              max="5"
+              onChange={handleValidity}
             />
-            <label className="dateLable">Validity End Date</label>
-            <input
-              type="date"
-              className="datepicker"
-              onChange={handleValidityEndDateChange}
-            />
+            <label className="dateLable">Year(s)</label>
           </div>
           <br />
           <hr />
@@ -428,7 +415,6 @@ fetchIssuer()
           </div>
         </div>
       </div>
-     
 
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
