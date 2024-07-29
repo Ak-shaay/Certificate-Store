@@ -24,6 +24,8 @@ const DataTable = () => {
   const [stateByRegion, setStateByRegion] = useState([]);
   const [authNumber, setAuthNumber] = useState("");
   const [authorities, setAuthorities] = useState();
+  const [rawCertificate,setRawCertificate]= useState('')
+  const [certificateFileName,setcertificateFileName]= useState('')
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -39,6 +41,33 @@ const DataTable = () => {
     blurFilter.style.filter = "blur(0px)";
     blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
+  };
+
+  //download option
+  const handleDownloadCert = (rawCertificate,filename) => {
+    setRawCertificate(rawCertificate)
+    setcertificateFileName(filename)
+    const filtersElement = document.getElementById("download");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(3px)";
+    blurFilter.style.pointerEvents = "none";
+    filtersElement.style.display = "block";
+  };
+
+  const handleDownloadCertClose = (e) => {
+    const filtersElement = document.getElementById("download");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(0px)";
+    blurFilter.style.pointerEvents = "auto";
+    filtersElement.style.display = "none";
+  };
+  const handleCertDownload = (e) => {
+    const link = document.createElement("a");
+         const file = new Blob([rawCertificate], { type: 'text/plain' });
+         link.href = URL.createObjectURL(file);
+         link.download = certificateFileName+".cer";
+         link.click();
+         URL.revokeObjectURL(link.href);
   };
 
   useEffect(() => {
@@ -113,7 +142,6 @@ const DataTable = () => {
       ca.subject_state,
       getIndianRegion(ca.subject_state),
       ca.expiry_date,
-      //"Status",
       ca.subjectType,
     ]);
 
@@ -174,6 +202,7 @@ const DataTable = () => {
               getIndianRegion(cert.Subject_ST),
               cert.ExpiryDate,
               cert.subjectType,
+              cert.RawCertificate
               // "Status"
             ]),
           });
@@ -221,9 +250,7 @@ const DataTable = () => {
                 {
                   className: "",
                   onClick: () =>
-                    alert(
-                      `download "${row.cells[0].data}" "${row.cells[1].data}"`
-                    ),
+                    handleDownloadCert(row.cells[8].data, row.cells[0].data+"_"+row.cells[1].data)
                 },
                 [
                   h("img", {
@@ -428,7 +455,15 @@ const DataTable = () => {
           </div>
         </div>
       </div>
-
+      <div className="" id="download">
+        <span className="close" onClick={handleDownloadCertClose}>
+          X
+        </span>
+        <h2 className="filter-head">Download</h2>
+        <hr className="filter-line" />
+          <textarea className="text-area" rows="20" cols="40" disabled='true' value={rawCertificate} ></textarea>
+          <button className="commonApply-btn" onClick={handleCertDownload}>Download</button>
+        </div>
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
   );

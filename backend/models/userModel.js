@@ -59,10 +59,10 @@ async function getCertData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType FROM cert WHERE 1=1";
+        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType,RawCertificate FROM cert WHERE 1=1";
     } else {
       query =
-        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subjectType FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
+        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType,RawCertificate FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
     }
     if (filterCriteria) {
       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {

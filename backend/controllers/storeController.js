@@ -322,8 +322,15 @@ async function fetchData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { issuer,subjectType, state, region, startDate, endDate, validity } =
-          req.body;
+        const {
+          issuer,
+          subjectType,
+          state,
+          region,
+          startDate,
+          endDate,
+          validity,
+        } = req.body;
 
         const filterCriteria = {};
 
@@ -344,14 +351,11 @@ async function fetchData(req, res) {
           filterCriteria.endDate = endDate;
         }
 
-        // Add validity to filterCriteria if validity is provided and not zero
         if (validity && validity !== 0) {
           filterCriteria.validityStartDate = startDate;
 
-          // Ensure startDate is a valid date string for addYears function
           const validityStartDate = new Date(startDate);
           if (!isNaN(validityStartDate.getTime())) {
-            // Validate if startDate is a valid date
             filterCriteria.validityEndDate = addYears(
               validityStartDate,
               validity
