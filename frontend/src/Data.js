@@ -62,13 +62,13 @@ export const cardsData = [
     barValue: 60,
     value: "25,970",
     png: homeIcon,
-    series: [
-      {
-        name: "CA",
-        data: [31, 40, 28, 51, 42, 109],
-      },
-    ],
-    layoutId:"1",
+    // series: [
+    //   {
+    //     name: "CA",
+    //     data: [31, 40, 28, 51, 42, 30],
+    //   },
+    // ],
+    layoutId:"0",
   },
   {
     title: "Certificates Revoked",
@@ -79,13 +79,13 @@ export const cardsData = [
     barValue: 80,
     value: "14,270",
     png: removeIcon,
-    series: [
-      {
-        name: "Certificates",
-        data: [10, 100, 50, 70, 80, 30, 40],
-      },
-    ],
-    layoutId:"2",
+    // series: [
+    //   {
+    //     name: "Certificates",
+    //     data: [10, 100, 50, 70, 80, 30, 40],
+    //   },
+    // ],
+    layoutId:"1",
   },
   {
     title: "Certificates Expired",
@@ -97,13 +97,13 @@ export const cardsData = [
     barValue: 60,
     value: "4,270",
     png: expiredtIcon,
-    series: [
-      {
-        name: "Transactions",
-        data: [10, 25, 15, 30, 12, 15, 20],
-      },
-    ],
-    layoutId:"3",
+    // series: [
+    //   {
+    //     name: "Transactions",
+    //     data: [10, 25, 15, 30, 12, 15, 20],
+    //   },
+    // ],
+    layoutId:"2",
   },
 ];
 

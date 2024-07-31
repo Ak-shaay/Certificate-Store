@@ -100,18 +100,17 @@ async function getCertData(filterCriteria, authNo) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
-async function getRevokedCertData(filterCriteria,authNo) {
+async function getRevokedCertData(filterCriteria, authNo) {
   try {
-    let query ='';
+    let query = "";
     if (authNo == 1 || authNo == null) {
-    query =
-      "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
+      query =
+        "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
+    } else {
+      query =
+        "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
     }
-    else{
-      query = "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
- 
-    }
-      if (filterCriteria) {
+    if (filterCriteria) {
       if (filterCriteria.reason && filterCriteria.reason.length > 0) {
         const reasons = filterCriteria.reason
           .map((reason) => `'${reason}'`)
@@ -122,23 +121,22 @@ async function getRevokedCertData(filterCriteria,authNo) {
         query += ` AND RevokeDateTime BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-    const result = await db.executeQuery(query,authNo);
+    const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
     throw e;
   }
 }
-async function getCertUsageData(filterCriteria,authNo) {
+async function getCertUsageData(filterCriteria, authNo) {
   try {
-    let query ='';
+    let query = "";
     if (authNo == 1 || authNo == null) {
-    query =
-      "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE 1=1";
-    }
-    else{
-    query =
-      "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE C.IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
+      query =
+        "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE 1=1";
+    } else {
+      query =
+        "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE C.IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
     }
     if (filterCriteria) {
       if (filterCriteria.usage && filterCriteria.usage.length > 0) {
@@ -152,7 +150,7 @@ async function getCertUsageData(filterCriteria,authNo) {
       }
     }
     query += " ORDER BY CU.UsageDate DESC";
-    const result = await db.executeQuery(query,authNo);
+    const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
@@ -221,23 +219,20 @@ async function getNumberofCertificates(authNo) {
     console.log("Error while fetching user: ", e);
   }
 }
-async function updatePassword(authCode, newPass, authNo){
-  try{
-    
-    const query = 'SELECT AuthCode FROM authorities WHERE AuthCode = ?';
-    const[result] = await db.executeQuery(query, [authCode]);
+async function updatePassword(authCode, newPass, authNo) {
+  try {
+    const query = "SELECT AuthCode FROM authorities WHERE AuthCode = ?";
+    const [result] = await db.executeQuery(query, [authCode]);
     if (result.length === 0) {
-      return { success: false, message: 'Invalid authentication code.' };
+      return { success: false, message: "Invalid authentication code." };
     }
     const hashedPassword = await bcrypt.hash(newPass, saltRounds);
-    const updateQuery = 'UPDATE login SET Password = ? WHERE AuthNo = ?';
+    const updateQuery = "UPDATE login SET Password = ? WHERE AuthNo = ?";
     await db.executeQuery(updateQuery, [hashedPassword, authNo]);
-    return {success: true, message: 'Password updated successfully.'};
-  }
-  catch(err){
+    return { success: true, message: "Password updated successfully." };
+  } catch (err) {
     return { success: false, message: err };
   }
-
 }
 
 // function to get all authorities
@@ -256,13 +251,85 @@ function findAuthorities() {
     //     return db.executeQuery(query);
     //   }
 
-    let query = 'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
+    let query =
+      'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
     return db.executeQuery(query);
   } catch (e) {
     console.log("Error while fetching data: ", e);
   }
 }
 
+async function getCardsData() {
+  try {
+    //  6 hours data
+    let query = `
+      WITH RECURSIVE hours AS (
+    SELECT
+        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+    UNION ALL
+    SELECT
+        DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
+    FROM hours
+    WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
+)
+SELECT 
+    COALESCE(COUNT(c.IssueDate), 0) AS issued_records
+FROM 
+    hours h
+LEFT JOIN 
+    cert c
+ON 
+    DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
+    AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
+    AND c.IssueDate <= NOW()
+GROUP BY 
+    h.hour_start
+ORDER BY 
+    h.hour_start;
+    `;
+    let query2 = `
+    WITH RECURSIVE hours AS (
+    SELECT
+        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+    UNION ALL
+    SELECT
+        DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
+    FROM hours
+    WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
+)
+SELECT 
+    COALESCE(COUNT(r.RevokeDateTime), 0) AS rev_records
+FROM 
+    hours h
+LEFT JOIN 
+    revocation_data r
+ON 
+    DATE_FORMAT(r.RevokeDateTime, '%Y-%m-%d %H:00:00') = h.hour_start
+    AND r.RevokeDateTime >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
+    AND r.RevokeDateTime <= NOW()
+GROUP BY 
+    h.hour_start
+ORDER BY 
+    h.hour_start;`;
+
+    const issued =await db.executeQuery(query) ;
+    const revoked =await db.executeQuery(query2) ;
+    const arr1 = [];
+    const arr2 = [];
+    const arr3 = [0,0,0,0,0,0];
+    for( i in issued){
+      arr1.push(issued[i].issued_records)
+    }
+    for( i in revoked){
+      arr2.push(revoked[i].rev_records)
+    }
+    const arr = [];
+    arr.push(arr1,arr2,arr3);
+    return arr;
+  } catch (e) {
+    console.log("Error while fetching data: ", e);
+  }
+}
 
 module.exports = {
   findUserByUsername,
@@ -278,5 +345,6 @@ module.exports = {
   getProfileStatus,
   getNumberofCertificates,
   updatePassword,
-  findAuthorities
+  findAuthorities,
+  getCardsData,
 };

@@ -21,6 +21,8 @@ router.get('/userSessionInfo', authentication.authenticateUser, authController.u
 router.post('/cert', authController.certDetails);
 router.post('/updatePassword', authentication.authenticateUser, authController.updatePasswordController);
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
+router.post('/cards', authController.cards);
+
 
 
 module.exports = router;

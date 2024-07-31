@@ -1,10 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Cards.css";
 import { cardsData } from "../../Data";
+import axios from "axios";
 
 import Card from "../Card/Card";
+import { domain } from "../../Context/config";
 
 const Cards = () => {
+const [issued,setIssued] = useState([])
+const [revoked,setRevoked] = useState([])
+const [expired,setExpired] = useState([])
+
+const series = [
+  [{name : "Issued",
+    data : issued
+  }],
+[{name : "Revoked",
+    data : revoked
+  }],
+  [{name : "Expired",
+    data : expired
+  }],
+]
+// api call 
+useEffect(()=>{
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'http://'+domain+':8080/cards'
+  };
+  
+  axios.request(config)
+  .then((response) => {
+    // console.log(JSON.stringify(response.data[0]));
+    setIssued(response.data[0]);
+    setRevoked(response.data[1]);
+    setExpired(response.data[2]);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+},[])
+
+
   return (
     <div className="Cards">
       {cardsData.map((card, id) => {
@@ -16,7 +54,7 @@ const Cards = () => {
               barValue={card.barValue}
               value={card.value}
               png={card.png}
-              series={card.series}
+              series={series[id]}
               layoutId={card.layoutId}
             />
           </div>
