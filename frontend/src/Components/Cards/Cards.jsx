@@ -9,7 +9,7 @@ import { domain } from "../../Context/config";
 const Cards = () => {
 const [issued,setIssued] = useState([])
 const [revoked,setRevoked] = useState([])
-const [expired,setExpired] = useState([])
+const [used,setUsed] = useState([])
 
 const series = [
   [{name : "Issued",
@@ -18,8 +18,8 @@ const series = [
 [{name : "Revoked",
     data : revoked
   }],
-  [{name : "Expired",
-    data : expired
+  [{name : "Used",
+    data : used
   }],
 ]
 // api call 
@@ -35,7 +35,7 @@ useEffect(()=>{
     // console.log(JSON.stringify(response.data[0]));
     setIssued(response.data[0]);
     setRevoked(response.data[1]);
-    setExpired(response.data[2]);
+    setUsed(response.data[2]);
   })
   .catch((error) => {
     console.log(error);

@@ -88,7 +88,7 @@ export const cardsData = [
     layoutId:"1",
   },
   {
-    title: "Certificates Expired",
+    title: "Certificates Used",
     color: {
       backGround:
         "linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255 202 113) -46.42%)",

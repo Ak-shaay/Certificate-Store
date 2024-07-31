@@ -312,16 +312,45 @@ GROUP BY
 ORDER BY 
     h.hour_start;`;
 
+    let query3 = `WITH RECURSIVE hours AS (
+    SELECT
+        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+    UNION ALL
+    SELECT
+        DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
+    FROM hours
+    WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
+)
+SELECT 
+    h.hour_start,
+    COALESCE(COUNT(cu.UsageDate), 0) AS used_records
+FROM 
+    hours h
+LEFT JOIN 
+    cert_usage cu
+ON 
+    DATE_FORMAT(cu.UsageDate, '%Y-%m-%d %H:00:00') = h.hour_start
+    AND cu.UsageDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
+    AND cu.UsageDate <= NOW()
+GROUP BY 
+    h.hour_start
+ORDER BY 
+    h.hour_start;`
+
     const issued =await db.executeQuery(query) ;
     const revoked =await db.executeQuery(query2) ;
+    const used = await db.executeQuery(query3) ;
     const arr1 = [];
     const arr2 = [];
-    const arr3 = [0,0,0,0,0,0];
+    const arr3 = [];
     for( i in issued){
       arr1.push(issued[i].issued_records)
     }
     for( i in revoked){
       arr2.push(revoked[i].rev_records)
+    }
+    for( i in used){
+      arr3.push(used[i].used_records)
     }
     const arr = [];
     arr.push(arr1,arr2,arr3);
