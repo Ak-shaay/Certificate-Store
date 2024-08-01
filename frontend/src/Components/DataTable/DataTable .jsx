@@ -119,7 +119,7 @@ const DataTable = () => {
       let subject_state = entry[4];
       // region logic
       let expiry_date = entry[6];
-      let subjectType = entry[7];
+      let subject_Type = entry[7];
 
       // Creating object in desired format
       let transformedObject = {
@@ -129,7 +129,7 @@ const DataTable = () => {
         issuer_name: issuer_name,
         issue_date: issue_date,
         expiry_date: expiry_date,
-        subjectType:subjectType,
+        subject_Type:subject_Type,
       };
       transformedData.push(transformedObject);
     });
@@ -142,7 +142,7 @@ const DataTable = () => {
       ca.subject_state,
       getIndianRegion(ca.subject_state),
       ca.expiry_date,
-      ca.subjectType,
+      ca.subject_Type,
     ]);
 
     let content = {
@@ -201,7 +201,7 @@ const DataTable = () => {
               cert.Subject_ST,
               getIndianRegion(cert.Subject_ST),
               cert.ExpiryDate,
-              cert.subjectType,
+              cert.subject_Type,
               cert.RawCertificate
               // "Status"
             ]),

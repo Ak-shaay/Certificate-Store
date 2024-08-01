@@ -6,6 +6,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import api from "../../Pages/axiosInstance";
+import { usageOptions } from "../../Data";
 
 const UsageDataTable = () => {
   const wrapperRef = useRef(null);
@@ -36,7 +37,7 @@ const UsageDataTable = () => {
     const title = "Usage of Certificates";
     const headers = [
       [
-     "Serial No","Subject Name","Issuer Name", "Used On", "Remark", "Count"
+     "Serial No","Subject Name","Issuer Name", "Used On", "Remark",// "Count"
       ],
     ];
 
@@ -47,7 +48,7 @@ const UsageDataTable = () => {
     const commonName = entry[2]
     const time_stamp = entry[3];
     const remark = entry[4];
-    const count = entry[5];
+    // const count = entry[5];
 
 
     // Creating object in desired format
@@ -57,7 +58,7 @@ const UsageDataTable = () => {
         "commonName": commonName,
         "time_stamp": time_stamp,
         "remark": remark,
-        "count": count,
+        // "count": count,
     };
     transformedData.push(transformedObject);
 });
@@ -68,7 +69,7 @@ const UsageDataTable = () => {
       use.commonName,
           use.time_stamp,
           use.remark,
-          use.count,
+          // use.count,
     ]);
 
     let content = {
@@ -111,7 +112,7 @@ const UsageDataTable = () => {
             use.IssuerCommonName,
             use.time_stamp,
             use.remark,
-            use.count
+            // use.count
           ])
         })
         gridRef.current.forceRender();
@@ -124,7 +125,7 @@ const UsageDataTable = () => {
 
   useEffect(() => {
     gridRef.current = new Grid({
-      columns: ["Serial No", "Subject Name","Issuer Name","Used On", "Remark", "Count"],
+      columns: ["Serial No", "Subject Name","Issuer Name","Used On", "Remark"],
       data: [],
       pagination: true,
       sort: true,
@@ -183,13 +184,6 @@ const UsageDataTable = () => {
     };
   }, []);
 
-  const options = [
-    { label: "Signing", value: "Signing" },
-    { label: "Encryption", value: "Encryption" },
-    { label: "Decryption", value: "Decryption" },
-    { label: "other", value: "other" },
-  ];
-
   const handleUsageFilter = (selectedItems) => {
     setSelectedUsage(selectedItems.map(item => item.value));
     console.log(selectedUsage);
@@ -212,7 +206,7 @@ const UsageDataTable = () => {
         <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
-            options={options}
+            options={usageOptions}
             placeholder="Select Usage"
             onChange={handleUsageFilter}
           />

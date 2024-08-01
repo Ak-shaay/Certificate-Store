@@ -59,10 +59,10 @@ async function getCertData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType,RawCertificate FROM cert WHERE 1=1";
+        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subject_Type,RawCertificate FROM cert WHERE 1=1";
     } else {
       query =
-        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subjectType,RawCertificate FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
+        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subject_Type,RawCertificate FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subject_Type,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
     }
     if (filterCriteria) {
       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
@@ -75,7 +75,7 @@ async function getCertData(filterCriteria, authNo) {
         const subjectTypes = filterCriteria.subjectType
           .map((state) => `'${state}'`)
           .join(",");
-        query += ` AND subjectType IN (${subjectTypes})`;
+        query += ` AND subject_Type IN (${subjectTypes})`;
       }
       if (filterCriteria.states && filterCriteria.states.length > 0) {
         const states = filterCriteria.states

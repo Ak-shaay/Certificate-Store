@@ -325,5 +325,12 @@ export function getStatesByRegions(regions) {
 
 export const subType = [
   { label: "CA", value: "CA" },
-  { label: "End-Entity", value: "End-Entity" },
+  { label: "End Entity", value: "End Entity" },
+];
+
+export const usageOptions = [
+  { label: "Signing", value: "Signing" },
+  { label: "Encryption", value: "Encryption" },
+  { label: "Decryption", value: "Decryption" },
+  { label: "other", value: "other" },
 ];
