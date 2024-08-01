@@ -566,6 +566,16 @@ async function cards(req, res) {
     res.sendStatus(500);
   }
 }
+async function compactCard(req, res) {
+  try{
+    const counts = await userModel.getCompactCardData();
+    res.status(200).json(counts);
+  }
+  catch (error) {
+    console.error("Error fetching authorities data:", error);
+    res.sendStatus(500);
+  }
+}
 
 module.exports = {
   signup,
@@ -585,5 +595,6 @@ module.exports = {
   refreshToken,
   updatePasswordController,
   authorities,
-  cards
+  cards,
+  compactCard
 };

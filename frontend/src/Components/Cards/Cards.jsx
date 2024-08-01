@@ -11,6 +11,14 @@ const [issued,setIssued] = useState([])
 const [revoked,setRevoked] = useState([])
 const [used,setUsed] = useState([])
 
+const [issuedCount,setIssuedCount] = useState('')
+const [revokedCount,setRevokedCount] = useState('')
+const [usageCount,setUsageCount] = useState('')
+
+const counts =[
+  {'value':issuedCount},{'value':revokedCount},{'value':usageCount},
+]
+
 const series = [
   [{name : "Issued",
     data : issued
@@ -24,22 +32,44 @@ const series = [
 ]
 // api call 
 useEffect(()=>{
-  let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: 'http://'+domain+':8080/cards'
-  };
-  
-  axios.request(config)
-  .then((response) => {
-    // console.log(JSON.stringify(response.data[0]));
-    setIssued(response.data[0]);
-    setRevoked(response.data[1]);
-    setUsed(response.data[2]);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+  async function apiCall() {
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'http://'+domain+':8080/cards'
+    };
+    
+    await axios.request(config)
+    .then((response) => {
+      // console.log(JSON.stringify(response.data[0]));
+      setIssued(response.data[0]);
+      setRevoked(response.data[1]);
+      setUsed(response.data[2]);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+    async function apiCallforCount() {
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'http://'+domain+':8080/compactCard'
+      };
+      
+      await axios.request(config)
+      .then((response) => {
+        // console.log(JSON.stringify(response.data));
+       setIssuedCount(response.data[0]);
+       setRevokedCount(response.data[1]);
+       setUsageCount(response.data[2]);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+  apiCallforCount();
+  apiCall();
 },[])
 
 
@@ -52,7 +82,7 @@ useEffect(()=>{
               title={card.title}
               color={card.color}
               barValue={card.barValue}
-              value={card.value}
+              value={counts[id].value}
               png={card.png}
               series={series[id]}
               layoutId={card.layoutId}

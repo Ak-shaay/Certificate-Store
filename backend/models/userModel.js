@@ -335,28 +335,53 @@ ON
 GROUP BY 
     h.hour_start
 ORDER BY 
-    h.hour_start;`
+    h.hour_start;`;
 
-    const issued =await db.executeQuery(query) ;
-    const revoked =await db.executeQuery(query2) ;
-    const used = await db.executeQuery(query3) ;
+    const issued = await db.executeQuery(query);
+    const revoked = await db.executeQuery(query2);
+    const used = await db.executeQuery(query3);
     const arr1 = [];
     const arr2 = [];
     const arr3 = [];
-    for( i in issued){
-      arr1.push(issued[i].issued_records)
+    for (i in issued) {
+      arr1.push(issued[i].issued_records);
     }
-    for( i in revoked){
-      arr2.push(revoked[i].rev_records)
+    for (i in revoked) {
+      arr2.push(revoked[i].rev_records);
     }
-    for( i in used){
-      arr3.push(used[i].used_records)
+    for (i in used) {
+      arr3.push(used[i].used_records);
     }
     const arr = [];
-    arr.push(arr1,arr2,arr3);
+    arr.push(arr1, arr2, arr3);
     return arr;
   } catch (e) {
     console.log("Error while fetching data: ", e);
+  }
+}
+
+async function getCompactCardData() {
+  try {
+    let query = `
+    SELECT Count(*) as issuedCount
+    FROM cert 
+    WHERE IssueDate >= NOW() - INTERVAL 1 DAY`;
+    const row1 = await db.executeQuery(query);
+    let query2 = `
+    SELECT COUNT(*) as revokedCount
+    FROM revocation_data 
+    WHERE RevokeDateTime >= NOW() - INTERVAL 1 DAY`;
+    const row2 = await db.executeQuery(query2);
+    let query3 = `
+    SELECT COUNT(*) as usageCount
+    FROM cert_usage  
+    WHERE UsageDate >= NOW() - INTERVAL 1 DAY;`;
+    const row3 = await db.executeQuery(query3);
+    var result = [];
+    result.push(row1[0].issuedCount, row2[0].revokedCount, row3[0].usageCount);
+    return result;
+  } catch (e) {
+    console.log("Error while fetching count: ", e);
   }
 }
 
@@ -376,4 +401,5 @@ module.exports = {
   updatePassword,
   findAuthorities,
   getCardsData,
+  getCompactCardData,
 };
