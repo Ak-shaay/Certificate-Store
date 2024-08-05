@@ -215,11 +215,10 @@ async function getNumberofCertificates(authNo) {
     console.log("Error while fetching user: ", e);
   }
 }
-async function updatePassword(authCode, newPass, authNo){
+async function updatePassword(newPass, authNo){
   try{
-    
-    const query = 'SELECT AuthCode FROM authorities WHERE AuthCode = ?';
-    const[result] = await db.executeQuery(query, [authCode]);
+    const query = 'SELECT AuthCode FROM authorities WHERE AuthNo = ?';
+    const[result] = await db.executeQuery(query, [authNo]);
     if (result.length === 0) {
       return { success: false, message: 'Invalid authentication code.' };
     }
@@ -231,7 +230,6 @@ async function updatePassword(authCode, newPass, authNo){
   catch(err){
     return { success: false, message: err };
   }
-
 }
 
 module.exports = {

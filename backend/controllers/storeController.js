@@ -114,7 +114,8 @@ async function login(req, res) {
       );
       const refreshToken = generateRefreshToken(
         userExist[0].UserName,
-        userExist[0].Role
+        userExist[0].Role,
+        userExist[0].AuthNo
       );
       req.session.username = userExist[0].UserName;
       req.session.userid = userExist[0].AuthNo;
@@ -475,16 +476,17 @@ async function updatePasswordController (req, res, next){
       return res.status(400).json({message: "Old and new password are required!"})
     }
     else if(newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match!' });
+      return res.status(400).json({ message: 'New password do not match!' });
     }
     else{
+      console.log("req.user: ", req.user)
       const result = await userModel.updatePassword(newPassword, req.user.authNo);
      
       if(result.success){
         return res.status(200).json({message: result.message});
       }
       else{
-        return res.status(400).json({message: result.message})
+        return res.status(400).json({message: result.message});
       }
     }
   }
