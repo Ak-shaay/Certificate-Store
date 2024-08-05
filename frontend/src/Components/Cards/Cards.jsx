@@ -12,12 +12,26 @@ const [revoked,setRevoked] = useState([])
 const [used,setUsed] = useState([])
 
 const [issuedCount,setIssuedCount] = useState('')
+const [issuedTotal,setIssuedTotal] = useState('')
 const [revokedCount,setRevokedCount] = useState('')
+const [revokedTotal,setRevokedTotal] = useState('')
 const [usageCount,setUsageCount] = useState('')
+const [usageTotal,setUsageTotal] = useState('')
 
-const counts =[
-  {'value':issuedCount},{'value':revokedCount},{'value':usageCount},
-]
+const counts = [
+  {
+    value: issuedCount,
+    percent: (issuedTotal > 0 ? ((issuedCount / issuedTotal) * 100).toFixed(2) : '0.00')
+  },
+  {
+    value: revokedCount,
+    percent: (revokedTotal > 0 ? ((revokedCount / revokedTotal) * 100).toFixed(2) : '0.00')
+  },
+  {
+    value: usageCount,
+    percent: (usageTotal > 0 ? ((usageCount / usageTotal) * 100).toFixed(2) : '0.00')
+  }
+];
 
 const series = [
   [{name : "Issued",
@@ -61,8 +75,11 @@ useEffect(()=>{
       .then((response) => {
         // console.log(JSON.stringify(response.data));
        setIssuedCount(response.data[0]);
-       setRevokedCount(response.data[1]);
-       setUsageCount(response.data[2]);
+       setIssuedTotal(response.data[1]);
+       setRevokedCount(response.data[2]);
+       setRevokedTotal(response.data[3]);
+       setUsageCount(response.data[4]);
+       setUsageTotal(response.data[5]);
       })
       .catch((error) => {
         console.log(error);
@@ -81,7 +98,7 @@ useEffect(()=>{
             <Card
               title={card.title}
               color={card.color}
-              barValue={card.barValue}
+              barValue={counts[id].percent}
               value={counts[id].value}
               png={card.png}
               series={series[id]}

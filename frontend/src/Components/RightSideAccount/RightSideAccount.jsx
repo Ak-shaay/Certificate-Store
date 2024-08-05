@@ -31,7 +31,7 @@ const RightSideAccount = () => {
           setUsername(decodedToken.username);
           setAuthNo(decodedToken.authNo);
           setCertCount(response.data.total[0].total_cert)
-          console.log("my log", decodedToken);
+          // console.log("my log", decodedToken);
         }
       } catch (error) {
         setError(error);

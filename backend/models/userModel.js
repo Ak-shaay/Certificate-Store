@@ -365,20 +365,30 @@ async function getCompactCardData() {
     let query = `
     SELECT Count(*) as issuedCount
     FROM cert 
-    WHERE IssueDate >= NOW() - INTERVAL 1 DAY`;
+    WHERE IssueDate >= NOW() - INTERVAL 1 DAY
+    UNION ALL
+    SELECT Count(*)
+    FROM cert `;
     const row1 = await db.executeQuery(query);
+    // console.log("row1: " + row1[1].issuedCount);
     let query2 = `
     SELECT COUNT(*) as revokedCount
     FROM revocation_data 
-    WHERE RevokeDateTime >= NOW() - INTERVAL 1 DAY`;
+    WHERE RevokeDateTime >= NOW() - INTERVAL 1 DAY
+    UNION ALL
+    SELECT Count(*)
+    FROM revocation_data `;
     const row2 = await db.executeQuery(query2);
     let query3 = `
     SELECT COUNT(*) as usageCount
     FROM cert_usage  
-    WHERE UsageDate >= NOW() - INTERVAL 1 DAY;`;
+    WHERE UsageDate >= NOW() - INTERVAL 1 DAY
+    UNION ALL
+    SELECT Count(*)
+    FROM cert_usage `;
     const row3 = await db.executeQuery(query3);
     var result = [];
-    result.push(row1[0].issuedCount, row2[0].revokedCount, row3[0].usageCount);
+    result.push(row1[0].issuedCount,row1[1].issuedCount, row2[0].revokedCount,row2[1].revokedCount, row3[0].usageCount,row3[1].usageCount);
     return result;
   } catch (e) {
     console.log("Error while fetching count: ", e);
