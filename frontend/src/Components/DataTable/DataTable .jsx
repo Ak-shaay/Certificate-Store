@@ -422,7 +422,7 @@ const DataTable = () => {
             <input
               type="date"
               className="datepicker"
-              disabled={startDate === "" ? true : false}
+              disabled={startDate === "" }
               onChange={handleEndDateChange}
             />
           </div>
@@ -430,7 +430,7 @@ const DataTable = () => {
           <div className="row date_picker">
             <label className="dateLable">Validity </label>
             <input
-             disabled={startDate === "" ? true : false}
+             disabled={startDate === ""}
               type="number"
               className="datepicker"
               step="1"
@@ -461,7 +461,7 @@ const DataTable = () => {
         </span>
         <h2 className="filter-head">Download</h2>
         <hr className="filter-line" />
-          <textarea className="text-area" rows="20" cols="40" disabled='true' value={rawCertificate} ></textarea>
+          <textarea className="text-area" rows="20" cols="40" disabled={true} value={rawCertificate} ></textarea>
           <button className="commonApply-btn" onClick={handleCertDownload}>Download</button>
         </div>
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>

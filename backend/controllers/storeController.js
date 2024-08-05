@@ -576,6 +576,16 @@ async function compactCard(req, res) {
     res.sendStatus(500);
   }
 }
+async function getAllAuths(req, res) {
+  try{
+    const result = await userModel.getAllAuthsData();
+    res.status(200).json(result);
+  }
+  catch (error) {
+    console.error("Error fetching authorities data:", error);
+    res.sendStatus(500);
+  }
+}
 
 module.exports = {
   signup,
@@ -596,5 +606,7 @@ module.exports = {
   updatePasswordController,
   authorities,
   cards,
-  compactCard
+  compactCard,
+  getAllAuths,
+
 };

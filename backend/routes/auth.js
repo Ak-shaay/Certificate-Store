@@ -23,6 +23,7 @@ router.post('/updatePassword', authentication.authenticateUser, authController.u
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
+router.post('/getAllAuths',authController.getAllAuths)
 
 
 

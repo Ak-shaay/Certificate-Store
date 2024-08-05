@@ -385,6 +385,16 @@ async function getCompactCardData() {
   }
 }
 
+async function getAllAuthsData() {
+  try{
+    let query = `SELECT * FROM authorities`
+    const result = await db.executeQuery(query);
+    return result;
+  }
+  catch (e) {
+    console.log("error fetching user data",e)
+  }
+}
 module.exports = {
   findUserByUsername,
   createUser,
@@ -402,4 +412,5 @@ module.exports = {
   findAuthorities,
   getCardsData,
   getCompactCardData,
+  getAllAuthsData,
 };

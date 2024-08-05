@@ -12,6 +12,7 @@ import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
 import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 import api from "./axiosInstance";
 import { useNavigate } from "react-router-dom";
+import UserManagement from "../Components/UserManagement/UserManagement";
 function Dashboard() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
@@ -142,7 +143,8 @@ function Dashboard() {
       content = (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
-          <LogsDataTable />
+          {/* <LogsDataTable /> */}
+        <UserManagement/>
         </div>
       );
       break;
