@@ -3,7 +3,6 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { domain } from "../../Context/config";
 import { revocationReasons } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
@@ -115,22 +114,6 @@ const RevokedDataTable = () => {
       console.error("Error fetching data: ", err);
     }
 
-
-    // fetch(`http://${domain}:8080/revokedData`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify(filterData)
-    // })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     gridRef.current.updateConfig({
-    //       data: data.map(rev => [rev.serial_number,rev.IssuerCommonName, rev.revoke_date_time, rev.reason])
-    //     });
-    //     gridRef.current.forceRender();
-    //   })
-    //   .catch(error => console.error("Error fetching data:", error));
   };
 
   useEffect(() => {

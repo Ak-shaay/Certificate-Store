@@ -6,29 +6,26 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import {
-  getIndianRegion,
-  Issuers,
-  IndianRegion,
-  getStatesByRegions,
-} from "../../Data";
+import { getIndianRegion, IndianRegion, getStatesByRegions, subType } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
-let hasExecuted = false;
 
 const DataTable = () => {
   // var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
   const [issuer, setIssuer] = useState([]);
+  const [subjectType, setSubjectType] = useState([]);
   const [state, setState] = useState([]);
   const [region, setRegion] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [validityStartDate, setValidityStartDate] = useState("");
-  const [validityEndDate, setValidityEndDate] = useState("");
+  const [validity, setValidity] = useState("");
   const [stateByRegion, setStateByRegion] = useState([]);
   const [authNumber, setAuthNumber] = useState("");
+  const [authorities, setAuthorities] = useState();
+  const [rawCertificate,setRawCertificate]= useState('')
+  const [certificateFileName,setcertificateFileName]= useState('')
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -45,6 +42,51 @@ const DataTable = () => {
     blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
+
+  //download option
+  const handleDownloadCert = (rawCertificate,filename) => {
+    setRawCertificate(rawCertificate)
+    setcertificateFileName(filename)
+    const filtersElement = document.getElementById("download");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(3px)";
+    blurFilter.style.pointerEvents = "none";
+    filtersElement.style.display = "block";
+  };
+
+  const handleDownloadCertClose = (e) => {
+    const filtersElement = document.getElementById("download");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(0px)";
+    blurFilter.style.pointerEvents = "auto";
+    filtersElement.style.display = "none";
+  };
+  const handleCertDownload = (e) => {
+    const link = document.createElement("a");
+         const file = new Blob([rawCertificate], { type: 'text/plain' });
+         link.href = URL.createObjectURL(file);
+         link.download = certificateFileName+".cer";
+         link.click();
+         URL.revokeObjectURL(link.href);
+  };
+
+  useEffect(() => {
+    const fetchIssuer = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/authorities");
+        if (response.data) {
+          // console.log("response:",response.data);
+          setAuthorities(response.data);
+        }
+      } catch (err) {
+        console.error("error : ", err);
+      }
+    };
+    fetchIssuer();
+  }, []);
+
   async function handleDownload(issuedData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -65,7 +107,7 @@ const DataTable = () => {
         "State",
         "Region",
         "Validity",
-        // "Status",
+        "Subject Type",
       ],
     ];
     let transformedData = [];
@@ -75,7 +117,9 @@ const DataTable = () => {
       let issuer_name = entry[2];
       let issue_date = entry[3];
       let subject_state = entry[4];
+      // region logic
       let expiry_date = entry[6];
+      let subject_Type = entry[7];
 
       // Creating object in desired format
       let transformedObject = {
@@ -85,6 +129,7 @@ const DataTable = () => {
         issuer_name: issuer_name,
         issue_date: issue_date,
         expiry_date: expiry_date,
+        subject_Type:subject_Type,
       };
       transformedData.push(transformedObject);
     });
@@ -97,8 +142,7 @@ const DataTable = () => {
       ca.subject_state,
       getIndianRegion(ca.subject_state),
       ca.expiry_date,
-      //"Status",
-      ca.reason,
+      ca.subject_Type,
     ]);
 
     let content = {
@@ -124,12 +168,12 @@ const DataTable = () => {
   const fetchData = async () => {
     const filterData = {
       issuer: issuer,
+      subjectType:subjectType,
       state: state,
       region: region,
       startDate: startDate,
       endDate: endDate,
-      validityStartDate: validityStartDate,
-      validityEndDate: validityEndDate,
+      validity: validity,
     };
     try {
       const accessToken = api.getAccessToken();
@@ -139,28 +183,6 @@ const DataTable = () => {
       const authNo = decodedToken ? decodedToken.authNo : [];
       const username = decodedToken ? decodedToken.username : [];
       setAuthNumber(authNo);
-      // handle filter values
-      async function findIndexByLabel(label) {
-        return Issuers.findIndex((issuer) => issuer.label === label);
-      }
-
-      async function executeOnce() {
-        if (!hasExecuted) {
-          hasExecuted = true;
-
-          try {
-            const index = await findIndexByLabel(username);
-
-            if (authNo === 1) {
-              Issuers.splice(index, 1);
-            }
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }
-      }
-
-      executeOnce();
 
       if (accessToken) {
         api.setAuthHeader(accessToken);
@@ -179,7 +201,8 @@ const DataTable = () => {
               cert.Subject_ST,
               getIndianRegion(cert.Subject_ST),
               cert.ExpiryDate,
-              cert.reason,
+              cert.subject_Type,
+              cert.RawCertificate
               // "Status"
             ]),
           });
@@ -201,7 +224,7 @@ const DataTable = () => {
         "State",
         "Region",
         "Validity",
-        // "Status",
+        "Subject Type",
         {
           name: "Actions",
           formatter: (cell, row) => {
@@ -227,9 +250,7 @@ const DataTable = () => {
                 {
                   className: "",
                   onClick: () =>
-                    alert(
-                      `download "${row.cells[0].data}" "${row.cells[1].data}"`
-                    ),
+                    handleDownloadCert(row.cells[8].data, row.cells[0].data+"_"+row.cells[1].data)
                 },
                 [
                   h("img", {
@@ -330,6 +351,9 @@ const DataTable = () => {
   const handleIssuerFilter = (selectedItems) => {
     setIssuer(selectedItems.map((item) => item.value));
   };
+  const handleSubTypeFilter = (selectedItems) => {
+    setSubjectType(selectedItems.map((item) => item.value));
+  };
   const handleStateFilter = (selectedItems) => {
     setState(selectedItems.map((item) => item.value));
   };
@@ -339,8 +363,8 @@ const DataTable = () => {
   };
 
   useEffect(() => {
-    setStateByRegion(getStatesByRegions(region))
-  },[region]);
+    setStateByRegion(getStatesByRegions(region));
+  }, [region]);
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -348,13 +372,10 @@ const DataTable = () => {
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
   };
-  const handleValidityStartDateChange = (e) => {
-    setValidityStartDate(e.target.value);
+  const handleValidity = (e) => {
+    setValidity(e.target.value);
   };
 
-  const handleValidityEndDateChange = (e) => {
-    setValidityEndDate(e.target.value);
-  };
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
@@ -366,13 +387,18 @@ const DataTable = () => {
         <div className="multi-select-row">
           {authNumber == 1 || authNumber == null ? (
             <MultiSelect
-              options={Issuers}
+              options={authorities}
               placeholder="Select Issuer"
               onChange={handleIssuerFilter}
             />
           ) : (
             <></>
           )}
+          <MultiSelect
+          options={subType}
+          onChange={handleSubTypeFilter}
+            placeholder="Subject Type"
+          />
           <MultiSelect
             options={IndianRegion}
             onChange={handleRegionFilter}
@@ -396,24 +422,23 @@ const DataTable = () => {
             <input
               type="date"
               className="datepicker"
-              disabled={startDate === "" ? true : false}
+              disabled={startDate === "" }
               onChange={handleEndDateChange}
             />
           </div>
 
           <div className="row date_picker">
-            <label className="dateLable">Validity Start Date</label>
+            <label className="dateLable">Validity </label>
             <input
-              type="date"
+             disabled={startDate === ""}
+              type="number"
               className="datepicker"
-              onChange={handleValidityStartDateChange}
+              step="1"
+              min="0"
+              max="5"
+              onChange={handleValidity}
             />
-            <label className="dateLable">Validity End Date</label>
-            <input
-              type="date"
-              className="datepicker"
-              onChange={handleValidityEndDateChange}
-            />
+            <label className="dateLable">Year(s)</label>
           </div>
           <br />
           <hr />
@@ -430,8 +455,15 @@ const DataTable = () => {
           </div>
         </div>
       </div>
-     
-
+      <div className="" id="download">
+        <span className="close" onClick={handleDownloadCertClose}>
+          X
+        </span>
+        <h2 className="filter-head">Download</h2>
+        <hr className="filter-line" />
+          <textarea className="text-area" rows="20" cols="40" disabled={true} value={rawCertificate} ></textarea>
+          <button className="commonApply-btn" onClick={handleCertDownload}>Download</button>
+        </div>
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
   );

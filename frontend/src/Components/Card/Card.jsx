@@ -6,8 +6,21 @@ import { motion, LayoutGroup } from "framer-motion";
 import closeIcon from '../../Images/Icons/cross.png';
 import Chart from "react-apexcharts";
 
-// parent Card
+// get the last 6 hours from the current date time
+function getPastDatetimeStringsIST() {
+  var istOffset = 5.5 * 60 * 60 * 1000;
+  var pastDatetimeStrings = [];
 
+  for (var i = 5; i >= 0; i--) {
+      var pastDate = new Date(Date.now() - i * 3600000 + istOffset);
+      var isoString = pastDate.toISOString(); 
+      pastDatetimeStrings.push(isoString);
+  }
+
+  return pastDatetimeStrings;
+}
+
+// parent Card
 const Card = (props) => {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -90,15 +103,7 @@ function ExpandedCard({ param, setExpanded }) {
       },
       xaxis: {
         type: "datetime",
-        categories: [
-          "2018-09-19T00:00:00.000Z",
-          "2018-09-19T01:30:00.000Z",
-          "2018-09-19T02:30:00.000Z",
-          "2018-09-19T03:30:00.000Z",
-          "2018-09-19T04:30:00.000Z",
-          "2018-09-19T05:30:00.000Z",
-          "2018-09-19T06:30:00.000Z",
-        ],
+        categories: getPastDatetimeStringsIST(),
       },
     },
   };
@@ -119,7 +124,7 @@ function ExpandedCard({ param, setExpanded }) {
       <div className="chartContainer">
         <Chart options={data.options} series={param.series} type="area" />
       </div>
-      <span>Last 24 hours</span>
+      <span>Last 6 hours</span>
     </motion.div>
   );
 }

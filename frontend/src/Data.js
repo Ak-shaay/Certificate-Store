@@ -59,16 +59,16 @@ export const cardsData = [
       backGround: "linear-gradient(180deg, #2980B9 0%, #7FB3D5 100%)",
       boxShadow: "0px 10px 20px 0px #acd2ec",
     },
-    barValue: 60,
-    value: "25,970",
+    // barValue: 60,
+    // value: "25,970",
     png: homeIcon,
-    series: [
-      {
-        name: "CA",
-        data: [31, 40, 28, 51, 42, 109],
-      },
-    ],
-    layoutId:"1",
+    // series: [
+    //   {
+    //     name: "CA",
+    //     data: [31, 40, 28, 51, 42, 30],
+    //   },
+    // ],
+    layoutId:"0",
   },
   {
     title: "Certificates Revoked",
@@ -76,34 +76,34 @@ export const cardsData = [
       backGround: "linear-gradient(180deg, #FF919D 0%, #FC929D 100%)",
       boxShadow: "0px 10px 20px 0px #FDC0C7",
     },
-    barValue: 80,
-    value: "14,270",
+    // barValue: 80,
+    // value: "14,270",
     png: removeIcon,
-    series: [
-      {
-        name: "Certificates",
-        data: [10, 100, 50, 70, 80, 30, 40],
-      },
-    ],
-    layoutId:"2",
+    // series: [
+    //   {
+    //     name: "Certificates",
+    //     data: [10, 100, 50, 70, 80, 30, 40],
+    //   },
+    // ],
+    layoutId:"1",
   },
   {
-    title: "Certificates Expired",
+    title: "Certificates Used",
     color: {
       backGround:
         "linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255 202 113) -46.42%)",
       boxShadow: "0px 10px 20px 0px #F9D59B",
     },
-    barValue: 60,
-    value: "4,270",
+    // barValue: 60,
+    // value: "4,270",
     png: expiredtIcon,
-    series: [
-      {
-        name: "Transactions",
-        data: [10, 25, 15, 30, 12, 15, 20],
-      },
-    ],
-    layoutId:"3",
+    // series: [
+    //   {
+    //     name: "Transactions",
+    //     data: [10, 25, 15, 30, 12, 15, 20],
+    //   },
+    // ],
+    layoutId:"2",
   },
 ];
 
@@ -237,46 +237,6 @@ export const Issuers = [
 ];
 
 
-// export const IndianStates = [
-//   { label: "Andaman and Nicobar Islands", value: "AN" },
-//   { label: "Andhra Pradesh", value: "AP" },
-//   { label: "Arunachal Pradesh", value: "AR" },
-//   { label: "Assam", value: "AS" },
-//   { label: "Bihar", value: "BR" },
-//   { label: "Chandigarh", value: "CH" },
-//   { label: "Chhattisgarh", value: "CG" },
-//   { label: "Dadra and Nagar Haveli and Daman and Diu", value: "DN" },
-//   { label: "Delhi", value: "DL" },
-//   { label: "Goa", value: "GA" },
-//   { label: "Gujarat", value: "GJ" },
-//   { label: "Haryana", value: "HR" },
-//   { label: "Himachal Pradesh", value: "HP" },
-//   { label: "Jammu and Kashmir", value: "JK" },
-//   { label: "Jharkhand", value: "JH" },
-//   { label: "Karnataka", value: "KA" },
-//   { label: "Kerala", value: "KL" },
-//   { label: "Ladakh", value: "LA" },
-//   { label: "Lakshadweep", value: "LD" },
-//   { label: "Madhya Pradesh", value: "MP" },
-//   { label: "Maharashtra", value: "MH" },
-//   { label: "Manipur", value: "MN" },
-//   { label: "Meghalaya", value: "ML" },
-//   { label: "Mizoram", value: "MZ" },
-//   { label: "Nagaland", value: "NL" },
-//   { label: "Odisha", value: "OD" },
-//   { label: "Puducherry", value: "PY" },
-//   { label: "Punjab", value: "PB" },
-//   { label: "Rajasthan", value: "RJ" },
-//   { label: "Sikkim", value: "SK" },
-//   { label: "Tamil Nadu", value: "TN" },
-//   { label: "Telangana", value: "TG" },
-//   { label: "Tripura", value: "TR" },
-//   { label: "Uttar Pradesh", value: "UP" },
-//   { label: "Uttarakhand", value: "UK" },
-//   { label: "West Bengal", value: "WB" }
-// ];
-
-
 export const IndianRegion = [
   { label: "South" ,value: "South" },
   { label: "East" ,value: "East" },
@@ -361,4 +321,16 @@ export function getStatesByRegions(regions) {
   { label: "Affiliation Changed", value: "Affiliation Changed" },
   { label: "Superseded", value: "Superseded" },
   { label: "Cessation of Operation", value: "Cessation of Operation" },
+];
+
+export const subType = [
+  { label: "CA", value: "CA" },
+  { label: "End Entity", value: "End Entity" },
+];
+
+export const usageOptions = [
+  { label: "Signing", value: "Signing" },
+  { label: "Encryption", value: "Encryption" },
+  { label: "Decryption", value: "Decryption" },
+  { label: "other", value: "other" },
 ];

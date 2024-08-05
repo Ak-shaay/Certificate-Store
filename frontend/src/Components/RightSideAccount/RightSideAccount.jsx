@@ -5,13 +5,14 @@ import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 const RightSideAccount = () => {
   const [username, setUsername] = useState(null);
+  const [authNo, setAuthNo] = useState('');
   const [issuedCount, setIssuedCount] = useState("--");
   const [certCount, setCertCount] = useState("--");
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const imgURL = "http://" + domain + ":8080/images/" + username + ".png" || "";
+  const imgURL = "http://" + domain + ":8080/images/" + authNo + ".png" || "";
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,6 +29,7 @@ const RightSideAccount = () => {
           const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const decodedToken = JSON.parse(atob(base64));
           setUsername(decodedToken.username);
+          setAuthNo(decodedToken.authNo);
           setCertCount(response.data.total[0].total_cert)
           // console.log("my log", decodedToken);
         }
