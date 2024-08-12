@@ -87,3 +87,34 @@ width: 100%;
   font-size: 12px;
   resize: none;
 }
+
+.information-block{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    /* margin: 10px 0 15px; */
+    padding: 10px 20px;
+    border-radius: 15px;
+    justify-content: center;
+    cursor: pointer;
+}
+.information-block label{
+    color: #84a8ff;
+}
+.information-block span{
+    color: #000000;
+}
+
+.container-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+  }
+  
+  .item {
+    flex: 1 1 calc(50% - 140px);
+    box-sizing: border-box;
+  }

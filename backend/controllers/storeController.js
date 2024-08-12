@@ -227,6 +227,8 @@ async function userSessionInfo(req, res) {
 
 async function certDetails(req, res) {
   const certificateFile = req.files.certificate;
+  // console.log("certificate file", certificateFile);
+  
   let Certificate = {};
   if (certificateFile == null) {
     res.status(400).json({ error: "Certificate file is required." });
@@ -252,7 +254,7 @@ async function certDetails(req, res) {
   }
   try {
     const pki = forge.pki;
-    const buffer = certificateFile.data;
+    const buffer = certificateFile.data; 
     parsedCertificate = pki.certificateFromPem(buffer);
 
     if (!parsedCertificate) {
@@ -260,7 +262,8 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     } else {
-      console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
+      // console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
+      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
       Certificate = {
         serialNo: parsedCertificate.serialNumber,
         commonName: parsedCertificate.subject.attributes[7].value,
@@ -270,6 +273,12 @@ async function certDetails(req, res) {
         issuer: parsedCertificate.issuer.attributes[2].value,
         validity: parsedCertificate.validity.notAfter,
         hash: parsedCertificate.subject.hash,
+        extensions: parsedCertificate.extensions,
+        issuerO :parsedCertificate.issuer.attributes[1].value,
+        issuerOU :parsedCertificate.issuer.attributes[2].value,
+        issuerCN :parsedCertificate.issuer.attributes[3].value,
+
+
       };
     }
     res.json({ ...Certificate });

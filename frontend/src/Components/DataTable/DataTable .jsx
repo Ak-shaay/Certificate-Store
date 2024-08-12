@@ -6,10 +6,16 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import { getIndianRegion, IndianRegion, getStatesByRegions, subType } from "../../Data";
+import {
+  getIndianRegion,
+  IndianRegion,
+  getStatesByRegions,
+  subType,
+} from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
-
+import axios from "axios";
+import { domain } from "../../Context/config";
 const DataTable = () => {
   // var today = (new Date()).toISOString().split('T')[0];
   const wrapperRef = useRef(null);
@@ -24,8 +30,27 @@ const DataTable = () => {
   const [stateByRegion, setStateByRegion] = useState([]);
   const [authNumber, setAuthNumber] = useState("");
   const [authorities, setAuthorities] = useState();
-  const [rawCertificate,setRawCertificate]= useState('')
-  const [certificateFileName,setcertificateFileName]= useState('')
+  const [rawCertificate, setRawCertificate] = useState("");
+  const [certificateFileName, setcertificateFileName] = useState("");
+
+  // information
+  const [serialNoInfo, setSerialNoInfo] = useState();
+  const [commonNameInfo, setCommonNameInfo] = useState();
+  const [issuerInfo, setIssuerInfo] = useState();
+  const [extensionsInfo, setExtensionsInfo] = useState([]);
+  const [hashInfo, setHashInfo] = useState();
+  const [issuerO, setIssuerO] = useState();
+  const [issuerOU, setIssuerOU] = useState();
+  const [issuerCN, setIssuerCN] = useState();
+
+  const [digitalSignature, setDigitalSignature] = useState(false);
+  const [nonRepudiation, setNonRepudiation] = useState(false);
+  const [keyEncipherment, setKeyEncipherment] = useState(false);
+  const [dataEncipherment, setDataEncipherment] = useState(false);
+  const [keyAgreement, setKeyAgreement] = useState(false);
+  const [keyCertSign, setKeyCertSign] = useState(false);
+  const [cRLSign, setCRLSign] = useState(false);
+  const [encipherOnly, setEncipherOnly] = useState(false);
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -42,11 +67,28 @@ const DataTable = () => {
     blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
+  // information options
+  const handleInformationCert = (rawCertificate) => {
+    setRawCertificate(rawCertificate);
+    handleFileUpload(rawCertificate);
+    const filtersElement = document.getElementById("information");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(3px)";
+    blurFilter.style.pointerEvents = "none";
+    filtersElement.style.display = "block";
+  };
 
+  const handleInformationCertClose = (e) => {
+    const filtersElement = document.getElementById("information");
+    const blurFilter = document.getElementById("applyFilter");
+    blurFilter.style.filter = "blur(0px)";
+    blurFilter.style.pointerEvents = "auto";
+    filtersElement.style.display = "none";
+  };
   //download option
-  const handleDownloadCert = (rawCertificate,filename) => {
-    setRawCertificate(rawCertificate)
-    setcertificateFileName(filename)
+  const handleDownloadCert = (rawCertificate, filename) => {
+    setRawCertificate(rawCertificate);
+    setcertificateFileName(filename);
     const filtersElement = document.getElementById("download");
     const blurFilter = document.getElementById("applyFilter");
     blurFilter.style.filter = "blur(3px)";
@@ -63,11 +105,11 @@ const DataTable = () => {
   };
   const handleCertDownload = (e) => {
     const link = document.createElement("a");
-         const file = new Blob([rawCertificate], { type: 'text/plain' });
-         link.href = URL.createObjectURL(file);
-         link.download = certificateFileName+".cer";
-         link.click();
-         URL.revokeObjectURL(link.href);
+    const file = new Blob([rawCertificate], { type: "text/plain" });
+    link.href = URL.createObjectURL(file);
+    link.download = certificateFileName + ".cer";
+    link.click();
+    URL.revokeObjectURL(link.href);
   };
 
   useEffect(() => {
@@ -129,7 +171,7 @@ const DataTable = () => {
         issuer_name: issuer_name,
         issue_date: issue_date,
         expiry_date: expiry_date,
-        subject_Type:subject_Type,
+        subject_Type: subject_Type,
       };
       transformedData.push(transformedObject);
     });
@@ -168,7 +210,7 @@ const DataTable = () => {
   const fetchData = async () => {
     const filterData = {
       issuer: issuer,
-      subjectType:subjectType,
+      subjectType: subjectType,
       state: state,
       region: region,
       startDate: startDate,
@@ -202,7 +244,7 @@ const DataTable = () => {
               getIndianRegion(cert.Subject_ST),
               cert.ExpiryDate,
               cert.subject_Type,
-              cert.RawCertificate
+              cert.RawCertificate,
               // "Status"
             ]),
           });
@@ -234,7 +276,8 @@ const DataTable = () => {
                 {
                   className: "",
                   onClick: () =>
-                    alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`),
+                    // alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`),
+                    handleInformationCert(row.cells[8].data),
                 },
                 [
                   h("img", {
@@ -250,7 +293,10 @@ const DataTable = () => {
                 {
                   className: "",
                   onClick: () =>
-                    handleDownloadCert(row.cells[8].data, row.cells[0].data+"_"+row.cells[1].data)
+                    handleDownloadCert(
+                      row.cells[8].data,
+                      row.cells[0].data + "_" + row.cells[1].data
+                    ),
                 },
                 [
                   h("img", {
@@ -376,6 +422,67 @@ const DataTable = () => {
     setValidity(e.target.value);
   };
 
+  useEffect(() => {
+    // console.log("extensions",extensionsInfo.nonRepudiation);
+    setDigitalSignature(extensionsInfo.digitalSignature);
+    setNonRepudiation(extensionsInfo.nonRepudiation);
+    setKeyEncipherment(extensionsInfo.keyEncipherment);
+    setDataEncipherment(extensionsInfo.dataEncipherment);
+    setKeyAgreement(extensionsInfo.keyAgreement);
+    setKeyCertSign(extensionsInfo.keyCertSign);
+    setCRLSign(extensionsInfo.cRLSign);
+    setEncipherOnly(extensionsInfo.encipherOnly);
+  }, [extensionsInfo]);
+
+  const handleFileUpload = (pemString) => {
+    if (pemString) {
+      // Convert PEM string to Blob
+      const blob = new Blob([pemString], {
+        type: "application/x-x509-cert.pem",
+      });
+      // Create File object
+      const file = new File([blob], "certificate.pem", {
+        type: "application/x-x509-cert.pem",
+      });
+
+      // Create FormData object
+      const data = new FormData();
+      data.append("certificate", file);
+
+      // Axios configuration
+      const config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `http://${domain}:8080/cert`,
+        withCredentials: true,
+        data: data,
+      };
+      axios
+        .request(config)
+        .then((response) => {
+          document.querySelector(".information-block").style.display = "flex";
+          document.querySelector(".error-block").style.display = "none";
+          setSerialNoInfo(response.data.serialNo);
+          setCommonNameInfo(response.data.commonName);
+          setIssuerInfo(response.data.issuer);
+          setExtensionsInfo(response.data.extensions[8]);
+          setHashInfo(response.data.hash);
+          setIssuerO(response.data.issuerO);
+          setIssuerOU(response.data.issuerOU);
+          setIssuerCN(response.data.issuerCN);
+          // console.log("tttt",!!extensionsInfo.nonRepudiation);
+        })
+        .catch((error) => {
+          console.log("error getting response", error);
+          document.querySelector(".error-block").style.display = "flex";
+          document.querySelector(".information-block").style.display = "none";
+        });
+    } else {
+      alert("Couldn't parse the certificate.");
+      console.log("No certificate data provided.");
+    }
+  };
+
   return (
     <div className="MainTable">
       <div className="filterWindow" id="filter">
@@ -395,8 +502,8 @@ const DataTable = () => {
             <></>
           )}
           <MultiSelect
-          options={subType}
-          onChange={handleSubTypeFilter}
+            options={subType}
+            onChange={handleSubTypeFilter}
             placeholder="Subject Type"
           />
           <MultiSelect
@@ -422,7 +529,7 @@ const DataTable = () => {
             <input
               type="date"
               className="datepicker"
-              disabled={startDate === "" }
+              disabled={startDate === ""}
               onChange={handleEndDateChange}
             />
           </div>
@@ -430,7 +537,7 @@ const DataTable = () => {
           <div className="row date_picker">
             <label className="dateLable">Validity </label>
             <input
-             disabled={startDate === ""}
+              disabled={startDate === ""}
               type="number"
               className="datepicker"
               step="1"
@@ -461,9 +568,110 @@ const DataTable = () => {
         </span>
         <h2 className="filter-head">Download</h2>
         <hr className="filter-line" />
-          <textarea className="text-area" rows="20" cols="40" disabled={true} value={rawCertificate} ></textarea>
-          <button className="commonApply-btn" onClick={handleCertDownload}>Download</button>
+        <textarea
+          className="text-area"
+          rows="20"
+          cols="40"
+          disabled={true}
+          value={rawCertificate}
+        ></textarea>
+        <button className="commonApply-btn" onClick={handleCertDownload}>
+          Download
+        </button>
+      </div>
+      <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
+
+      <div className="" id="information">
+        <span className="close" onClick={handleInformationCertClose}>
+          X
+        </span>
+        <h2 className="filter-head">Information</h2>
+        <hr className="filter-line" />
+        <div className="information-block">
+          <label>
+            Serial Number : <span>{serialNoInfo}</span>
+          </label>
+          <br />
+          <label>
+            Common Name : <span>{commonNameInfo}</span>
+          </label>
+          <br />
+          <h3 className="filter-head">Issuer</h3>
+          <hr />
+          <label>
+            Organization : <span>{issuerO}</span>
+          </label>
+          <br />
+          <label>
+            Organization Common Name : <span>{issuerCN}</span>
+          </label>
+          <br />
+          <label>
+            Organization unit : <span>{issuerOU}</span>
+          </label>
+          <br />
+          <h3 className="filter-head">Usage</h3>
+          <hr />
+          <div class="container-info">
+            <div class="item">
+              <label>
+                Digital Signature :{" "}
+                <input type="checkbox" checked={digitalSignature} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Non Repudiation :{" "}
+                <input type="checkbox" checked={nonRepudiation} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Key Encipherment :{" "}
+                <input type="checkbox" checked={keyEncipherment} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Data Encipherment :{" "}
+                <input type="checkbox" checked={dataEncipherment} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Key Agreement :{" "}
+                <input type="checkbox" checked={keyAgreement} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Key CertSign :{" "}
+                <input type="checkbox" checked={keyCertSign} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                CRL Sign : <input type="checkbox" checked={cRLSign} readOnly />
+              </label>
+            </div>
+            <div class="item">
+              <label>
+                Encipher Only :{" "}
+                <input type="checkbox" checked={encipherOnly} readOnly />
+              </label>
+            </div>
+          </div>
+          <h3 className="filter-head">Fingerprints</h3>
+          <br />
+          <label>
+            Hash Value : <span>{hashInfo}</span>{" "}
+          </label>
+          <br />
         </div>
+        <div className="error-block">
+          <span className="error">Error getting the details!!!</span>
+        </div>
+      </div>
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
     </div>
   );
