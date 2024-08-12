@@ -82,7 +82,7 @@
   width: 8px;
   height: 100%;
   background: rgb(252, 146, 157);
-  margin-right: calc(1rem - 8px);
+  /* margin-right: calc(1rem - 8px); */
 }
 .active>.sidebar-icons{
   filter: invert(100%);

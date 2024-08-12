@@ -8,7 +8,7 @@ router.get('/', authController.landingPage)
 router.get('/profile', authentication.authenticateUser, authController.profile);
 router.get('/profileData', authentication.authenticateUser, authController.profileData);
 router.post('/login', authController.login);
-router.post('/signup', authController.signup);
+router.post('/signup', authentication.authenticateUser, authController.signup);
 router.post('/data', authentication.authenticateUser,authController.fetchData);
 router.post('/refreshToken', authController.refreshToken);
 router.post('/revokedData', authController.fetchRevokedData);
@@ -23,7 +23,7 @@ router.post('/updatePassword', authentication.authenticateUser, authController.u
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
-router.post('/getAllAuths',authController.getAllAuths)
+router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 
 
 

@@ -81,87 +81,73 @@ function Dashboard() {
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
   };
-
   // Use a switch statement outside the JSX
-  let content;
   switch (index) {
     case 0:
-      content = (
+      return(
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <MainDash username={username} />
           <RightSide />
         </div>
       );
-      break;
     case 1:
-      content = (
+      return(
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <DataTable />
           {/* <RightSide /> */}
         </div>
       );
-      break;
     case 2:
-      content = (
+      return(
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <RevokedDataTable />
           {/* <RightSide /> */}
         </div>
       );
-      break;
     case 3:
-      content = (
+      return(
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UsageDataTable />
           {/* <RightSide /> */}
         </div>
       );
-      break;
     case 4:
-      content = (
+      return(
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UploadCertificate />
           {/* <RightSide /> */}
         </div>
       );
-      break;
     case 5:
-      content = (
+      return(
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <Account />
           <RightSideAccount />
         </div>
       );
-      break;
     case 6:
-      content = (
+      return(
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
-          {/* <LogsDataTable /> */}
-        <UserManagement/>
+          <LogsDataTable />
         </div>
       );
-      break;
-    // case 7:
-    // content = (
-    //   <div className="appglass-other">
-    //     <Sidebar onIndexChange={handleIndexChange} />
-    //     <ChangePassword/>
-    //   </div>
-    // );
-    // break;
-
+    case 7:
+      return(
+        <div className="appglass-other">
+          <Sidebar onIndexChange={handleIndexChange} role={role}/>
+          <UserManagement/>
+        </div>
+      );
     default:
-      break;
+      return null
   }
-
-  return <>{content}</>;
 }
 
 export default Dashboard;

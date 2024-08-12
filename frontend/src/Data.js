@@ -1,13 +1,14 @@
 // Sidebar imports
-import homeIcon from "./Images/Icons/home.png"
-import certIcon from "./Images/Icons/certificate.png"
-import removeIcon from "./Images/Icons/remove.png"
-import signIcon from "./Images/Icons/sign.png"
-import userIcon from "./Images/Icons/user.png"
-import uploadIcon from "./Images/Icons/upload.png"
-import logIcon from "./Images/Icons/history.png"
-import signoutIcon from "./Images/Icons/signout.png"
-import expiredtIcon from "./Images/Icons/expired.png"
+import homeIcon from "./Images/Icons/home.png";
+import certIcon from "./Images/Icons/certificate.png";
+import removeIcon from "./Images/Icons/remove.png";
+import signIcon from "./Images/Icons/sign.png";
+import userIcon from "./Images/Icons/user.png";
+import uploadIcon from "./Images/Icons/upload.png";
+import logIcon from "./Images/Icons/history.png";
+import signoutIcon from "./Images/Icons/signout.png";
+import expiredtIcon from "./Images/Icons/expired.png";
+import userManagementIcon from "./Images/Icons/usermanagment.png";
 
 // Recent Card Imports
 import img1 from "./Images/cdaclogoRound.png";
@@ -43,6 +44,10 @@ export const SidebarData = [
   {
     icon: logIcon,
     heading: "Logs",
+  },
+  {
+    icon: userManagementIcon,
+    heading: 'Portal Managment',
   },
   {
     icon: signoutIcon,

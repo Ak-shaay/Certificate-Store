@@ -17,7 +17,14 @@ const Account = () => {
         }
         const response = await api.axiosInstance.get("/profileData");
         if (response.status !== 200) {
+          setTimeout(() => {
+            api.removeTokens();
+            document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            // Redirect to the login page or perform any other necessary actions
+            window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
+          }, 2000);
           throw new Error("Network response was not ok");
+         
         }
 
         setData(response.data.profileData);

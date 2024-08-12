@@ -53,21 +53,47 @@ const generateRefreshToken = (userName, role, authNo) => {
 };
 
 async function signup(req, res) {
-  const { username, password } = req.body;
+  
+  const { username, password, role, authCode, file } = req.body;
+  
   try {
     //check if user exist already
     const existingUser = await userModel.findUserByUsername(username);
     if (existingUser.length > 0) {
       return res.status(400).json({ error: "User exist already" });
     }
+    else{
+      const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+      if (!usernamePattern.test(username)) {
+        return res.status(400).json({ error: "Invalid username" });
+      }
+  
+      if (!passwordPattern.test(password)) {
+        return res.status(400).json({ error: "Invalid password" });
+      }
+
+      if(certFile && certFile.filepath){
+        try{
+          const certData = fs.readFileSync(file.filepath);
+          const cert = _pki.certificateFromAsn1(asn1.fromDer(certData.toString('binary'), false));
+          const serialNumber = cert.serialNumber;
+          console.log("Certificate serial number: ", serialNumber);
+        }
+        catch(err){
+
+        }
+      }
+
+    }
 
     //creating new user
-    await userModel.createUser(username, password);
+    // await createUser(username, password);
     res.render("login", { message: "Signup successful" });
   } catch (err) {
     console.error("Erro during signup: ", err);
     res.status(500).json({ error: "Internal server error" });
-  }
+  } 
 }
 
 // update the user status
@@ -472,7 +498,6 @@ async function profileData(req, res, next) {
       const profileData = await userModel.findUserByUsername(user.username);
       res.status(200).json({ profileData });
     } catch (error) {
-      console.error("Error fetching profile data:", error);
       res.sendStatus(500);
     }
   });
@@ -579,11 +604,11 @@ async function compactCard(req, res) {
 }
 async function getAllAuths(req, res) {
   try{
-    const result = await userModel.getAllAuthsData();
-    res.status(200).json(result);
+    const { authorities, distinctRoles, AuthNo} = await userModel.getAllAuthsData();
+    res.status(200).json({ authorities, distinctRoles, AuthNo});
   }
   catch (error) {
-    console.error("Error fetching authorities data:", error);
+    console.error("Error fetching authorities & role data:", error);
     res.sendStatus(500);
   }
 }

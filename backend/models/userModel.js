@@ -396,10 +396,18 @@ async function getCompactCardData() {
 }
 
 async function getAllAuthsData() {
+  const queryAuthorities = `SELECT a.*, l.username, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
+    const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
+    const lastAuthNo = `SELECT MAX(AuthNo) AS last_authno FROM authorities;`;
   try{
-    let query = `SELECT * FROM authorities`
-    const result = await db.executeQuery(query);
-    return result;
+    const authoritiesResults = await db.executeQuery(queryAuthorities);
+    const distinctRolesResults = await db.executeQuery(queryDistinctRoles);
+    const lastAuth = await db.executeQuery(lastAuthNo);
+    return {
+      authorities: authoritiesResults,
+      distinctRoles: distinctRolesResults,
+      AuthNo: lastAuth
+    };
   }
   catch (e) {
     console.log("error fetching user data",e)
