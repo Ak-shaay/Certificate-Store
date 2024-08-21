@@ -255,6 +255,7 @@ async function certDetails(req, res) {
   try {
     const pki = forge.pki;
     const buffer = certificateFile.data; 
+    
     parsedCertificate = pki.certificateFromPem(buffer);
 
     if (!parsedCertificate) {
@@ -262,8 +263,7 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     } else {
-      // console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
-      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
+   // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
       Certificate = {
         serialNo: parsedCertificate.serialNumber,
         commonName: parsedCertificate.subject.attributes[7].value,
@@ -277,8 +277,6 @@ async function certDetails(req, res) {
         issuerO :parsedCertificate.issuer.attributes[1].value,
         issuerOU :parsedCertificate.issuer.attributes[2].value,
         issuerCN :parsedCertificate.issuer.attributes[3].value,
-
-
       };
     }
     res.json({ ...Certificate });

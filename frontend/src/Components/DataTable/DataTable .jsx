@@ -444,7 +444,6 @@ const DataTable = () => {
       const file = new File([blob], "certificate.pem", {
         type: "application/x-x509-cert.pem",
       });
-
       // Create FormData object
       const data = new FormData();
       data.append("certificate", file);
@@ -470,10 +469,9 @@ const DataTable = () => {
           setIssuerO(response.data.issuerO);
           setIssuerOU(response.data.issuerOU);
           setIssuerCN(response.data.issuerCN);
-          // console.log("tttt",!!extensionsInfo.nonRepudiation);
         })
         .catch((error) => {
-          console.log("error getting response", error);
+          // console.log("error getting response", error);
           document.querySelector(".error-block").style.display = "flex";
           document.querySelector(".information-block").style.display = "none";
         });
@@ -612,49 +610,49 @@ const DataTable = () => {
           <br />
           <h3 className="filter-head">Usage</h3>
           <hr />
-          <div class="container-info">
-            <div class="item">
+          <div className="container-info">
+            <div className="item">
               <label>
                 Digital Signature :{" "}
                 <input type="checkbox" checked={digitalSignature} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Non Repudiation :{" "}
                 <input type="checkbox" checked={nonRepudiation} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key Encipherment :{" "}
                 <input type="checkbox" checked={keyEncipherment} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Data Encipherment :{" "}
                 <input type="checkbox" checked={dataEncipherment} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key Agreement :{" "}
                 <input type="checkbox" checked={keyAgreement} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key CertSign :{" "}
                 <input type="checkbox" checked={keyCertSign} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 CRL Sign : <input type="checkbox" checked={cRLSign} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Encipher Only :{" "}
                 <input type="checkbox" checked={encipherOnly} readOnly />
