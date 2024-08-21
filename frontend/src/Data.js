@@ -214,34 +214,6 @@ export function getIndianRegion(state) {
   return regions[state] || 'Unknown';
 }
 
-
-export const Issuers = [
-  { label: "CCA", value: "CCA" },
-  { label: "Safescrypt", value: "Safescrypt" },
-  { label: "IDRBT", value: "IDRBT" },
-  { label: "(n)Code Solutions", value: "(n)Code Solutions" },
-  { label: "e-Mudhra", value: "e-Mudhra" },
-  { label: "CDAC", value: "CDAC" },
-  { label: "Capricorn", value: "Capricorn" },
-  { label: "Protean (NSDL e-Gov)", value: "Protean (NSDL e-Gov)" },
-  { label: "Vsign (Verasys)", value: "Vsign (Verasys)" },
-  { label: "Indian Air Force", value: "Indian Air Force" },
-  { label: "CSC", value: "CSC" },
-  { label: "RISL (RajComp)", value: "RISL (RajComp)" },
-  { label: "Indian Army", value: "Indian Army" },
-  { label: "IDSign", value: "IDSign" },
-  { label: "CDSL Ventures", value: "CDSL Ventures" },
-  { label: "Panta Sign", value: "Panta Sign" },
-  { label: "xtra Trust", value: "xtra Trust" },
-  { label: "Indian Navy", value: "Indian Navy" },
-  { label: "ProDigiSign", value: "ProDigiSign" },
-  { label: "SignX", value: "SignX" },
-  { label: "JPSL", value: "JPSL" },
-  { label: "Care 4 Sign", value: "Care 4 Sign" },
-  { label: "IGCAR", value: "IGCAR" }
-];
-
-
 export const IndianRegion = [
   { label: "South" ,value: "South" },
   { label: "East" ,value: "East" },
