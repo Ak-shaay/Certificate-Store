@@ -11,7 +11,7 @@ const UserManagement = () => {
     const [errors, setErrors] = useState({});
     const [roles, setRoles] = useState([]);
     const [imgURL, setImgURL] = useState(
-        "http://192.168.37.1:8080/images/null.png"
+        "http://10.182.3.123:8080/images/null.png"
     );
     const [formData, setFormData] = useState({
         name: "",
@@ -171,7 +171,7 @@ const UserManagement = () => {
         }
         setAuthCode(auth.AuthCode);
         setAuthName(auth.AuthName);
-        setImgURL("http://192.168.37.1:8080/images/" + auth.AuthNo + ".png");
+        setImgURL("http://10.182.3.123:8080/images/" + auth.AuthNo + ".png");
     };
 
     const handlePopupClose = () => {
@@ -234,7 +234,7 @@ const UserManagement = () => {
                             <div className="card_img">
                                 <img
                                     className="image"
-                                    src={`http://192.168.37.1:8080/images/${auth.AuthNo}.png`}
+                                    src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
                                     alt="image"
                                 />
                             </div>
