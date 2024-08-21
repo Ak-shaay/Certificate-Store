@@ -55,7 +55,7 @@ const generateRefreshToken = (userName, role, authNo) => {
 async function signup(req, res) {
   
   const { username, password, role, authCode, file } = req.body;
-  
+  console.log("req.body: ",req.body)
   try {
     //check if user exist already
     const existingUser = await userModel.findUserByUsername(username);
@@ -73,7 +73,7 @@ async function signup(req, res) {
         return res.status(400).json({ error: "Invalid password" });
       }
 
-      if(certFile && certFile.filepath){
+      if(file && file.filepath){
         try{
           const certData = fs.readFileSync(file.filepath);
           const cert = _pki.certificateFromAsn1(asn1.fromDer(certData.toString('binary'), false));

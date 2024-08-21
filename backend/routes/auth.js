@@ -18,7 +18,7 @@ router.get('/dashboard',authentication.authenticateUser,authController.dashboard
 router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
 router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo);
-router.post('/cert', authController.certDetails);
+router.post('/cert',authentication.authenticateUser, authController.certDetails);
 router.post('/updatePassword', authentication.authenticateUser, authController.updatePasswordController);
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
 router.post('/cards', authController.cards);
