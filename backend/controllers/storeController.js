@@ -620,6 +620,129 @@ async function getAllAuths(req, res) {
   }
 }
 
+// json files
+
+const path = require('path');
+
+const regionPath = '../public/region.json';
+
+async function region(req, res) {
+  res.sendFile(path.join(__dirname, regionPath));
+};
+
+
+async function getRegion(req,res){
+  const jsonData = fs.readFileSync('backend/'+regionPath)
+    let result = JSON.parse(jsonData) 
+  res.status(200).json(result)
+}
+
+async function addRegion(req, res) {
+  const filePath = 'backend/' + regionPath;
+  if(req.body.region ===''){
+    return res.status(400).json({ error: "Empty value" });
+  }
+  else{
+    const value = req.body.region;
+    const region = value[0].toUpperCase() + value.slice(1)
+  const newValue = { label: region, value: region };
+
+  try {
+      const data = fs.readFileSync(filePath, 'utf8');
+      const jsonData = JSON.parse(data);
+
+      // Check if the new value already exists
+      const exists = jsonData.some(item => item.label === newValue.label || item.value === newValue.value);
+
+      if (exists) {
+          return res.status(400).json({ error: "Value already exists" });
+      }
+
+      jsonData.push(newValue);
+
+      const updatedData = JSON.stringify(jsonData);
+
+      fs.writeFileSync(filePath, updatedData, 'utf8');
+
+      res.status(200).json({ message: "New value "+region+" added successfully" });
+  } catch (err) {
+      console.error('Error processing the file:', err);
+
+      // Error handling
+      if (err.code === 'ENOENT') {
+          res.status(404).json({ error: "File not found" });
+      } else if (err.name === 'SyntaxError') {
+          res.status(400).json({ error: "Invalid JSON format" });
+      } else {
+          res.status(500).json({ error: "An internal server error occurred" });
+      }
+  }
+}
+}
+
+async function deleteRegion(req, res) {
+  const { label } = req.body; 
+  const filePath = 'backend/' + regionPath;
+
+  try {
+      const data = fs.readFileSync(filePath, 'utf8');
+      const jsonData = JSON.parse(data);
+
+      const index = jsonData.findIndex(item => item.label === label);
+
+      if (index === -1) {
+          return res.status(404).json({ error: "Region not found" });
+      }
+
+      // Remove the item from the array
+      jsonData.splice(index, 1);
+
+      const updatedData = JSON.stringify(jsonData);
+
+      fs.writeFileSync(filePath, updatedData, 'utf8');
+
+      res.status(200).json({ message: "Region deleted successfully" });
+  } catch (err) {
+      console.error('Error processing the file:', err);
+
+      // Error handling
+      if (err.code === 'ENOENT') {
+          res.status(404).json({ error: "File not found" });
+      } else if (err.name === 'SyntaxError') {
+          res.status(400).json({ error: "Invalid JSON format" });
+      } else {
+          res.status(500).json({ error: "An internal server error occurred" });
+      }
+  }
+}
+
+
+const statesByRegionPath = '../public/statesByRegion.json';
+
+async function getStatesByRegion(req,res){
+  try {
+    const regions = req.body.regions;
+    if (!regions || !Array.isArray(regions)) {
+        return res.status(400).json({ error: 'Invalid input, regions must be an array.' });
+    }
+    const filePath = 'backend/' + statesByRegionPath;
+    const data = fs.readFileSync(filePath, 'utf8');
+    const allRegions = JSON.parse(data);
+
+    const result = regions.reduce((acc, region) => {
+        if (allRegions[region]) {
+            acc = acc.concat(allRegions[region]);
+        }
+        return acc;
+    }, []);
+
+    res.json(result);
+} catch (error) {
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+}
+}
+
+
 module.exports = {
   signup,
   landingPage,
@@ -641,5 +764,9 @@ module.exports = {
   cards,
   compactCard,
   getAllAuths,
-
+  region,
+  getRegion,
+  addRegion,
+  deleteRegion,
+  getStatesByRegion
 };

@@ -8,8 +8,8 @@ import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import {
   getIndianRegion,
-  IndianRegion,
-  getStatesByRegions,
+  // IndianRegion,
+  // getStatesByRegions,
   subType,
 } from "../../Data";
 import { jsPDF } from "jspdf";
@@ -51,6 +51,44 @@ const DataTable = () => {
   const [keyCertSign, setKeyCertSign] = useState(false);
   const [cRLSign, setCRLSign] = useState(false);
   const [encipherOnly, setEncipherOnly] = useState(false);
+
+// region from region.json
+const [regions, setRegions] = useState([]);
+useEffect(() => {
+  fetch('http://'+domain+':8080/region')
+    .then(response => response.json())
+    .then(data => setRegions(data))
+    .catch(error => console.error('Error fetching data:', error));
+}, []);
+
+// states by region from statesByRegion.json
+async function getStates(region) {
+  const raw = JSON.stringify({
+      "regions": region
+  });
+
+  const requestOptions = {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: raw,
+      redirect: "follow"
+  };
+
+  try {
+      const response = await fetch("http://localhost:8080/getStatesByRegion", requestOptions);
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json(); 
+      // console.log("API Response:", result);
+      return result;
+  } catch (error) {
+      console.error("Error fetching states:", error);
+      return [];
+  }
+}
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -403,14 +441,27 @@ const DataTable = () => {
   const handleStateFilter = (selectedItems) => {
     setState(selectedItems.map((item) => item.value));
   };
-  const handleRegionFilter = (selectedItems) => {
+
+
+  const handleRegionFilter = async (selectedItems) => {
     setRegion(selectedItems.map((item) => item.value));
-    setStateByRegion(getStatesByRegions(region));
+    const statesByRegion = await getStates(region);
+        setStateByRegion(statesByRegion);
   };
 
   useEffect(() => {
-    setStateByRegion(getStatesByRegions(region));
-  }, [region]);
+    const fetchStatesByRegion = async () => {
+        try {
+            const states = await getStates(region);
+            setStateByRegion(states);
+        } catch (error) {
+            console.error("Error fetching states by region:", error);
+        }
+    };
+    fetchStatesByRegion();
+}, [region]); 
+
+
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -505,7 +556,7 @@ const DataTable = () => {
             placeholder="Subject Type"
           />
           <MultiSelect
-            options={IndianRegion}
+            options={regions}
             onChange={handleRegionFilter}
             placeholder="Select Region"
           />

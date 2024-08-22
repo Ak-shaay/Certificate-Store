@@ -214,80 +214,81 @@ export function getIndianRegion(state) {
   return regions[state] || 'Unknown';
 }
 
-export const IndianRegion = [
-  { label: "South" ,value: "South" },
-  { label: "East" ,value: "East" },
-  { label: "West" ,value: "West" },
-  { label: "North" ,value: "North" },
-  { label: "Northeast" ,value: "Northeast" },
-  { label: "Central" ,value: "Central" },
-]
+// moved to region.json
+// export const IndianRegion = [
+//   { label: "South" ,value: "South" },
+//   { label: "East" ,value: "East" },
+//   { label: "West" ,value: "West" },
+//   { label: "North" ,value: "North" },
+//   { label: "Northeast" ,value: "Northeast" },
+//   { label: "Central" ,value: "Central" },
+// ]
 
 
-export function getStatesByRegions(regions) {
-  const allRegions = {
-      "North": [
-          { label: "Jammu and Kashmir", value: "JK" },
-          { label: "Punjab", value: "PB" },
-          { label: "Haryana", value: "HR" },
-          { label: "Himachal Pradesh", value: "HP" },
-          { label: "Uttarakhand", value: "UK" },
-          { label: "Uttar Pradesh", value: "UP" },
-          { label: "Chandigarh", value: "CH" },
-          { label: "Delhi", value: "DL" }
-      ],
-      "South": [
-          { label: "Andhra Pradesh", value: "AP" },
-          { label: "Telangana", value: "TG" },
-          { label: "Karnataka", value: "KA" },
-          { label: "Kerala", value: "KL" },
-          { label: "Tamil Nadu", value: "TN" },
-          { label: "Puducherry", value: "PY" }
-      ],
-      "East": [
-          { label: "West Bengal", value: "WB" },
-          { label: "Odisha", value: "OD" },
-          { label: "Bihar", value: "BR" },
-          { label: "Jharkhand", value: "JH" }
-      ],
-      "West": [
-          { label: "Goa", value: "GA" },
-          { label: "Gujarat", value: "GJ" },
-          { label: "Maharashtra", value: "MH" },
-          { label: "Rajasthan", value: "RJ" }
-      ],
-      "Northeast": [
-          { label: "Assam", value: "AS" },
-          { label: "Arunachal Pradesh", value: "AR" },
-          { label: "Manipur", value: "MN" },
-          { label: "Meghalaya", value: "ML" },
-          { label: "Mizoram", value: "MZ" },
-          { label: "Nagaland", value: "NL" },
-          { label: "Tripura", value: "TR" },
-          { label: "Sikkim", value: "SK" }
-      ],
-      "Central": [
-          { label: "Madhya Pradesh", value: "MP" },
-          { label: "Chhattisgarh", value: "CG" }
-      ]
-  };
+// export function getStatesByRegions(regions) {
+//   const allRegions = {
+//       "North": [
+//           { label: "Jammu and Kashmir", value: "JK" },
+//           { label: "Punjab", value: "PB" },
+//           { label: "Haryana", value: "HR" },
+//           { label: "Himachal Pradesh", value: "HP" },
+//           { label: "Uttarakhand", value: "UK" },
+//           { label: "Uttar Pradesh", value: "UP" },
+//           { label: "Chandigarh", value: "CH" },
+//           { label: "Delhi", value: "DL" }
+//       ],
+//       "South": [
+//           { label: "Andhra Pradesh", value: "AP" },
+//           { label: "Telangana", value: "TG" },
+//           { label: "Karnataka", value: "KA" },
+//           { label: "Kerala", value: "KL" },
+//           { label: "Tamil Nadu", value: "TN" },
+//           { label: "Puducherry", value: "PY" }
+//       ],
+//       "East": [
+//           { label: "West Bengal", value: "WB" },
+//           { label: "Odisha", value: "OD" },
+//           { label: "Bihar", value: "BR" },
+//           { label: "Jharkhand", value: "JH" }
+//       ],
+//       "West": [
+//           { label: "Goa", value: "GA" },
+//           { label: "Gujarat", value: "GJ" },
+//           { label: "Maharashtra", value: "MH" },
+//           { label: "Rajasthan", value: "RJ" }
+//       ],
+//       "Northeast": [
+//           { label: "Assam", value: "AS" },
+//           { label: "Arunachal Pradesh", value: "AR" },
+//           { label: "Manipur", value: "MN" },
+//           { label: "Meghalaya", value: "ML" },
+//           { label: "Mizoram", value: "MZ" },
+//           { label: "Nagaland", value: "NL" },
+//           { label: "Tripura", value: "TR" },
+//           { label: "Sikkim", value: "SK" }
+//       ],
+//       "Central": [
+//           { label: "Madhya Pradesh", value: "MP" },
+//           { label: "Chhattisgarh", value: "CG" }
+//       ]
+//   };
 
-  let states = [];
-//   let noState = [{
-//     "label": "Please select a Region",
-//     "value": ""
-// }]
+//   let states = [];
+// //   let noState = [{
+// //     "label": "Please select a Region",
+// //     "value": ""
+// // }]
 
-  regions.forEach(region => {
-      if (allRegions[region]) {
-          states = states.concat(allRegions[region]);
-      }
-  });
+//   regions.forEach(region => {
+//       if (allRegions[region]) {
+//           states = states.concat(allRegions[region]);
+//       }
+//   });
 
-  return states;
-  // if(states.length==0) return noState
-  // else return states
-}
+//   return states;
+//   // if(states.length==0) return noState
+//   // else return states
+// }
 
 
  // from https://emudhra[dot]com/blog/certificate-revocation-list-crl

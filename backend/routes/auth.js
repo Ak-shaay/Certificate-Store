@@ -1,8 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/storeController');
 const router = express.Router();
-const authentication = require('../models/userModel')
-
+const authentication = require('../models/userModel');
 
 router.get('/', authController.landingPage)
 router.get('/profile', authentication.authenticateUser, authController.profile);
@@ -25,6 +24,12 @@ router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 
+// json routes
+router.get('/region', authController.region);
+router.get('/getRegion', authController.getRegion);
+router.post('/addRegion', authController.addRegion);
+router.post('/deleteRegion', authController.deleteRegion);
 
+router.post('/getStatesByRegion', authController.getStatesByRegion);
 
 module.exports = router;

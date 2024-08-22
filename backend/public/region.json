@@ -1,0 +1,26 @@
+[
+    {
+        "label": "South",
+        "value": "South"
+    },
+    {
+        "label": "East",
+        "value": "East"
+    },
+    {
+        "label": "West",
+        "value": "West"
+    },
+    {
+        "label": "North",
+        "value": "North"
+    },
+    {
+        "label": "Northeast",
+        "value": "Northeast"
+    },
+    {
+        "label": "Central",
+        "value": "Central"
+    }
+]
