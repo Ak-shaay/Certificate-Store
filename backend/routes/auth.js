@@ -31,5 +31,7 @@ router.post('/addRegion', authController.addRegion);
 router.post('/deleteRegion', authController.deleteRegion);
 
 router.post('/getStatesByRegion', authController.getStatesByRegion);
+router.post('/updateRegion', authController.updateRegion);
+router.post('/updateStatesOfRegion', authController.updateStatesOfRegion);
 
 module.exports = router;

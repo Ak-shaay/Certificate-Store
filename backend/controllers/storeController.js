@@ -620,8 +620,10 @@ async function getAllAuths(req, res) {
   }
 }
 
-// json files
 
+// json files handling API 
+
+// region.json 
 const path = require('path');
 
 const regionPath = '../public/region.json';
@@ -716,7 +718,7 @@ async function deleteRegion(req, res) {
   }
 }
 
-
+// states by region json
 const statesByRegionPath = '../public/statesByRegion.json';
 
 async function getStatesByRegion(req,res){
@@ -742,6 +744,65 @@ async function getStatesByRegion(req,res){
 }
 }
 
+async function viewStatesByRegion(req,res){
+  const jsonData = fs.readFileSync('backend/'+statesByRegionPath)
+  let result = JSON.parse(jsonData) 
+res.status(200).json(result)
+}
+
+async function updateRegion(req, res) {
+
+  const filePath  = 'backend/' + statesByRegionPath;
+try{
+  const allRegions = fs.readFileSync(filePath, 'utf8');
+  const data = JSON.parse(allRegions);
+
+  const { region,newValue } = req.body;
+
+       if (data[region]) {
+           data[newValue] = data[region];
+           delete data[region]; // Remove the old key
+
+           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+           res.json({ message: 'Key updated successfully' });
+       } else {
+           res.status(404).send(`Key "${oldKey}" not found.`);
+       }
+}
+catch (err) {
+  res.status(500).json({ error: 'An error occurred while processing your request.' });
+}
+}
+
+async function updateStatesOfRegion(req, res) {
+
+  const filePath  = 'backend/' + statesByRegionPath;
+try{
+  const allRegions = fs.readFileSync(filePath, 'utf8');
+  const data = JSON.parse(allRegions);
+
+  const { region, oldValue, newLabel, newValue } = req.body;
+
+  if (data[region]) {
+    console.log("req",data[region]);
+      const index = data[region].findIndex(item => item.label === oldValue);
+      if (index !== -1) {
+          data[region][index] = { label: newLabel, value: newValue };
+          
+          fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+
+          res.json({ message: "Updated successfully" });
+      } else {
+          res.status(404).send('Entry not found');
+      }
+  } else {
+      res.status(404).send('Region not found');
+  }
+}
+catch (err) {
+  res.status(500).json({ error: 'An error occurred while processing your request.' });
+}
+}
 
 module.exports = {
   signup,
@@ -768,5 +829,8 @@ module.exports = {
   getRegion,
   addRegion,
   deleteRegion,
-  getStatesByRegion
+  getStatesByRegion,
+  viewStatesByRegion,
+  updateRegion,
+  updateStatesOfRegion
 };
