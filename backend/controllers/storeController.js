@@ -992,7 +992,7 @@ async function removeRevReasons(req, res) {
     const index = reasons.findIndex(item => item.label === reason);
     
     if (index === -1) {
-      return res.status(404).json({ error: "SubjectType not found" });
+      return res.status(404).json({ error: "Reason not found" });
     }
     reasons.splice(index, 1);
 
@@ -1000,7 +1000,7 @@ async function removeRevReasons(req, res) {
 
       fs.writeFileSync(filePath, updatedData, 'utf8');
 
-      res.status(200).json({ message: "Reason Type deleted successfully" });
+      res.status(200).json({ message: "Reason deleted successfully" });
 
   } catch (err) {
     console.error("Error processing the file: ", err);
