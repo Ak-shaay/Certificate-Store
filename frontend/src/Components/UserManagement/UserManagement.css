@@ -197,6 +197,111 @@ select {
   border: none;
 }
 
-.inputGroup{
+.inputGroup {
   margin: 2rem;
+}
+
+
+/* system parameters */
+
+.grid-container2 {
+  display: grid;
+  grid-template-columns: auto ;
+
+}
+
+.article-body {
+  background-color: #ffffff;
+  min-height: 10vh;
+}
+
+#formDiv {
+  width: 50vw;
+  height: auto;
+  margin: 70px auto;
+  padding: 50px;
+  background: #e0f1ef;
+  border-radius: 15px;
+}
+
+#formDiv h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.add-list {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.sub-input {
+  height: 40px;
+  border: none;
+  background: #fff;
+  border-radius: 5px;
+  font-size: 15px;
+  padding: 0 10px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.sub-input:focus-visible {
+  outline: none;
+}
+
+.plus-button {
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  font-size: 25px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background-color: #8b5ec6;
+  vertical-align: middle;
+}
+.sub-list{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+#formDiv ul {
+  list-style: none;
+  padding: 0;
+  max-width: 95%;
+}
+#formDiv li {
+  background: #fff;
+  width: 100%;
+  padding: 8px;
+  margin: 10px 4px 10px 0px;
+  border-radius: 5px;
+  font-family: sans-serif;
+  display: inline-block;
+  vertical-align: middle;
+}
+.edit-button {
+  height: 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background-color: #ebd316;
+  vertical-align: middle;
+  float: right;
+  margin-right: 5px;
+}
+.remove-button {
+  height: 20px;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  background-color: #eb2f16;
+  vertical-align: middle;
+  float: right;
+  padding: 0px 10px;
+  margin-right: 5px;
 }
