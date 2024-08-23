@@ -34,6 +34,9 @@ router.post('/removeRegion', authController.removeRegion);
 router.get('/getSubType', authController.getSubType);
 router.post('/addSubjectType', authController.addSubjectType);
 router.post('/removeSubType', authController.removeSubType);
-// router.post('/deleteRegion', authController.deleteRegion);
+router.get('/getRevocationReason', authController.getRevocationReason);
+router.post('/addRevocationReason', authController.addRevocationReason);
+router.post('/removeRevReasons', authController.removeRevReasons);
+
 
 module.exports = router;
