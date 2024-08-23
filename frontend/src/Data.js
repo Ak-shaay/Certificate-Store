@@ -224,7 +224,6 @@ export function getIndianRegion(state) {
 //   { label: "Central" ,value: "Central" },
 // ]
 
-
 // export function getStatesByRegions(regions) {
 //   const allRegions = {
 //       "North": [
@@ -301,10 +300,11 @@ export function getIndianRegion(state) {
   { label: "Cessation of Operation", value: "Cessation of Operation" },
 ];
 
-export const subType = [
-  { label: "CA", value: "CA" },
-  { label: "End Entity", value: "End Entity" },
-];
+// moved to Subjettype.json
+// export const subType = [
+//   { label: "CA", value: "CA" },
+//   { label: "End Entity", value: "End Entity" },
+// ];
 
 export const usageOptions = [
   { label: "Signing", value: "Signing" },

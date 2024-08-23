@@ -10,7 +10,7 @@ import {
   getIndianRegion,
   // IndianRegion,
   // getStatesByRegions,
-  subType,
+  // subType,
 } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
@@ -52,8 +52,11 @@ const DataTable = () => {
   const [cRLSign, setCRLSign] = useState(false);
   const [encipherOnly, setEncipherOnly] = useState(false);
 
-// region from region.json
-const [regions, setRegions] = useState([]);
+  // json values
+  const [subType, setSubType] = useState([]);
+  const [regions, setRegions] = useState([]);
+
+// region from statesByRegion.json
 useEffect(() => {
   fetch('http://'+domain+':8080/region')
     .then(response => response.json())
@@ -77,7 +80,7 @@ async function getStates(region) {
   };
 
   try {
-      const response = await fetch("http://localhost:8080/getStatesByRegion", requestOptions);
+      const response = await fetch("http://"+domain+":8080/getStatesByRegion", requestOptions);
       if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -89,6 +92,14 @@ async function getStates(region) {
       return [];
   }
 }
+
+// subject type from subjectType.json
+useEffect(() => {
+  fetch('http://'+domain+':8080/getSubType')
+    .then(response => response.json())
+    .then(data => setSubType(data))
+    .catch(error => console.error('Error fetching data:', error));
+}, []);
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");

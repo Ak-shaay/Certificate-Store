@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const forge = require("node-forge");
 require("dotenv").config();
 const fs = require("fs");
+const path = require("path");
 
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
@@ -732,7 +733,7 @@ async function updateStatesOfRegion(req, res) {
 
 async function moveStatesOfRegion(req, res) {
   const filePath = "backend/" + statesByRegionPath;
-  
+
   try {
     const allRegions = fs.readFileSync(filePath, "utf8");
     const data = JSON.parse(allRegions);
@@ -762,7 +763,9 @@ async function moveStatesOfRegion(req, res) {
     );
 
     if (index2 !== -1) {
-      return res.status(400).json({ error: "Value already exists in the mentioned region" });
+      return res
+        .status(400)
+        .json({ error: "Value already exists in the mentioned region" });
     }
 
     data[newRegion].push(movedItem);
@@ -775,10 +778,11 @@ async function moveStatesOfRegion(req, res) {
       console.error("Error writing to file:", error);
       res.status(500).json({ error: "Failed to write to file" });
     }
-
   } catch (err) {
     console.error("Error", err);
-    res.status(500).json({ error: "An error occurred while processing your request." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
   }
 }
 
@@ -792,13 +796,15 @@ async function removeRegion(req, res) {
 
     if (data[region]) {
       if (data[region].length > 0) {
-        res.json({ message: "Region is not empty! Please move the states to other region" });
+        res.json({
+          message:
+            "Region is not empty! Please move the states to other region",
+        });
+      } else {
+        delete data[region];
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+        res.json({ message: "Region removed successfully" });
       }
-      else{
-      delete data[region];
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-      res.json({ message: "Region removed successfully" });
-    }
     } else {
       res.status(404).send(`Region not found.`);
     }
@@ -810,116 +816,102 @@ async function removeRegion(req, res) {
   }
 }
 
-// // region.json
-// const path = require('path');
+// subjectType.json
 
-// const regionPath = '../public/region.json';
+const subTypePath = "../public/subjectType.json";
+async function getSubType(req, res) {
+  try {
+    const filePath = "backend/" + subTypePath;
 
-// async function region(req, res) {
-//   try {
-//     const filePath = 'backend/' + statesByRegionPath;
+    const data = fs.readFileSync(filePath, "utf8");
 
-//     const data = fs.readFileSync(filePath, 'utf8');
+    const subjectType = JSON.parse(data);
+    res.json(subjectType);
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
 
-//     const allRegions = JSON.parse(data);
+// add new subjectType to subjectType.json
+async function addSubjectType(req, res) {
+  const filePath = "backend/" + subTypePath;
+  if (req.body.subject === "") {
+    return res.status(400).json({ error: "Empty value" });
+  } else {
+    const value = req.body.subject;
+    const subject = value[0].toUpperCase() + value.slice(1);
+    const newValue = { label: subject, value: subject };
 
-//     // Map the keys to the desired format
-//     const result = Object.keys(allRegions).map(item => ({
-//       label: item,
-//       value: item
-//     }));
+    try {
+      const data = fs.readFileSync(filePath, "utf8");
+      const jsonData = JSON.parse(data);
 
-//     res.json(result);
-//   } catch (error) {
-//     console.error('Error processing the request:', error);
-//       res.status(500).json({ error: 'An error occurred while processing your request.' });
-//   }
-// }
+      // Check if the new value already exists
+      const exists = jsonData.some(
+        (item) => item.label === newValue.label || item.value === newValue.value
+      );
 
-// async function getRegion(req,res){
-//   const jsonData = fs.readFileSync('backend/'+regionPath)
-//     let result = JSON.parse(jsonData)
-//   res.status(200).json(result)
-// }
+      if (exists) {
+        return res.status(400).json({ error: "Value already exists" });
+      }
 
-// async function addRegion(req, res) {
-//   const filePath = 'backend/' + regionPath;
-//   if(req.body.region ===''){
-//     return res.status(400).json({ error: "Empty value" });
-//   }
-//   else{
-//     const value = req.body.region;
-//     const region = value[0].toUpperCase() + value.slice(1)
-//   const newValue = { label: region, value: region };
+      jsonData.push(newValue);
 
-//   try {
-//       const data = fs.readFileSync(filePath, 'utf8');
-//       const jsonData = JSON.parse(data);
+      const updatedData = JSON.stringify(jsonData);
 
-//       // Check if the new value already exists
-//       const exists = jsonData.some(item => item.label === newValue.label || item.value === newValue.value);
+      fs.writeFileSync(filePath, updatedData, "utf8");
 
-//       if (exists) {
-//           return res.status(400).json({ error: "Value already exists" });
-//       }
+      res
+        .status(200)
+        .json({ message: "New value " + subject + " added successfully" });
+    } catch (err) {
+      console.error("Error processing the file:", err);
 
-//       jsonData.push(newValue);
+      // Error handling
+      if (err.code === "ENOENT") {
+        res.status(404).json({ error: "File not found" });
+      } else if (err.name === "SyntaxError") {
+        res.status(400).json({ error: "Invalid JSON format" });
+      } else {
+        res.status(500).json({ error: "An internal server error occurred" });
+      }
+    }
+  }
+}
 
-//       const updatedData = JSON.stringify(jsonData);
+async function removeSubType(req, res) {
+  const { subject } = req.body;
+  const filePath = "backend/" + subTypePath;
 
-//       fs.writeFileSync(filePath, updatedData, 'utf8');
+  if (req.body.subject === "") {
+    return res.status(400).json({ error: "Empty value" });
+  }
+  try {
+    const data = fs.readFileSync(filePath, "utf8");
+    const subjects = JSON.parse(data);
 
-//       res.status(200).json({ message: "New value "+region+" added successfully" });
-//   } catch (err) {
-//       console.error('Error processing the file:', err);
+    const index = subjects.findIndex(item => item.label === subject);
+    console.log("Index: " + index);
+    
+    if (index === -1) {
+      return res.status(404).json({ error: "SubjectType not found" });
+    }
+    subjects.splice(index, 1);
 
-//       // Error handling
-//       if (err.code === 'ENOENT') {
-//           res.status(404).json({ error: "File not found" });
-//       } else if (err.name === 'SyntaxError') {
-//           res.status(400).json({ error: "Invalid JSON format" });
-//       } else {
-//           res.status(500).json({ error: "An internal server error occurred" });
-//       }
-//   }
-// }
-// }
+      const updatedData = JSON.stringify(subjects);
 
-// async function deleteRegion(req, res) {
-//   const { label } = req.body;
-//   const filePath = 'backend/' + regionPath;
+      fs.writeFileSync(filePath, updatedData, 'utf8');
 
-//   try {
-//       const data = fs.readFileSync(filePath, 'utf8');
-//       const jsonData = JSON.parse(data);
+      res.status(200).json({ message: "Subject Type deleted successfully" });
 
-//       const index = jsonData.findIndex(item => item.label === label);
-
-//       if (index === -1) {
-//           return res.status(404).json({ error: "Region not found" });
-//       }
-
-//       // Remove the item from the array
-//       jsonData.splice(index, 1);
-
-//       const updatedData = JSON.stringify(jsonData);
-
-//       fs.writeFileSync(filePath, updatedData, 'utf8');
-
-//       res.status(200).json({ message: "Region deleted successfully" });
-//   } catch (err) {
-//       console.error('Error processing the file:', err);
-
-//       // Error handling
-//       if (err.code === 'ENOENT') {
-//           res.status(404).json({ error: "File not found" });
-//       } else if (err.name === 'SyntaxError') {
-//           res.status(400).json({ error: "Invalid JSON format" });
-//       } else {
-//           res.status(500).json({ error: "An internal server error occurred" });
-//       }
-//   }
-// }
+  } catch (err) {
+    console.error("Error processing the file: ", err);
+    res.status(500).json({ error: "Error processing the file" });
+  }
+}
 
 module.exports = {
   signup,
@@ -948,8 +940,9 @@ module.exports = {
   updateRegion,
   updateStatesOfRegion,
   moveStatesOfRegion,
-  removeRegion
-  // ,getRegion,
-  // addRegion,
+  removeRegion,
+  getSubType,
+  addSubjectType,
+  removeSubType,
   // deleteRegion
 };
