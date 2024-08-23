@@ -25,13 +25,14 @@ router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 
 // json routes
-router.get('/region', authController.region);
-router.get('/getRegion', authController.getRegion);
-router.post('/addRegion', authController.addRegion);
-router.post('/deleteRegion', authController.deleteRegion);
-
+router.get('/region', authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 router.post('/getStatesByRegion', authController.getStatesByRegion);
 router.post('/updateRegion', authController.updateRegion);
 router.post('/updateStatesOfRegion', authController.updateStatesOfRegion);
+router.post('/moveStatesOfRegion', authController.moveStatesOfRegion);
+router.post('/removeRegion', authController.removeRegion);
+// router.get('/getRegion', authController.getRegion);
+// router.post('/addRegion', authController.addRegion);
+// router.post('/deleteRegion', authController.deleteRegion);
 
 module.exports = router;

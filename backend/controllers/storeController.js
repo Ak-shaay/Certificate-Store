@@ -53,38 +53,35 @@ const generateRefreshToken = (userName, role, authNo) => {
 };
 
 async function signup(req, res) {
-  
   const { username, password, role, authCode, file } = req.body;
-  console.log("req.body: ",req.body)
+  console.log("req.body: ", req.body);
   try {
     //check if user exist already
     const existingUser = await userModel.findUserByUsername(username);
     if (existingUser.length > 0) {
       return res.status(400).json({ error: "User exist already" });
-    }
-    else{
+    } else {
       const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
-      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+      const passwordPattern =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
       if (!usernamePattern.test(username)) {
         return res.status(400).json({ error: "Invalid username" });
       }
-  
+
       if (!passwordPattern.test(password)) {
         return res.status(400).json({ error: "Invalid password" });
       }
 
-      if(file && file.filepath){
-        try{
+      if (file && file.filepath) {
+        try {
           const certData = fs.readFileSync(file.filepath);
-          const cert = _pki.certificateFromAsn1(asn1.fromDer(certData.toString('binary'), false));
+          const cert = _pki.certificateFromAsn1(
+            asn1.fromDer(certData.toString("binary"), false)
+          );
           const serialNumber = cert.serialNumber;
           console.log("Certificate serial number: ", serialNumber);
-        }
-        catch(err){
-
-        }
+        } catch (err) {}
       }
-
     }
 
     //creating new user
@@ -93,7 +90,7 @@ async function signup(req, res) {
   } catch (err) {
     console.error("Erro during signup: ", err);
     res.status(500).json({ error: "Internal server error" });
-  } 
+  }
 }
 
 // update the user status
@@ -228,7 +225,7 @@ async function userSessionInfo(req, res) {
 async function certDetails(req, res) {
   const certificateFile = req.files.certificate;
   // console.log("certificate file", certificateFile);
-  
+
   let Certificate = {};
   if (certificateFile == null) {
     res.status(400).json({ error: "Certificate file is required." });
@@ -254,8 +251,8 @@ async function certDetails(req, res) {
   }
   try {
     const pki = forge.pki;
-    const buffer = certificateFile.data; 
-    
+    const buffer = certificateFile.data;
+
     parsedCertificate = pki.certificateFromPem(buffer);
 
     if (!parsedCertificate) {
@@ -263,7 +260,7 @@ async function certDetails(req, res) {
       res.status(500).json({ error: "Failed to parse the certificate." });
       return;
     } else {
-   // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
+      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
       Certificate = {
         serialNo: parsedCertificate.serialNumber,
         commonName: parsedCertificate.subject.attributes[7].value,
@@ -274,9 +271,9 @@ async function certDetails(req, res) {
         validity: parsedCertificate.validity.notAfter,
         hash: parsedCertificate.subject.hash,
         extensions: parsedCertificate.extensions,
-        issuerO :parsedCertificate.issuer.attributes[1].value,
-        issuerOU :parsedCertificate.issuer.attributes[2].value,
-        issuerCN :parsedCertificate.issuer.attributes[3].value,
+        issuerO: parsedCertificate.issuer.attributes[1].value,
+        issuerOU: parsedCertificate.issuer.attributes[2].value,
+        issuerCN: parsedCertificate.issuer.attributes[3].value,
       };
     }
     res.json({ ...Certificate });
@@ -590,219 +587,339 @@ async function authorities(req, res) {
   });
 }
 async function cards(req, res) {
-  try{
+  try {
     const cards = await userModel.getCardsData();
     res.status(200).json(cards);
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching authorities data:", error);
     res.sendStatus(500);
   }
 }
 async function compactCard(req, res) {
-  try{
+  try {
     const counts = await userModel.getCompactCardData();
     res.status(200).json(counts);
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error fetching authorities data:", error);
     res.sendStatus(500);
   }
 }
 async function getAllAuths(req, res) {
-  try{
-    const { authorities, distinctRoles, AuthNo} = await userModel.getAllAuthsData();
-    res.status(200).json({ authorities, distinctRoles, AuthNo});
-  }
-  catch (error) {
+  try {
+    const { authorities, distinctRoles, AuthNo } =
+      await userModel.getAllAuthsData();
+    res.status(200).json({ authorities, distinctRoles, AuthNo });
+  } catch (error) {
     console.error("Error fetching authorities & role data:", error);
     res.sendStatus(500);
   }
 }
 
-
-// json files handling API 
-
-// region.json 
-const path = require('path');
-
-const regionPath = '../public/region.json';
-
-async function region(req, res) {
-  res.sendFile(path.join(__dirname, regionPath));
-};
-
-
-async function getRegion(req,res){
-  const jsonData = fs.readFileSync('backend/'+regionPath)
-    let result = JSON.parse(jsonData) 
-  res.status(200).json(result)
-}
-
-async function addRegion(req, res) {
-  const filePath = 'backend/' + regionPath;
-  if(req.body.region ===''){
-    return res.status(400).json({ error: "Empty value" });
-  }
-  else{
-    const value = req.body.region;
-    const region = value[0].toUpperCase() + value.slice(1)
-  const newValue = { label: region, value: region };
-
-  try {
-      const data = fs.readFileSync(filePath, 'utf8');
-      const jsonData = JSON.parse(data);
-
-      // Check if the new value already exists
-      const exists = jsonData.some(item => item.label === newValue.label || item.value === newValue.value);
-
-      if (exists) {
-          return res.status(400).json({ error: "Value already exists" });
-      }
-
-      jsonData.push(newValue);
-
-      const updatedData = JSON.stringify(jsonData);
-
-      fs.writeFileSync(filePath, updatedData, 'utf8');
-
-      res.status(200).json({ message: "New value "+region+" added successfully" });
-  } catch (err) {
-      console.error('Error processing the file:', err);
-
-      // Error handling
-      if (err.code === 'ENOENT') {
-          res.status(404).json({ error: "File not found" });
-      } else if (err.name === 'SyntaxError') {
-          res.status(400).json({ error: "Invalid JSON format" });
-      } else {
-          res.status(500).json({ error: "An internal server error occurred" });
-      }
-  }
-}
-}
-
-async function deleteRegion(req, res) {
-  const { label } = req.body; 
-  const filePath = 'backend/' + regionPath;
-
-  try {
-      const data = fs.readFileSync(filePath, 'utf8');
-      const jsonData = JSON.parse(data);
-
-      const index = jsonData.findIndex(item => item.label === label);
-
-      if (index === -1) {
-          return res.status(404).json({ error: "Region not found" });
-      }
-
-      // Remove the item from the array
-      jsonData.splice(index, 1);
-
-      const updatedData = JSON.stringify(jsonData);
-
-      fs.writeFileSync(filePath, updatedData, 'utf8');
-
-      res.status(200).json({ message: "Region deleted successfully" });
-  } catch (err) {
-      console.error('Error processing the file:', err);
-
-      // Error handling
-      if (err.code === 'ENOENT') {
-          res.status(404).json({ error: "File not found" });
-      } else if (err.name === 'SyntaxError') {
-          res.status(400).json({ error: "Invalid JSON format" });
-      } else {
-          res.status(500).json({ error: "An internal server error occurred" });
-      }
-  }
-}
+// json files handling API
 
 // states by region json
-const statesByRegionPath = '../public/statesByRegion.json';
+const statesByRegionPath = "../public/statesByRegion.json";
 
-async function getStatesByRegion(req,res){
+// returns regions
+async function region(req, res) {
+  try {
+    const filePath = "backend/" + statesByRegionPath;
+
+    const data = fs.readFileSync(filePath, "utf8");
+
+    const allRegions = JSON.parse(data);
+
+    // Map the keys to the desired format
+    const result = Object.keys(allRegions).map((item) => ({
+      label: item,
+      value: item,
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function getStatesByRegion(req, res) {
   try {
     const regions = req.body.regions;
     if (!regions || !Array.isArray(regions)) {
-        return res.status(400).json({ error: 'Invalid input, regions must be an array.' });
+      return res
+        .status(400)
+        .json({ error: "Invalid input, regions must be an array." });
     }
-    const filePath = 'backend/' + statesByRegionPath;
-    const data = fs.readFileSync(filePath, 'utf8');
+    const filePath = "backend/" + statesByRegionPath;
+    const data = fs.readFileSync(filePath, "utf8");
     const allRegions = JSON.parse(data);
 
     const result = regions.reduce((acc, region) => {
-        if (allRegions[region]) {
-            acc = acc.concat(allRegions[region]);
-        }
-        return acc;
+      if (allRegions[region]) {
+        acc = acc.concat(allRegions[region]);
+      }
+      return acc;
     }, []);
 
     res.json(result);
-} catch (error) {
-    res.status(500).json({ error: 'An error occurred while processing your request.' });
-}
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
 }
 
-async function viewStatesByRegion(req,res){
-  const jsonData = fs.readFileSync('backend/'+statesByRegionPath)
-  let result = JSON.parse(jsonData) 
-res.status(200).json(result)
+async function viewStatesByRegion(req, res) {
+  const jsonData = fs.readFileSync("backend/" + statesByRegionPath);
+  let result = JSON.parse(jsonData);
+  res.status(200).json(result);
 }
 
 async function updateRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
 
-  const filePath  = 'backend/' + statesByRegionPath;
-try{
-  const allRegions = fs.readFileSync(filePath, 'utf8');
-  const data = JSON.parse(allRegions);
+    const { region, newValue } = req.body;
 
-  const { region,newValue } = req.body;
+    if (data[region]) {
+      data[newValue] = data[region];
+      delete data[region]; // Remove the old key
 
-       if (data[region]) {
-           data[newValue] = data[region];
-           delete data[region]; // Remove the old key
-
-           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-           res.json({ message: 'Key updated successfully' });
-       } else {
-           res.status(404).send(`Key "${oldKey}" not found.`);
-       }
-}
-catch (err) {
-  res.status(500).json({ error: 'An error occurred while processing your request.' });
-}
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+      res.json({ message: "Key updated successfully" });
+    } else {
+      res.status(404).send(`Key "${oldKey}" not found.`);
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
 }
 
 async function updateStatesOfRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
 
-  const filePath  = 'backend/' + statesByRegionPath;
-try{
-  const allRegions = fs.readFileSync(filePath, 'utf8');
-  const data = JSON.parse(allRegions);
+    const { region, oldValue, newLabel, newValue } = req.body;
 
-  const { region, oldValue, newLabel, newValue } = req.body;
-
-  if (data[region]) {
-    console.log("req",data[region]);
-      const index = data[region].findIndex(item => item.label === oldValue);
+    if (data[region]) {
+      const index = data[region].findIndex((item) => item.label === oldValue);
       if (index !== -1) {
-          data[region][index] = { label: newLabel, value: newValue };
-          
-          fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+        data[region][index] = { label: newLabel, value: newValue };
 
-          res.json({ message: "Updated successfully" });
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+
+        res.json({ message: "Updated successfully" });
       } else {
-          res.status(404).send('Entry not found');
+        res.status(404).send("Entry not found");
       }
-  } else {
-      res.status(404).send('Region not found');
+    } else {
+      res.status(404).send("Region not found");
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
   }
 }
-catch (err) {
-  res.status(500).json({ error: 'An error occurred while processing your request.' });
+
+async function moveStatesOfRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region, state, label, newRegion } = req.body;
+
+    if (!data[newRegion]) {
+      return res.status(404).send("Region not found");
+    }
+
+    if (!data[region]) {
+      return res.status(404).send("New region not found");
+    }
+
+    const index = data[region].findIndex(
+      (item) => item.label === state || item.value === label
+    );
+
+    if (index === -1) {
+      return res.status(404).send("Entry not found in the current region");
+    }
+
+    const [movedItem] = data[region].splice(index, 1);
+
+    const index2 = data[newRegion].findIndex(
+      (item) => item.label === state || item.value === label
+    );
+
+    if (index2 !== -1) {
+      return res.status(400).json({ error: "Value already exists in the mentioned region" });
+    }
+
+    data[newRegion].push(movedItem);
+
+    try {
+      const updatedData = JSON.stringify(data, null, 2);
+      fs.writeFileSync(filePath, updatedData, "utf8");
+      res.json({ message: "Updated successfully" });
+    } catch (error) {
+      console.error("Error writing to file:", error);
+      res.status(500).json({ error: "Failed to write to file" });
+    }
+
+  } catch (err) {
+    console.error("Error", err);
+    res.status(500).json({ error: "An error occurred while processing your request." });
+  }
 }
+
+async function removeRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region } = req.body;
+
+    if (data[region]) {
+      if (data[region].length > 0) {
+        res.json({ message: "Region is not empty! Please move the states to other region" });
+      }
+      else{
+      delete data[region];
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+      res.json({ message: "Region removed successfully" });
+    }
+    } else {
+      res.status(404).send(`Region not found.`);
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
 }
+
+// // region.json
+// const path = require('path');
+
+// const regionPath = '../public/region.json';
+
+// async function region(req, res) {
+//   try {
+//     const filePath = 'backend/' + statesByRegionPath;
+
+//     const data = fs.readFileSync(filePath, 'utf8');
+
+//     const allRegions = JSON.parse(data);
+
+//     // Map the keys to the desired format
+//     const result = Object.keys(allRegions).map(item => ({
+//       label: item,
+//       value: item
+//     }));
+
+//     res.json(result);
+//   } catch (error) {
+//     console.error('Error processing the request:', error);
+//       res.status(500).json({ error: 'An error occurred while processing your request.' });
+//   }
+// }
+
+// async function getRegion(req,res){
+//   const jsonData = fs.readFileSync('backend/'+regionPath)
+//     let result = JSON.parse(jsonData)
+//   res.status(200).json(result)
+// }
+
+// async function addRegion(req, res) {
+//   const filePath = 'backend/' + regionPath;
+//   if(req.body.region ===''){
+//     return res.status(400).json({ error: "Empty value" });
+//   }
+//   else{
+//     const value = req.body.region;
+//     const region = value[0].toUpperCase() + value.slice(1)
+//   const newValue = { label: region, value: region };
+
+//   try {
+//       const data = fs.readFileSync(filePath, 'utf8');
+//       const jsonData = JSON.parse(data);
+
+//       // Check if the new value already exists
+//       const exists = jsonData.some(item => item.label === newValue.label || item.value === newValue.value);
+
+//       if (exists) {
+//           return res.status(400).json({ error: "Value already exists" });
+//       }
+
+//       jsonData.push(newValue);
+
+//       const updatedData = JSON.stringify(jsonData);
+
+//       fs.writeFileSync(filePath, updatedData, 'utf8');
+
+//       res.status(200).json({ message: "New value "+region+" added successfully" });
+//   } catch (err) {
+//       console.error('Error processing the file:', err);
+
+//       // Error handling
+//       if (err.code === 'ENOENT') {
+//           res.status(404).json({ error: "File not found" });
+//       } else if (err.name === 'SyntaxError') {
+//           res.status(400).json({ error: "Invalid JSON format" });
+//       } else {
+//           res.status(500).json({ error: "An internal server error occurred" });
+//       }
+//   }
+// }
+// }
+
+// async function deleteRegion(req, res) {
+//   const { label } = req.body;
+//   const filePath = 'backend/' + regionPath;
+
+//   try {
+//       const data = fs.readFileSync(filePath, 'utf8');
+//       const jsonData = JSON.parse(data);
+
+//       const index = jsonData.findIndex(item => item.label === label);
+
+//       if (index === -1) {
+//           return res.status(404).json({ error: "Region not found" });
+//       }
+
+//       // Remove the item from the array
+//       jsonData.splice(index, 1);
+
+//       const updatedData = JSON.stringify(jsonData);
+
+//       fs.writeFileSync(filePath, updatedData, 'utf8');
+
+//       res.status(200).json({ message: "Region deleted successfully" });
+//   } catch (err) {
+//       console.error('Error processing the file:', err);
+
+//       // Error handling
+//       if (err.code === 'ENOENT') {
+//           res.status(404).json({ error: "File not found" });
+//       } else if (err.name === 'SyntaxError') {
+//           res.status(400).json({ error: "Invalid JSON format" });
+//       } else {
+//           res.status(500).json({ error: "An internal server error occurred" });
+//       }
+//   }
+// }
 
 module.exports = {
   signup,
@@ -826,11 +943,13 @@ module.exports = {
   compactCard,
   getAllAuths,
   region,
-  getRegion,
-  addRegion,
-  deleteRegion,
   getStatesByRegion,
   viewStatesByRegion,
   updateRegion,
-  updateStatesOfRegion
+  updateStatesOfRegion,
+  moveStatesOfRegion,
+  removeRegion
+  // ,getRegion,
+  // addRegion,
+  // deleteRegion
 };
