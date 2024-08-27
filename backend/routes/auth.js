@@ -23,6 +23,7 @@ router.post('/authorities', authentication.authenticateUser, authController.auth
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
+router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
 
 // json routes
 router.get('/region', authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
@@ -34,9 +35,6 @@ router.post('/removeRegion', authController.removeRegion);
 router.get('/getSubType', authController.getSubType);
 router.post('/addSubjectType', authController.addSubjectType);
 router.post('/removeSubType', authController.removeSubType);
-router.get('/getRevocationReason', authController.getRevocationReason);
-router.post('/addRevocationReason', authController.addRevocationReason);
-router.post('/removeRevReasons', authController.removeRevReasons);
 
 
 module.exports = router;

@@ -17,12 +17,17 @@ const RevokedDataTable = () => {
   const wrapperRef = useRef(null);
   const gridRef = useRef(null); // Ref to store the grid instance
 
-  const [revocationReasons,setRrevocationReasons] = useState([]);
+  const [revocationReasons,setRevocationReasons] = useState([]);
 
   useEffect(() => {
-    fetch('http://'+domain+':8080/getRevocationReason')
-      .then(response => response.json())
-      .then(data => setRrevocationReasons(data))
+    fetch(`http://${domain}:8080/getAllRevocationReasons`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json(); 
+      })
+      .then(data => setRevocationReasons(data))
       .catch(error => console.error('Error fetching data:', error));
   }, []);
   

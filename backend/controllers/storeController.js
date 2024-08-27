@@ -912,99 +912,18 @@ async function removeSubType(req, res) {
   }
 }
 
-// revocationReason.json
-
-const revocationReasonPath = "../public/revocationReason.json";
-
-async function getRevocationReason(req, res) {
+async function getAllRevocationReasons(req, res) {
   try {
-    const filePath = "backend/" + revocationReasonPath;
+    const distinctReasons = await userModel.getRevocationReasons();
 
-    const data = fs.readFileSync(filePath, "utf8");
-
-    const revocationReasons = JSON.parse(data);
-    res.json(revocationReasons);
+    const result = distinctReasons.map((item) => ({
+      label: item.Reason,
+      value: item.Reason,
+    }));
+    res.json(result);
   } catch (error) {
-    console.error("Error processing the request:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
-  }
-}
-
-async function addRevocationReason(req, res) {
-  const filePath = "backend/" + revocationReasonPath;
-  if (req.body.reason === "") {
-    return res.status(400).json({ error: "Empty value" });
-  } else {
-    const value = req.body.reason;
-    const reason = value[0].toUpperCase() + value.slice(1);
-    const newValue = { label: reason, value: reason };
-
-    try {
-      const data = fs.readFileSync(filePath, "utf8");
-      const jsonData = JSON.parse(data);
-
-      // Check if the new value already exists
-      const exists = jsonData.some(
-        (item) => item.label === newValue.label || item.value === newValue.value
-      );
-
-      if (exists) {
-        return res.status(400).json({ error: "Value already exists" });
-      }
-
-      jsonData.push(newValue);
-
-      const updatedData = JSON.stringify(jsonData);
-
-      fs.writeFileSync(filePath, updatedData, "utf8");
-
-      res
-        .status(200)
-        .json({ message: "New value " + reason + " added successfully" });
-    } catch (err) {
-      console.error("Error processing the file:", err);
-
-      // Error handling
-      if (err.code === "ENOENT") {
-        res.status(404).json({ error: "File not found" });
-      } else if (err.name === "SyntaxError") {
-        res.status(400).json({ error: "Invalid JSON format" });
-      } else {
-        res.status(500).json({ error: "An internal server error occurred" });
-      }
-    }
-  }
-}
-
-async function removeRevReasons(req, res) {
-  const { reason } = req.body;
-  const filePath = "backend/" + revocationReasonPath;
-
-  if (req.body.reason === "") {
-    return res.status(400).json({ error: "Empty value" });
-  }
-  try {
-    const data = fs.readFileSync(filePath, "utf8");
-    const reasons = JSON.parse(data);
-
-    const index = reasons.findIndex(item => item.label === reason);
-    
-    if (index === -1) {
-      return res.status(404).json({ error: "Reason not found" });
-    }
-    reasons.splice(index, 1);
-
-      const updatedData = JSON.stringify(reasons);
-
-      fs.writeFileSync(filePath, updatedData, 'utf8');
-
-      res.status(200).json({ message: "Reason deleted successfully" });
-
-  } catch (err) {
-    console.error("Error processing the file: ", err);
-    res.status(500).json({ error: "Error processing the file" });
+    console.error("Error fetching data:", error);
+    res.sendStatus(500);
   }
 }
 
@@ -1039,7 +958,5 @@ module.exports = {
   getSubType,
   addSubjectType,
   removeSubType,
-  getRevocationReason,
-  addRevocationReason,
-  removeRevReasons,
+  getAllRevocationReasons
 };

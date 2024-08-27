@@ -413,6 +413,17 @@ async function getAllAuthsData() {
     console.log("error fetching user data",e)
   }
 }
+
+async function getRevocationReasons() {
+    const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
+  try{
+    const distinctReasonsResults = await db.executeQuery(queryDistinctReasons);
+    return distinctReasonsResults;
+  }
+  catch (e) {
+    console.log("error fetching data",e)
+  }
+}
 module.exports = {
   findUserByUsername,
   createUser,
@@ -431,4 +442,5 @@ module.exports = {
   getCardsData,
   getCompactCardData,
   getAllAuthsData,
+  getRevocationReasons,
 };
