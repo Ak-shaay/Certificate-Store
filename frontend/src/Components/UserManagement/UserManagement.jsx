@@ -23,12 +23,72 @@ const UserManagement = () => {
   });
 
   const [subType, setSubType] = useState([]);
+  const [revReasons, setRevReasons] = useState([]);
 
   const [dragOver, setDragOver] = useState(false);
 
   const [entity, setEntity] = useState("");
   const [msg, setMsg] = useState("");
   const [refreshData, setRefreshData] = useState(false);
+
+  const [reason, setReasons] = useState("");
+  const [msg2, setMsg2] = useState("");
+  const [refreshData2, setRefreshData2] = useState(false);
+  const handleNewReason = async (reason) => {
+    if (!reason.trim()) {
+      setMsg2("Please add a valid reason");
+      return;
+    }
+  
+    const raw = JSON.stringify({ reason: reason });
+  
+    const requestOptions = {
+      method: "POST",
+      body: raw,
+      headers: { "Content-Type": "application/json" }, 
+      redirect: "follow",
+    };
+  
+    try {
+      const response = await fetch(`http://${domain}:8080/addRevocationReason`, requestOptions);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMsg2(errorData.error || "An unknown error occurred");
+        return;
+      }
+      setMsg("Added successfully");
+      setRefreshData2(prev => !prev); 
+    } catch (error) {
+      setMsg2("Network error: " + error.message);
+    }
+  };
+
+  const handleReasonDeletion = async (reason) => {
+    const raw = JSON.stringify({ reason: reason });
+  
+    const requestOptions = {
+      method: "POST",
+      body: raw,
+      headers: { "Content-Type": "application/json" },
+      redirect: "follow",
+    };
+  
+    try {
+      const response = await fetch(`http://${domain}:8080/removeRevReasons`, requestOptions);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMsg2(errorData.error || "An unknown error occurred");
+        return;
+      }
+      setMsg2("Removed successfully");
+      setRefreshData2(prev => !prev); 
+    } catch (error) {
+      setMsg2("Network error: " + error.message);
+    }
+  };
+  
 
 
   const handleNewEntity = async (entity) => {
@@ -42,7 +102,7 @@ const UserManagement = () => {
     const requestOptions = {
       method: "POST",
       body: raw,
-      headers: { "Content-Type": "application/json" }, // Ensure headers are set
+      headers: { "Content-Type": "application/json" }, 
       redirect: "follow",
     };
   
@@ -60,6 +120,31 @@ const UserManagement = () => {
       setMsg("Network error: " + error.message);
     }
   };
+  const handleEntityDeletion = async (entity) => {
+    const raw = JSON.stringify({ subject: entity });
+  
+    const requestOptions = {
+      method: "POST",
+      body: raw,
+      headers: { "Content-Type": "application/json" }, // Ensure headers are set
+      redirect: "follow",
+    };
+  
+    try {
+      const response = await fetch(`http://${domain}:8080/removeSubType`, requestOptions);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMsg(errorData.error || "An unknown error occurred");
+        return;
+      }
+      setMsg("Removed successfully");
+      setRefreshData(prev => !prev); 
+    } catch (error) {
+      setMsg("Network error: " + error.message);
+    }
+  };
+  
   
   const validateForm = () => {
     const { name, password, role, authCode, file } = formData;
@@ -228,6 +313,15 @@ const UserManagement = () => {
       return () => clearTimeout(timer); 
     }
   }, [msg]);
+
+  useEffect(() => {
+    fetch(`http://${domain}:8080/getRevocationReason`)
+      .then((response) => response.json())
+      .then((data) => setRevReasons(data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, [refreshData2]);
+
+
   return (
     <div className="mainUser">
       <h2>Manage System Settings</h2>
@@ -401,7 +495,7 @@ const UserManagement = () => {
       >
         <h1>Hello</h1>
         <div className="grid-container2">
-          <div></div>
+         
           <div id="formDiv">
             <h1>Entity List</h1>
             <div className="add-list">
@@ -426,7 +520,7 @@ const UserManagement = () => {
                   {subType.map((item, index) => (
                     <li key={index}>
                       {item.label}
-                      <button className="remove-button" onClick={() => {/* Handle remove */}}>
+                      <button className="remove-button" onClick={() => {handleEntityDeletion(item.label)}}>
                         &#128465;
                       </button>
                       <button className="edit-button" onClick={() => {/* Handle edit */}}>
@@ -437,6 +531,46 @@ const UserManagement = () => {
                 </ul>
               ) : (
                 <p>No entities found.</p>
+              )}
+            </div>
+          </div>
+
+          {/* revocation */}
+          <div id="formDiv">
+            <h1>Revocation Reasons</h1>
+            <div className="add-list">
+              <input
+                type="text"
+                className="sub-input"
+                value={reason}
+                onChange={(e) => setReasons(e.target.value)}
+              />
+              <button
+                type="button"
+                className="plus-button"
+                onClick={() => handleNewReason(reason)}
+              >
+                +
+              </button>
+            </div>
+            <span className="errorMsg">{msg2}</span>
+            <div className="sub-list">
+              {revReasons.length > 0 ? (
+                <ul>
+                  {revReasons.map((item, index) => (
+                    <li key={index}>
+                      {item.label}
+                      <button className="remove-button" onClick={() => {handleReasonDeletion(item.la)}}>
+                        &#128465;
+                      </button>
+                      <button className="edit-button" onClick={() => {/* Handle edit */}}>
+                        &#128393;
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No Reasons found.</p>
               )}
             </div>
           </div>
