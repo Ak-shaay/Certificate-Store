@@ -23,6 +23,7 @@ router.post('/authorities', authentication.authenticateUser, authController.auth
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
+router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
 
 // json routes

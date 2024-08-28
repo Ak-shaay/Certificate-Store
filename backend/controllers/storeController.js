@@ -616,6 +616,40 @@ async function getAllAuths(req, res) {
   }
 }
 
+async function updateAuths(req, res) {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) return res.sendStatus(403);
+
+      try {
+        const { authName, authCode, authNo } = req.body;
+
+        console.log("reached",req.body);
+        
+        if (!authCode || !authName || !authNo) return res.status(400).json({ error: 'Missing required fields' });
+
+        const result = await userModel.updateAuthsData(authCode, authName, authNo);
+
+        // if (result.affectedRows > 0) {
+          res.status(200).json({ message: 'Data updated successfully' });
+        // } else {
+        //   res.status(404).json({ message: 'Data not found' });
+        // }
+      } catch (error) {
+        console.error("Error in updating data:", error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 // json files handling API
 
 // states by region json
@@ -976,6 +1010,7 @@ module.exports = {
   cards,
   compactCard,
   getAllAuths,
+  updateAuths,
   region,
   getStatesByRegion,
   viewStatesByRegion,

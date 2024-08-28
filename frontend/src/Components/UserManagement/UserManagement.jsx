@@ -9,8 +9,10 @@ const UserManagement = () => {
   const [openSection, setOpenSection] = useState(null);
   const [authCode, setAuthCode] = useState("");
   const [authName, setAuthName] = useState("");
+  const [authNo, setAuthNo] = useState("");
   const [errors, setErrors] = useState({});
   const [roles, setRoles] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [imgURL, setImgURL] = useState(
     "http://10.182.3.123:8080/images/null.png"
   );
@@ -29,6 +31,8 @@ const UserManagement = () => {
   const [msg, setMsg] = useState("");
   const [refreshData, setRefreshData] = useState(false);
 
+  const [authCodeEdit, setAuthCodeEdit] = useState("");
+  const [authNameEdit, setAuthNameEdit] = useState("");
 
   const handleNewEntity = async (entity) => {
     if (!entity.trim()) {
@@ -65,7 +69,7 @@ const UserManagement = () => {
     const requestOptions = {
       method: "POST",
       body: raw,
-      headers: { "Content-Type": "application/json" }, // Ensure headers are set
+      headers: { "Content-Type": "application/json" },
       redirect: "follow",
     };
   
@@ -186,7 +190,6 @@ const UserManagement = () => {
               "Content-Type": "multipart/form-data",
             },
           });
-          // Handle response if needed
         }
       } catch (err) {
         console.error("Error submitting form:", err);
@@ -228,6 +231,7 @@ const UserManagement = () => {
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
     setImgURL(`http://10.182.3.123:8080/images/${auth.AuthNo}.png`);
+    setAuthNo(auth.AuthNo);
   };
 
   const handlePopupClose = () => {
@@ -253,6 +257,38 @@ const UserManagement = () => {
     }
   }, [msg]);
 
+  
+  const handleSave  = async (authName,authCode,authNo) => {
+    const respSpan = document.getElementById("respMessage");
+
+  try {
+    const accessToken = api.getAccessToken(); 
+    if (accessToken) {
+      api.setAuthHeader(accessToken);
+      const response = await api.axiosInstance.post("/updateAuths",{
+        authName,
+        authCode,
+        authNo
+      });
+      if (response.status === 200) {
+       console.log(response.data.message);
+       console.log();
+       respSpan.style.color='green';
+       respSpan.innerHTML = response.data.message;
+       setIsEditing(false)
+       
+      }
+    }
+  } catch (error) {
+    console.log("Error updating the data: " + error);
+    respSpan.style.color='red';
+    respSpan.innerHTML = 'Error updating the data';
+    setIsEditing(false)
+  }
+
+
+  };
+
   return (
     <div className="mainUser">
       <h2>Manage System Settings</h2>
@@ -263,6 +299,7 @@ const UserManagement = () => {
         <span className="close" onClick={handlePopupClose}>
           X
         </span>
+        <span id="respMessage"></span>
         <input
           id="authority"
           className="popup-input"
@@ -270,7 +307,8 @@ const UserManagement = () => {
           name="Authority Name"
           value={authName}
           placeholder="Authority Name"
-          readOnly
+          readOnly= {!isEditing}
+          onChange={(e) => {setAuthName(e.target.value)}}
         />
         <input
           id="AuthCode"
@@ -279,8 +317,18 @@ const UserManagement = () => {
           name="authCode"
           value={authCode}
           placeholder="AuthCode"
-          readOnly
+          readOnly={!isEditing}
+          onChange={(e) => setAuthCode(e.target.value)}
         />
+        {!isEditing ? (
+          <button type="button" className="submitForm" onClick={()=>setIsEditing(true)}>
+          Edit
+        </button>
+      ) : (
+        <button type="button" className="submitForm" onClick={()=>{handleSave(authName,authCode,authNo)}}>
+          Save
+        </button>
+      )}
       </div>
       <button
         type="button"
