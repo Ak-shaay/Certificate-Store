@@ -678,6 +678,34 @@ async function viewStatesByRegion(req, res) {
   res.status(200).json(result);
 }
 
+
+async function addRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region } = req.body;
+
+    if (!region) {
+      return res.status(400).json({ error: 'Region is required.' });
+    }
+
+    if (data[region]) {
+      return res.status(400).json({ error: 'Region already exists.' });
+    }
+
+    data[region] = []; 
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+
+    res.json({ message: 'Region added successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while processing your request." });
+  }
+}
+
 async function updateRegion(req, res) {
   const filePath = "backend/" + statesByRegionPath;
   try {
@@ -951,6 +979,7 @@ module.exports = {
   region,
   getStatesByRegion,
   viewStatesByRegion,
+  addRegion,
   updateRegion,
   updateStatesOfRegion,
   moveStatesOfRegion,

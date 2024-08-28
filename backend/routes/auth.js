@@ -28,10 +28,13 @@ router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)//
 // json routes
 router.get('/region', authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 router.post('/getStatesByRegion', authController.getStatesByRegion);
+
+router.post('/addRegion', authController.addRegion);
 router.post('/updateRegion', authController.updateRegion);
 router.post('/updateStatesOfRegion', authController.updateStatesOfRegion);
 router.post('/moveStatesOfRegion', authController.moveStatesOfRegion);
 router.post('/removeRegion', authController.removeRegion);
+
 router.get('/getSubType', authController.getSubType);
 router.post('/addSubjectType', authController.addSubjectType);
 router.post('/removeSubType', authController.removeSubType);
