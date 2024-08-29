@@ -413,6 +413,25 @@ async function getAllAuthsData() {
     console.log("error fetching user data",e)
   }
 }
+
+async function getCertSerialNumber(serialNumber, issuerName){
+  const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName LIKE ?`;
+  try{
+    const result = await db.executeQuery(query,[serialNumber, issuerName]);
+    if(result.length > 0){
+      return true;
+    }
+    return false;
+  }
+  catch(e){
+    console.log("Error while comparing certificate")
+  }
+}
+
+async function signup(){
+  const query1 = ``
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -431,4 +450,5 @@ module.exports = {
   getCardsData,
   getCompactCardData,
   getAllAuthsData,
+  getCertSerialNumber
 };

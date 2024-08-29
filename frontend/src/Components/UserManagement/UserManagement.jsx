@@ -11,7 +11,7 @@ const UserManagement = () => {
     const [errors, setErrors] = useState({});
     const [roles, setRoles] = useState([]);
     const [imgURL, setImgURL] = useState(
-        "http://10.182.3.123:8080/images/null.png"
+        "http://192.168.37.1:8080/images/null.png"
     );
     const [formData, setFormData] = useState({
         name: "",
@@ -34,8 +34,7 @@ const UserManagement = () => {
 
         // Password validation
         const passwordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/
-        ;
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
         if (!password) {
             newErrors.password = "Password is required";
         } else if (!passwordRegex.test(password.trim())) {
@@ -71,6 +70,9 @@ const UserManagement = () => {
     };
 
     const handleChange = (e) => {
+        const msg = document.getElementById("signupMsg");
+        msg.style.color = "";
+        msg.innerHTML = "";
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
@@ -94,46 +96,53 @@ const UserManagement = () => {
         setDragOver(false);
     };
 
-    const convertFileToBase64 = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-          try{
-            const accessToken = api.getAccessToken();
-            if(accessToken){
-              api.setAuthHeader(accessToken);
-              const data = new FormData();
-        data.append('username', formData.name);
-        data.append('password', formData.password);
-        data.append('role', formData.role);
-        data.append('authCode', formData.authCode);
-        if (formData.file) {
-          const base64File = await convertFileToBase64(formData.file);
-          data.append('file', base64File);
-        }
-        console.log(data)
-              const response = await api.axiosInstance.post("/signup", data, {
-                headers:{
-                  'Content-Type': 'multipart/form-data'
+            try {
+                const accessToken = api.getAccessToken();
+                if (accessToken) {
+                    api.setAuthHeader(accessToken);
+                    const data = new FormData();
+                    data.append("username", formData.name);
+                    data.append("password", formData.password);
+                    data.append("role", formData.role);
+                    data.append("authCode", formData.authCode);
+                    data.append("cert", formData.file);
+                    const response = await api.axiosInstance.post(
+                        "/signup",
+                        data,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                        }
+                    );
+                    if (response.status === 200) {
+                        setFormData({
+                            name: "",
+                            password: "",
+                            role: "",
+                            authCode: "",
+                            file: null,
+                        });
+                        const msg = document.getElementById("signupMsg");
+                        msg.style.color = "green";
+                        msg.innerHTML = response.data.message;
+                    }
                 }
-              })
-
-
+            } catch (err) {
+                setFormData({
+                    name: "",
+                    password: "",
+                    role: "",
+                    authCode: "",
+                    file: null,
+                });
+                const msg = document.getElementById("signupMsg");
+                msg.style.color = "red";
+                msg.innerHTML = "Signup failed!";
             }
-          }
-          catch(err){
-
-          }
         }
     };
 
@@ -171,7 +180,7 @@ const UserManagement = () => {
         }
         setAuthCode(auth.AuthCode);
         setAuthName(auth.AuthName);
-        setImgURL("http://10.182.3.123:8080/images/" + auth.AuthNo + ".png");
+        setImgURL("http://192.168.37.1:8080/images/" + auth.AuthNo + ".png");
     };
 
     const handlePopupClose = () => {
@@ -234,7 +243,7 @@ const UserManagement = () => {
                             <div className="card_img">
                                 <img
                                     className="image"
-                                    src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
+                                    src={`http://192.168.37.1:8080/images/${auth.AuthNo}.png`}
                                     alt="image"
                                 />
                             </div>
@@ -364,7 +373,7 @@ const UserManagement = () => {
                             <p>Selected file: {formData.file.name}</p>
                         )}
                     </div>
-
+                    <span id="signupMsg"></span>
                     <button type="submit" className="submitForm">
                         Submit
                     </button>

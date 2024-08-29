@@ -1,647 +1,669 @@
 const userModel = require("../models/userModel");
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const forge = require("node-forge");
 require("dotenv").config();
 const fs = require("fs");
+const path = require("path");
 
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
 
 if (fs.existsSync(TOKEN_FILE)) {
-  refreshTokens = JSON.parse(fs.readFileSync(TOKEN_FILE));
+    refreshTokens = JSON.parse(fs.readFileSync(TOKEN_FILE));
 }
 
 const saveTokensToFile = () => {
-  fs.writeFileSync(TOKEN_FILE, JSON.stringify(refreshTokens));
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify(refreshTokens));
 };
 
 // Generate an access token
 const generateAccessToken = (userName, role, authNo) => {
-  // Include the necessary claims (payload) in the token
-  const payload = {
-    username: userName,
-    role: role,
-    authNo: authNo,
-  };
+    // Include the necessary claims (payload) in the token
+    const payload = {
+        username: userName,
+        role: role,
+        authNo: authNo,
+    };
 
-  // Generate the token with an expiration time
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15m",
-  }); // Adjust the expiration time as needed
+    // Generate the token with an expiration time
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "15m",
+    }); // Adjust the expiration time as needed
 };
 
 // Generate a refresh token
 const generateRefreshToken = (userName, role, authNo) => {
-  // Include the necessary claims (payload) in the token
-  const payload = {
-    username: userName,
-    role: role,
-    authNo: authNo,
-  };
+    // Include the necessary claims (payload) in the token
+    const payload = {
+        username: userName,
+        role: role,
+        authNo: authNo,
+    };
 
-  // Generate the token
-  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "7d",
-  }); // Consider adding an expiration time
+    // Generate the token
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+        expiresIn: "7d",
+    }); // Consider adding an expiration time
 
-  // Store the refresh token securely
-  refreshTokens[userName] = refreshToken;
-  saveTokensToFile();
+    // Store the refresh token securely
+    refreshTokens[userName] = refreshToken;
+    saveTokensToFile();
 
-  return refreshToken;
+    return refreshToken;
 };
 
 async function signup(req, res) {
-  
-  const { username, password, role, authCode, file } = req.body;
-  console.log("req.body: ",req.body)
-  try {
-    //check if user exist already
-    const existingUser = await userModel.findUserByUsername(username);
-    if (existingUser.length > 0) {
-      return res.status(400).json({ error: "User exist already" });
-    }
-    else{
-      const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
-      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
-      if (!usernamePattern.test(username)) {
-        return res.status(400).json({ error: "Invalid username" });
-      }
-  
-      if (!passwordPattern.test(password)) {
-        return res.status(400).json({ error: "Invalid password" });
-      }
-
-      if(file && file.filepath){
-        try{
-          const certData = fs.readFileSync(file.filepath);
-          const cert = _pki.certificateFromAsn1(asn1.fromDer(certData.toString('binary'), false));
-          const serialNumber = cert.serialNumber;
-          console.log("Certificate serial number: ", serialNumber);
+    const { username, password, role, authCode } = req.body;
+    const fileBuffer = req.files.cert.data;
+        // Check if user exists
+        const existingUser = await userModel.findUserByUsername(username);
+        if (existingUser.length > 0) {
+            return res.status(500).json({ message: "User already exists" });
         }
-        catch(err){
 
+        // Validation for username and password
+        const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
+        const passwordPattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+
+        if (!usernamePattern.test(username)) {
+            return res.status(500).json({ message: "Invalid username" });
         }
-      }
+        if (!passwordPattern.test(password)) {
+            return res.status(500).json({ message: "Invalid password" });
+        }
+        try {
+            const pki = forge.pki;
+            parsedCertificate = pki.certificateFromPem(fileBuffer);
+            if (!parsedCertificate) {
+                res.status(500).json({
+                    error: "Failed to parse the certificate.",
+                });
+                return;
+            } else {
+                const issuerAttributes = parsedCertificate.issuer.attributes;
+                let issuerCommonName = issuerAttributes.find(attr => attr.name === 'commonName');
+                issuerCommonName = issuerCommonName ? issuerCommonName.value : 'Unknown';
+                const serialNumber = parsedCertificate.serialNumber;
+                const response = await userModel.getCertSerialNumber(serialNumber, issuerCommonName);
+                console.log("response: ",response)
+                if(response){
+                    
+                    return res.status(200).json({ message: "Signup successful" });
 
-    }
-
-    //creating new user
-    // await createUser(username, password);
-    res.render("login", { message: "Signup successful" });
-  } catch (err) {
-    console.error("Erro during signup: ", err);
-    res.status(500).json({ error: "Internal server error" });
-  } 
+                }
+                else return res.status(500).json({message: "Signup unsuccessful"});
+            }
+        } catch (err) {
+            console.error("Error during signup: ", err);
+            return res.status(500).json({ message: "Internal server error" });
+        }
 }
 
 // update the user status
 async function loginAttempt(userExist) {
-  if (userExist.LoginStatus == "inactive") {
-    const currentTime = new Date();
-    const timeDifferenceMs = currentTime - userExist.LastAttempt;
-    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
+    if (userExist.LoginStatus == "inactive") {
+        const currentTime = new Date();
+        const timeDifferenceMs = currentTime - userExist.LastAttempt;
+        const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
-    // Check if the time difference is greater than 24 hours
-    if (timeDifferenceHours > 24) {
-      //updates the database
-      await userModel.updateStatus(
-        userExist.UserName,
-        "active",
-        2,
-        currentTime
-      );
-      return true;
+        // Check if the time difference is greater than 24 hours
+        if (timeDifferenceHours > 24) {
+            //updates the database
+            await userModel.updateStatus(
+                userExist.UserName,
+                "active",
+                2,
+                currentTime
+            );
+            return true;
+        } else {
+            // console.log("The time difference is not greater than 24 hours.");
+            return false;
+        }
     } else {
-      // console.log("The time difference is not greater than 24 hours.");
-      return false;
+        return true;
     }
-  } else {
-    return true;
-  }
 }
 
 async function login(req, res) {
-  const { username, password, latitude, longitude } = req.body;
-  try {
-    const userExist = await userModel.findUserByUsername(username);
-    if (!userExist.length) {
-      return res.status(400).json({ error: "User does not exist" });
-    }
-    const storedHashedPassword = userExist[0].Password;
-    const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
-    if (passwordMatch && (await loginAttempt(userExist[0]))) {
-      // Successful login
-      const accessToken = generateAccessToken(
-        userExist[0].UserName,
-        userExist[0].Role,
-        userExist[0].AuthNo
-      );
-      const refreshToken = generateRefreshToken(
-        userExist[0].UserName,
-        userExist[0].Role,
-        userExist[0].AuthNo
-      );
-      req.session.username = userExist[0].UserName;
-      req.session.userid = userExist[0].AuthNo;
-      req.session.userRole = userExist[0].Role;
-      await userModel.logUserAction(
-        userExist[0].UserName,
-        new Date().toISOString().replace("T", " ").slice(0, 19),
-        req.ip,
-        "login",
-        latitude,
-        longitude
-      );
-      await userModel.updateAttempts(userExist[0].UserName, 2);
-      return res.json({ accessToken, refreshToken });
-    } else {
-      // Failed login attempt
-      if (userExist[0].Attempts > 0) {
-        let attempt = (userExist[0].Attempts -= 1);
-        await userModel.updateAttempts(userExist[0].UserName, attempt);
-      } else {
-        await userModel.updateStatus(
-          userExist[0].UserName,
-          "inactive",
-          0,
-          new Date().toISOString().replace("T", " ").slice(0, 19)
+    const { username, password, latitude, longitude } = req.body;
+    try {
+        const userExist = await userModel.findUserByUsername(username);
+        if (!userExist.length) {
+            return res.status(400).json({ error: "User does not exist" });
+        }
+        const storedHashedPassword = userExist[0].Password;
+        const passwordMatch = await bcrypt.compare(
+            password,
+            storedHashedPassword
         );
-        return res.status(423).json({ timeStamp: userExist[0].LastAttempt });
-      }
-      return res.status(401).json({ error: "Incorrect credentials" });
+        if (passwordMatch && (await loginAttempt(userExist[0]))) {
+            // Successful login
+            const accessToken = generateAccessToken(
+                userExist[0].UserName,
+                userExist[0].Role,
+                userExist[0].AuthNo
+            );
+            const refreshToken = generateRefreshToken(
+                userExist[0].UserName,
+                userExist[0].Role,
+                userExist[0].AuthNo
+            );
+            req.session.username = userExist[0].UserName;
+            req.session.userid = userExist[0].AuthNo;
+            req.session.userRole = userExist[0].Role;
+            await userModel.logUserAction(
+                userExist[0].UserName,
+                new Date().toISOString().replace("T", " ").slice(0, 19),
+                req.ip,
+                "login",
+                latitude,
+                longitude
+            );
+            await userModel.updateAttempts(userExist[0].UserName, 2);
+            return res.json({ accessToken, refreshToken });
+        } else {
+            // Failed login attempt
+            if (userExist[0].Attempts > 0) {
+                let attempt = (userExist[0].Attempts -= 1);
+                await userModel.updateAttempts(userExist[0].UserName, attempt);
+            } else {
+                await userModel.updateStatus(
+                    userExist[0].UserName,
+                    "inactive",
+                    0,
+                    new Date().toISOString().replace("T", " ").slice(0, 19)
+                );
+                return res
+                    .status(423)
+                    .json({ timeStamp: userExist[0].LastAttempt });
+            }
+            return res.status(401).json({ error: "Incorrect credentials" });
+        }
+    } catch (err) {
+        console.error("Error occurred:", err);
+        return res.status(500).json({ error: "Internal server error" });
     }
-  } catch (err) {
-    console.error("Error occurred:", err);
-    return res.status(500).json({ error: "Internal server error" });
-  }
 }
 
 async function dashboard(req, res, next) {
-  if (!req.session && !req.session.username) {
-    return res.sendStatus(401);
-  } else {
-    if (req.session.views) {
-      req.session.views++;
-      res.send(`You have visited this page ${req.session.views} times`);
+    if (!req.session && !req.session.username) {
+        return res.sendStatus(401);
     } else {
-      req.session.views = 1;
-      res.send(
-        "Welcome to the session demo. Refresh the page to increment the visit count."
-      );
+        if (req.session.views) {
+            req.session.views++;
+            res.send(`You have visited this page ${req.session.views} times`);
+        } else {
+            req.session.views = 1;
+            res.send(
+                "Welcome to the session demo. Refresh the page to increment the visit count."
+            );
+        }
+        return res.status(200);
     }
-    return res.status(200);
-  }
 }
 
 async function landingPage(req, res) {
-  res.render("login");
+    res.render("login");
 }
 async function userDetails(req, res) {
-  const sessionId = req.sessionID;
-  if (req.session.username) {
-    const username = req.session.username;
-    try {
-      const userExist = await userModel.findUserByUsername(username);
-      if (userExist.length) {
-        return res.send(userExist);
-      } else {
-        return res.send({ message: "User details not found." });
-      }
-    } catch (err) {
-      res.status(500).json({ error: "Internal server error" });
+    const sessionId = req.sessionID;
+    if (req.session.username) {
+        const username = req.session.username;
+        try {
+            const userExist = await userModel.findUserByUsername(username);
+            if (userExist.length) {
+                return res.send(userExist);
+            } else {
+                return res.send({ message: "User details not found." });
+            }
+        } catch (err) {
+            res.status(500).json({ error: "Internal server error" });
+        }
+    } else {
+        return res.redirect("/");
     }
-  } else {
-    return res.redirect("/");
-  }
 }
 
 async function userSessionInfo(req, res) {
-  res.json({
-    username: req.session.username,
-    id: req.session.userid,
-    role: req.session.userRole,
-  });
+    res.json({
+        username: req.session.username,
+        id: req.session.userid,
+        role: req.session.userRole,
+    });
 }
 
 async function certDetails(req, res) {
-  const certificateFile = req.files.certificate;
-  // console.log("certificate file", certificateFile);
-  
-  let Certificate = {};
-  if (certificateFile == null) {
-    res.status(400).json({ error: "Certificate file is required." });
-    return;
-  }
+    const certificateFile = req.files.certificate;
 
-  function isCertificateCA(cert) {
-    // Check if Basic Constraints extension is present
-    const extensions = cert.extensions;
-    for (let i = 0; i < extensions.length; ++i) {
-      const ext = extensions[i];
-      if (ext.name === "basicConstraints") {
-        // basicConstraints extension found
-        if (ext.cA === true) {
-          // It is a CA certificate
-          return true;
+    let Certificate = {};
+    if (certificateFile == null) {
+        res.status(400).json({ error: "Certificate file is required." });
+        return;
+    }
+
+    function isCertificateCA(cert) {
+        // Check if Basic Constraints extension is present
+        const extensions = cert.extensions;
+        for (let i = 0; i < extensions.length; ++i) {
+            const ext = extensions[i];
+            if (ext.name === "basicConstraints") {
+                // basicConstraints extension found
+                if (ext.cA === true) {
+                    // It is a CA certificate
+                    return true;
+                }
+                break; // No need to check further
+            }
         }
-        break; // No need to check further
-      }
+        // Not a CA certificate
+        return false;
     }
-    // Not a CA certificate
-    return false;
-  }
-  try {
-    const pki = forge.pki;
-    const buffer = certificateFile.data; 
-    parsedCertificate = pki.certificateFromPem(buffer);
+    try {
+        const pki = forge.pki;
+        const buffer = certificateFile.data;
+        parsedCertificate = pki.certificateFromPem(buffer);
 
-    if (!parsedCertificate) {
-      console.error("Error: Failed to parse the certificate.");
-      res.status(500).json({ error: "Failed to parse the certificate." });
-      return;
-    } else {
-      // console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
-      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
-      Certificate = {
-        serialNo: parsedCertificate.serialNumber,
-        commonName: parsedCertificate.subject.attributes[7].value,
-        country: parsedCertificate.subject.attributes[0].value,
-        state: parsedCertificate.subject.attributes[4].value,
-        region: parsedCertificate.subject.attributes[5].value,
-        issuer: parsedCertificate.issuer.attributes[2].value,
-        validity: parsedCertificate.validity.notAfter,
-        hash: parsedCertificate.subject.hash,
-        extensions: parsedCertificate.extensions,
-        issuerO :parsedCertificate.issuer.attributes[1].value,
-        issuerOU :parsedCertificate.issuer.attributes[2].value,
-        issuerCN :parsedCertificate.issuer.attributes[3].value,
-
-
-      };
+        if (!parsedCertificate) {
+            console.error("Error: Failed to parse the certificate.");
+            res.status(500).json({ error: "Failed to parse the certificate." });
+            return;
+        } else {
+            // console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
+            // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
+            Certificate = {
+                serialNo: parsedCertificate.serialNumber,
+                commonName: parsedCertificate.subject.attributes[7].value,
+                country: parsedCertificate.subject.attributes[0].value,
+                state: parsedCertificate.subject.attributes[4].value,
+                region: parsedCertificate.subject.attributes[5].value,
+                issuer: parsedCertificate.issuer.attributes[2].value,
+                validity: parsedCertificate.validity.notAfter,
+                hash: parsedCertificate.subject.hash,
+                extensions: parsedCertificate.extensions,
+                issuerO: parsedCertificate.issuer.attributes[1].value,
+                issuerOU: parsedCertificate.issuer.attributes[2].value,
+                issuerCN: parsedCertificate.issuer.attributes[3].value,
+            };
+        }
+        res.json({ ...Certificate });
+    } catch (error) {
+        console.error("Error parsing the certificate:", error.message);
+        res.status(500).json({ error: "Error parsing the certificate." });
     }
-    res.json({ ...Certificate });
-  } catch (error) {
-    console.error("Error parsing the certificate:", error.message);
-    res.status(500).json({ error: "Error parsing the certificate." });
-  }
 }
 async function refreshToken(req, res) {
-  const refreshToken = req.body.refreshToken;
-  const username = req.body.username; // Assuming username is sent with the request
+    const refreshToken = req.body.refreshToken;
+    const username = req.body.username; // Assuming username is sent with the request
 
-  if (!refreshToken || refreshToken[username] !== refreshToken) {
-    return res
-      .status(401)
-      .json({ message: "Refresh token is required or invalid" });
-  }
-
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid refresh token" });
+    if (!refreshToken || refreshToken[username] !== refreshToken) {
+        return res
+            .status(401)
+            .json({ message: "Refresh token is required or invalid" });
     }
-    const token = generateAccessToken({
-      username: user.username,
-      role: user.role,
-      authNo: user.authNo,
+
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: "Invalid refresh token" });
+        }
+        const token = generateAccessToken({
+            username: user.username,
+            role: user.role,
+            authNo: user.authNo,
+        });
+        const refreshToken = generateRefreshToken({
+            username: user.username,
+            role: user.role,
+            authNo: user.authNo,
+        });
+        res.json({ token, refreshToken });
     });
-    const refreshToken = generateRefreshToken({
-      username: user.username,
-      role: user.role,
-      authNo: user.authNo,
-    });
-    res.json({ token, refreshToken });
-  });
 }
 
 async function logout(req, res) {
-  const userName = req.session.username;
-  req.session.destroy((err) => {
-    if (err) {
-      res.status(500).json({ msg: "Error while logging out." });
-    }
-    userModel.logUserAction(
-      userName,
-      new Date().toISOString().replace("T", " ").slice(0, 19),
-      req.ip,
-      "logout",
-      req.body.latitude,
-      req.body.longitude
-    );
-    res.status(200).json({ msg: "Logged out successfully!" });
-  });
+    const userName = req.session.username;
+    req.session.destroy((err) => {
+        if (err) {
+            res.status(500).json({ msg: "Error while logging out." });
+        }
+        userModel.logUserAction(
+            userName,
+            new Date().toISOString().replace("T", " ").slice(0, 19),
+            req.ip,
+            "logout",
+            req.body.latitude,
+            req.body.longitude
+        );
+        res.status(200).json({ msg: "Logged out successfully!" });
+    });
 }
 
 async function fetchData(req, res) {
-  function addYears(date, years) {
-    const dateCopy = new Date(date);
-    const yearsInt = parseInt(years, 10); // Ensure years is an integer
-    dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
-    const year = dateCopy.getFullYear();
-    const month = dateCopy.getMonth() + 1; // Months are zero-based
-    const day = dateCopy.getDate();
+    function addYears(date, years) {
+        const dateCopy = new Date(date);
+        const yearsInt = parseInt(years, 10); // Ensure years is an integer
+        dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
+        const year = dateCopy.getFullYear();
+        const month = dateCopy.getMonth() + 1; // Months are zero-based
+        const day = dateCopy.getDate();
 
-    // Format the month and day to always be two digits
-    const monthFormatted = month < 10 ? `0${month}` : month;
-    const dayFormatted = day < 10 ? `0${day}` : day;
+        // Format the month and day to always be two digits
+        const monthFormatted = month < 10 ? `0${month}` : month;
+        const dayFormatted = day < 10 ? `0${day}` : day;
 
-    // Return the formatted date in yyyy-mm-dd
-    return `${year}-${monthFormatted}-${dayFormatted}`;
-  }
+        // Return the formatted date in yyyy-mm-dd
+        return `${year}-${monthFormatted}-${dayFormatted}`;
+    }
 
-  try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) return res.sendStatus(401);
+    try {
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) return res.sendStatus(403);
-      else {
-        const {
-          issuer,
-          subjectType,
-          state,
-          region,
-          startDate,
-          endDate,
-          validity,
-        } = req.body;
+        jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET,
+            async (err, user) => {
+                if (err) return res.sendStatus(403);
+                else {
+                    const {
+                        issuer,
+                        subjectType,
+                        state,
+                        region,
+                        startDate,
+                        endDate,
+                        validity,
+                    } = req.body;
 
-        const filterCriteria = {};
+                    const filterCriteria = {};
 
-        if (issuer && issuer.length > 0) {
-          filterCriteria.issuers = issuer;
-        }
-        if (subjectType && subjectType.length > 0) {
-          filterCriteria.subjectType = subjectType;
-        }
-        if (state && state.length > 0) {
-          filterCriteria.states = state;
-        }
-        if (region && region.length > 0) {
-          filterCriteria.regions = region;
-        }
-        if (startDate && endDate) {
-          filterCriteria.startDate = startDate;
-          filterCriteria.endDate = endDate;
-        }
+                    if (issuer && issuer.length > 0) {
+                        filterCriteria.issuers = issuer;
+                    }
+                    if (subjectType && subjectType.length > 0) {
+                        filterCriteria.subjectType = subjectType;
+                    }
+                    if (state && state.length > 0) {
+                        filterCriteria.states = state;
+                    }
+                    if (region && region.length > 0) {
+                        filterCriteria.regions = region;
+                    }
+                    if (startDate && endDate) {
+                        filterCriteria.startDate = startDate;
+                        filterCriteria.endDate = endDate;
+                    }
 
-        if (validity && validity !== 0) {
-          filterCriteria.validityStartDate = startDate;
+                    if (validity && validity !== 0) {
+                        filterCriteria.validityStartDate = startDate;
 
-          const validityStartDate = new Date(startDate);
-          if (!isNaN(validityStartDate.getTime())) {
-            filterCriteria.validityEndDate = addYears(
-              validityStartDate,
-              validity
-            );
-          } else {
-            console.error("Invalid startDate format");
-          }
-        }
-        const certDetails = await userModel.getCertData(
-          filterCriteria,
-          user.authNo
+                        const validityStartDate = new Date(startDate);
+                        if (!isNaN(validityStartDate.getTime())) {
+                            filterCriteria.validityEndDate = addYears(
+                                validityStartDate,
+                                validity
+                            );
+                        } else {
+                            console.error("Invalid startDate format");
+                        }
+                    }
+                    const certDetails = await userModel.getCertData(
+                        filterCriteria,
+                        user.authNo
+                    );
+                    res.json(certDetails);
+                }
+            }
         );
-        res.json(certDetails);
-      }
-    });
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ Error: error });
-  }
+    } catch (error) {
+        console.error("Error:", error.message);
+        res.status(500).json({ Error: error });
+    }
 }
 async function fetchRevokedData(req, res) {
-  try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) return res.sendStatus(401);
+    try {
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) return res.sendStatus(403);
-      else {
-        const { reasons, startDate, endDate } = req.body;
-        const filterCriteria = {};
-        if (reasons && reasons.length > 0) {
-          filterCriteria.reason = reasons;
-        }
-        if (startDate && endDate) {
-          filterCriteria.startDate = startDate;
-          filterCriteria.endDate = endDate;
-        }
+        jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET,
+            async (err, user) => {
+                if (err) return res.sendStatus(403);
+                else {
+                    const { reasons, startDate, endDate } = req.body;
+                    const filterCriteria = {};
+                    if (reasons && reasons.length > 0) {
+                        filterCriteria.reason = reasons;
+                    }
+                    if (startDate && endDate) {
+                        filterCriteria.startDate = startDate;
+                        filterCriteria.endDate = endDate;
+                    }
 
-        const revokedCertDetails = await userModel.getRevokedCertData(
-          filterCriteria,
-          user.authNo
+                    const revokedCertDetails =
+                        await userModel.getRevokedCertData(
+                            filterCriteria,
+                            user.authNo
+                        );
+
+                    res.json(revokedCertDetails);
+                }
+            }
         );
-
-        res.json(revokedCertDetails);
-      }
-    });
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: "Error." });
-  }
+    } catch (error) {
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Error." });
+    }
 }
 async function fetchUsageData(req, res) {
-  try {
+    try {
+        const authHeader = req.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        if (!token) return res.sendStatus(401);
+
+        jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET,
+            async (err, user) => {
+                if (err) return res.sendStatus(403);
+                else {
+                    const { usage, startDate, endDate } = req.body;
+                    const filterCriteria = {};
+                    if (usage && usage.length > 0) {
+                        filterCriteria.usage = usage;
+                    }
+                    if (startDate && endDate) {
+                        filterCriteria.startDate = startDate;
+                        filterCriteria.endDate = endDate;
+                    }
+                    const usageDetails = await userModel.getCertUsageData(
+                        filterCriteria,
+                        user.authNo
+                    );
+                    res.json(usageDetails);
+                }
+            }
+        );
+    } catch (error) {
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Error." });
+    }
+}
+async function fetchLogsData(req, res) {
+    try {
+        const { user, action, startDate, endDate } = req.body;
+        const filterCriteria = {};
+        if (user && user.length > 0) {
+            filterCriteria.users = user;
+        }
+        if (action && action.length > 0) {
+            filterCriteria.actions = action;
+        }
+        if (startDate && endDate) {
+            filterCriteria.startDate = startDate;
+            filterCriteria.endDate = endDate;
+        }
+        const logsDetails = await userModel.getLogsData(filterCriteria);
+        res.json(logsDetails);
+    } catch (error) {
+        console.error("Error:", error.message);
+        res.status(500).json({ error: "Error." });
+    }
+}
+async function profileData(req, res, next) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.sendStatus(401);
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) return res.sendStatus(403);
-      else {
-        const { usage, startDate, endDate } = req.body;
-        const filterCriteria = {};
-        if (usage && usage.length > 0) {
-          filterCriteria.usage = usage;
+        if (err) return res.sendStatus(403);
+
+        try {
+            const profileData = await userModel.findUserByUsername(
+                user.username
+            );
+            res.status(200).json({ profileData });
+        } catch (error) {
+            res.sendStatus(500);
         }
-        if (startDate && endDate) {
-          filterCriteria.startDate = startDate;
-          filterCriteria.endDate = endDate;
-        }
-        const usageDetails = await userModel.getCertUsageData(
-          filterCriteria,
-          user.authNo
-        );
-        res.json(usageDetails);
-      }
     });
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: "Error." });
-  }
-}
-async function fetchLogsData(req, res) {
-  try {
-    const { user, action, startDate, endDate } = req.body;
-    const filterCriteria = {};
-    if (user && user.length > 0) {
-      filterCriteria.users = user;
-    }
-    if (action && action.length > 0) {
-      filterCriteria.actions = action;
-    }
-    if (startDate && endDate) {
-      filterCriteria.startDate = startDate;
-      filterCriteria.endDate = endDate;
-    }
-    const logsDetails = await userModel.getLogsData(filterCriteria);
-    res.json(logsDetails);
-  } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: "Error." });
-  }
-}
-async function profileData(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    if (err) return res.sendStatus(403);
-
-    try {
-      const profileData = await userModel.findUserByUsername(user.username);
-      res.status(200).json({ profileData });
-    } catch (error) {
-      res.sendStatus(500);
-    }
-  });
 }
 async function profile(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    if (err) return res.sendStatus(403);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+        if (err) return res.sendStatus(403);
 
-    try {
-      // const profile = await userModel.findUserByUsername(user.username);
-      const total = await userModel.getNumberofCertificates(user.authNo);
-      const count = await userModel.getProfileStatus(user.authNo);
+        try {
+            // const profile = await userModel.findUserByUsername(user.username);
+            const total = await userModel.getNumberofCertificates(user.authNo);
+            const count = await userModel.getProfileStatus(user.authNo);
 
-      res.status(200).json({ count, total });
-    } catch (error) {
-      console.error("Error fetching profile data:", error);
-      res.sendStatus(500);
-    }
-  });
+            res.status(200).json({ count, total });
+        } catch (error) {
+            console.error("Error fetching profile data:", error);
+            res.sendStatus(500);
+        }
+    });
 }
 
 async function updatePasswordController(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
-  try {
-    const { oldPassword, newPassword, confirmPassword } = req.body;
-    const userExist = await userModel.findUserByUsername(req.user.username);
-    const passwordMatch = await bcrypt.compare(
-      oldPassword,
-      userExist[0].Password
-    );
-    if (!passwordMatch) {
-      return res.status(400).json({ message: "Old password is not correct!" });
-    } else if (!oldPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: "Old and new password are required!" });
-    } else if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match!" });
-    } else {
-      const result = await userModel.updatePassword(
-        newPassword,
-        req.user.authNo
-      );
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+    try {
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+        const userExist = await userModel.findUserByUsername(req.user.username);
+        const passwordMatch = await bcrypt.compare(
+            oldPassword,
+            userExist[0].Password
+        );
+        if (!passwordMatch) {
+            return res
+                .status(400)
+                .json({ message: "Old password is not correct!" });
+        } else if (!oldPassword || !newPassword) {
+            return res
+                .status(400)
+                .json({ message: "Old and new password are required!" });
+        } else if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: "Passwords do not match!" });
+        } else {
+            const result = await userModel.updatePassword(
+                newPassword,
+                req.user.authNo
+            );
 
-      if (result.success) {
-        return res.status(200).json({ message: result.message });
-      } else {
-        return res.status(400).json({ message: result.message });
-      }
+            if (result.success) {
+                return res.status(200).json({ message: result.message });
+            } else {
+                return res.status(400).json({ message: result.message });
+            }
+        }
+    } catch (err) {
+        res.status(500).json({ error: err });
     }
-  } catch (err) {
-    res.status(500).json({ error: err });
-  }
 }
 
 async function authorities(req, res) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.sendStatus(401);
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    if (err) return res.sendStatus(403);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+        if (err) return res.sendStatus(403);
 
-    try {
-      const authoritiesData = await userModel.findAuthorities();
-      formattedAuthority = authoritiesData.map((authority) => {
-        return {
-          label: authority.AuthName,
-          value: authority.AuthName,
-        };
-      });
-      res.status(200).json(formattedAuthority);
-    } catch (error) {
-      console.error("Error fetching authorities data:", error);
-      res.sendStatus(500);
-    }
-  });
+        try {
+            const authoritiesData = await userModel.findAuthorities();
+            formattedAuthority = authoritiesData.map((authority) => {
+                return {
+                    label: authority.AuthName,
+                    value: authority.AuthName,
+                };
+            });
+            res.status(200).json(formattedAuthority);
+        } catch (error) {
+            console.error("Error fetching authorities data:", error);
+            res.sendStatus(500);
+        }
+    });
 }
 async function cards(req, res) {
-  try{
-    const cards = await userModel.getCardsData();
-    res.status(200).json(cards);
-  }
-  catch (error) {
-    console.error("Error fetching authorities data:", error);
-    res.sendStatus(500);
-  }
+    try {
+        const cards = await userModel.getCardsData();
+        res.status(200).json(cards);
+    } catch (error) {
+        console.error("Error fetching authorities data:", error);
+        res.sendStatus(500);
+    }
 }
 async function compactCard(req, res) {
-  try{
-    const counts = await userModel.getCompactCardData();
-    res.status(200).json(counts);
-  }
-  catch (error) {
-    console.error("Error fetching authorities data:", error);
-    res.sendStatus(500);
-  }
+    try {
+        const counts = await userModel.getCompactCardData();
+        res.status(200).json(counts);
+    } catch (error) {
+        console.error("Error fetching authorities data:", error);
+        res.sendStatus(500);
+    }
 }
 async function getAllAuths(req, res) {
-  try{
-    const { authorities, distinctRoles, AuthNo} = await userModel.getAllAuthsData();
-    res.status(200).json({ authorities, distinctRoles, AuthNo});
-  }
-  catch (error) {
-    console.error("Error fetching authorities & role data:", error);
-    res.sendStatus(500);
-  }
+    try {
+        const { authorities, distinctRoles, AuthNo } =
+            await userModel.getAllAuthsData();
+        res.status(200).json({ authorities, distinctRoles, AuthNo });
+    } catch (error) {
+        console.error("Error fetching authorities & role data:", error);
+        res.sendStatus(500);
+    }
 }
 
 module.exports = {
-  signup,
-  landingPage,
-  login,
-  dashboard,
-  logout,
-  userDetails,
-  userSessionInfo,
-  certDetails,
-  fetchData,
-  fetchRevokedData,
-  fetchUsageData,
-  fetchLogsData,
-  profile,
-  profileData,
-  refreshToken,
-  updatePasswordController,
-  authorities,
-  cards,
-  compactCard,
-  getAllAuths,
-
+    signup,
+    landingPage,
+    login,
+    dashboard,
+    logout,
+    userDetails,
+    userSessionInfo,
+    certDetails,
+    fetchData,
+    fetchRevokedData,
+    fetchUsageData,
+    fetchLogsData,
+    profile,
+    profileData,
+    refreshToken,
+    updatePasswordController,
+    authorities,
+    cards,
+    compactCard,
+    getAllAuths,
 };
