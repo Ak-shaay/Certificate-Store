@@ -459,8 +459,55 @@ async function getCertSerialNumber(serialNumber, issuerName){
   }
 }
 
-async function signup(){
-  const query1 = ``
+async function signup(params){
+  console.log("params: ",params);
+  const {username, password, role, authCode, authNo, authName, serialNumber} = params;
+  const query1 = 'INSERT into authorities VALUES (?, ?, ?)';
+  const query2 = 'INSERT into login (UserName, Password, Role, AuthNo) VALUES (?,?,?,?)';
+  const query3 = 'INSERT into auth_cert VALUES (?,?)';
+  try {
+    // Start a transaction
+    await new Promise((resolve, reject) => {
+        db.pool.getConnection((err, connection) => {
+            if (err) reject(err);
+            else {
+                connection.beginTransaction(async (err) => {
+                    if (err) {
+                        connection.release();
+                        reject(err);
+                    } else {
+                        try {
+                            // Execute queries
+                            await db.executeQuery(query1, [authNo, authCode, authName ], connection);
+                            await db.executeQuery(query2, [username, password, role, authNo], connection);
+                            await db.executeQuery(query3, [authNo, serialNumber], connection);
+
+                            // Commit transaction
+                            connection.commit((err) => {
+                                connection.release(); 
+                                if (err) reject(err);
+                                else{
+                                  resolve();
+                                  return true;
+                                }   
+                            });
+                        } catch (error) {
+                            connection.rollback(() => {
+                                connection.release(); 
+                                reject(error);
+                                return false
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+} catch (error) {
+    console.error('Transaction failed:', error);
+    return false;
+    // You might want to handle the error or notify the user here
+}
 }
 
 module.exports = {
@@ -484,4 +531,6 @@ module.exports = {
   getAllAuthsData,
   updateAuthsData,
   getRevocationReasons,
+  getCertSerialNumber,
+  signup
 };
