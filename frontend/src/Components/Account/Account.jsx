@@ -27,7 +27,7 @@ const Account = () => {
          
         }
 
-        setData(response.data.profileData);
+        setData(response.data.profileData);        
       } catch (error) {
         setError(error);
       } finally {
@@ -170,7 +170,7 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder={data[0].UserName}
+                  placeholder={data[0].AuthName}
                   disabled
                 ></input>
               </div>
@@ -181,7 +181,7 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="email"
+                  placeholder={data[0].Email}
                   disabled
                 ></input>
               </div>
@@ -192,7 +192,7 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="organization"
+                  placeholder={data[0].Organization}
                   disabled
                 ></input>
               </div>
@@ -207,7 +207,7 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="address"
+                  placeholder={data[0].Address}
                   disabled
                 ></input>
               </div>
@@ -218,18 +218,18 @@ const Account = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="state"
+                  placeholder={data[0].State}
                   disabled
                 ></input>
               </div>
             </div>
             <div className="column">
               <div className="form-group">
-                <label htmlFor="district">District</label>
+                <label htmlFor="Postal Code">Postal Code</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="district"
+                  placeholder={data[0].Postal_Code}
                   disabled
                 ></input>
               </div>
