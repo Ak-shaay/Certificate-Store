@@ -42,17 +42,19 @@ async function logUserAction(
   timeStamp,
   ip,
   Action,
+  Remark,
   latitude,
   longitude
 ) {
   const query =
-    "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?)";
+    "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
   try {
     await db.executeQuery(query, [
       UserName,
       timeStamp,
       ip,
       Action,
+      Remark,
       latitude,
       longitude,
     ]);

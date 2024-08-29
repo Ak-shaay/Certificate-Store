@@ -149,6 +149,7 @@ async function login(req, res) {
         new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
         "login",
+        "remark",
         latitude,
         longitude
       );
@@ -322,6 +323,7 @@ async function logout(req, res) {
       new Date().toISOString().replace("T", " ").slice(0, 19),
       req.ip,
       "logout",
+      "remark",
       req.body.latitude,
       req.body.longitude
     );
@@ -644,16 +646,25 @@ async function updateAuths(req, res) {
 
       try {
         const { authName, authCode, authNo } = req.body;
-
-        console.log("reached",req.body);
+        const userName = req.session.username;
         
         if (!authCode || !authName || !authNo) return res.status(400).json({ error: 'Missing required fields' });
 
         const result = await userModel.updateAuthsData(authCode, authName, authNo);
 
+        const remark = 'Updated details of Authority'+authNo ;
+        userModel.logUserAction(
+          userName,
+          new Date().toISOString().replace("T", " ").slice(0, 19),
+          req.ip,
+          "Update",
+          remark,
+          req.body.latitude,
+          req.body.longitude
+        );
+        res.status(200).json({ message: 'Data updated successfully' });
         // if (result.affectedRows > 0) {
-          res.status(200).json({ message: 'Data updated successfully' });
-        // } else {
+          // } else {
         //   res.status(404).json({ message: 'Data not found' });
         // }
       } catch (error) {

@@ -59,9 +59,9 @@ const LogsDataTable = () => {
     const headers = [
       [
         "Id",
-        "Session Id",
         "User Id",
         "Action",
+        "Remarks",
         "IP address",
         "Timestamp",
         "Latitude",
@@ -71,20 +71,21 @@ const LogsDataTable = () => {
     let transformedData = [];
     logData.forEach(entry => {
     let id = entry[0];
-    let session_id = entry[1];
-    let user_id = entry[2];
-    let action = entry[3];
+    let user_id = entry[1];
+    let action = entry[2];
+    let remark = entry[3];
     let ip_address = entry[4];
-    let timestamp = entry[6];
-    let latitude = entry[7];
-    let longitude = entry[8];
+    let timestamp = entry[5];
+    let latitude = entry[6];
+    let longitude = entry[7];
 
     // Creating object in desired format
     let transformedObject = {
         "id": id,
-        "session_id": session_id,
+        // "session_id": session_id,
         "user_id": user_id,
         "action": action,
+        "remark":remark,
         "ip_address": ip_address,
         "timestamp": timestamp,
         "latitude": latitude,
@@ -96,9 +97,9 @@ const LogsDataTable = () => {
 
     const data = transformedData.map((log) => [
       log.id,
-      log.session_id,
       log.user_id,
       log.action,
+      log.remark,
       log.ip_address,
       log.timestamp,
       log.latitude,
@@ -148,9 +149,9 @@ const LogsDataTable = () => {
         gridRef.current.updateConfig({
           data: data.map((log) => [
           log.id,
-          log.session_id,
           log.user_id,
           log.action,
+          log.Remark,
           log.ip_address,
           log.timestamp,
           log.latitude,
@@ -166,9 +167,9 @@ const LogsDataTable = () => {
     gridRef.current = new Grid({
       columns: [
       "Id",
-      "Session Id",
       "User Id",
       "Action",
+      "Remark",
       "IP address",
       "Timestamp",
       "Latitude",
