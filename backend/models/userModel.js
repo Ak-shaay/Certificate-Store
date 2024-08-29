@@ -25,6 +25,12 @@ function findUserByUsername(username) {
   const query = "SELECT * FROM Login WHERE UserName = ?";
   return db.executeQuery(query, [username]);
 }
+// changed for account section
+function findUserByAuthNo(authNo) {
+  const query = "SELECT * FROM authorities WHERE AuthNo = ?";
+  return db.executeQuery(query, [authNo]);
+}
+
 async function createUser(username, password) {
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const query =
@@ -459,6 +465,7 @@ async function signup(){
 
 module.exports = {
   findUserByUsername,
+  findUserByAuthNo,
   createUser,
   logUserAction,
   authenticateUser,

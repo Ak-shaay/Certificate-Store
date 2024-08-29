@@ -525,15 +525,30 @@ async function profileData(req, res, next) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
         if (err) return res.sendStatus(403);
 
-        try {
-            const profileData = await userModel.findUserByUsername(
-                user.username
-            );
-            res.status(200).json({ profileData });
-        } catch (error) {
-            res.sendStatus(500);
-        }
-    });
+    try {
+      // const profileData = await userModel.findUserByUsername(user.username);
+      const profileData = await userModel.findUserByAuthNo(user.authNo);
+            if (profileData.length > 0) {
+              res.status(200).json({ profileData });
+            }
+            else{
+              // remove values and add dummy values
+              const profileData = {
+                AuthNo: 'null',
+                AuthCode: 'null',
+                AuthName: 'admin',
+                Email: 'adminccaportal@cdac.in',
+                Organization: 'admin',
+                Address: 'CDAC Bengaluru ,E-city',
+                State: 'KA',
+                Postal_Code: '560100'
+              }
+              res.status(200).json({ profileData: [profileData] });
+            }
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  });
 }
 async function profile(req, res, next) {
     const authHeader = req.headers["authorization"];
