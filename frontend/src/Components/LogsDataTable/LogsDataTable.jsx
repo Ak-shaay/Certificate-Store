@@ -3,13 +3,14 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { Issuers } from "../../Data";
 import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
+import api from "../../Pages/axiosInstance";
 import { autoTable } from "jspdf-autotable";
 
 const LogsDataTable = () => {
   let logData = "";
+  const [authorities, setAuthorities] = useState();
   const [selectedUser, setSelectedUser] = useState([]);
   const [selectedAction, setSelectedAction] = useState([]);
   const [startDate, setStartDate] = useState("");
@@ -26,7 +27,24 @@ const LogsDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
-
+  useEffect(() => {
+    const fetchIssuer = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/authorities");
+        if (response.data) {
+          response.data.push({ label: "CCA", value: "CCA" })
+          response.data.push({ label: "Admin", value: "admin" })
+          // console.log("issue:",response.data);
+          setAuthorities(response.data);
+        }
+      } catch (err) {
+        console.error("error : ", err);
+      }
+    };
+    fetchIssuer();
+  }, []);
   async function handleDownload(logData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -244,7 +262,7 @@ const LogsDataTable = () => {
         <hr className="filter-line"/>
         <div className="multi-select-row">
           <MultiSelect
-            options={Issuers}
+            options={authorities}
             placeholder="Select User"
             onChange={handleUserFilter}
           />

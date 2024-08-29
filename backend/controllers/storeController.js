@@ -237,63 +237,64 @@ async function userSessionInfo(req, res) {
 }
 
 async function certDetails(req, res) {
-    const certificateFile = req.files.certificate;
+  const certificateFile = req.files.certificate;
+  // console.log("certificate file", certificateFile);
 
-    let Certificate = {};
-    if (certificateFile == null) {
-        res.status(400).json({ error: "Certificate file is required." });
-        return;
-    }
+  let Certificate = {};
+  if (certificateFile == null) {
+    res.status(400).json({ error: "Certificate file is required." });
+    return;
+  }
 
-    function isCertificateCA(cert) {
-        // Check if Basic Constraints extension is present
-        const extensions = cert.extensions;
-        for (let i = 0; i < extensions.length; ++i) {
-            const ext = extensions[i];
-            if (ext.name === "basicConstraints") {
-                // basicConstraints extension found
-                if (ext.cA === true) {
-                    // It is a CA certificate
-                    return true;
-                }
-                break; // No need to check further
-            }
+  function isCertificateCA(cert) {
+    // Check if Basic Constraints extension is present
+    const extensions = cert.extensions;
+    for (let i = 0; i < extensions.length; ++i) {
+      const ext = extensions[i];
+      if (ext.name === "basicConstraints") {
+        // basicConstraints extension found
+        if (ext.cA === true) {
+          // It is a CA certificate
+          return true;
         }
-        // Not a CA certificate
-        return false;
+        break; // No need to check further
+      }
     }
-    try {
-        const pki = forge.pki;
-        const buffer = certificateFile.data;
-        parsedCertificate = pki.certificateFromPem(buffer);
+    // Not a CA certificate
+    return false;
+  }
+  try {
+    const pki = forge.pki;
+    const buffer = certificateFile.data;
 
-        if (!parsedCertificate) {
-            console.error("Error: Failed to parse the certificate.");
-            res.status(500).json({ error: "Failed to parse the certificate." });
-            return;
-        } else {
-            // console.log("ParsedCertificate: ", isCertificateCA(parsedCertificate));
-            // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
-            Certificate = {
-                serialNo: parsedCertificate.serialNumber,
-                commonName: parsedCertificate.subject.attributes[7].value,
-                country: parsedCertificate.subject.attributes[0].value,
-                state: parsedCertificate.subject.attributes[4].value,
-                region: parsedCertificate.subject.attributes[5].value,
-                issuer: parsedCertificate.issuer.attributes[2].value,
-                validity: parsedCertificate.validity.notAfter,
-                hash: parsedCertificate.subject.hash,
-                extensions: parsedCertificate.extensions,
-                issuerO: parsedCertificate.issuer.attributes[1].value,
-                issuerOU: parsedCertificate.issuer.attributes[2].value,
-                issuerCN: parsedCertificate.issuer.attributes[3].value,
-            };
-        }
-        res.json({ ...Certificate });
-    } catch (error) {
-        console.error("Error parsing the certificate:", error.message);
-        res.status(500).json({ error: "Error parsing the certificate." });
+    parsedCertificate = pki.certificateFromPem(buffer);
+
+    if (!parsedCertificate) {
+      console.error("Error: Failed to parse the certificate.");
+      res.status(500).json({ error: "Failed to parse the certificate." });
+      return;
+    } else {
+      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
+      Certificate = {
+        serialNo: parsedCertificate.serialNumber,
+        commonName: parsedCertificate.subject.attributes[7].value,
+        country: parsedCertificate.subject.attributes[0].value,
+        state: parsedCertificate.subject.attributes[4].value,
+        region: parsedCertificate.subject.attributes[5].value,
+        issuer: parsedCertificate.issuer.attributes[2].value,
+        validity: parsedCertificate.validity.notAfter,
+        hash: parsedCertificate.subject.hash,
+        extensions: parsedCertificate.extensions,
+        issuerO: parsedCertificate.issuer.attributes[1].value,
+        issuerOU: parsedCertificate.issuer.attributes[2].value,
+        issuerCN: parsedCertificate.issuer.attributes[3].value,
+      };
     }
+    res.json({ ...Certificate });
+  } catch (error) {
+    console.error("Error parsing the certificate:", error.message);
+    res.status(500).json({ error: "Error parsing the certificate." });
+  }
 }
 async function refreshToken(req, res) {
     const refreshToken = req.body.refreshToken;
@@ -617,53 +618,439 @@ async function authorities(req, res) {
     });
 }
 async function cards(req, res) {
-    try {
-        const cards = await userModel.getCardsData();
-        res.status(200).json(cards);
-    } catch (error) {
-        console.error("Error fetching authorities data:", error);
-        res.sendStatus(500);
-    }
+  try {
+    const cards = await userModel.getCardsData();
+    res.status(200).json(cards);
+  } catch (error) {
+    console.error("Error fetching authorities data:", error);
+    res.sendStatus(500);
+  }
 }
 async function compactCard(req, res) {
-    try {
-        const counts = await userModel.getCompactCardData();
-        res.status(200).json(counts);
-    } catch (error) {
-        console.error("Error fetching authorities data:", error);
-        res.sendStatus(500);
-    }
+  try {
+    const counts = await userModel.getCompactCardData();
+    res.status(200).json(counts);
+  } catch (error) {
+    console.error("Error fetching authorities data:", error);
+    res.sendStatus(500);
+  }
 }
 async function getAllAuths(req, res) {
-    try {
-        const { authorities, distinctRoles, AuthNo } =
-            await userModel.getAllAuthsData();
-        res.status(200).json({ authorities, distinctRoles, AuthNo });
-    } catch (error) {
-        console.error("Error fetching authorities & role data:", error);
-        res.sendStatus(500);
+  try {
+    const { authorities, distinctRoles, AuthNo } =
+      await userModel.getAllAuthsData();
+    res.status(200).json({ authorities, distinctRoles, AuthNo });
+  } catch (error) {
+    console.error("Error fetching authorities & role data:", error);
+    res.sendStatus(500);
+  }
+}
+
+async function updateAuths(req, res) {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) return res.sendStatus(403);
+
+      try {
+        const { authName, authCode, authNo } = req.body;
+
+        console.log("reached",req.body);
+        
+        if (!authCode || !authName || !authNo) return res.status(400).json({ error: 'Missing required fields' });
+
+        const result = await userModel.updateAuthsData(authCode, authName, authNo);
+
+        // if (result.affectedRows > 0) {
+          res.status(200).json({ message: 'Data updated successfully' });
+        // } else {
+        //   res.status(404).json({ message: 'Data not found' });
+        // }
+      } catch (error) {
+        console.error("Error in updating data:", error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+// json files handling API
+
+// states by region json
+const statesByRegionPath = "../public/statesByRegion.json";
+
+// returns regions
+async function region(req, res) {
+  try {
+    const filePath = "backend/" + statesByRegionPath;
+
+    const data = fs.readFileSync(filePath, "utf8");
+
+    const allRegions = JSON.parse(data);
+
+    // Map the keys to the desired format
+    const result = Object.keys(allRegions).map((item) => ({
+      label: item,
+      value: item,
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function getStatesByRegion(req, res) {
+  try {
+    const regions = req.body.regions;
+    if (!regions || !Array.isArray(regions)) {
+      return res
+        .status(400)
+        .json({ error: "Invalid input, regions must be an array." });
     }
+    const filePath = "backend/" + statesByRegionPath;
+    const data = fs.readFileSync(filePath, "utf8");
+    const allRegions = JSON.parse(data);
+
+    const result = regions.reduce((acc, region) => {
+      if (allRegions[region]) {
+        acc = acc.concat(allRegions[region]);
+      }
+      return acc;
+    }, []);
+
+    res.json(result);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function viewStatesByRegion(req, res) {
+  const jsonData = fs.readFileSync("backend/" + statesByRegionPath);
+  let result = JSON.parse(jsonData);
+  res.status(200).json(result);
+}
+
+
+async function addRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region } = req.body;
+
+    if (!region) {
+      return res.status(400).json({ error: 'Region is required.' });
+    }
+
+    if (data[region]) {
+      return res.status(400).json({ error: 'Region already exists.' });
+    }
+
+    data[region] = []; 
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+
+    res.json({ message: 'Region added successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function updateRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region, newValue } = req.body;
+
+    if (data[region]) {
+      data[newValue] = data[region];
+      delete data[region]; // Remove the old key
+
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+      res.json({ message: "Key updated successfully" });
+    } else {
+      res.status(404).send(`Key "${oldKey}" not found.`);
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function updateStatesOfRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region, oldValue, newLabel, newValue } = req.body;
+
+    if (data[region]) {
+      const index = data[region].findIndex((item) => item.label === oldValue);
+      if (index !== -1) {
+        data[region][index] = { label: newLabel, value: newValue };
+
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+
+        res.json({ message: "Updated successfully" });
+      } else {
+        res.status(404).send("Entry not found");
+      }
+    } else {
+      res.status(404).send("Region not found");
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function moveStatesOfRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region, state, label, newRegion } = req.body;
+
+    if (!data[newRegion]) {
+      return res.status(404).send("Region not found");
+    }
+
+    if (!data[region]) {
+      return res.status(404).send("New region not found");
+    }
+
+    const index = data[region].findIndex(
+      (item) => item.label === state || item.value === label
+    );
+
+    if (index === -1) {
+      return res.status(404).send("Entry not found in the current region");
+    }
+
+    const [movedItem] = data[region].splice(index, 1);
+
+    const index2 = data[newRegion].findIndex(
+      (item) => item.label === state || item.value === label
+    );
+
+    if (index2 !== -1) {
+      return res
+        .status(400)
+        .json({ error: "Value already exists in the mentioned region" });
+    }
+
+    data[newRegion].push(movedItem);
+
+    try {
+      const updatedData = JSON.stringify(data, null, 2);
+      fs.writeFileSync(filePath, updatedData, "utf8");
+      res.json({ message: "Updated successfully" });
+    } catch (error) {
+      console.error("Error writing to file:", error);
+      res.status(500).json({ error: "Failed to write to file" });
+    }
+  } catch (err) {
+    console.error("Error", err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+async function removeRegion(req, res) {
+  const filePath = "backend/" + statesByRegionPath;
+  try {
+    const allRegions = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(allRegions);
+
+    const { region } = req.body;
+
+    if (data[region]) {
+      if (data[region].length > 0) {
+        res.json({
+          message:
+            "Region is not empty! Please move the states to other region",
+        });
+      } else {
+        delete data[region];
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+        res.json({ message: "Region removed successfully" });
+      }
+    } else {
+      res.status(404).send(`Region not found.`);
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+// subjectType.json
+
+const subTypePath = "../public/subjectType.json";
+async function getSubType(req, res) {
+  try {
+    const filePath = "backend/" + subTypePath;
+
+    const data = fs.readFileSync(filePath, "utf8");
+
+    const subjectType = JSON.parse(data);
+    res.json(subjectType);
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing your request." });
+  }
+}
+
+// add new subjectType to subjectType.json
+async function addSubjectType(req, res) {
+  const filePath = "backend/" + subTypePath;
+  if (req.body.subject === "") {
+    return res.status(400).json({ error: "Empty value" });
+  } else {
+    const value = req.body.subject;
+    const subject = value[0].toUpperCase() + value.slice(1);
+    const newValue = { label: subject, value: subject };
+
+    try {
+      const data = fs.readFileSync(filePath, "utf8");
+      const jsonData = JSON.parse(data);
+
+      // Check if the new value already exists
+      const exists = jsonData.some(
+        (item) => item.label === newValue.label || item.value === newValue.value
+      );
+
+      if (exists) {
+        return res.status(400).json({ error: "Value already exists" });
+      }
+
+      jsonData.push(newValue);
+
+      const updatedData = JSON.stringify(jsonData);
+
+      fs.writeFileSync(filePath, updatedData, "utf8");
+
+      res
+        .status(200)
+        .json({ message: "New value " + subject + " added successfully" });
+    } catch (err) {
+      console.error("Error processing the file:", err);
+
+      // Error handling
+      if (err.code === "ENOENT") {
+        res.status(404).json({ error: "File not found" });
+      } else if (err.name === "SyntaxError") {
+        res.status(400).json({ error: "Invalid JSON format" });
+      } else {
+        res.status(500).json({ error: "An internal server error occurred" });
+      }
+    }
+  }
+}
+
+async function removeSubType(req, res) {
+  const { subject } = req.body;
+  const filePath = "backend/" + subTypePath;
+
+  if (req.body.subject === "") {
+    return res.status(400).json({ error: "Empty value" });
+  }
+  try {
+    const data = fs.readFileSync(filePath, "utf8");
+    const subjects = JSON.parse(data);
+
+    const index = subjects.findIndex(item => item.label === subject);
+    
+    if (index === -1) {
+      return res.status(404).json({ error: "SubjectType not found" });
+    }
+    subjects.splice(index, 1);
+
+      const updatedData = JSON.stringify(subjects);
+
+      fs.writeFileSync(filePath, updatedData, 'utf8');
+
+      res.status(200).json({ message: "Subject Type deleted successfully" });
+
+  } catch (err) {
+    console.error("Error processing the file: ", err);
+    res.status(500).json({ error: "Error processing the file" });
+  }
+}
+
+async function getAllRevocationReasons(req, res) {
+  try {
+    const distinctReasons = await userModel.getRevocationReasons();
+
+    const result = distinctReasons.map((item) => ({
+      label: item.Reason,
+      value: item.Reason,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.sendStatus(500);
+  }
 }
 
 module.exports = {
-    signup,
-    landingPage,
-    login,
-    dashboard,
-    logout,
-    userDetails,
-    userSessionInfo,
-    certDetails,
-    fetchData,
-    fetchRevokedData,
-    fetchUsageData,
-    fetchLogsData,
-    profile,
-    profileData,
-    refreshToken,
-    updatePasswordController,
-    authorities,
-    cards,
-    compactCard,
-    getAllAuths,
+  signup,
+  landingPage,
+  login,
+  dashboard,
+  logout,
+  userDetails,
+  userSessionInfo,
+  certDetails,
+  fetchData,
+  fetchRevokedData,
+  fetchUsageData,
+  fetchLogsData,
+  profile,
+  profileData,
+  refreshToken,
+  updatePasswordController,
+  authorities,
+  cards,
+  compactCard,
+  getAllAuths,
+  updateAuths,
+  region,
+  getStatesByRegion,
+  viewStatesByRegion,
+  addRegion,
+  updateRegion,
+  updateStatesOfRegion,
+  moveStatesOfRegion,
+  removeRegion,
+  getSubType,
+  addSubjectType,
+  removeSubType,
+  getAllRevocationReasons
 };

@@ -414,6 +414,31 @@ async function getAllAuthsData() {
   }
 }
 
+async function updateAuthsData(authCode, authName, authNo) {
+  const authQuery = `UPDATE authorities SET AuthCode = ?, AuthName = ? WHERE AuthNo = ?`;
+  // const loginQuery = `UPDATE login SET password = ? WHERE authno = ?`;
+
+  try {
+    const result = await db.executeQuery(authQuery, [authCode, authName, authNo]);
+    return result;
+  } catch (e) {
+    console.error("Error updating data:", e);
+    throw new Error("Database error");
+  }
+}
+
+
+async function getRevocationReasons() {
+    const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
+  try{
+    const distinctReasonsResults = await db.executeQuery(queryDistinctReasons);
+    return distinctReasonsResults;
+  }
+  catch (e) {
+    console.log("error fetching data",e)
+  }
+}
+
 async function getCertSerialNumber(serialNumber, issuerName){
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName LIKE ?`;
   try{
@@ -450,5 +475,6 @@ module.exports = {
   getCardsData,
   getCompactCardData,
   getAllAuthsData,
-  getCertSerialNumber
+  updateAuthsData,
+  getRevocationReasons,
 };

@@ -214,108 +214,80 @@ export function getIndianRegion(state) {
   return regions[state] || 'Unknown';
 }
 
+// moved to region.json
+// export const IndianRegion = [
+//   { label: "South" ,value: "South" },
+//   { label: "East" ,value: "East" },
+//   { label: "West" ,value: "West" },
+//   { label: "North" ,value: "North" },
+//   { label: "Northeast" ,value: "Northeast" },
+//   { label: "Central" ,value: "Central" },
+// ]
 
-export const Issuers = [
-  { label: "CCA", value: "CCA" },
-  { label: "Safescrypt", value: "Safescrypt" },
-  { label: "IDRBT", value: "IDRBT" },
-  { label: "(n)Code Solutions", value: "(n)Code Solutions" },
-  { label: "e-Mudhra", value: "e-Mudhra" },
-  { label: "CDAC", value: "CDAC" },
-  { label: "Capricorn", value: "Capricorn" },
-  { label: "Protean (NSDL e-Gov)", value: "Protean (NSDL e-Gov)" },
-  { label: "Vsign (Verasys)", value: "Vsign (Verasys)" },
-  { label: "Indian Air Force", value: "Indian Air Force" },
-  { label: "CSC", value: "CSC" },
-  { label: "RISL (RajComp)", value: "RISL (RajComp)" },
-  { label: "Indian Army", value: "Indian Army" },
-  { label: "IDSign", value: "IDSign" },
-  { label: "CDSL Ventures", value: "CDSL Ventures" },
-  { label: "Panta Sign", value: "Panta Sign" },
-  { label: "xtra Trust", value: "xtra Trust" },
-  { label: "Indian Navy", value: "Indian Navy" },
-  { label: "ProDigiSign", value: "ProDigiSign" },
-  { label: "SignX", value: "SignX" },
-  { label: "JPSL", value: "JPSL" },
-  { label: "Care 4 Sign", value: "Care 4 Sign" },
-  { label: "IGCAR", value: "IGCAR" }
-];
+// export function getStatesByRegions(regions) {
+//   const allRegions = {
+//       "North": [
+//           { label: "Jammu and Kashmir", value: "JK" },
+//           { label: "Punjab", value: "PB" },
+//           { label: "Haryana", value: "HR" },
+//           { label: "Himachal Pradesh", value: "HP" },
+//           { label: "Uttarakhand", value: "UK" },
+//           { label: "Uttar Pradesh", value: "UP" },
+//           { label: "Chandigarh", value: "CH" },
+//           { label: "Delhi", value: "DL" }
+//       ],
+//       "South": [
+//           { label: "Andhra Pradesh", value: "AP" },
+//           { label: "Telangana", value: "TG" },
+//           { label: "Karnataka", value: "KA" },
+//           { label: "Kerala", value: "KL" },
+//           { label: "Tamil Nadu", value: "TN" },
+//           { label: "Puducherry", value: "PY" }
+//       ],
+//       "East": [
+//           { label: "West Bengal", value: "WB" },
+//           { label: "Odisha", value: "OD" },
+//           { label: "Bihar", value: "BR" },
+//           { label: "Jharkhand", value: "JH" }
+//       ],
+//       "West": [
+//           { label: "Goa", value: "GA" },
+//           { label: "Gujarat", value: "GJ" },
+//           { label: "Maharashtra", value: "MH" },
+//           { label: "Rajasthan", value: "RJ" }
+//       ],
+//       "Northeast": [
+//           { label: "Assam", value: "AS" },
+//           { label: "Arunachal Pradesh", value: "AR" },
+//           { label: "Manipur", value: "MN" },
+//           { label: "Meghalaya", value: "ML" },
+//           { label: "Mizoram", value: "MZ" },
+//           { label: "Nagaland", value: "NL" },
+//           { label: "Tripura", value: "TR" },
+//           { label: "Sikkim", value: "SK" }
+//       ],
+//       "Central": [
+//           { label: "Madhya Pradesh", value: "MP" },
+//           { label: "Chhattisgarh", value: "CG" }
+//       ]
+//   };
 
+//   let states = [];
+// //   let noState = [{
+// //     "label": "Please select a Region",
+// //     "value": ""
+// // }]
 
-export const IndianRegion = [
-  { label: "South" ,value: "South" },
-  { label: "East" ,value: "East" },
-  { label: "West" ,value: "West" },
-  { label: "North" ,value: "North" },
-  { label: "Northeast" ,value: "Northeast" },
-  { label: "Central" ,value: "Central" },
-]
+//   regions.forEach(region => {
+//       if (allRegions[region]) {
+//           states = states.concat(allRegions[region]);
+//       }
+//   });
 
-
-export function getStatesByRegions(regions) {
-  const allRegions = {
-      "North": [
-          { label: "Jammu and Kashmir", value: "JK" },
-          { label: "Punjab", value: "PB" },
-          { label: "Haryana", value: "HR" },
-          { label: "Himachal Pradesh", value: "HP" },
-          { label: "Uttarakhand", value: "UK" },
-          { label: "Uttar Pradesh", value: "UP" },
-          { label: "Chandigarh", value: "CH" },
-          { label: "Delhi", value: "DL" }
-      ],
-      "South": [
-          { label: "Andhra Pradesh", value: "AP" },
-          { label: "Telangana", value: "TG" },
-          { label: "Karnataka", value: "KA" },
-          { label: "Kerala", value: "KL" },
-          { label: "Tamil Nadu", value: "TN" },
-          { label: "Puducherry", value: "PY" }
-      ],
-      "East": [
-          { label: "West Bengal", value: "WB" },
-          { label: "Odisha", value: "OD" },
-          { label: "Bihar", value: "BR" },
-          { label: "Jharkhand", value: "JH" }
-      ],
-      "West": [
-          { label: "Goa", value: "GA" },
-          { label: "Gujarat", value: "GJ" },
-          { label: "Maharashtra", value: "MH" },
-          { label: "Rajasthan", value: "RJ" }
-      ],
-      "Northeast": [
-          { label: "Assam", value: "AS" },
-          { label: "Arunachal Pradesh", value: "AR" },
-          { label: "Manipur", value: "MN" },
-          { label: "Meghalaya", value: "ML" },
-          { label: "Mizoram", value: "MZ" },
-          { label: "Nagaland", value: "NL" },
-          { label: "Tripura", value: "TR" },
-          { label: "Sikkim", value: "SK" }
-      ],
-      "Central": [
-          { label: "Madhya Pradesh", value: "MP" },
-          { label: "Chhattisgarh", value: "CG" }
-      ]
-  };
-
-  let states = [];
-//   let noState = [{
-//     "label": "Please select a Region",
-//     "value": ""
-// }]
-
-  regions.forEach(region => {
-      if (allRegions[region]) {
-          states = states.concat(allRegions[region]);
-      }
-  });
-
-  return states;
-  // if(states.length==0) return noState
-  // else return states
-}
+//   return states;
+//   // if(states.length==0) return noState
+//   // else return states
+// }
 
 
  // from https://emudhra[dot]com/blog/certificate-revocation-list-crl
@@ -328,10 +300,11 @@ export function getStatesByRegions(regions) {
   { label: "Cessation of Operation", value: "Cessation of Operation" },
 ];
 
-export const subType = [
-  { label: "CA", value: "CA" },
-  { label: "End Entity", value: "End Entity" },
-];
+// moved to Subjettype.json
+// export const subType = [
+//   { label: "CA", value: "CA" },
+//   { label: "End Entity", value: "End Entity" },
+// ];
 
 export const usageOptions = [
   { label: "Signing", value: "Signing" },

@@ -8,9 +8,9 @@ import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
 import {
   getIndianRegion,
-  IndianRegion,
-  getStatesByRegions,
-  subType,
+  // IndianRegion,
+  // getStatesByRegions,
+  // subType,
 } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
@@ -51,6 +51,55 @@ const DataTable = () => {
   const [keyCertSign, setKeyCertSign] = useState(false);
   const [cRLSign, setCRLSign] = useState(false);
   const [encipherOnly, setEncipherOnly] = useState(false);
+
+  // json values
+  const [subType, setSubType] = useState([]);
+  const [regions, setRegions] = useState([]);
+
+// region from statesByRegion.json
+useEffect(() => {
+  fetch('http://'+domain+':8080/region')
+    .then(response => response.json())
+    .then(data => setRegions(data))
+    .catch(error => console.error('Error fetching data:', error));
+}, []);
+
+// states by region from statesByRegion.json
+async function getStates(region) {
+  const raw = JSON.stringify({
+      "regions": region
+  });
+
+  const requestOptions = {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: raw,
+      redirect: "follow"
+  };
+
+  try {
+      const response = await fetch("http://"+domain+":8080/getStatesByRegion", requestOptions);
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json(); 
+      // console.log("API Response:", result);
+      return result;
+  } catch (error) {
+      console.error("Error fetching states:", error);
+      return [];
+  }
+}
+
+// subject type from subjectType.json
+useEffect(() => {
+  fetch('http://'+domain+':8080/getSubType')
+    .then(response => response.json())
+    .then(data => setSubType(data))
+    .catch(error => console.error('Error fetching data:', error));
+}, []);
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -403,14 +452,27 @@ const DataTable = () => {
   const handleStateFilter = (selectedItems) => {
     setState(selectedItems.map((item) => item.value));
   };
-  const handleRegionFilter = (selectedItems) => {
+
+
+  const handleRegionFilter = async (selectedItems) => {
     setRegion(selectedItems.map((item) => item.value));
-    setStateByRegion(getStatesByRegions(region));
+    const statesByRegion = await getStates(region);
+        setStateByRegion(statesByRegion);
   };
 
   useEffect(() => {
-    setStateByRegion(getStatesByRegions(region));
-  }, [region]);
+    const fetchStatesByRegion = async () => {
+        try {
+            const states = await getStates(region);
+            setStateByRegion(states);
+        } catch (error) {
+            console.error("Error fetching states by region:", error);
+        }
+    };
+    fetchStatesByRegion();
+}, [region]); 
+
+
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
   };
@@ -444,7 +506,6 @@ const DataTable = () => {
       const file = new File([blob], "certificate.pem", {
         type: "application/x-x509-cert.pem",
       });
-
       // Create FormData object
       const data = new FormData();
       data.append("certificate", file);
@@ -470,10 +531,9 @@ const DataTable = () => {
           setIssuerO(response.data.issuerO);
           setIssuerOU(response.data.issuerOU);
           setIssuerCN(response.data.issuerCN);
-          // console.log("tttt",!!extensionsInfo.nonRepudiation);
         })
         .catch((error) => {
-          console.log("error getting response", error);
+          // console.log("error getting response", error);
           document.querySelector(".error-block").style.display = "flex";
           document.querySelector(".information-block").style.display = "none";
         });
@@ -507,7 +567,7 @@ const DataTable = () => {
             placeholder="Subject Type"
           />
           <MultiSelect
-            options={IndianRegion}
+            options={regions}
             onChange={handleRegionFilter}
             placeholder="Select Region"
           />
@@ -612,49 +672,49 @@ const DataTable = () => {
           <br />
           <h3 className="filter-head">Usage</h3>
           <hr />
-          <div class="container-info">
-            <div class="item">
+          <div className="container-info">
+            <div className="item">
               <label>
                 Digital Signature :{" "}
                 <input type="checkbox" checked={digitalSignature} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Non Repudiation :{" "}
                 <input type="checkbox" checked={nonRepudiation} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key Encipherment :{" "}
                 <input type="checkbox" checked={keyEncipherment} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Data Encipherment :{" "}
                 <input type="checkbox" checked={dataEncipherment} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key Agreement :{" "}
                 <input type="checkbox" checked={keyAgreement} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Key CertSign :{" "}
                 <input type="checkbox" checked={keyCertSign} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 CRL Sign : <input type="checkbox" checked={cRLSign} readOnly />
               </label>
             </div>
-            <div class="item">
+            <div className="item">
               <label>
                 Encipher Only :{" "}
                 <input type="checkbox" checked={encipherOnly} readOnly />

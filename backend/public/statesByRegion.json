@@ -1,0 +1,142 @@
+{
+  "North": [
+    {
+      "label": "Jammu and Kashmir",
+      "value": "JK"
+    },
+    {
+      "label": "Punjab",
+      "value": "PB"
+    },
+    {
+      "label": "Haryana",
+      "value": "HR"
+    },
+    {
+      "label": "Himachal Pradesh",
+      "value": "HP"
+    },
+    {
+      "label": "Uttarakhand",
+      "value": "UK"
+    },
+    {
+      "label": "Uttar Pradesh",
+      "value": "UP"
+    },
+    {
+      "label": "Chandigarh",
+      "value": "CH"
+    },
+    {
+      "label": "Delhi",
+      "value": "DL"
+    }
+  ],
+  "East": [
+    {
+      "label": "West Bengal",
+      "value": "WB"
+    },
+    {
+      "label": "Odisha",
+      "value": "OD"
+    },
+    {
+      "label": "Bihar",
+      "value": "BR"
+    },
+    {
+      "label": "Jharkhand",
+      "value": "JH"
+    }
+  ],
+  "West": [
+    {
+      "label": "Goa",
+      "value": "GA"
+    },
+    {
+      "label": "Gujarat",
+      "value": "GJ"
+    },
+    {
+      "label": "Maharashtra",
+      "value": "MH"
+    },
+    {
+      "label": "Rajasthan",
+      "value": "RJ"
+    }
+  ],
+  "Northeast": [
+    {
+      "label": "Assam",
+      "value": "AS"
+    },
+    {
+      "label": "Arunachal Pradesh",
+      "value": "AR"
+    },
+    {
+      "label": "Manipur",
+      "value": "MN"
+    },
+    {
+      "label": "Meghalaya",
+      "value": "ML"
+    },
+    {
+      "label": "Mizoram",
+      "value": "MZ"
+    },
+    {
+      "label": "Nagaland",
+      "value": "NL"
+    },
+    {
+      "label": "Tripura",
+      "value": "TR"
+    },
+    {
+      "label": "Sikkim",
+      "value": "SK"
+    }
+  ],
+  "Central": [
+    {
+      "label": "Madhya Pradesh",
+      "value": "MP"
+    },
+    {
+      "label": "Chhattisgarh",
+      "value": "CG"
+    }
+  ],
+  "South": [
+    {
+      "label": "Andhra Pradesh",
+      "value": "AP"
+    },
+    {
+      "label": "Telangana",
+      "value": "TG"
+    },
+    {
+      "label": "Kerala",
+      "value": "KL"
+    },
+    {
+      "label": "Karnataka",
+      "value": "KA"
+    },
+    {
+      "label": "Tamil Nadu",
+      "value": "TN"
+    },
+    {
+      "label": "Puducherry",
+      "value": "PY"
+    }
+  ]
+}

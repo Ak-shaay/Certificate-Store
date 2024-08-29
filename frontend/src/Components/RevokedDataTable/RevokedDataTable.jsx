@@ -3,10 +3,12 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { revocationReasons } from "../../Data";
+// import { revocationReasons } from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 import { autoTable } from "jspdf-autotable";
+import { domain } from "../../Context/config";
+
 
 const RevokedDataTable = () => {
   const [selectedReasons, setSelectedReasons] = useState([]);
@@ -15,6 +17,20 @@ const RevokedDataTable = () => {
   const wrapperRef = useRef(null);
   const gridRef = useRef(null); // Ref to store the grid instance
 
+  const [revocationReasons,setRevocationReasons] = useState([]);
+
+  useEffect(() => {
+    fetch(`http://${domain}:8080/getAllRevocationReasons`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json(); 
+      })
+      .then(data => setRevocationReasons(data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+  
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
