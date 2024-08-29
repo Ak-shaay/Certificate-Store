@@ -134,10 +134,13 @@ const UserManagement = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    const handleChange = (e) => {
+        const msg = document.getElementById("signupMsg");
+        msg.style.color = "";
+        msg.innerHTML = "";
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, file: e.target.files[0] });
@@ -158,44 +161,55 @@ const UserManagement = () => {
     setDragOver(false);
   };
 
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      try {
-        const accessToken = api.getAccessToken();
-        if (accessToken) {
-          api.setAuthHeader(accessToken);
-          const data = new FormData();
-          data.append("username", formData.name);
-          data.append("password", formData.password);
-          data.append("role", formData.role);
-          data.append("authCode", formData.authCode);
-          if (formData.file) {
-            const base64File = await convertFileToBase64(formData.file);
-            data.append("file", base64File);
-          }
-          const response = await api.axiosInstance.post("/signup", data, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            try {
+                const accessToken = api.getAccessToken();
+                if (accessToken) {
+                    api.setAuthHeader(accessToken);
+                    const data = new FormData();
+                    data.append("username", formData.name);
+                    data.append("password", formData.password);
+                    data.append("role", formData.role);
+                    data.append("authCode", formData.authCode);
+                    data.append("cert", formData.file);
+                    const response = await api.axiosInstance.post(
+                        "/signup",
+                        data,
+                        {
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                        }
+                    );
+                    if (response.status === 200) {
+                        setFormData({
+                            name: "",
+                            password: "",
+                            role: "",
+                            authCode: "",
+                            file: null,
+                        });
+                        const msg = document.getElementById("signupMsg");
+                        msg.style.color = "green";
+                        msg.innerHTML = response.data.message;
+                    }
+                }
+            } catch (err) {
+                setFormData({
+                    name: "",
+                    password: "",
+                    role: "",
+                    authCode: "",
+                    file: null,
+                });
+                const msg = document.getElementById("signupMsg");
+                msg.style.color = "red";
+                msg.innerHTML = "Signup failed!";
+            }
         }
-      } catch (err) {
-        console.error("Error submitting form:", err);
-      }
-    }
-  };
+    };
 
   async function getAuthorities() {
     try {
@@ -456,7 +470,7 @@ const UserManagement = () => {
             {errors.file && <p className="errorMsg">{errors.file}</p>}
             {formData.file && <p>Selected file: {formData.file.name}</p>}
           </div>
-
+                    <span id="signupMsg"></span>
           <button type="submit" className="submitForm">
             Submit
           </button>
