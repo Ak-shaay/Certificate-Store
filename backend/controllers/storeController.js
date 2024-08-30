@@ -105,11 +105,11 @@ async function signupController(req, res) {
                 issuerCommonName
             );
             if (response) {
-                const authNo = authCode.replace(/^AUTH0*/, "");
-                const hasedPassword = await bcrypt.hash(password, 10);
-                const params = {
-                    username: username,
-                    password: hasedPassword,
+              const authNo = authCode.replace(/^AUTH0*/, "");
+              const hasedPassword = await bcrypt.hash(password, 10);
+              const params = {
+                username: username,
+                password: hasedPassword,
                     role: role,
                     authCode: authCode,
                     authNo: authNo,
@@ -117,6 +117,7 @@ async function signupController(req, res) {
                     serialNumber: serialNumber
                 };
                 const result = await userModel.signup(params);
+                console.log("result: ",result)
                 if(result){
                     return res.status(200).json({ message: "Signup successful" });
                 }

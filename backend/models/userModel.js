@@ -447,7 +447,7 @@ async function getRevocationReasons() {
   }
 }
 
-async function getCertSerialNumber(serialNumber, issuerName){
+async function  getCertSerialNumber(serialNumber, issuerName){
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName LIKE ?`;
   try{
     const result = await db.executeQuery(query,[serialNumber, issuerName]);
@@ -464,7 +464,7 @@ async function getCertSerialNumber(serialNumber, issuerName){
 async function signup(params){
   console.log("params: ",params);
   const {username, password, role, authCode, authNo, authName, serialNumber} = params;
-  const query1 = 'INSERT into authorities VALUES (?, ?, ?)';
+  const query1 = 'INSERT into authorities (AuthNo,AuthCode,AuthName) VALUES (?, ?, ?)';
   const query2 = 'INSERT into login (UserName, Password, Role, AuthNo) VALUES (?,?,?,?)';
   const query3 = 'INSERT into auth_cert VALUES (?,?)';
   try {
@@ -490,6 +490,7 @@ async function signup(params){
                                 if (err) reject(err);
                                 else{
                                   resolve();
+                                  console.log("Saved to database")
                                   return true;
                                 }   
                             });
