@@ -621,6 +621,16 @@ async function updatePasswordController(req, res, next) {
                 newPassword,
                 req.user.authNo
             );
+            const remark = userExist[0].UserName +' Updated their password!';
+            await userModel.logUserAction(
+                userExist[0].UserName,
+                new Date().toISOString().replace("T", " ").slice(0, 19),
+                req.ip,
+                "Password change",
+                remark,
+                req.body.latitude,
+                req.body.longitude
+              );
 
             if (result.success) {
                 return res.status(200).json({ message: result.message });
@@ -699,8 +709,6 @@ async function updateAuths(req, res) {
 
       try {
         const { authName, authCode, authNo } = req.body;
-
-        console.log("reached",req.body);
         
         if (!authCode || !authName || !authNo) return res.status(400).json({ error: 'Missing required fields' });
 
