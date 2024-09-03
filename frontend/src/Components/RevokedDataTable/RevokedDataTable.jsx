@@ -217,6 +217,12 @@ const RevokedDataTable = () => {
     };
   }, []);
 
+  const reasonsRef = useRef();
+  const handleClearAll = () => {
+    if (reasonsRef.current) reasonsRef.current.resetSelectedValues();
+    setStartDate("");
+    setEndDate("");
+  };
 
   const handleMultiSelectChange = (selectedItems) => {
     setSelectedReasons(selectedItems.map(item => item.value));
@@ -242,17 +248,24 @@ const RevokedDataTable = () => {
             options={revocationReasons}
             placeholder="Select Reason"
             onChange={handleMultiSelectChange}
+            ref={reasonsRef}
           />
         </div>
         <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" className="datepicker" onChange={handleStartDateChange} />
+            <input type="date" className="datepicker" onChange={handleStartDateChange} value={startDate}/>
             <label className="dateLable">End Date</label>
-            <input type="date" className="datepicker" onChange={handleEndDateChange} />
+            <input type="date" className="datepicker" onChange={handleEndDateChange} value={endDate}/>
           </div>
           <br />
           <div className="filter-row">
+          <button
+              className="commonApply-btn clear"
+              onClick={handleClearAll}
+            >
+              Clear
+            </button>
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
             <button className="commonApply-btn" onClick={applyFilter}>Apply</button>
           </div>

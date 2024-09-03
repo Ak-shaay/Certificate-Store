@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import Select from "react-dropdown-select";
 import "./MultiSelect.css";
 
-const MultiSelect = ({ options, placeholder, onChange }) => {
+const MultiSelect = forwardRef(({ options, placeholder, onChange }, ref) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
 
   const handleChange = (selectedItems) => {
@@ -11,6 +11,15 @@ const MultiSelect = ({ options, placeholder, onChange }) => {
       onChange(selectedItems);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    resetSelectedValues: () => {
+      setSelectedOptions([]);
+      if (onChange) {
+        onChange([]); // Notify parent component about the cleared selections
+      }
+    },
+  }));
 
   return (
     <Select
@@ -25,6 +34,6 @@ const MultiSelect = ({ options, placeholder, onChange }) => {
       onChange={handleChange}
     />
   );
-};
+});
 
 export default MultiSelect;

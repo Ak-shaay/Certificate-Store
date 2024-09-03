@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./UserManagement.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
+import refreshIcon from "../../Images/Icons/refresh.png";
+
 
 const UserManagement = () => {
   const [authData, setAuthData] = useState([]);
@@ -39,56 +41,61 @@ const UserManagement = () => {
       setMsg("Please add a valid entity");
       return;
     }
-  
+
     const raw = JSON.stringify({ subject: entity });
-  
-    const requestOptions = {
-      method: "POST",
-      body: raw,
-      headers: { "Content-Type": "application/json" }, 
-      redirect: "follow",
-    };
-  
-    try {
-      const response = await fetch(`http://${domain}:8080/addSubjectType`, requestOptions);
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        setMsg(errorData.error || "An unknown error occurred");
-        return;
-      }
-      setMsg("Added successfully");
-      setRefreshData(prev => !prev); 
-    } catch (error) {
-      setMsg("Network error: " + error.message);
-    }
-  };
-  const handleEntityDeletion = async (entity) => {
-    const raw = JSON.stringify({ subject: entity });
-  
+
     const requestOptions = {
       method: "POST",
       body: raw,
       headers: { "Content-Type": "application/json" },
       redirect: "follow",
     };
-  
+
     try {
-      const response = await fetch(`http://${domain}:8080/removeSubType`, requestOptions);
-  
+      const response = await fetch(
+        `http://${domain}:8080/addSubjectType`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMsg(errorData.error || "An unknown error occurred");
+        return;
+      }
+      setMsg("Added successfully");
+      setRefreshData((prev) => !prev);
+    } catch (error) {
+      setMsg("Network error: " + error.message);
+    }
+  };
+  const handleEntityDeletion = async (entity) => {
+    const raw = JSON.stringify({ subject: entity });
+
+    const requestOptions = {
+      method: "POST",
+      body: raw,
+      headers: { "Content-Type": "application/json" },
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(
+        `http://${domain}:8080/removeSubType`,
+        requestOptions
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         setMsg(errorData.error || "An unknown error occurred");
         return;
       }
       setMsg("Removed successfully");
-      setRefreshData(prev => !prev); 
+      setRefreshData((prev) => !prev);
     } catch (error) {
       setMsg("Network error: " + error.message);
     }
   };
-  
-  
+
   const validateForm = () => {
     const { name, password, role, authCode, file } = formData;
     const newErrors = {};
@@ -134,13 +141,13 @@ const UserManagement = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-    const handleChange = (e) => {
-        const msg = document.getElementById("signupMsg");
-        msg.style.color = "";
-        msg.innerHTML = "";
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+  const handleChange = (e) => {
+    const msg = document.getElementById("signupMsg");
+    msg.style.color = "";
+    msg.innerHTML = "";
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, file: e.target.files[0] });
@@ -161,55 +168,51 @@ const UserManagement = () => {
     setDragOver(false);
   };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            try {
-                const accessToken = api.getAccessToken();
-                if (accessToken) {
-                    api.setAuthHeader(accessToken);
-                    const data = new FormData();
-                    data.append("username", formData.name);
-                    data.append("password", formData.password);
-                    data.append("role", formData.role);
-                    data.append("authCode", formData.authCode);
-                    data.append("cert", formData.file);
-                    const response = await api.axiosInstance.post(
-                        "/signup",
-                        data,
-                        {
-                            headers: {
-                                "Content-Type": "multipart/form-data",
-                            },
-                        }
-                    );
-                    if (response.status === 200) {
-                        setFormData({
-                            name: "",
-                            password: "",
-                            role: "",
-                            authCode: "",
-                            file: null,
-                        });
-                        const msg = document.getElementById("signupMsg");
-                        msg.style.color = "green";
-                        msg.innerHTML = response.data.message;
-                    }
-                }
-            } catch (err) {
-                setFormData({
-                    name: "",
-                    password: "",
-                    role: "",
-                    authCode: "",
-                    file: null,
-                });
-                const msg = document.getElementById("signupMsg");
-                msg.style.color = "red";
-                msg.innerHTML = "Signup failed!";
-            }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      try {
+        const accessToken = api.getAccessToken();
+        if (accessToken) {
+          api.setAuthHeader(accessToken);
+          const data = new FormData();
+          data.append("username", formData.name);
+          data.append("password", formData.password);
+          data.append("role", formData.role);
+          data.append("authCode", formData.authCode);
+          data.append("cert", formData.file);
+          const response = await api.axiosInstance.post("/signup", data, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          if (response.status === 200) {
+            setFormData({
+              name: "",
+              password: "",
+              role: "",
+              authCode: "",
+              file: null,
+            });
+            const msg = document.getElementById("signupMsg");
+            msg.style.color = "green";
+            msg.innerHTML = response.data.message;
+          }
         }
-    };
+      } catch (err) {
+        setFormData({
+          name: "",
+          password: "",
+          role: "",
+          authCode: "",
+          file: null,
+        });
+        const msg = document.getElementById("signupMsg");
+        msg.style.color = "red";
+        msg.innerHTML = "Signup failed!";
+      }
+    }
+  };
 
   async function getAuthorities() {
     try {
@@ -267,40 +270,56 @@ const UserManagement = () => {
       const timer = setTimeout(() => {
         setMsg("");
       }, 3000);
-      return () => clearTimeout(timer); 
+      return () => clearTimeout(timer);
     }
   }, [msg]);
 
-  
-  const handleSave  = async (authName,authCode,authNo) => {
+  const handleSave = async (authName, authCode, authNo) => {
     const respSpan = document.getElementById("respMessage");
 
-  try {
-    const accessToken = api.getAccessToken(); 
-    if (accessToken) {
-      api.setAuthHeader(accessToken);
-      const response = await api.axiosInstance.post("/updateAuths",{
-        authName,
-        authCode,
-        authNo
-      });
-      if (response.status === 200) {
-       console.log(response.data.message);
-       console.log();
-       respSpan.style.color='green';
-       respSpan.innerHTML = response.data.message;
-       setIsEditing(false)
-       
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/updateAuths", {
+          authName,
+          authCode,
+          authNo,
+        });
+        if (response.status === 200) {
+          respSpan.style.color = "green";
+          respSpan.innerHTML = response.data.message;
+          setIsEditing(false);
+        }
       }
+    } catch (error) {
+      console.log("Error updating the data: " + error);
+      respSpan.style.color = "red";
+      respSpan.innerHTML = "Error updating the data";
+      setIsEditing(false);
     }
-  } catch (error) {
-    console.log("Error updating the data: " + error);
-    respSpan.style.color='red';
-    respSpan.innerHTML = 'Error updating the data';
-    setIsEditing(false)
-  }
+  };
+  const handleGenAuth = async () => {
+    const respSpan = document.getElementById("respMessage");
 
-
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.get("/generateAuthCode");
+        console.log("Response", response.data);
+        
+        if (response.status === 200) {
+          setAuthCode(response.data.authCode);
+          respSpan.style.color = "green";
+          respSpan.innerHTML = response.data.message;
+        }
+      }
+    } catch (error) {
+      console.log("Error generating auth code: " + error);
+      respSpan.style.color = "red";
+      respSpan.innerHTML = "Error generating auth code";
+    }
   };
 
   return (
@@ -321,12 +340,14 @@ const UserManagement = () => {
           name="Authority Name"
           value={authName}
           placeholder="Authority Name"
-          readOnly= {!isEditing}
-          onChange={(e) => {setAuthName(e.target.value)}}
+          readOnly={!isEditing}
+          onChange={(e) => {
+            setAuthName(e.target.value);
+          }}
         />
         <input
           id="AuthCode"
-          className="popup-input"
+          className="popup-input auth-code"
           type="text"
           name="authCode"
           value={authCode}
@@ -334,15 +355,28 @@ const UserManagement = () => {
           readOnly={!isEditing}
           onChange={(e) => setAuthCode(e.target.value)}
         />
+        {isEditing ? (<><button type="button" className="gen-button" onClick={handleGenAuth}>
+          <img src={refreshIcon} alt="regenerate"/>
+        </button></>):<></>}
         {!isEditing ? (
-          <button type="button" className="submitForm" onClick={()=>setIsEditing(true)}>
-          Edit
-        </button>
-      ) : (
-        <button type="button" className="submitForm" onClick={()=>{handleSave(authName,authCode,authNo)}}>
-          Save
-        </button>
-      )}
+          <button
+            type="button"
+            className="submitForm"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="submitForm"
+            onClick={() => {
+              handleSave(authName, authCode, authNo);
+            }}
+          >
+            Save
+          </button>
+        )}
       </div>
       <button
         type="button"
@@ -441,9 +475,7 @@ const UserManagement = () => {
                 onChange={handleChange}
                 required
               />
-              {errors.authCode && (
-                <p className="errorMsg">{errors.authCode}</p>
-              )}
+              {errors.authCode && <p className="errorMsg">{errors.authCode}</p>}
             </div>
           </div>
 
@@ -470,7 +502,7 @@ const UserManagement = () => {
             {errors.file && <p className="errorMsg">{errors.file}</p>}
             {formData.file && <p>Selected file: {formData.file.name}</p>}
           </div>
-                    <span id="signupMsg"></span>
+          <span id="signupMsg"></span>
           <button type="submit" className="submitForm">
             Submit
           </button>
@@ -488,7 +520,6 @@ const UserManagement = () => {
       >
         <h1>Hello</h1>
         <div className="grid-container2">
-         
           <div id="formDiv">
             <h1>Entity List</h1>
             <div className="add-list">
@@ -513,10 +544,20 @@ const UserManagement = () => {
                   {subType.map((item, index) => (
                     <li key={index}>
                       {item.label}
-                      <button className="remove-button" onClick={() => {handleEntityDeletion(item.label)}}>
+                      <button
+                        className="remove-button"
+                        onClick={() => {
+                          handleEntityDeletion(item.label);
+                        }}
+                      >
                         &#128465;
                       </button>
-                      <button className="edit-button" onClick={() => {/* Handle edit */}}>
+                      <button
+                        className="edit-button"
+                        onClick={() => {
+                          /* Handle edit */
+                        }}
+                      >
                         &#128393;
                       </button>
                     </li>
@@ -527,7 +568,6 @@ const UserManagement = () => {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

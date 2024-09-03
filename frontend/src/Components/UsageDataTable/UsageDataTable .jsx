@@ -205,6 +205,14 @@ const UsageDataTable = () => {
     };
   }, []);
 
+  const usageRef = useRef();
+
+
+  const handleClearAll = () => {
+    if (usageRef.current) usageRef.current.resetSelectedValues();
+    setStartDate("");
+    setEndDate("");
+  };
   const handleUsageFilter = (selectedItems) => {
     setSelectedUsage(selectedItems.map(item => item.value));
     console.log(selectedUsage);
@@ -230,17 +238,24 @@ const UsageDataTable = () => {
             options={usageOptions}
             placeholder="Select Usage"
             onChange={handleUsageFilter}
+            ref={usageRef}
           />
           </div>
           <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" onChange={handleStartDateChange} className="datepicker" />
+            <input type="date" onChange={handleStartDateChange} className="datepicker" value={startDate}/>
             <label className="dateLable">End Date</label>
-            <input type="date" onChange={handleEndDateChange} className="datepicker" />
+            <input type="date" onChange={handleEndDateChange} className="datepicker" value={endDate}/>
           </div>
           <br/>
           <div className="filter-row">
+          <button
+              className="commonApply-btn clear"
+              onClick={handleClearAll}
+            >
+              Clear
+            </button>
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
           <button className="commonApply-btn"  onClick={applyFilter}>Apply</button>
         </div>

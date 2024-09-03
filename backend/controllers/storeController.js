@@ -424,19 +424,23 @@ async function fetchData(req, res) {
                         filterCriteria.endDate = endDate;
                     }
 
-                    if (validity && validity !== 0) {
-                        filterCriteria.validityStartDate = startDate;
+                    // if (validity && validity !== 0) {
+                    //     filterCriteria.validityStartDate = startDate;
 
-                        const validityStartDate = new Date(startDate);
-                        if (!isNaN(validityStartDate.getTime())) {
-                            filterCriteria.validityEndDate = addYears(
-                                validityStartDate,
-                                validity
-                            );
-                        } else {
-                            console.error("Invalid startDate format");
-                        }
+                    //     const validityStartDate = new Date(startDate);
+                    //     if (!isNaN(validityStartDate.getTime())) {
+                    //         filterCriteria.validityEndDate = addYears(
+                    //             validityStartDate,
+                    //             validity
+                    //         );
+                    //     } else {
+                    //         console.error("Invalid startDate format");
+                    //     }
+                    // }
+                    if (validity && validity !== 0) {
+                        filterCriteria.validity = validity;
                     }
+
                     const certDetails = await userModel.getCertData(
                         filterCriteria,
                         user.authNo
@@ -721,7 +725,7 @@ async function updateAuths(req, res) {
 
         const remark = 'Updated details of Authority'+authNo ;
         userModel.logUserAction(
-          userName,
+          'admin',
           new Date().toISOString().replace("T", " ").slice(0, 19),
           req.ip,
           "Update",
@@ -1108,6 +1112,37 @@ async function getAllRevocationReasons(req, res) {
     }
 }
 
+async function generateAuthCode(req, res) {
+    try {
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charactersLength);
+                result += characters[randomIndex];
+            }
+            return result;
+        }
+
+        // Helper function to hash a string using SHA-256
+        function hashStringSHA256(input) {
+            const hash = crypto.createHash('sha256');
+            hash.update(input);
+            return hash.digest('hex');
+        }
+
+        // Generate a random string and hash it
+        const randomString = generateRandomString(20); 
+        const authCode = hashStringSHA256(randomString);
+
+        // res.status(200).json({ authCode });
+        res.status(200).json({'authCode': authCode,message : 'Successfully generated'});
+    } catch (err) {
+        console.error("Error generating auth code: ", err);
+        res.sendStatus(500);
+    }
+}
 module.exports = {
     signupController,
     landingPage,
@@ -1142,4 +1177,5 @@ module.exports = {
     addSubjectType,
     removeSubType,
     getAllRevocationReasons,
+    generateAuthCode
 };

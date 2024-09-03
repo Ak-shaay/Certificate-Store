@@ -97,11 +97,16 @@ async function getCertData(filterCriteria, authNo) {
       if (filterCriteria.startDate && filterCriteria.endDate) {
         query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
-      if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
-        query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
+      // if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
+      //   query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
+      // }
+      if (filterCriteria.validity && filterCriteria.validity!=0) {
+        query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) > '${filterCriteria.validity}'`;
       }
     }
     query += " ORDER BY IssueDate DESC";
+    console.log("query",query);
+    
     const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {

@@ -25,6 +25,7 @@ router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
+router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 
 // json routes
 router.get('/region', authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   

@@ -509,11 +509,16 @@ const DataTable = () => {
     setValidity(e.target.value);
   };
 
-  const handleClearFilter = (e) => {
-    setIssuer([])
-    setSubType([])
-    setState([]);
-    setRegion([]);
+  const subTypeRef = useRef();
+  const regionRef = useRef();
+  const stateRef = useRef();
+  const issuerRef = useRef();
+
+  const handleClearAll = () => {
+    if (subTypeRef.current) subTypeRef.current.resetSelectedValues();
+    if (regionRef.current) regionRef.current.resetSelectedValues();
+    if (stateRef.current) stateRef.current.resetSelectedValues();
+    if (issuerRef.current) issuerRef.current.resetSelectedValues();
     setStartDate("");
     setEndDate("");
     setValidity("")
@@ -593,6 +598,8 @@ const DataTable = () => {
               options={authorities}
               placeholder="Select Issuer"
               onChange={handleIssuerFilter}
+              value={issuer}
+              ref={issuerRef}
             />
           ) : (
             <></>
@@ -601,16 +608,20 @@ const DataTable = () => {
             options={subType}
             onChange={handleSubTypeFilter}
             placeholder="Subject Type"
+            ref={subTypeRef}
+
           />
           <MultiSelect
             options={regions}
             onChange={handleRegionFilter}
             placeholder="Select Region"
+            ref={regionRef}
           />
           <MultiSelect
             options={stateByRegion}
             onChange={handleStateFilter}
             placeholder="Select State"
+            ref={stateRef}
           />
         </div>
         <div className="col">
@@ -620,6 +631,7 @@ const DataTable = () => {
               type="date"
               className="datepicker"
               onChange={handleStartDateChange}
+              value={startDate}
             />
             <label className="dateLable">End Date</label>
             <input
@@ -627,13 +639,13 @@ const DataTable = () => {
               className="datepicker"
               disabled={startDate === ""}
               onChange={handleEndDateChange}
+              value={endDate}
             />
           </div>
 
           <div className="row date_picker">
             <label className="dateLable">Validity </label>
             <input
-              disabled={startDate === ""}
               type="number"
               className="datepicker"
               step="1"
@@ -648,7 +660,7 @@ const DataTable = () => {
           <div className="filter-row">
           <button
               className="commonApply-btn clear"
-              onClick={handleClearFilter}
+              onClick={handleClearAll}
             >
               Clear
             </button>

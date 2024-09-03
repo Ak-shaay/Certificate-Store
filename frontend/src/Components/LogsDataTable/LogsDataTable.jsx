@@ -27,6 +27,27 @@ const LogsDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+
+    const dateOptions = {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    };
+    const timeOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    };
+
+    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
+    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
+
+    const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+    return formattedDateTime;
+  }
   useEffect(() => {
     const fetchIssuer = async () => {
       try {
@@ -101,7 +122,7 @@ const LogsDataTable = () => {
       log.action,
       log.remark,
       log.ip_address,
-      log.timestamp,
+      formatDate(log.timestamp),
       log.latitude,
       log.longitude,
     ]);
@@ -153,7 +174,7 @@ const LogsDataTable = () => {
           log.action,
           log.Remark,
           log.ip_address,
-          log.timestamp,
+          formatDate(log.timestamp),
           log.latitude,
           log.longitude,
         ]),
@@ -239,6 +260,16 @@ const LogsDataTable = () => {
     { label: "Logout", value: "Logout" },
     { label: "Other", value: "Other" },
   ];
+
+  const authRef = useRef();
+  const actionRef = useRef();
+  const handleClearAll = () => {
+    if (authRef.current) authRef.current.resetSelectedValues();
+    if (actionRef.current) actionRef.current.resetSelectedValues();
+    setStartDate("");
+    setEndDate("");
+  };
+
   const handleUserFilter = (selectedItems) => {
     setSelectedUser(selectedItems.map(item => item.value));
   };
@@ -266,18 +297,25 @@ const LogsDataTable = () => {
             options={authorities}
             placeholder="Select User"
             onChange={handleUserFilter}
+            ref={authRef}
           />
-          <MultiSelect options={options}  onChange={handleActtionFIlter} placeholder="Select Action" />
+          <MultiSelect options={options}  onChange={handleActtionFIlter} placeholder="Select Action" ref={actionRef}/>
         </div>
         <div className="col">
           <div className="row date_picker">
             <label className="dateLable">Start Date</label>
-            <input type="date" onChange={handleStartDateChange} className="datepicker" />
+            <input type="date" onChange={handleStartDateChange} className="datepicker" value={startDate} />
             <label className="dateLable">End Date</label>
-            <input type="date" onChange={handleEndDateChange} className="datepicker" />
+            <input type="date" onChange={handleEndDateChange} className="datepicker" value={endDate} />
           </div>
           <br />
           <div className="filter-row">
+          <button
+              className="commonApply-btn clear"
+              onClick={handleClearAll}
+            >
+              Clear
+            </button>
           <button className="commonApply-btn cancel" onClick={handleFilterClose}>Cancel</button>
             <button className="commonApply-btn"  onClick={applyFilter} >Apply</button>
           </div>
