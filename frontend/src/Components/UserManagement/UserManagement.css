@@ -209,12 +209,232 @@ select {
   min-height: 10vh;
 }
 
+/* Modified grid-container2 to handle 30:70 split */
 .grid-container2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px; 
+  display: flex;
+  width: 100%;
+  gap: 20px; /* Maintain spacing between the sections */
   padding: 20px;
 }
+
+/* 30% section for the existing form */
+.thirty-percent {
+  width: 30%;
+  padding-right: 10px; /* Optional: To add some spacing */
+  background: #e0f1ef;
+  border-radius: 15px;
+}
+
+/* 70% section for the new divisions */
+.seventy-percent {
+  width: 70%;
+  display: flex;
+  flex-direction: inherit;
+  gap: 20px; /* Spacing between the divisions */
+}
+
+/* Style for each section within the 70% part */
+.seventy-percent > div {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Zone selection styling */
+.zone-selection h2,
+.states-in-zone h2,
+.states-outside-zone h2 {
+  margin-top: 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* Radio buttons styling */
+.zone-selection label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1em;
+}
+
+.zone-selection input[type="radio"] {
+  margin-right: 10px;
+}
+
+/* State lists styling */
+.states-in-zone ul,
+.states-outside-zone ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.states-in-zone li,
+.states-outside-zone li {
+  padding: 8px;
+  background-color: #fff;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+/* Button to add states to selected zone */
+
+.states-outside-zone button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #7bc27e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+.states-outside-zone button:hover {
+  background-color: #2d9032;
+}
+
+.states-in-zone button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #f45f44;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.states-in-zone button:hover {
+  background-color: #ff0000;
+}
+
+
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000; /* Ensure it appears on top of other content */
+}
+
+.dialog h2 {
+  margin-top: 0;
+}
+
+.dialog label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.dialog input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dialog button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.dialog button:hover {
+  background-color: #0056b3;
+}
+
+.dialog .close-btn {
+  background-color: #6c757d;
+}
+
+.dialog .close-btn:hover {
+  background-color: #5a6268;
+}
+.button-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 200px; /* Adjust as needed */
+  padding: 10px;
+  margin: 0 auto;
+}
+
+.button-container button,
+.delete-button button
+{
+  margin-bottom: 10px;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;   
+  background-color: #7bc27e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+
+}
+
+.button-container button:last-child {
+  margin-bottom: 0;
+}
+
+#add-button::before {
+  content: '←'; /* Unicode for left-pointing arrow */
+  margin-right: 5px;
+}
+
+#remove-button::after {
+  content: '→';
+  margin-right: 5px;
+}
+
+#delete-button button{
+  background-color: #f45f44 !important;
+ 
+  
+
+}
+
+#delete-button button:hover{
+  background-color: #ff0000 !important;
+}
+
+#add-state button{
+  background-color: #C19EE0 !important;
+}
+
+#add-state button:hover{
+  background-color: #8522db !important;
+}
+
+#create-button {
+  background-color: #7bc27e;
+}
+#create-button:hover {
+  background-color: #2d9032;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 #formDiv {
   height: auto;

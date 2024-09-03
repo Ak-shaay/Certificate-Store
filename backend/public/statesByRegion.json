@@ -133,7 +133,15 @@
     {
       "label": "Tamil Nadu",
       "value": "TN"
-    },
+    }
+  ],
+  "unassigned": [
+    {
+      "label": "khargosh",
+      "value": "ghost"
+    }
+  ],
+  "Union Territory": [
     {
       "label": "Puducherry",
       "value": "PY"
