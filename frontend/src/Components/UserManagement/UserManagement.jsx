@@ -11,12 +11,10 @@ const UserManagement = () => {
   const [openSection, setOpenSection] = useState(null);
   const [authCode, setAuthCode] = useState("");
   const [authName, setAuthName] = useState("");
-  const [authNo, setAuthNo] = useState("");
   const [errors, setErrors] = useState({});
   const [roles, setRoles] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
   const [imgURL, setImgURL] = useState(
-    "http://10.182.3.123:8080/images/null.png"
+    "http://10.182.2.37:8080/images/null.png"
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -33,8 +31,6 @@ const UserManagement = () => {
   const [msg, setMsg] = useState("");
   const [refreshData, setRefreshData] = useState(false);
 
-  const [authCodeEdit, setAuthCodeEdit] = useState("");
-  const [authNameEdit, setAuthNameEdit] = useState("");
 
   const handleNewEntity = async (entity) => {
     if (!entity.trim()) {
@@ -74,7 +70,7 @@ const UserManagement = () => {
     const requestOptions = {
       method: "POST",
       body: raw,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" }, // Ensure headers are set
       redirect: "follow",
     };
 
@@ -168,6 +164,17 @@ const UserManagement = () => {
     setDragOver(false);
   };
 
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -247,8 +254,7 @@ const UserManagement = () => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://10.182.3.123:8080/images/${auth.AuthNo}.png`);
-    setAuthNo(auth.AuthNo);
+    setImgURL(`http://10.182.2.37:8080/images/${auth.AuthNo}.png`);
   };
 
   const handlePopupClose = () => {
@@ -330,9 +336,8 @@ const UserManagement = () => {
           <img src={imgURL} className="image" alt="logo" />
         </h2>
         <span className="close" onClick={handlePopupClose}>
-          X
+          
         </span>
-        <span id="respMessage"></span>
         <input
           id="authority"
           className="popup-input"
@@ -398,7 +403,7 @@ const UserManagement = () => {
               <div className="card_img">
                 <img
                   className="image"
-                  src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
+                  src={`http://10.182.2.37:8080/images/${auth.AuthNo}.png`}
                   alt="image"
                 />
               </div>
