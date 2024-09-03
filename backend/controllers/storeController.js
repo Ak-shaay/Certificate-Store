@@ -29,7 +29,7 @@ const generateAccessToken = (userName, role, authNo) => {
 
     // Generate the token with an expiration time
     return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "15m",
+        // expiresIn: "15m",
     }); // Adjust the expiration time as needed
 };
 
@@ -634,6 +634,7 @@ async function updatePasswordController(req, res, next) {
 
             if (result.success) {
                 return res.status(200).json({ message: result.message });
+                
             } else {
                 return res.status(400).json({ message: result.message });
             }
@@ -776,30 +777,36 @@ async function region(req, res) {
 async function getStatesByRegion(req, res) {
     try {
         const regions = req.body.regions;
+
         if (!regions || !Array.isArray(regions)) {
-            return res
-                .status(400)
-                .json({ error: "Invalid input, regions must be an array." });
+            return res.status(400).json({ error: "Invalid input, regions must be an array." });
         }
+
         const filePath = "backend/" + statesByRegionPath;
-        const data = fs.readFileSync(filePath, "utf8");
+        const data = fs.readFileSync(filePath, 'utf8');
         const allRegions = JSON.parse(data);
 
-        const result = regions.reduce((acc, region) => {
-            if (allRegions[region]) {
-                acc = acc.concat(allRegions[region]);
-            }
-            return acc;
-        }, []);
+        let result;
+
+        if (regions.length === 0) {
+            // Return all states if regions array is empty
+            result = Object.values(allRegions).flat();
+        } else {
+            // Return states for the specified regions
+            result = regions.reduce((acc, region) => {
+                if (allRegions[region]) {
+                    acc = acc.concat(allRegions[region]);
+                }
+                return acc;
+            }, []);
+        }
 
         res.json(result);
     } catch (error) {
-        res.status(500).json({
-            error: "An error occurred while processing your request.",
-        });
+        console.error('Error processing request:', error); // Optional: log the error for debugging
+        res.status(500).json({ error: "An error occurred while processing your request." });
     }
 }
-
 async function viewStatesByRegion(req, res) {
     const jsonData = fs.readFileSync("backend/" + statesByRegionPath);
     let result = JSON.parse(jsonData);

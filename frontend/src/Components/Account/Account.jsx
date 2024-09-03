@@ -98,7 +98,7 @@ const Account = () => {
           }, 3800);
         }
       } catch (err) {
-        console.log("this is error: ", err)
+        console.log("this is error: ", err.response.data.message)
         document.getElementById("updatePasswordMsg").textContent = err.response.data.message;
         setTimeout(() => {
           document.getElementById("updatePasswordMsg").textContent = "";
@@ -121,7 +121,7 @@ const Account = () => {
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
-        <h2 className="filter-head">Update Password</h2>
+        <h2 className="filter-head">Change Password</h2>
         <hr className="filter-line" />
         <input
           id="oldPassword"
@@ -237,7 +237,7 @@ const Account = () => {
           </div>
           <br />
           <span className="forgotPassword" onClick={handlePasswordChange}>
-            Update password?
+            Change password?
           </span>
           <div>
             <button className="loginbtn">Save</button>

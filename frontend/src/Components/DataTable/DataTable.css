@@ -18,6 +18,13 @@
     border-radius: 20px;
 }
 
+.gridjs-cell {
+    overflow: hidden;        
+    text-overflow: ellipsis; 
+    white-space: nowrap;  
+    width: 100%;
+  }
+
 .dateLable {
     margin: 1rem;
 }
@@ -118,3 +125,8 @@ width: 100%;
     flex: 1 1 calc(50% - 140px);
     box-sizing: border-box;
   }
+
+  .clear {
+    color: #ffffff;
+    background: linear-gradient(rgb(175 115 155) 0%, rgb(207 142 142) 100%);
+}

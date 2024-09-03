@@ -56,50 +56,75 @@ const DataTable = () => {
   const [subType, setSubType] = useState([]);
   const [regions, setRegions] = useState([]);
 
-// region from statesByRegion.json
-useEffect(() => {
-  fetch('http://'+domain+':8080/region')
-    .then(response => response.json())
-    .then(data => setRegions(data))
-    .catch(error => console.error('Error fetching data:', error));
-}, []);
+  // region from statesByRegion.json
+  useEffect(() => {
+    fetch("http://" + domain + ":8080/region")
+      .then((response) => response.json())
+      .then((data) => setRegions(data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
-// states by region from statesByRegion.json
-async function getStates(region) {
-  const raw = JSON.stringify({
-      "regions": region
-  });
+  // states by region from statesByRegion.json
+  async function getStates(region) {
+    const raw = JSON.stringify({
+      regions: region,
+    });
 
-  const requestOptions = {
+    const requestOptions = {
       method: "POST",
       headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
       body: raw,
-      redirect: "follow"
-  };
+      redirect: "follow",
+    };
 
-  try {
-      const response = await fetch("http://"+domain+":8080/getStatesByRegion", requestOptions);
+    try {
+      const response = await fetch(
+        "http://" + domain + ":8080/getStatesByRegion",
+        requestOptions
+      );
       if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const result = await response.json(); 
+      const result = await response.json();
       // console.log("API Response:", result);
       return result;
-  } catch (error) {
+    } catch (error) {
       console.error("Error fetching states:", error);
       return [];
+    }
   }
-}
 
-// subject type from subjectType.json
-useEffect(() => {
-  fetch('http://'+domain+':8080/getSubType')
-    .then(response => response.json())
-    .then(data => setSubType(data))
-    .catch(error => console.error('Error fetching data:', error));
-}, []);
+  // subject type from subjectType.json
+  useEffect(() => {
+    fetch("http://" + domain + ":8080/getSubType")
+      .then((response) => response.json())
+      .then((data) => setSubType(data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+
+    const dateOptions = {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    };
+    const timeOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    };
+
+    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
+    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
+
+    const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+    return formattedDateTime;
+  }
 
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
@@ -188,16 +213,16 @@ useEffect(() => {
 
     doc.setFontSize(10);
 
-    const title = "Issuer Certificates";
+    const title = "Issued Certificates";
     const headers = [
       [
         "Serial No",
         "Name",
         "Issuer",
-        "Date",
+        "Issued Date",
         "State",
         "Region",
-        "Validity",
+        "Expiry Date",
         "Subject Type",
       ],
     ];
@@ -229,10 +254,10 @@ useEffect(() => {
       ca.cert_serial_no,
       ca.subject_name,
       ca.issuer_name,
-      ca.issue_date,
+      formatDate(ca.issue_date),
       ca.subject_state,
       getIndianRegion(ca.subject_state),
-      ca.expiry_date,
+      formatDate(ca.expiry_date),
       ca.subject_Type,
     ]);
 
@@ -288,10 +313,10 @@ useEffect(() => {
               cert.SerialNumber,
               cert.Subject_CommonName,
               cert.IssuerCommonName,
-              cert.IssueDate,
+              formatDate(cert.IssueDate),
               cert.Subject_ST,
               getIndianRegion(cert.Subject_ST),
-              cert.ExpiryDate,
+              formatDate(cert.ExpiryDate),
               cert.subject_Type,
               cert.RawCertificate,
               // "Status"
@@ -308,14 +333,14 @@ useEffect(() => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        "Serial No",
-        "Name",
-        "Issuer",
-        "Date",
-        "State",
-        "Region",
-        "Validity",
-        "Subject Type",
+        { id: "serialNo", name: "Serial No", className: "gridjs-cell" },
+        { id: "name", name: "Name", className: "gridjs-cell" },
+        { id: "issuer", name: "Issuer", className: "gridjs-cell" },
+        { id: "date", name: "Issued Date", className: "gridjs-cell" },
+        { id: "state", name: "State", className: "gridjs-cell" },
+        { id: "region", name: "Region", className: "gridjs-cell" },
+        { id: "validity", name: "Expiry Date", className: "gridjs-cell" },
+        { id: "subjectType", name: "Subject Type", className: "gridjs-cell" },
         {
           name: "Actions",
           formatter: (cell, row) => {
@@ -380,6 +405,8 @@ useEffect(() => {
       ],
       data: [],
       pagination: true,
+      resizable: true,
+      autoWidth: true,
       sort: true,
       search: true,
       style: {
@@ -453,25 +480,23 @@ useEffect(() => {
     setState(selectedItems.map((item) => item.value));
   };
 
-
   const handleRegionFilter = async (selectedItems) => {
     setRegion(selectedItems.map((item) => item.value));
     const statesByRegion = await getStates(region);
-        setStateByRegion(statesByRegion);
+    setStateByRegion(statesByRegion);
   };
 
   useEffect(() => {
     const fetchStatesByRegion = async () => {
-        try {
-            const states = await getStates(region);
-            setStateByRegion(states);
-        } catch (error) {
-            console.error("Error fetching states by region:", error);
-        }
+      try {
+        const states = await getStates(region);
+        setStateByRegion(states);
+      } catch (error) {
+        console.error("Error fetching states by region:", error);
+      }
     };
     fetchStatesByRegion();
-}, [region]); 
-
+  }, [region]);
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
@@ -483,6 +508,17 @@ useEffect(() => {
   const handleValidity = (e) => {
     setValidity(e.target.value);
   };
+
+  const handleClearFilter = (e) => {
+    setIssuer([])
+    setSubType([])
+    setState([]);
+    setRegion([]);
+    setStartDate("");
+    setEndDate("");
+    setValidity("")
+  };
+
 
   useEffect(() => {
     // console.log("extensions",extensionsInfo.nonRepudiation);
@@ -610,6 +646,12 @@ useEffect(() => {
           <br />
           <hr />
           <div className="filter-row">
+          <button
+              className="commonApply-btn clear"
+              onClick={handleClearFilter}
+            >
+              Clear
+            </button>
             <button
               className="commonApply-btn cancel"
               onClick={handleFilterClose}
@@ -672,55 +714,66 @@ useEffect(() => {
           <br />
           <h3 className="filter-head">Usage</h3>
           <hr />
+
           <div className="container-info">
-            <div className="item">
-              <label>
-                Digital Signature :{" "}
-                <input type="checkbox" checked={digitalSignature} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Non Repudiation :{" "}
-                <input type="checkbox" checked={nonRepudiation} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Key Encipherment :{" "}
-                <input type="checkbox" checked={keyEncipherment} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Data Encipherment :{" "}
-                <input type="checkbox" checked={dataEncipherment} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Key Agreement :{" "}
-                <input type="checkbox" checked={keyAgreement} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Key CertSign :{" "}
-                <input type="checkbox" checked={keyCertSign} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                CRL Sign : <input type="checkbox" checked={cRLSign} readOnly />
-              </label>
-            </div>
-            <div className="item">
-              <label>
-                Encipher Only :{" "}
-                <input type="checkbox" checked={encipherOnly} readOnly />
-              </label>
-            </div>
+            {digitalSignature ? (
+              <div className="item">
+                <label>Digital Signature</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {nonRepudiation ? (
+              <div className="item">
+                <label>Non Repudiation</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {keyEncipherment ? (
+              <div className="item">
+                <label>Key Encipherment</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {dataEncipherment ? (
+              <div className="item">
+                <label>Data Encipherment</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {keyAgreement ? (
+              <div className="item">
+                <label>Key Agreement</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {keyCertSign ? (
+              <div className="item">
+                <label>Key CertSign</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {cRLSign ? (
+              <div className="item">
+                <label>CRL Sign</label>
+              </div>
+            ) : (
+              <></>
+            )}
+            {encipherOnly ? (
+              <div className="item">
+                <label>Encipher Only</label>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
+
           <h3 className="filter-head">Fingerprints</h3>
           <br />
           <label>

@@ -229,6 +229,12 @@ async function getNumberofCertificates(authNo) {
 }
 async function updatePassword(newPass, authNo){
   try{
+    if (authNo === null) {
+      const hashedPassword = await bcrypt.hash(newPass, saltRounds);
+      const updateQuery = "UPDATE login SET Password = ? WHERE Role = 'admin'";
+      await db.executeQuery(updateQuery, [hashedPassword]);
+      return { success: true, message: "Password updated for admin account successfully." };
+    } else {
     const query = 'SELECT AuthCode FROM authorities WHERE AuthNo = ?';
     const[result] = await db.executeQuery(query, [authNo]);
     if (result.length === 0) {
@@ -238,6 +244,7 @@ async function updatePassword(newPass, authNo){
     const updateQuery = "UPDATE login SET Password = ? WHERE AuthNo = ?";
     await db.executeQuery(updateQuery, [hashedPassword, authNo]);
     return { success: true, message: "Password updated successfully." };
+  }
   } catch (err) {
     return { success: false, message: err };
   }
