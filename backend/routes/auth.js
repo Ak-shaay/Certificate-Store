@@ -42,4 +42,6 @@ router.post('/addSubjectType', authController.addSubjectType);
 router.post('/removeSubType', authController.removeSubType);
 
 
+router.post('/certInfo',authController.certInfo);
+
 module.exports = router;

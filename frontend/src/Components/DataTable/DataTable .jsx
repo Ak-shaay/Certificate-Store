@@ -142,9 +142,9 @@ const DataTable = () => {
     filtersElement.style.display = "none";
   };
   // information options
-  const handleInformationCert = (rawCertificate) => {
+  const handleInformationCert = (rawCertificate,serial,issueSerial) => {
     setRawCertificate(rawCertificate);
-    handleFileUpload(rawCertificate);
+    handleFileUpload(serial,issueSerial);
     const filtersElement = document.getElementById("information");
     const blurFilter = document.getElementById("applyFilter");
     blurFilter.style.filter = "blur(3px)";
@@ -307,7 +307,7 @@ const DataTable = () => {
           JSON.stringify(filterData)
         );
         if (response.data) {
-          const data = await response.data;
+          const data = await response.data;          
           gridRef.current.updateConfig({
             data: data.map((cert) => [
               cert.SerialNumber,
@@ -333,7 +333,7 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        { id: "serialNo", name: "Serial No", className: "gridjs-cell" },
+        { id: "serialNo", name: "Serial No", width: '20%', className: "gridjs-cell" },
         { id: "name", name: "Name", className: "gridjs-cell" },
         { id: "issuer", name: "Issuer", className: "gridjs-cell" },
         { id: "date", name: "Issued Date", className: "gridjs-cell" },
@@ -350,8 +350,8 @@ const DataTable = () => {
                 {
                   className: "",
                   onClick: () =>
-                    // alert(`view "${row.cells[0].data}" "${row.cells[1].data}"`),
-                    handleInformationCert(row.cells[8].data),
+                    // alert(`view "${row.cells[0].data}" "${row.cells[2].data}"`),
+                    handleInformationCert(row.cells[8].data,row.cells[0].data,row.cells[2].data),
                 },
                 [
                   h("img", {
@@ -526,62 +526,100 @@ const DataTable = () => {
 
 
   useEffect(() => {
-    // console.log("extensions",extensionsInfo.nonRepudiation);
-    setDigitalSignature(extensionsInfo.digitalSignature);
-    setNonRepudiation(extensionsInfo.nonRepudiation);
-    setKeyEncipherment(extensionsInfo.keyEncipherment);
-    setDataEncipherment(extensionsInfo.dataEncipherment);
-    setKeyAgreement(extensionsInfo.keyAgreement);
-    setKeyCertSign(extensionsInfo.keyCertSign);
-    setCRLSign(extensionsInfo.cRLSign);
-    setEncipherOnly(extensionsInfo.encipherOnly);
+    console.log("extensions",extensionsInfo);
+    if(extensionsInfo=='Signature'){
+    setDigitalSignature(true);}
+    // setDigitalSignature(extensionsInfo.digitalSignature);
+    // setNonRepudiation(extensionsInfo.nonRepudiation);
+    // setKeyEncipherment(extensionsInfo.keyEncipherment);
+    // setDataEncipherment(extensionsInfo.dataEncipherment);
+    // setKeyAgreement(extensionsInfo.keyAgreement);
+    // setKeyCertSign(extensionsInfo.keyCertSign);
+    // setCRLSign(extensionsInfo.cRLSign);
+    // setEncipherOnly(extensionsInfo.encipherOnly);
   }, [extensionsInfo]);
 
-  const handleFileUpload = (pemString) => {
-    if (pemString) {
-      // Convert PEM string to Blob
-      const blob = new Blob([pemString], {
-        type: "application/x-x509-cert.pem",
-      });
-      // Create File object
-      const file = new File([blob], "certificate.pem", {
-        type: "application/x-x509-cert.pem",
-      });
-      // Create FormData object
-      const data = new FormData();
-      data.append("certificate", file);
+  // const handleFileUpload = (pemString) => {
+  //   if (pemString) {
+  //     // Convert PEM string to Blob
+  //     const blob = new Blob([pemString], {
+  //       type: "application/x-x509-cert.pem",
+  //     });
+  //     // Create File object
+  //     const file = new File([blob], "certificate.pem", {
+  //       type: "application/x-x509-cert.pem",
+  //     });
+  //     // Create FormData object
+  //     const data = new FormData();
+  //     data.append("certificate", file);
 
-      // Axios configuration
-      const config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: `http://${domain}:8080/cert`,
-        withCredentials: true,
-        data: data,
-      };
-      axios
-        .request(config)
-        .then((response) => {
-          document.querySelector(".information-block").style.display = "flex";
-          document.querySelector(".error-block").style.display = "none";
-          setSerialNoInfo(response.data.serialNo);
-          setCommonNameInfo(response.data.commonName);
-          setIssuerInfo(response.data.issuer);
-          setExtensionsInfo(response.data.extensions[8]);
-          setHashInfo(response.data.hash);
-          setIssuerO(response.data.issuerO);
-          setIssuerOU(response.data.issuerOU);
-          setIssuerCN(response.data.issuerCN);
-        })
-        .catch((error) => {
-          // console.log("error getting response", error);
-          document.querySelector(".error-block").style.display = "flex";
-          document.querySelector(".information-block").style.display = "none";
-        });
-    } else {
-      alert("Couldn't parse the certificate.");
-      console.log("No certificate data provided.");
-    }
+  //     // Axios configuration
+  //     const config = {
+  //       method: "post",
+  //       maxBodyLength: Infinity,
+  //       url: `http://${domain}:8080/cert`,
+  //       withCredentials: true,
+  //       data: data,
+  //     };
+  //     axios
+  //       .request(config)
+  //       .then((response) => {
+  //         document.querySelector(".information-block").style.display = "flex";
+  //         document.querySelector(".error-block").style.display = "none";
+  //         setSerialNoInfo(response.data.serialNo);
+  //         setCommonNameInfo(response.data.commonName);
+  //         setIssuerInfo(response.data.issuer);
+  //         setExtensionsInfo(response.data.extensions[8]);
+  //         setHashInfo(response.data.hash);
+  //         setIssuerO(response.data.issuerO);
+  //         setIssuerOU(response.data.issuerOU);
+  //         setIssuerCN(response.data.issuerCN);
+  //       })
+  //       .catch((error) => {
+  //         // console.log("error getting response", error);
+  //         document.querySelector(".error-block").style.display = "flex";
+  //         document.querySelector(".information-block").style.display = "none";
+  //       });
+  //   } else {
+  //     alert("Couldn't parse the certificate.");
+  //     console.log("No certificate data provided.");
+  //   }
+  // };
+  const handleFileUpload = (serial, issueSerial) => {
+    const raw = JSON.stringify({
+      serialNo: serial,
+      issuerCN: issueSerial
+    });
+  
+    const config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `http://${domain}:8080/certInfo`,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      withCredentials: true,
+      data: raw,
+    };
+  
+    axios.request(config)
+      .then((response) => {
+        console.log("Response:", response);
+        
+        document.querySelector(".information-block").style.display = "flex";
+        document.querySelector(".error-block").style.display = "none";
+        setSerialNoInfo(response.data.serialNo);
+        setCommonNameInfo(response.data.commonName);
+        setIssuerInfo(response.data.issuer);
+        setIssuerCN(response.data.issuerCN);
+        setHashInfo(response.data.hash);
+        setExtensionsInfo(response.data.keyUsage)
+      })
+      .catch((error) => {
+        console.error("Error getting response:", error.response || error.message);
+        document.querySelector(".error-block").style.display = "flex";
+        document.querySelector(".information-block").style.display = "none";
+      });
   };
 
   return (
@@ -712,18 +750,18 @@ const DataTable = () => {
           <br />
           <h3 className="filter-head">Issuer</h3>
           <hr />
-          <label>
+          {/* <label>
             Organization : <span>{issuerO}</span>
           </label>
-          <br />
+          <br /> */}
           <label>
             Organization Common Name : <span>{issuerCN}</span>
           </label>
           <br />
-          <label>
+          {/* <label>
             Organization unit : <span>{issuerOU}</span>
           </label>
-          <br />
+          <br /> */}
           <h3 className="filter-head">Usage</h3>
           <hr />
 

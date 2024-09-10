@@ -16,7 +16,7 @@ const UserManagement = () => {
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [imgURL, setImgURL] = useState(
-    "http://10.182.3.123:8080/images/null.png"
+    "http://192.168.10.248:8080/images/null.png"
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -247,7 +247,7 @@ const UserManagement = () => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://10.182.3.123:8080/images/${auth.AuthNo}.png`);
+    setImgURL(`http://192.168.10.248:8080/images/${auth.AuthNo}.png`);
     setAuthNo(auth.AuthNo);
   };
 
@@ -290,6 +290,7 @@ const UserManagement = () => {
           respSpan.style.color = "green";
           respSpan.innerHTML = response.data.message;
           setIsEditing(false);
+          getAuthorities();
         }
       }
     } catch (error) {
@@ -656,7 +657,7 @@ async function deleteFromUnassigned(){
               <div className="card_img">
                 <img
                   className="image"
-                  src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
+                  src={`http://192.168.10.248:8080/images/${auth.AuthNo}.png`}
                   alt="image"
                 />
               </div>
@@ -776,7 +777,6 @@ async function deleteFromUnassigned(){
       <div
         className={`content ${openSection === "section3" ? "show" : "hide"}`}
       >
-        <h1>Hello</h1>
         <div className="grid-container2">
           <div id="formDiv">
             <h1>Entity List</h1>
@@ -867,7 +867,7 @@ async function deleteFromUnassigned(){
                 onChange={handleStateSelection}
               />
               
-              {state.label} ({state.value})
+              {state.label}
             </label>
             </div>
               ))

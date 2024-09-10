@@ -423,20 +423,6 @@ async function fetchData(req, res) {
                         filterCriteria.startDate = startDate;
                         filterCriteria.endDate = endDate;
                     }
-
-                    // if (validity && validity !== 0) {
-                    //     filterCriteria.validityStartDate = startDate;
-
-                    //     const validityStartDate = new Date(startDate);
-                    //     if (!isNaN(validityStartDate.getTime())) {
-                    //         filterCriteria.validityEndDate = addYears(
-                    //             validityStartDate,
-                    //             validity
-                    //         );
-                    //     } else {
-                    //         console.error("Invalid startDate format");
-                    //     }
-                    // }
                     if (validity && validity !== 0) {
                         filterCriteria.validity = validity;
                     }
@@ -445,6 +431,7 @@ async function fetchData(req, res) {
                         filterCriteria,
                         user.authNo
                     );
+                    
                     res.json(certDetails);
                 }
             }
@@ -779,21 +766,59 @@ async function region(req, res) {
     }
   }
 
+  // async function getStatesByRegion(req, res) {
+  //   try {
+  //     const regions = req.body.regions;
+  //     //console.log("imput:",regions);
+  //     if (!regions || !Array.isArray(regions)) {
+  //       return res
+  //         .status(400)
+  //         .json({ error: "Invalid input, regions must be an array." });
+         
+  //     }
+  //     const filePath = "backend/" + statesByRegionPath;
+  //     const data = fs.readFileSync(filePath, "utf8");
+  //     const allRegions = JSON.parse(data);
+  
+  //     const result = regions.reduce((acc, region) => {
+  //       if (allRegions[region]) {
+  //         acc = acc.concat(allRegions[region]);
+  //       }
+  //       return acc;
+  //     }, []);
+  
+  //     res.json(result);
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ error: "An error occurred while processing your request." });
+  //   }
+  // }
+
   async function getStatesByRegion(req, res) {
     try {
       const regions = req.body.regions;
-      //console.log("imput:",regions);
+  
+      // Validate input
       if (!regions || !Array.isArray(regions)) {
-        console.log("Whomima i");
         return res
           .status(400)
           .json({ error: "Invalid input, regions must be an array." });
-         
       }
+  
+      // Read and parse the data file
       const filePath = "backend/" + statesByRegionPath;
       const data = fs.readFileSync(filePath, "utf8");
       const allRegions = JSON.parse(data);
   
+      // If regions array is empty, return all states
+      if (regions.length === 0) {
+        const allStates = Object.values(allRegions).flat();
+        
+        return res.json(allStates);
+      }
+  
+      // Filter and return the states based on provided regions
       const result = regions.reduce((acc, region) => {
         if (allRegions[region]) {
           acc = acc.concat(allRegions[region]);
@@ -1184,6 +1209,35 @@ async function generateAuthCode(req, res) {
         res.sendStatus(500);
     }
 }
+
+async function certInfo(req, res) {
+    const { serialNo, issuerCN } = req.body;
+  
+    try {
+      const result = await userModel.getCertInfo(serialNo, issuerCN);
+  
+      console.log("Result:", result);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+  
+      const Certificate = {
+        serialNo: result[0].SerialNumber,
+        commonName: result[0].Subject_CommonName,
+        email: result[0].Subject_Email,
+        issuerCN: result[0].IssuerCommonName,
+        keyUsage: result[0].CertKeyUsage,
+        hash: result[0].Fp_512,
+      };
+  
+      res.status(200).json(Certificate);
+    } catch (error) {
+      console.error("Error retrieving certificate information:", error.message);
+      res.status(500).json({ error: "Error retrieving certificate information." });
+    }
+  }
+
 module.exports = {
     signupController,
     landingPage,
@@ -1218,5 +1272,6 @@ module.exports = {
     addSubjectType,
     removeSubType,
     getAllRevocationReasons,
-    generateAuthCode
+    generateAuthCode,
+    certInfo
 };

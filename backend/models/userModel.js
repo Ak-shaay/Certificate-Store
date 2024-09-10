@@ -49,6 +49,7 @@ async function logUserAction(
   const query =
     "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
   try {
+    ip = ip.toString().replace('::ffff:', '');
     await db.executeQuery(query, [
       UserName,
       timeStamp,
@@ -101,14 +102,13 @@ async function getCertData(filterCriteria, authNo) {
       //   query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
       // }
       if (filterCriteria.validity && filterCriteria.validity!=0) {
-        query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) > '${filterCriteria.validity}'`;
+        query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
       }
     }
     query += " ORDER BY IssueDate DESC";
-    console.log("query",query);
     
     const result = await db.executeQuery(query, authNo);
-    return result;
+        return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -525,6 +525,17 @@ async function signup(params){
 }
 }
 
+async function getCertInfo(serialNo, issuerCN) {
+  const query = `SELECT * FROM cert WHERE SerialNumber = ? AND IssuerCommonName like ?`;
+  try {
+    const result = await db.executeQuery(query, [serialNo, issuerCN]);
+    return result;
+  } catch (e) {
+    console.error("Error getting certificate information:", e.message);
+    throw new Error("Database query failed");
+  }
+}
+
 module.exports = {
   findUserByUsername,
   findUserByAuthNo,
@@ -547,5 +558,6 @@ module.exports = {
   updateAuthsData,
   getRevocationReasons,
   getCertSerialNumber,
-  signup
+  signup,
+  getCertInfo
 };

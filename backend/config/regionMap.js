@@ -1,46 +1,35 @@
 function regionMap(...regionsToFetch) {
   const regions = {
     North: [
+      "Chandigarh",
       "Delhi",
-      "Haryana",
+      'Haryana',
       "Himachal Pradesh",
       "Jammu and Kashmir",
       "Punjab",
-      "Rajasthan",
       "Uttarakhand",
       "Uttar Pradesh",
-      "DL",
-      "HR",
-      "HP",
-      "JK",
-      "PB",
-      "RJ",
-      "UK",
-      "UP",
+      
     ],
     South: [
-      "AP",
-      "KA",
-      "KL",
-      "TN",
-      "TG",
       "Andhra Pradesh",
       "Karnataka",
       "Kerala",
-      "Tamil Nadu",
       "Telangana",
+      "Pondicherry",
+      "Tamil Nadu ",
+      "Tamilnadu"
     ],
     East: [
       "Bihar",
       "Jharkhand",
       "Odisha",
       "West Bengal",
-      "BR",
-      "JH",
-      "OD",
-      "WB",
+     
+      
+
     ],
-    West: ["Goa", "Gujarat", "Maharashtra", "GA", "GJ", "MH"],
+    West: ["Goa", "Gujarat", "Maharashtra", "Rajasthan"],
     Northeast: [
       "Arunachal Pradesh",
       "Assam",
@@ -49,17 +38,9 @@ function regionMap(...regionsToFetch) {
       "Mizoram",
       "Nagaland",
       "Sikkim",
-      "Tripura",
-      "AR",
-      "AS",
-      "MN",
-      "ML",
-      "MZ",
-      "NL",
-      "SK",
-      "TR",
+      "Tripura"
     ],
-    Central: ["Chhattisgarh", "Madhya Pradesh", "CG", "MP"],
+    Central: ["Chhattisgarh","Madhya Pradesh"],
   };
   const flattenedArray = regionsToFetch.reduce(
     (acc, curr) => acc.concat(curr),

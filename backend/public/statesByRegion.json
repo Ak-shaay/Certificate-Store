@@ -2,85 +2,85 @@
   "North": [
     {
       "label": "Jammu and Kashmir",
-      "value": "JK"
+      "value": "Jammu and Kashmir"
     },
     {
       "label": "Punjab",
-      "value": "PB"
+      "value": "Punjab"
     },
     {
       "label": "Haryana",
-      "value": "HR"
+      "value": "Haryana"
     },
     {
       "label": "Himachal Pradesh",
-      "value": "HP"
+      "value": "Himachal Pradesh"
     },
     {
       "label": "Uttarakhand",
-      "value": "UK"
+      "value": "Uttarakhand"
     },
     {
       "label": "Uttar Pradesh",
-      "value": "UP"
+      "value": "Uttar Pradesh"
     },
     {
       "label": "Chandigarh",
-      "value": "CH"
+      "value": "Chandigarh"
     },
     {
       "label": "Delhi",
-      "value": "DL"
+      "value": "Delhi"
     }
   ],
   "East": [
     {
       "label": "West Bengal",
-      "value": "WB"
+      "value": "West Bengal"
     },
     {
       "label": "Odisha",
-      "value": "OD"
+      "value": "Odisha"
     },
     {
       "label": "Bihar",
-      "value": "BR"
+      "value": "Bihar"
     },
     {
       "label": "Jharkhand",
-      "value": "JH"
+      "value": "Jharkhand"
     }
   ],
   "West": [
     {
       "label": "Goa",
-      "value": "GA"
+      "value": "Goa"
     },
     {
       "label": "Gujarat",
-      "value": "GJ"
+      "value": "Gujarat"
     },
     {
       "label": "Maharashtra",
-      "value": "MH"
+      "value": "Maharashtra"
     },
     {
       "label": "Rajasthan",
-      "value": "RJ"
+      "value": "Rajasthan"
     }
   ],
   "Northeast": [
     {
       "label": "Assam",
-      "value": "AS"
+      "value": "Assam"
     },
     {
       "label": "Arunachal Pradesh",
-      "value": "AR"
+      "value": "Arunachal Pradesh"
     },
     {
       "label": "Manipur",
-      "value": "MN"
+      "value": "Manipur"
     },
     {
       "label": "Meghalaya",
@@ -88,58 +88,55 @@
     },
     {
       "label": "Mizoram",
-      "value": "MZ"
+      "value": "Mizoram"
     },
     {
       "label": "Nagaland",
-      "value": "NL"
+      "value": "Nagaland"
     },
     {
       "label": "Tripura",
-      "value": "TR"
+      "value": "Tripura"
     },
     {
       "label": "Sikkim",
-      "value": "SK"
+      "value": "Sikkim"
     }
   ],
   "Central": [
     {
       "label": "Madhya Pradesh",
-      "value": "MP"
+      "value": "Madhya Pradesh"
     },
     {
       "label": "Chhattisgarh",
-      "value": "CG"
+      "value": "Chhattisgarh"
     }
   ],
   "South": [
     {
       "label": "Andhra Pradesh",
-      "value": "AP"
+      "value": "Andhra Pradesh"
     },
     {
       "label": "Telangana",
-      "value": "TG"
+      "value": "Telangana"
     },
     {
       "label": "Kerala",
-      "value": "KL"
+      "value": "Kerala"
     },
     {
       "label": "Karnataka",
-      "value": "KA"
+      "value": "Karnataka"
     },
     {
       "label": "Tamil Nadu",
-      "value": "TN"
-    }
-  ],
-  "unassigned": [],
-  "Union Territory": [
+      "value": "Tamil Nadu"
+    },
     {
       "label": "Puducherry",
-      "value": "PY"
+      "value": "Puducherry"
     }
   ]
 }
