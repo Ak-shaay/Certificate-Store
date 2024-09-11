@@ -16,7 +16,7 @@ const UserManagement = () => {
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [imgURL, setImgURL] = useState(
-    "http://192.168.10.248:8080/images/null.png"
+    "http://10.182.3.123:8080/images/null.png"
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -247,7 +247,7 @@ const UserManagement = () => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://192.168.10.248:8080/images/${auth.AuthNo}.png`);
+    setImgURL(`http://10.182.3.123:8080/images/${auth.AuthNo}.png`);
     setAuthNo(auth.AuthNo);
   };
 
@@ -657,7 +657,7 @@ async function deleteFromUnassigned(){
               <div className="card_img">
                 <img
                   className="image"
-                  src={`http://192.168.10.248:8080/images/${auth.AuthNo}.png`}
+                  src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
                   alt="image"
                 />
               </div>
@@ -826,9 +826,9 @@ async function deleteFromUnassigned(){
               )}
             </div>
           </div>
-          <div class="seventy-percent">
+          <div className="seventy-percent">
             
-            <div class="zone-selection">
+            <div className="zone-selection">
                 <h2>Select Region</h2>
                 {regions.map((region) => (
           <div key={region.value}>
@@ -853,7 +853,7 @@ async function deleteFromUnassigned(){
              </div>
             
             
-            <div class="states-in-zone">
+            <div className="states-in-zone">
             <h2>States in {selectedRegion}</h2>
             {Array.isArray(statesInRegion) && statesInRegion.length > 0 ? (
               statesInRegion.map((state) => (
@@ -880,7 +880,7 @@ async function deleteFromUnassigned(){
             </div>
             
             
-            <div class="states-outside-zone">
+            <div className="states-outside-zone">
             <h2>Unassigned States</h2>
         {Array.isArray(unassignedStates) && unassignedStates.length > 0 ? (
           unassignedStates.map((state) => (

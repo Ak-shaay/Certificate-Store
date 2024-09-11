@@ -742,7 +742,6 @@ async function updateAuths(req, res) {
 const statesByRegionPath = "../public/statesByRegion.json";
 
 // returns regions
-//changed my manish
 async function region(req, res) {
     try {
       const filePath = "backend/" + statesByRegionPath;

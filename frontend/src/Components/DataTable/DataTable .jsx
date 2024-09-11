@@ -333,14 +333,14 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        { id: "serialNo", name: "Serial No", width: '20%', className: "gridjs-cell" },
-        { id: "name", name: "Name", className: "gridjs-cell" },
-        { id: "issuer", name: "Issuer", className: "gridjs-cell" },
-        { id: "date", name: "Issued Date", className: "gridjs-cell" },
-        { id: "state", name: "State", className: "gridjs-cell" },
-        { id: "region", name: "Region", className: "gridjs-cell" },
-        { id: "validity", name: "Expiry Date", className: "gridjs-cell" },
-        { id: "subjectType", name: "Subject Type", className: "gridjs-cell" },
+        { id: "serialNo", name: "Serial No" },
+        { id: "name", name: "Name"},
+        { id: "issuer", name: "Issuer" },
+        { id: "date", name: "Issued Date" },
+        { id: "state", name: "State" },
+        { id: "region", name: "Region"},
+        { id: "validity", name: "Expiry Date"},
+        { id: "subjectType", name: "Subject Type"},
         {
           name: "Actions",
           formatter: (cell, row) => {
@@ -418,6 +418,7 @@ const DataTable = () => {
         td: {
           borderRight: "none",
           borderLeft: "none",
+          textAlign: 'center'
         },
       },
       plugins: [

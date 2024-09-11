@@ -173,6 +173,7 @@ const RevokedDataTable = () => {
         td: {
           borderRight: "none",
           borderLeft: "none",
+          textAlign: 'center'
         },
       },
       plugins: [

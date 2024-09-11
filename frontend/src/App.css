@@ -253,3 +253,15 @@ html {
   background: rgb(132, 168, 255) 70%;
   border-radius: 5px;
 }
+
+/* gridjs properties override */
+th.gridjs-th-sort {
+  min-width: 180px !important;
+}
+td.gridjs-td {
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+}
+button.gridjs-sort {
+  display: none !important;
+}

@@ -160,6 +160,7 @@ const UsageDataTable = () => {
         td: {
           borderRight: "none",
           borderLeft: "none",
+          textAlign: 'center'
         },
       },
       plugins: [
