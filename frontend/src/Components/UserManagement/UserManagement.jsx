@@ -16,7 +16,7 @@ const UserManagement = () => {
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [imgURL, setImgURL] = useState(
-    "http://10.182.3.123:8080/images/null.png"
+    "http://"+domain+":8080/images/null.png"
   );
   const [formData, setFormData] = useState({
     name: "",
@@ -247,7 +247,7 @@ const UserManagement = () => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://10.182.3.123:8080/images/${auth.AuthNo}.png`);
+    setImgURL('http://${domain}:8080/images/${auth.AuthNo}.png');
     setAuthNo(auth.AuthNo);
   };
 
@@ -657,7 +657,7 @@ async function deleteFromUnassigned(){
               <div className="card_img">
                 <img
                   className="image"
-                  src={`http://10.182.3.123:8080/images/${auth.AuthNo}.png`}
+                  src={`http://${domain}:8080/images/${auth.AuthNo}.png`}
                   alt="image"
                 />
               </div>
