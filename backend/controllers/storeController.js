@@ -748,14 +748,21 @@ async function region(req, res) {
   
       const data = fs.readFileSync(filePath, "utf8");
   
-      const allRegions = JSON.parse(data);
-  
+      const allRegions = JSON.parse(data);  
+
       // Map the keys to the desired format
-      const result = Object.keys(allRegions).map((item) => ({
-        label: item,
-        value: item,
+      // const result = Object.keys(allRegions).map((item) => ({
+      //   label: item,
+      //   value: item,
+      // }));
+      
+      const result = Object.keys(allRegions)
+      .filter(key =>key != "unassigned")
+      .map((item) => ({
+        label : item,
+        value : item
       }));
-  
+
       res.json(result);
     } catch (error) {
       console.error("Error processing the request:", error);
@@ -765,34 +772,6 @@ async function region(req, res) {
     }
   }
 
-  // async function getStatesByRegion(req, res) {
-  //   try {
-  //     const regions = req.body.regions;
-  //     //console.log("imput:",regions);
-  //     if (!regions || !Array.isArray(regions)) {
-  //       return res
-  //         .status(400)
-  //         .json({ error: "Invalid input, regions must be an array." });
-         
-  //     }
-  //     const filePath = "backend/" + statesByRegionPath;
-  //     const data = fs.readFileSync(filePath, "utf8");
-  //     const allRegions = JSON.parse(data);
-  
-  //     const result = regions.reduce((acc, region) => {
-  //       if (allRegions[region]) {
-  //         acc = acc.concat(allRegions[region]);
-  //       }
-  //       return acc;
-  //     }, []);
-  
-  //     res.json(result);
-  //   } catch (error) {
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while processing your request." });
-  //   }
-  // }
 
   async function getStatesByRegion(req, res) {
     try {

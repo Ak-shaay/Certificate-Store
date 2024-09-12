@@ -547,9 +547,10 @@ const UserManagement = () => {
   
 // delete from unasssigned 
 async function deleteFromUnassigned(){
-  
-  
-
+if(selectedState==''){
+  alert('Please select a state for deletion.');
+}
+else{
   // Confirm the deletion
   const confirmDeletion = window.confirm(`Are you sure you want to delete: ${selectedState}?`);
   if (!confirmDeletion) {
@@ -579,6 +580,7 @@ async function deleteFromUnassigned(){
       console.error('Error deleting statefrom unassigned:', error);
       alert('There was an error deleting the state from unassigned.');
     });
+  }
 }
 
   return (
