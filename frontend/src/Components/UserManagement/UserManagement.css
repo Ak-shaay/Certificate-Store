@@ -209,36 +209,33 @@ select {
   min-height: 10vh;
 }
 
-/* Modified grid-container2 to handle 30:70 split */
-.grid-container2 {
+.grid {
   display: flex;
-  width: 100%;
-  gap: 20px; /* Maintain spacing between the sections */
-  padding: 20px;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
 }
 
-/* 30% section for the existing form */
-.thirty-percent {
-  width: 30%;
-  padding-right: 10px; /* Optional: To add some spacing */
-  background: #e0f1ef;
-  border-radius: 15px;
+@media only screen and (max-width: 768px) {
+  .grid {
+    flex-direction: column;
+  }
 }
 
-/* 70% section for the new divisions */
-.seventy-percent {
-  width: 70%;
+.region {
   display: flex;
-  flex-direction: inherit;
-  gap: 20px; /* Spacing between the divisions */
+  flex-direction: row;
+  /* width: 100%; */
+  padding: 1rem;
+  overflow-x: scroll;
+  gap: 1rem;
 }
 
-/* Style for each section within the 70% part */
-.seventy-percent > div {
-  padding: 20px;
+.zone-body {
   background-color: #e0f1ef;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  min-width: 12rem;
 }
 
 /* Zone selection styling */
@@ -319,7 +316,8 @@ select {
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  z-index: 1000; /* Ensure it appears on top of other content */
+  z-index: 1000;
+  /* Ensure it appears on top of other content */
 }
 
 .dialog h2 {
@@ -360,22 +358,20 @@ select {
 .dialog .close-btn:hover {
   background-color: #5a6268;
 }
+
 .button-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 200px; /* Adjust as needed */
+  max-width: 200px;
   padding: 10px;
   margin: 0 auto;
 }
 
 .button-container button,
-.delete-button button
-{
+.delete-button button {
   margin-bottom: 10px;
   width: 100%;
   padding: 10px;
-  font-size: 16px;   
   background-color: #7bc27e;
   color: white;
   border: none;
@@ -390,7 +386,8 @@ select {
 }
 
 #add-button::before {
-  content: '←'; /* Unicode for left-pointing arrow */
+  content: '←';
+  /* Unicode for left-pointing arrow */
   margin-right: 5px;
 }
 
@@ -399,67 +396,43 @@ select {
   margin-right: 5px;
 }
 
-#delete-button button{
+#delete-button button {
   background-color: #f45f44 !important;
- 
-  
+
+
 
 }
 
-#delete-button button:hover{
+#delete-button button:hover {
   background-color: #ff0000 !important;
 }
 
-#add-state button{
+#add-state button {
   background-color: #C19EE0 !important;
 }
 
-#add-state button:hover{
+#add-state button:hover {
   background-color: #8522db !important;
 }
 
 #create-button {
   background-color: #7bc27e;
 }
+
 #create-button:hover {
   background-color: #2d9032;
 }
 
 
 
-
-
 #formDiv {
   height: auto;
   margin: 0;
-  padding: 20px; 
+  padding: 20px;
   background: #e0f1ef;
   border-radius: 15px;
 }
 
-@media (min-width: 768px) {
-  .grid-container2 {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    padding: 30px; 
-  }
-
-  #formDiv {
-    padding: 30px; 
-    margin: 20px 0; 
-  }
-}
-
-@media (min-width: 1200px) {
-  .grid-container2 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    padding: 40px; 
-  }
-
-  #formDiv {
-    padding: 40px;
-    margin: 20px;
-  }
-}
 #formDiv h1 {
   text-align: center;
   margin-bottom: 1rem;
@@ -497,7 +470,8 @@ select {
   background-color: #8b5ec6;
   vertical-align: middle;
 }
-.sub-list{
+
+.sub-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -506,11 +480,13 @@ select {
   margin-top: 1rem;
   overflow-y: auto;
 }
+
 #formDiv ul {
   list-style: none;
   padding: 0;
   max-width: 95%;
 }
+
 #formDiv li {
   background: #fff;
   width: 100%;
@@ -521,6 +497,7 @@ select {
   display: inline-block;
   vertical-align: middle;
 }
+
 .edit-button {
   height: 20px;
   border: none;
@@ -533,6 +510,7 @@ select {
   float: right;
   margin-right: 5px;
 }
+
 .remove-button {
   height: 20px;
   border: none;
@@ -546,12 +524,12 @@ select {
   margin-right: 5px;
 }
 
-.auth-code{
+.auth-code {
   margin-right: 8px;
-  width:85% !important;
+  width: 85% !important;
 }
 
-.gen-button{
+.gen-button {
   width: 2rem;
   height: 2rem;
   border: none;
