@@ -113,7 +113,8 @@ const Sidebar = ({ onIndexChange, role }) => {
                         try {
                             if (
                                 role != "Admin" &&
-                                (index === 6 || index === 7)
+                                // (index === 6 || index === 7)
+                                (index === 7)
                             ) {
                                 return null;
                             }

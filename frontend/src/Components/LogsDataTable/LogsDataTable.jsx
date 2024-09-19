@@ -3,7 +3,6 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { domain } from "../../Context/config";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 import { autoTable } from "jspdf-autotable";
@@ -15,6 +14,7 @@ const LogsDataTable = () => {
   const [selectedAction, setSelectedAction] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [authNumber, setAuthNumber] = useState("");
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
 
@@ -52,12 +52,20 @@ const LogsDataTable = () => {
     const fetchIssuer = async () => {
       try {
         const accessToken = api.getAccessToken();
+        const decodedToken = accessToken
+        ? JSON.parse(atob(accessToken.split(".")[1]))
+        : null;
+      const authNo = decodedToken ? decodedToken.authNo : [];
         api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.post("/authorities");
         if (response.data) {
+          if(authNo==null){
           response.data.push({ label: "CCA", value: "CCA" })
           response.data.push({ label: "Admin", value: "admin" })
-          // console.log("issue:",response.data);
+          }
+          if(authNo==1){
+            response.data.push({ label: "CCA", value: "CCA" })
+            }
           setAuthorities(response.data);
         }
       } catch (err) {
@@ -148,7 +156,7 @@ const LogsDataTable = () => {
     handleFilterClose();
   };
 
-  const fetchData = () => {
+  const fetchData = async () => {
     const filterData = {
       user:selectedUser,
       action:selectedAction,
@@ -157,17 +165,23 @@ const LogsDataTable = () => {
 
     };
 
-    fetch(`http://${domain}:8080/logs`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(filterData)
-    })
-      .then(response => response.json())
-      .then(data => {
-        logData=data;
-        gridRef.current.updateConfig({
+    try {
+      const accessToken = api.getAccessToken();
+      const decodedToken = accessToken
+        ? JSON.parse(atob(accessToken.split(".")[1]))
+        : null;
+      const authNo = decodedToken ? decodedToken.authNo : [];
+      setAuthNumber(authNo);
+
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post(
+          "/logs",
+          JSON.stringify(filterData)
+        );
+        if (response.data) {
+          const data = await response.data;          
+          gridRef.current.updateConfig({
           data: data.map((log) => [
           log.id,
           log.user_id,
@@ -180,9 +194,12 @@ const LogsDataTable = () => {
         ]),
         });
         gridRef.current.forceRender();
-      })
-      .catch(error => console.error("Error fetching data:", error));
-  };
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching data:", err);
+  }
+};
 
  useEffect(() => {
     gridRef.current = new Grid({

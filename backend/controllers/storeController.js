@@ -513,26 +513,60 @@ async function fetchUsageData(req, res) {
     }
 }
 async function fetchLogsData(req, res) {
-    try {
-        const { user, action, startDate, endDate } = req.body;
-        const filterCriteria = {};
-        if (user && user.length > 0) {
-            filterCriteria.users = user;
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET,
+        async (err, userToken) => {          
+            if (err) return res.sendStatus(403);
+            else {
+              const { user, action, startDate, endDate } = req.body;
+              const filterCriteria = {};
+              if (user && user.length > 0) {
+                  filterCriteria.users = user;
+              }
+              if (action && action.length > 0) {
+                  filterCriteria.actions = action;
+              }
+              if (startDate && endDate) {
+                  filterCriteria.startDate = startDate;
+                  filterCriteria.endDate = endDate;
+              }              
+              const logsDetails = await userModel.getLogsData(filterCriteria, userToken.authNo);
+              res.json(logsDetails);
+            }
         }
-        if (action && action.length > 0) {
-            filterCriteria.actions = action;
-        }
-        if (startDate && endDate) {
-            filterCriteria.startDate = startDate;
-            filterCriteria.endDate = endDate;
-        }
-        const logsDetails = await userModel.getLogsData(filterCriteria);
-        res.json(logsDetails);
-    } catch (error) {
-        console.error("Error:", error.message);
-        res.status(500).json({ error: "Error." });
-    }
+    );
+} catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
 }
+}
+// async function fetchLogsData(req, res) {
+//     try {
+//         const { user, action, startDate, endDate } = req.body;
+//         const filterCriteria = {};
+//         if (user && user.length > 0) {
+//             filterCriteria.users = user;
+//         }
+//         if (action && action.length > 0) {
+//             filterCriteria.actions = action;
+//         }
+//         if (startDate && endDate) {
+//             filterCriteria.startDate = startDate;
+//             filterCriteria.endDate = endDate;
+//         }
+//         const logsDetails = await userModel.getLogsData(filterCriteria);
+//         res.json(logsDetails);
+//     } catch (error) {
+//         console.error("Error:", error.message);
+//         res.status(500).json({ error: "Error." });
+//     }
+// }
 async function profileData(req, res, next) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];

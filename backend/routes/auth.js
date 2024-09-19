@@ -12,7 +12,7 @@ router.post('/data', authentication.authenticateUser,authController.fetchData);
 router.post('/refreshToken', authController.refreshToken);
 router.post('/revokedData', authController.fetchRevokedData);
 router.post('/usageData', authController.fetchUsageData);
-router.post('/logs', authController.fetchLogsData);
+router.post('/logs', authentication.authenticateUser,authController.fetchLogsData);
 router.get('/dashboard',authentication.authenticateUser,authController.dashboard);
 router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);

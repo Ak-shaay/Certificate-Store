@@ -49,7 +49,7 @@ async function logUserAction(
   const query =
     "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
   try {
-    ip = ip.toString().replace('::ffff:', '');
+    ip = ip.toString().replace("::ffff:", "");
     await db.executeQuery(query, [
       UserName,
       timeStamp,
@@ -101,14 +101,14 @@ async function getCertData(filterCriteria, authNo) {
       // if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
       //   query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
       // }
-      if (filterCriteria.validity && filterCriteria.validity!=0) {
+      if (filterCriteria.validity && filterCriteria.validity != 0) {
         query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
       }
     }
     query += " ORDER BY IssueDate DESC";
-    
+
     const result = await db.executeQuery(query, authNo);
-        return result;
+    return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -169,10 +169,49 @@ async function getCertUsageData(filterCriteria, authNo) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
-async function getLogsData(filterCriteria) {
+// async function getLogsData(filterCriteria) {
+//   try {
+//     let query =
+//       "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
+//     if (filterCriteria) {
+//       if (filterCriteria.users && filterCriteria.users.length > 0) {
+//         const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
+//         query += ` AND UserName IN (${users})`;
+//       }
+//       if (filterCriteria.actions && filterCriteria.actions.length > 0) {
+//         const actions = filterCriteria.actions
+//           .map((action) => `'${action}'`)
+//           .join(",");
+//         query += ` AND ActionType IN (${actions})`;
+//       }
+
+//       if (filterCriteria.startDate && filterCriteria.endDate) {
+//         query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//       }
+//     }
+//     query += " ORDER BY TimeStamp DESC";
+//     const result = await db.executeQuery(query);
+//     return result;
+//   } catch (e) {
+//     console.log("Error while fetching certificate details: ", e);
+//   }
+// }
+
+//logs data based on logins
+async function getLogsData(filterCriteria, authNo) {
   try {
-    let query =
-      "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
+    let query = "";
+    if (authNo == null) {
+      query =
+        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
+    } else if (authNo == 1) {
+      query =
+        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE  UserName NOT IN (SELECT UserName from login WHERE AuthNo IS NULL)";
+    } else {
+      
+      query =
+        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs  WHERE UserName IN (SELECT UserName from login WHERE AuthNo = ?)";
+    }
     if (filterCriteria) {
       if (filterCriteria.users && filterCriteria.users.length > 0) {
         const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
@@ -190,7 +229,7 @@ async function getLogsData(filterCriteria) {
       }
     }
     query += " ORDER BY TimeStamp DESC";
-    const result = await db.executeQuery(query);
+    const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
@@ -232,24 +271,27 @@ async function getNumberofCertificates(authNo) {
     console.log("Error while fetching user: ", e);
   }
 }
-async function updatePassword(newPass, authNo){
-  try{
+async function updatePassword(newPass, authNo) {
+  try {
     if (authNo === null) {
       const hashedPassword = await bcrypt.hash(newPass, saltRounds);
       const updateQuery = "UPDATE login SET Password = ? WHERE Role = 'admin'";
       await db.executeQuery(updateQuery, [hashedPassword]);
-      return { success: true, message: "Password updated for admin account successfully." };
+      return {
+        success: true,
+        message: "Password updated for admin account successfully.",
+      };
     } else {
-    const query = 'SELECT AuthCode FROM authorities WHERE AuthNo = ?';
-    const[result] = await db.executeQuery(query, [authNo]);
-    if (result.length === 0) {
-      return { success: false, message: "Invalid authentication code." };
+      const query = "SELECT AuthCode FROM authorities WHERE AuthNo = ?";
+      const [result] = await db.executeQuery(query, [authNo]);
+      if (result.length === 0) {
+        return { success: false, message: "Invalid authentication code." };
+      }
+      const hashedPassword = await bcrypt.hash(newPass, saltRounds);
+      const updateQuery = "UPDATE login SET Password = ? WHERE AuthNo = ?";
+      await db.executeQuery(updateQuery, [hashedPassword, authNo]);
+      return { success: true, message: "Password updated successfully." };
     }
-    const hashedPassword = await bcrypt.hash(newPass, saltRounds);
-    const updateQuery = "UPDATE login SET Password = ? WHERE AuthNo = ?";
-    await db.executeQuery(updateQuery, [hashedPassword, authNo]);
-    return { success: true, message: "Password updated successfully." };
-  }
   } catch (err) {
     return { success: false, message: err };
   }
@@ -408,7 +450,14 @@ async function getCompactCardData() {
     FROM cert_usage `;
     const row3 = await db.executeQuery(query3);
     var result = [];
-    result.push(row1[0].issuedCount,row1[1].issuedCount, row2[0].revokedCount,row2[1].revokedCount, row3[0].usageCount,row3[1].usageCount);
+    result.push(
+      row1[0].issuedCount,
+      row1[1].issuedCount,
+      row2[0].revokedCount,
+      row2[1].revokedCount,
+      row3[0].usageCount,
+      row3[1].usageCount
+    );
     return result;
   } catch (e) {
     console.log("Error while fetching count: ", e);
@@ -417,20 +466,19 @@ async function getCompactCardData() {
 
 async function getAllAuthsData() {
   const queryAuthorities = `SELECT a.*, l.username, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
-    const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
-    const lastAuthNo = `SELECT MAX(AuthNo) AS last_authno FROM authorities;`;
-  try{
+  const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
+  const lastAuthNo = `SELECT MAX(AuthNo) AS last_authno FROM authorities;`;
+  try {
     const authoritiesResults = await db.executeQuery(queryAuthorities);
     const distinctRolesResults = await db.executeQuery(queryDistinctRoles);
     const lastAuth = await db.executeQuery(lastAuthNo);
     return {
       authorities: authoritiesResults,
       distinctRoles: distinctRolesResults,
-      AuthNo: lastAuth
+      AuthNo: lastAuth,
     };
-  }
-  catch (e) {
-    console.log("error fetching user data",e)
+  } catch (e) {
+    console.log("error fetching user data", e);
   }
 }
 
@@ -439,7 +487,11 @@ async function updateAuthsData(authCode, authName, authNo) {
   // const loginQuery = `UPDATE login SET password = ? WHERE authno = ?`;
 
   try {
-    const result = await db.executeQuery(authQuery, [authCode, authName, authNo]);
+    const result = await db.executeQuery(authQuery, [
+      authCode,
+      authName,
+      authNo,
+    ]);
     return result;
   } catch (e) {
     console.error("Error updating data:", e);
@@ -447,82 +499,94 @@ async function updateAuthsData(authCode, authName, authNo) {
   }
 }
 
-
 async function getRevocationReasons() {
-    const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
-  try{
+  const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
+  try {
     const distinctReasonsResults = await db.executeQuery(queryDistinctReasons);
     return distinctReasonsResults;
-  }
-  catch (e) {
-    console.log("error fetching data",e)
+  } catch (e) {
+    console.log("error fetching data", e);
   }
 }
 
-async function  getCertSerialNumber(serialNumber, issuerName){
+async function getCertSerialNumber(serialNumber, issuerName) {
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName LIKE ?`;
-  try{
-    const result = await db.executeQuery(query,[serialNumber, issuerName]);
-    if(result.length > 0){
+  try {
+    const result = await db.executeQuery(query, [serialNumber, issuerName]);
+    if (result.length > 0) {
       return true;
     }
     return false;
-  }
-  catch(e){
-    console.log("Error while comparing certificate")
+  } catch (e) {
+    console.log("Error while comparing certificate");
   }
 }
 
-async function signup(params){
-  console.log("params: ",params);
-  const {username, password, role, authCode, authNo, authName, serialNumber} = params;
-  const query1 = 'INSERT into authorities (AuthNo,AuthCode,AuthName) VALUES (?, ?, ?)';
-  const query2 = 'INSERT into login (UserName, Password, Role, AuthNo) VALUES (?,?,?,?)';
-  const query3 = 'INSERT into auth_cert VALUES (?,?)';
+async function signup(params) {
+  console.log("params: ", params);
+  const { username, password, role, authCode, authNo, authName, serialNumber } =
+    params;
+  const query1 =
+    "INSERT into authorities (AuthNo,AuthCode,AuthName) VALUES (?, ?, ?)";
+  const query2 =
+    "INSERT into login (UserName, Password, Role, AuthNo) VALUES (?,?,?,?)";
+  const query3 = "INSERT into auth_cert VALUES (?,?)";
   try {
     // Start a transaction
     await new Promise((resolve, reject) => {
-        db.pool.getConnection((err, connection) => {
-            if (err) reject(err);
-            else {
-                connection.beginTransaction(async (err) => {
-                    if (err) {
-                        connection.release();
-                        reject(err);
-                    } else {
-                        try {
-                            // Execute queries
-                            await db.executeQuery(query1, [authNo, authCode, authName ], connection);
-                            await db.executeQuery(query2, [username, password, role, authNo], connection);
-                            await db.executeQuery(query3, [authNo, serialNumber], connection);
+      db.pool.getConnection((err, connection) => {
+        if (err) reject(err);
+        else {
+          connection.beginTransaction(async (err) => {
+            if (err) {
+              connection.release();
+              reject(err);
+            } else {
+              try {
+                // Execute queries
+                await db.executeQuery(
+                  query1,
+                  [authNo, authCode, authName],
+                  connection
+                );
+                await db.executeQuery(
+                  query2,
+                  [username, password, role, authNo],
+                  connection
+                );
+                await db.executeQuery(
+                  query3,
+                  [authNo, serialNumber],
+                  connection
+                );
 
-                            // Commit transaction
-                            connection.commit((err) => {
-                                connection.release(); 
-                                if (err) reject(err);
-                                else{
-                                  resolve();
-                                  console.log("Saved to database")
-                                  return true;
-                                }   
-                            });
-                        } catch (error) {
-                            connection.rollback(() => {
-                                connection.release(); 
-                                reject(error);
-                                return false
-                            });
-                        }
-                    }
+                // Commit transaction
+                connection.commit((err) => {
+                  connection.release();
+                  if (err) reject(err);
+                  else {
+                    resolve();
+                    console.log("Saved to database");
+                    return true;
+                  }
                 });
+              } catch (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  reject(error);
+                  return false;
+                });
+              }
             }
-        });
+          });
+        }
+      });
     });
-} catch (error) {
-    console.error('Transaction failed:', error);
+  } catch (error) {
+    console.error("Transaction failed:", error);
     return false;
     // You might want to handle the error or notify the user here
-}
+  }
 }
 
 async function getCertInfo(serialNo, issuerCN) {
@@ -559,5 +623,5 @@ module.exports = {
   getRevocationReasons,
   getCertSerialNumber,
   signup,
-  getCertInfo
+  getCertInfo,
 };
