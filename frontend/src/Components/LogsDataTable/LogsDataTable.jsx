@@ -230,18 +230,18 @@ const LogsDataTable = () => {
         },
       },
       plugins: [
-        {
-          id: "titlePlugin",
-          component: () =>
-            h(
-              "h1",
-              {
-                className: "title-btn",
-              },
-              "Activity Logs"
-            ),
-          position: PluginPosition.Header,
-        },
+        // {
+        //   id: "titlePlugin",
+        //   component: () =>
+        //     h(
+        //       "h1",
+        //       {
+        //         className: "title-btn",
+        //       },
+        //       "Activity Logs"
+        //     ),
+        //   position: PluginPosition.Header,
+        // },
         {
           id: "filterPlugin",
           component: () =>
@@ -339,6 +339,7 @@ const LogsDataTable = () => {
           </div>
         </div>
       </div>
+      <h1>Activity Logs</h1>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );

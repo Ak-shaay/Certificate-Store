@@ -435,18 +435,18 @@ const DataTable = () => {
             ),
           position: PluginPosition.Footer,
         },
-        {
-          id: "titlePlugin",
-          component: () =>
-            h(
-              "h1",
-              {
-                className: "title-btn",
-              },
-              "Issued Certificate"
-            ),
-          position: PluginPosition.Header,
-        },
+        // {
+        //   id: "titlePlugin",
+        //   component: () =>
+        //     h(
+        //       "h1",
+        //       {
+        //         className: "title-btn",
+        //       },
+        //       "Issued Certificate"
+        //     ),
+        //   position: PluginPosition.Header,
+        // },
         {
           id: "filterPlugin",
           component: () =>
@@ -732,6 +732,7 @@ const DataTable = () => {
           Download
         </button>
       </div>
+      <h1>Issued Certificate</h1>
       <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
 
       <div className="" id="information">

@@ -265,3 +265,13 @@ td.gridjs-td {
 button.gridjs-sort {
   display: none !important;
 }
+.gridjs-search-input{
+  width: 75% !important;
+}
+
+/* chrome Specific fix for filter button */
+/* needs proper solution */
+  @supports (-webkit-appearance: none) {
+    .filter-btn {
+      top:1.3rem;    }
+  }

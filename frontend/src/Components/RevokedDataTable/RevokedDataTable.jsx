@@ -182,18 +182,19 @@ const RevokedDataTable = () => {
           component: () =>
             h("button", { className: "download-btn", onClick: ()=>handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
-        },{
-          id: "titlePlugin",
-          component: () =>
-            h(
-              "h1",
-              {
-                className: "title-btn",
-              },
-              "Revoked Certificate"
-            ),
-          position: PluginPosition.Header,
         },
+        // {
+        //   id: "titlePlugin",
+        //   component: () =>
+        //     h(
+        //       "h1",
+        //       {
+        //         className: "title-btn",
+        //       },
+        //       "Revoked Certificate"
+        //     ),
+        //   position: PluginPosition.Header,
+        // },
         {
           id: "filterPlugin",
           component: () =>
@@ -273,6 +274,7 @@ const RevokedDataTable = () => {
         </div>
       </div>
 
+<h1>Revoked Certificate</h1>
       <div className="table-container" ref={wrapperRef} />
     </div>
   );
