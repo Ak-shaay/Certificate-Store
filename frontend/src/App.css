@@ -255,9 +255,9 @@ html {
 }
 
 /* gridjs properties override */
-th.gridjs-th-sort {
+/* th.gridjs-th-sort {
   min-width: 180px !important;
-}
+} */
 td.gridjs-td {
   text-overflow: ellipsis !important;
   overflow: hidden !important;

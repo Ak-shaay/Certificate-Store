@@ -311,14 +311,14 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        { id: "serialNo", name: "Serial No" },
-        { id: "name", name: "Name"},
-        { id: "issuer", name: "Issuer" },
-        { id: "date", name: "Issued Date" },
-        { id: "state", name: "State" },
-        { id: "region", name: "Region"},
-        { id: "validity", name: "Expiry Date"},
-        { id: "subjectType", name: "Subject Type"},
+        { id: "serialNo", name: "Serial No", width: "200px"  },
+        { id: "name", name: "Name", width: "200px" },
+        { id: "issuer", name: "Issuer", width: "200px"  },
+        { id: "date", name: "Issued Date", width: "200px"  },
+        { id: "state", name: "State", width: "200px"  },
+        { id: "region", name: "Region", width: "200px" },
+        { id: "validity", name: "Expiry Date", width: "200px" },
+        { id: "subjectType", name: "Subject Type", width: "200px" },
         {
           name: "Actions",
           formatter: (cell, row) => {
@@ -379,6 +379,7 @@ const DataTable = () => {
               ),
             ]);
           },
+          width: "150px",
         },
       ],
       data: [],
@@ -413,18 +414,6 @@ const DataTable = () => {
             ),
           position: PluginPosition.Footer,
         },
-        // {
-        //   id: "titlePlugin",
-        //   component: () =>
-        //     h(
-        //       "h1",
-        //       {
-        //         className: "title-btn",
-        //       },
-        //       "Issued Certificate"
-        //     ),
-        //   position: PluginPosition.Header,
-        // },
         {
           id: "filterPlugin",
           component: () =>
