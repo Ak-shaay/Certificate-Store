@@ -27,27 +27,6 @@ const LogsDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
-  function formatDate(isoDate) {
-    const date = new Date(isoDate);
-
-    const dateOptions = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    };
-    const timeOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-
-    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
-    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
-
-    const formattedDateTime = `${formattedDate} ${formattedTime}`;
-
-    return formattedDateTime;
-  }
   useEffect(() => {
     const fetchIssuer = async () => {
       try {
@@ -130,7 +109,7 @@ const LogsDataTable = () => {
       log.action,
       log.remark,
       log.ip_address,
-      formatDate(log.timestamp),
+      log.timestamp,
       log.latitude,
       log.longitude,
     ]);
@@ -188,7 +167,7 @@ const LogsDataTable = () => {
           log.action,
           log.Remark,
           log.ip_address,
-          formatDate(log.timestamp),
+          log.timestamp,
           log.latitude,
           log.longitude,
         ]),

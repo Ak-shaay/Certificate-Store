@@ -104,28 +104,6 @@ const DataTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  function formatDate(isoDate) {
-    const date = new Date(isoDate);
-
-    const dateOptions = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    };
-    const timeOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-
-    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
-    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
-
-    const formattedDateTime = `${formattedDate} ${formattedTime}`;
-
-    return formattedDateTime;
-  }
-
   const handleFilters = (e) => {
     const filtersElement = document.getElementById("filter");
     const blurFilter = document.getElementById("applyFilter");
@@ -254,10 +232,10 @@ const DataTable = () => {
       ca.cert_serial_no,
       ca.subject_name,
       ca.issuer_name,
-      formatDate(ca.issue_date),
+      ca.issue_date,
       ca.subject_state,
       getIndianRegion(ca.subject_state),
-      formatDate(ca.expiry_date),
+      ca.expiry_date,
       ca.subject_Type,
     ]);
 
@@ -313,10 +291,10 @@ const DataTable = () => {
               cert.SerialNumber,
               cert.Subject_CommonName,
               cert.IssuerCommonName,
-              formatDate(cert.IssueDate),
+              cert.IssueDate,
               cert.Subject_ST,
               getIndianRegion(cert.Subject_ST),
-              formatDate(cert.ExpiryDate),
+              cert.ExpiryDate,
               cert.subject_Type,
               cert.RawCertificate,
               // "Status"

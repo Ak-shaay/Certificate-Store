@@ -41,27 +41,6 @@ const RevokedDataTable = () => {
     filtersElement.style.display = "none";
   };
 
-  function formatDate(isoDate) {
-    const date = new Date(isoDate);
-
-    const dateOptions = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    };
-    const timeOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-
-    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
-    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
-
-    const formattedDateTime = `${formattedDate} ${formattedTime}`;
-
-    return formattedDateTime;
-  }
   async function handleDownload(revocationData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -102,7 +81,7 @@ const RevokedDataTable = () => {
     const data = transformedData.map((rev) => [
       rev.serial_number,
       rev.issuer,
-      formatDate(rev.revoke_date_time),
+      rev.revoke_date_time,
       rev.reason,
     ]);
 
@@ -141,7 +120,7 @@ const RevokedDataTable = () => {
         const data = await response.data;
         gridRef.current.updateConfig({
           data:data.map((params)=>[
-            params.serial_number, params.IssuerCommonName, formatDate(params.revoke_date_time), params.reason
+            params.serial_number, params.IssuerCommonName,params.revoke_date_time, params.reason
           ])
         });
         gridRef.current.forceRender();

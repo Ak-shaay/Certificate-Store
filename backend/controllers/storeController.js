@@ -29,7 +29,7 @@ const generateAccessToken = (userName, role, authNo) => {
 
     // Generate the token with an expiration time
     return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        // expiresIn: "15m",
+        expiresIn: "1h",
     }); // Adjust the expiration time as needed
 };
 
@@ -53,6 +53,29 @@ const generateRefreshToken = (userName, role, authNo) => {
 
     return refreshToken;
 };
+
+// helper function for changing time format
+function formatDate(isoDate) {
+  const date = new Date(isoDate);
+
+  const dateOptions = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  };
+  const timeOptions = {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  };
+
+  const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
+  const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
+
+  const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+  return formattedDateTime;
+}
 
 async function signupController(req, res) {
     const { username, password, role, authCode } = req.body;
@@ -431,7 +454,10 @@ async function fetchData(req, res) {
                         filterCriteria,
                         user.authNo
                     );
-                    
+                    for(i in certDetails) {
+                      certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
+                      certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
+                    }
                     res.json(certDetails);
                 }
             }
@@ -468,7 +494,9 @@ async function fetchRevokedData(req, res) {
                             filterCriteria,
                             user.authNo
                         );
-
+                        for(i in revokedCertDetails) {
+                          revokedCertDetails[i].revoke_date_time = formatDate(revokedCertDetails[i].revoke_date_time);
+                        }                        
                     res.json(revokedCertDetails);
                 }
             }
@@ -503,6 +531,9 @@ async function fetchUsageData(req, res) {
                         filterCriteria,
                         user.authNo
                     );
+                    for(i in usageDetails) {
+                      usageDetails[i].time_stamp = formatDate(usageDetails[i].time_stamp);
+                    }                    
                     res.json(usageDetails);
                 }
             }
@@ -537,8 +568,12 @@ async function fetchLogsData(req, res) {
                   filterCriteria.endDate = endDate;
               }              
               const logsDetails = await userModel.getLogsData(filterCriteria, userToken.authNo);
+              for(i in logsDetails) {
+                logsDetails[i].timestamp = formatDate(logsDetails[i].timestamp);
+              }
               res.json(logsDetails);
             }
+            
         }
     );
 } catch (error) {

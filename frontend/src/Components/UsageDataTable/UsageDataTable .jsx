@@ -24,27 +24,6 @@ const UsageDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
-  function formatDate(isoDate) {
-    const date = new Date(isoDate);
-
-    const dateOptions = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    };
-    const timeOptions = {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-
-    const formattedDate = date.toLocaleDateString("en-GB", dateOptions);
-    const formattedTime = date.toLocaleTimeString("en-GB", timeOptions);
-
-    const formattedDateTime = `${formattedDate} ${formattedTime}`;
-
-    return formattedDateTime;
-  }
   async function handleDownload(usageData) {
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
@@ -88,7 +67,7 @@ const UsageDataTable = () => {
       use.serial_number,
       use.issuer_name,
       use.commonName,
-          formatDate(use.time_stamp),
+       use.time_stamp,
           use.remark,
           // use.count,
     ]);
@@ -131,7 +110,7 @@ const UsageDataTable = () => {
             use.serial_number,
             use.subject_common_name,
             use.IssuerCommonName,
-            formatDate(use.time_stamp),
+            use.time_stamp,
             use.remark,
             // use.count
           ])
