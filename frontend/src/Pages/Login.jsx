@@ -77,7 +77,7 @@ const Login = () => {
         setPassword("");
         setErrMsg("");
         navigate(from, { replace: true });
-        console.log("from", from);
+        // console.log("from", from);
       } else {
         setErrMsg("Invalid username or password");
         errRef.current.focus();

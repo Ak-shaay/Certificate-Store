@@ -29,7 +29,7 @@ const generateAccessToken = (userName, role, authNo) => {
 
     // Generate the token with an expiration time
     return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "6h",
     }); // Adjust the expiration time as needed
 };
 

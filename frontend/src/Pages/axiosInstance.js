@@ -80,6 +80,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
       }
     } else if (error.request) {
+      sessionTimeout()
       // Network error (no response was received)
       console.error("Network error:", error.request);
     } else {
@@ -90,7 +91,15 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+let alertTimeout;
 
+const sessionTimeout = () => {
+  clearTimeout(alertTimeout); // Clear any existing timeout
+  alertTimeout = setTimeout(() => {
+    alert("Session Timed Out!!! Login to continue");
+    window.location.href = "/login";
+  }, 100);
+}
 const getNewToken = async () => {
   try {
     const storedToken = getRefreshToken();
