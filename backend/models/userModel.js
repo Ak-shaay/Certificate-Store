@@ -510,9 +510,9 @@ async function getRevocationReasons() {
 }
 
 async function getCertSerialNumber(serialNumber, issuerName) {
-  const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName LIKE ?`;
+  const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName = ?`;
   try {
-    const result = await db.executeQuery(query, [serialNumber, issuerName]);
+    const result = await db.executeQuery(query, [serialNumber, issuerName]);    
     if (result.length > 0) {
       return true;
     }
@@ -523,7 +523,7 @@ async function getCertSerialNumber(serialNumber, issuerName) {
 }
 
 async function signup(params) {
-  console.log("params: ", params);
+  // console.log("params: ", params);
   const { username, password, role, authCode, authNo, authName, serialNumber } =
     params;
   const query1 =
@@ -533,7 +533,7 @@ async function signup(params) {
   const query3 = "INSERT into auth_cert VALUES (?,?)";
   try {
     // Start a transaction
-    await new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       db.pool.getConnection((err, connection) => {
         if (err) reject(err);
         else {
@@ -565,16 +565,16 @@ async function signup(params) {
                   connection.release();
                   if (err) reject(err);
                   else {
-                    resolve();
-                    console.log("Saved to database");
-                    return true;
+                    // console.log("Saved to database");
+                    resolve(true);
+                    // return true;
                   }
                 });
               } catch (error) {
                 connection.rollback(() => {
                   connection.release();
                   reject(error);
-                  return false;
+                  // return false;
                 });
               }
             }
@@ -582,6 +582,7 @@ async function signup(params) {
         }
       });
     });
+    return result
   } catch (error) {
     console.error("Transaction failed:", error);
     return false;

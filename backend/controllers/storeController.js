@@ -79,7 +79,7 @@ function formatDate(isoDate) {
 
 async function signupController(req, res) {
     const { username, password, role, authCode } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const fileBuffer = req.files.cert.data;
     // Check if user exists
     const existingUser = await userModel.findUserByUsername(username);
@@ -127,6 +127,8 @@ async function signupController(req, res) {
                 serialNumber,
                 issuerCommonName
             );
+            console.log("response: " + response);
+            
             if (response) {
               const authNo = authCode.replace(/^AUTH0*/, "");
               const hasedPassword = await bcrypt.hash(password, 10);

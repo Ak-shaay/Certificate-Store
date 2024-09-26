@@ -227,7 +227,8 @@ const UserManagement = () => {
         }
       }
     } catch (error) {
-      console.log("Error fetching the data: " + error);
+      console.error(error);
+      // console.log("Error fetching the data: " + error);
     }
   }
 
@@ -293,7 +294,6 @@ const UserManagement = () => {
         }
       }
     } catch (error) {
-      console.log("Error updating the data: " + error);
       respSpan.style.color = "red";
       respSpan.innerHTML = "Error updating the data";
       setIsEditing(false);
@@ -307,7 +307,6 @@ const UserManagement = () => {
       if (accessToken) {
         api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.get("/generateAuthCode");
-        console.log("Response", response.data);
 
         if (response.status === 200) {
           setAuthCode(response.data.authCode);
@@ -316,7 +315,6 @@ const UserManagement = () => {
         }
       }
     } catch (error) {
-      console.log("Error generating auth code: " + error);
       respSpan.style.color = "red";
       respSpan.innerHTML = "Error generating auth code";
     }
@@ -378,7 +376,6 @@ const UserManagement = () => {
         body: JSON.stringify({ regions: [region] }),
       });
       const data = await response.json();
-      console.log("Fetched states:", data); // Debugging line
       setStatesInRegion(data || []);
     } catch (error) {
       console.error("Error fetching states:", error);

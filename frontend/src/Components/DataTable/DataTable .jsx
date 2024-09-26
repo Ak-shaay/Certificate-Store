@@ -494,7 +494,6 @@ const DataTable = () => {
 
 
   useEffect(() => {
-    console.log("extensions",extensionsInfo);
     if(extensionsInfo=='Signature'){
     setDigitalSignature(true);}
     // setDigitalSignature(extensionsInfo.digitalSignature);
@@ -572,7 +571,7 @@ const DataTable = () => {
   
     axios.request(config)
       .then((response) => {
-        console.log("Response:", response);
+        // console.log("Response:", response);
         
         document.querySelector(".information-block").style.display = "flex";
         document.querySelector(".error-block").style.display = "none";
