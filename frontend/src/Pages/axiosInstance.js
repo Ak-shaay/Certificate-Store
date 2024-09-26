@@ -70,6 +70,7 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const { newToken, refreshToken } = await getNewToken();
+        console.log("Token refresh", refreshToken);
         setAccessToken(newToken);
         setRefreshToken(refreshToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -79,8 +80,10 @@ axiosInstance.interceptors.response.use(
         window.location.href = "/login";
         return Promise.reject(error);
       }
+    } else if (error.response.status === 403) {
+      removeTokens();
+      sessionTimeout();
     } else if (error.request) {
-      sessionTimeout()
       // Network error (no response was received)
       console.error("Network error:", error.request);
     } else {
@@ -99,7 +102,7 @@ const sessionTimeout = () => {
     alert("Session Timed Out!!! Login to continue");
     window.location.href = "/login";
   }, 100);
-}
+};
 const getNewToken = async () => {
   try {
     const storedToken = getRefreshToken();
