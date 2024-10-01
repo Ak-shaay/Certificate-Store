@@ -229,14 +229,14 @@ const UserManagement = () => {
         });
         if (response.status === 200) {
           respSpan.style.color = "green";
-          respSpan.innerHTML = response.data.message;
+         setUpdateMsg(response.data.message);
           setIsEditing(false);
           getAuthorities();
         }
       }
     } catch (error) {
       respSpan.style.color = "red";
-      respSpan.innerHTML = "Error updating the data";
+      setUpdateMsg("Error updating the data");
       setIsEditing(false);
     }
   };

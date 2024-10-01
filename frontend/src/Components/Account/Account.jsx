@@ -69,6 +69,15 @@ const Account = () => {
           }, 3000);
           return;
         }
+        // Validation: Ensure newPassword and old passwords are different
+        if (oldPassword == newPassword) {
+          document.getElementById("updatePasswordMsg").textContent =
+            "Old password cannot be used as new password.";
+          setTimeout(() => {
+            document.getElementById("updatePasswordMsg").textContent = "";
+          }, 3000);
+          return;
+        }
 
         // Validation: Ensure newPassword and confirmPassword match
         if (newPassword !== confirmPassword) {
