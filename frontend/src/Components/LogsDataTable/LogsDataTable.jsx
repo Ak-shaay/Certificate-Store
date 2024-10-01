@@ -54,6 +54,10 @@ const LogsDataTable = () => {
     fetchIssuer();
   }, []);
   async function handleDownload(logData) {
+    if(logData.length<=0){
+      alert("No data available for download!!")
+      return null
+    }
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -183,14 +187,14 @@ const LogsDataTable = () => {
  useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-      "Id",
-      "User Id",
-      "Action",
-      "Remark",
-      "IP address",
-      "Timestamp",
-      "Latitude",
-      "Longitude",
+        { id: "Id", name: "Id", width: "200px" },
+        { id: "UserId", name: "User Id", width: "200px" },
+        { id: "Action", name: "Action", width: "200px" },
+        { id: "Remark", name: "Remark", width: "200px" },
+        { id: "IPAddress", name: "IP address", width: "200px" },
+        { id: "Timestamp", name: "Timestamp", width: "200px" },
+        { id: "Latitude", name: "Latitude", width: "200px" },
+        { id: "Longitude", name: "Longitude", width: "200px" }
     ],
       data: [],
       pagination: true,

@@ -25,6 +25,10 @@ const UsageDataTable = () => {
     filtersElement.style.display = "none";
   };
   async function handleDownload(usageData) {
+    if(usageData.length<=0){
+      alert("No data available for download!!")
+      return null
+    }
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape

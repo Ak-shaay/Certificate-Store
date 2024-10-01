@@ -749,9 +749,9 @@ async function compactCard(req, res) {
 }
 async function getAllAuths(req, res) {
     try {
-        const { authorities, distinctRoles, AuthNo } =
+        const { authorities, distinctRoles } =
             await userModel.getAllAuthsData();
-        res.status(200).json({ authorities, distinctRoles, AuthNo });
+        res.status(200).json({ authorities, distinctRoles});
     } catch (error) {
         console.error("Error fetching authorities & role data:", error);
         res.sendStatus(500);
@@ -1118,100 +1118,18 @@ async function updateRegion(req, res) {
 const subTypePath = "../public/subjectType.json";
 async function getSubType(req, res) {
   try {
-    const filePath = "backend/" + subTypePath;
+    const distinctSubTypes= await userModel.getSubjectTypes();
 
-    const data = fs.readFileSync(filePath, "utf8");
-
-    const subjectType = JSON.parse(data);
-    res.json(subjectType);
-  } catch (error) {
-    console.error("Error processing the request:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
-  }
+    const result = distinctSubTypes.map((item) => ({
+        label: item.Subject_Type,
+        value: item.Subject_Type,
+    }));
+    res.json(result);
+} catch (error) {
+    console.error("Error fetching data:", error);
+    res.sendStatus(500);
 }
-
-// add new subjectType to subjectType.json
-async function addSubjectType(req, res) {
-    const filePath = "backend/" + subTypePath;
-    if (req.body.subject === "") {
-        return res.status(400).json({ error: "Empty value" });
-    } else {
-        const value = req.body.subject;
-        const subject = value[0].toUpperCase() + value.slice(1);
-        const newValue = { label: subject, value: subject };
-
-        try {
-            const data = fs.readFileSync(filePath, "utf8");
-            const jsonData = JSON.parse(data);
-
-            // Check if the new value already exists
-            const exists = jsonData.some(
-                (item) =>
-                    item.label === newValue.label ||
-                    item.value === newValue.value
-            );
-
-            if (exists) {
-                return res.status(400).json({ error: "Value already exists" });
-            }
-
-            jsonData.push(newValue);
-
-            const updatedData = JSON.stringify(jsonData);
-
-            fs.writeFileSync(filePath, updatedData, "utf8");
-
-            res.status(200).json({
-                message: "New value " + subject + " added successfully",
-            });
-        } catch (err) {
-            console.error("Error processing the file:", err);
-
-            // Error handling
-            if (err.code === "ENOENT") {
-                res.status(404).json({ error: "File not found" });
-            } else if (err.name === "SyntaxError") {
-                res.status(400).json({ error: "Invalid JSON format" });
-            } else {
-                res.status(500).json({
-                    error: "An internal server error occurred",
-                });
-            }
-        }
-    }
 }
-
-async function removeSubType(req, res) {
-    const { subject } = req.body;
-    const filePath = "backend/" + subTypePath;
-
-    if (req.body.subject === "") {
-        return res.status(400).json({ error: "Empty value" });
-    }
-    try {
-        const data = fs.readFileSync(filePath, "utf8");
-        const subjects = JSON.parse(data);
-
-        const index = subjects.findIndex((item) => item.label === subject);
-
-        if (index === -1) {
-            return res.status(404).json({ error: "SubjectType not found" });
-        }
-        subjects.splice(index, 1);
-
-        const updatedData = JSON.stringify(subjects);
-
-        fs.writeFileSync(filePath, updatedData, "utf8");
-
-        res.status(200).json({ message: "Subject Type deleted successfully" });
-    } catch (err) {
-        console.error("Error processing the file: ", err);
-        res.status(500).json({ error: "Error processing the file" });
-    }
-}
-
 async function getAllRevocationReasons(req, res) {
     try {
         const distinctReasons = await userModel.getRevocationReasons();
@@ -1230,7 +1148,7 @@ async function getAllRevocationReasons(req, res) {
 async function generateAuthCode(req, res) {
     try {
         function generateRandomString(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
             let result = '';
             const charactersLength = characters.length;
             for (let i = 0; i < length; i++) {
@@ -1240,19 +1158,19 @@ async function generateAuthCode(req, res) {
             return result;
         }
 
-        // Helper function to hash a string using SHA-256
-        function hashStringSHA256(input) {
-            const hash = crypto.createHash('sha256');
-            hash.update(input);
-            return hash.digest('hex');
-        }
+        // // Helper function to hash a string using SHA-256
+        // function hashStringSHA256(input) {
+        //     const hash = crypto.createHash('sha256');
+        //     hash.update(input);
+        //     return hash.digest('hex');
+        // }
 
         // Generate a random string and hash it
         const randomString = generateRandomString(20); 
-        const authCode = hashStringSHA256(randomString);
+        // const authCode = hashStringSHA256(randomString);
 
         // res.status(200).json({ authCode });
-        res.status(200).json({'authCode': authCode,message : 'Successfully generated'});
+        res.status(200).json({'authCode': randomString,message : 'Successfully generated'});
     } catch (err) {
         console.error("Error generating auth code: ", err);
         res.sendStatus(500);
@@ -1318,8 +1236,6 @@ module.exports = {
     moveStatesOfRegion,
     removeRegion,
     getSubType,
-    addSubjectType,
-    removeSubType,
     getAllRevocationReasons,
     generateAuthCode,
     certInfo

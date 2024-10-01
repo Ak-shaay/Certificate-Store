@@ -182,6 +182,10 @@ const DataTable = () => {
   }, []);
 
   async function handleDownload(issuedData) {
+    if(issuedData.length<=0){
+      alert("No data available for download!!")
+      return null
+    }
     const unit = "pt";
     const size = "A4"; // Use A1, A2, A3 or A4
     const orientation = "landscape"; // portrait or landscape
@@ -311,7 +315,15 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        { id: "serialNo", name: "Serial No", width: "200px"  },
+        // { id: "serialNo", name: "Serial No"  },
+        // { id: "name", name: "Name" },
+        // { id: "issuer", name: "Issuer"  },
+        // { id: "date", name: "Issued Date" },
+        // { id: "state", name: "State" },
+        // { id: "region", name: "Region" },
+        // { id: "validity", name: "Expiry Date" },
+        // { id: "subjectType", name: "Subject Type"},
+        { id: "serialNo", name: "Serial No", width: "300px"  },
         { id: "name", name: "Name", width: "200px" },
         { id: "issuer", name: "Issuer", width: "200px"  },
         { id: "date", name: "Issued Date", width: "200px"  },
@@ -378,8 +390,7 @@ const DataTable = () => {
                 ]
               ),
             ]);
-          },
-          width: "150px",
+          }
         },
       ],
       data: [],

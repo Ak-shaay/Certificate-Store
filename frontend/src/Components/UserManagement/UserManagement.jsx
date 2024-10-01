@@ -6,7 +6,6 @@ import refreshIcon from "../../Images/Icons/refresh.png";
 
 const UserManagement = () => {
   const [authData, setAuthData] = useState([]);
-  const [lastAuth, setLastAuth] = useState(null);
   const [openSection, setOpenSection] = useState(null);
   const [authCode, setAuthCode] = useState("");
   const [authName, setAuthName] = useState("");
@@ -25,75 +24,16 @@ const UserManagement = () => {
     file: null,
   });
 
-  const [subType, setSubType] = useState([]);
+  // const [subType, setSubType] = useState([]);
   const [dragOver, setDragOver] = useState(false);
 
-  const [entity, setEntity] = useState("");
+  // const [entity, setEntity] = useState("");
   const [msg, setMsg] = useState("");
-  const [refreshData, setRefreshData] = useState(false);
+  const [updateMsg, setUpdateMsg] = useState("");
+  // const [refreshData, setRefreshData] = useState(false);
 
-  const [authCodeEdit, setAuthCodeEdit] = useState("");
-  const [authNameEdit, setAuthNameEdit] = useState("");
-
-  const handleNewEntity = async (entity) => {
-    if (!entity.trim()) {
-      setMsg("Please add a valid entity");
-      return;
-    }
-
-    const raw = JSON.stringify({ subject: entity });
-
-    const requestOptions = {
-      method: "POST",
-      body: raw,
-      headers: { "Content-Type": "application/json" },
-      redirect: "follow",
-    };
-
-    try {
-      const response = await fetch(
-        `http://${domain}:8080/addSubjectType`,
-        requestOptions
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setMsg(errorData.error || "An unknown error occurred");
-        return;
-      }
-      setMsg("Added successfully");
-      setRefreshData((prev) => !prev);
-    } catch (error) {
-      setMsg("Network error: " + error.message);
-    }
-  };
-  const handleEntityDeletion = async (entity) => {
-    const raw = JSON.stringify({ subject: entity });
-
-    const requestOptions = {
-      method: "POST",
-      body: raw,
-      headers: { "Content-Type": "application/json" },
-      redirect: "follow",
-    };
-
-    try {
-      const response = await fetch(
-        `http://${domain}:8080/removeSubType`,
-        requestOptions
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setMsg(errorData.error || "An unknown error occurred");
-        return;
-      }
-      setMsg("Removed successfully");
-      setRefreshData((prev) => !prev);
-    } catch (error) {
-      setMsg("Network error: " + error.message);
-    }
-  };
+  // const [authCodeEdit, setAuthCodeEdit] = useState("");
+  // const [authNameEdit, setAuthNameEdit] = useState("");
 
   const validateForm = () => {
     const { name, password, role, authCode, file } = formData;
@@ -223,7 +163,6 @@ const UserManagement = () => {
         if (response.status === 200) {
           setAuthData(response.data.authorities);
           setRoles(response.data.distinctRoles);
-          setLastAuth(response.data.AuthNo[0].last_authno);
         }
       }
     } catch (error) {
@@ -241,13 +180,14 @@ const UserManagement = () => {
   }, []);
 
   const handlePopup = (auth) => {
+    setUpdateMsg("");
     const filtersElement = document.getElementById("filter");
     if (filtersElement) {
       filtersElement.style.display = "block";
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL("http://${domain}:8080/images/${auth.AuthNo}.png");
+    setImgURL(`http://${domain}:8080/images/${auth.AuthNo}.png`);
     setAuthNo(auth.AuthNo);
   };
 
@@ -257,14 +197,6 @@ const UserManagement = () => {
       filtersElement.style.display = "none";
     }
   };
-
-  useEffect(() => {
-    fetch(`http://${domain}:8080/getSubType`)
-      .then((response) => response.json())
-      .then((data) => setSubType(data))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, [refreshData]);
-
   useEffect(() => {
     if (msg) {
       const timer = setTimeout(() => {
@@ -273,6 +205,15 @@ const UserManagement = () => {
       return () => clearTimeout(timer);
     }
   }, [msg]);
+
+  useEffect(() => {
+    if (updateMsg) {
+      const timer = setTimeout(() => {
+        setUpdateMsg("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [updateMsg]);
 
   const handleSave = async (authName, authCode, authNo) => {
     const respSpan = document.getElementById("respMessage");
@@ -311,12 +252,12 @@ const UserManagement = () => {
         if (response.status === 200) {
           setAuthCode(response.data.authCode);
           respSpan.style.color = "green";
-          respSpan.innerHTML = response.data.message;
+          setUpdateMsg(response.data.message);
         }
       }
     } catch (error) {
       respSpan.style.color = "red";
-      respSpan.innerHTML = "Error generating auth code";
+      setUpdateMsg("Error generating auth code");
     }
   };
 
@@ -584,7 +525,7 @@ const UserManagement = () => {
         <span className="close" onClick={handlePopupClose}>
           X
         </span>
-        <span id="respMessage"></span>
+        <span id="respMessage">{updateMsg}</span>
         <input
           id="authority"
           className="popup-input"
@@ -726,7 +667,7 @@ const UserManagement = () => {
             </div>
             <div className="inputGroup">
               <label htmlFor="authCode">
-                Authorization Code (prev: AUTH0{lastAuth})
+                Authorization Code
               </label>
               <input
                 type="text"
@@ -781,54 +722,6 @@ const UserManagement = () => {
         className={`content ${openSection === "section3" ? "show" : "hide"}`}
       >
         <div className="grid">
-          <div id="formDiv">
-            <h1>Entity List</h1>
-            <div className="add-list">
-              <input
-                type="text"
-                className="sub-input"
-                value={entity}
-                onChange={(e) => setEntity(e.target.value)}
-              />
-              <button
-                type="button"
-                className="plus-button"
-                onClick={() => handleNewEntity(entity)}
-              >
-                +
-              </button>
-            </div>
-            <span className="errorMsg">{msg}</span>
-            <div className="sub-list">
-              {subType.length > 0 ? (
-                <ul>
-                  {subType.map((item, index) => (
-                    <li key={index}>
-                      {item.label}
-                      <button
-                        className="remove-button"
-                        onClick={() => {
-                          handleEntityDeletion(item.label);
-                        }}
-                      >
-                        &#128465;
-                      </button>
-                      <button
-                        className="edit-button"
-                        onClick={() => {
-                          /* Handle edit */
-                        }}
-                      >
-                        &#128393;
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No entities found.</p>
-              )}
-            </div>
-          </div>
           <div className="region">
             <div className="zone-selection zone-body">
               <h2>Select Region</h2>

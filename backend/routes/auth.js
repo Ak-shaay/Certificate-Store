@@ -24,6 +24,7 @@ router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
+router.get('/getSubType', authController.getSubType);
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 
@@ -36,11 +37,6 @@ router.post('/updateRegion', authController.updateRegion);
 router.post('/updateStatesOfRegion', authController.updateStatesOfRegion);
 router.post('/moveStatesOfRegion', authController.moveStatesOfRegion);
 router.post('/removeRegion', authController.removeRegion);
-
-router.get('/getSubType', authController.getSubType);
-router.post('/addSubjectType', authController.addSubjectType);
-router.post('/removeSubType', authController.removeSubType);
-
 
 router.post('/certInfo',authController.certInfo);
 

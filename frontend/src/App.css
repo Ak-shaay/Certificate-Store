@@ -245,7 +245,7 @@ html {
 /* chromium */
 ::-webkit-scrollbar {
   width: 4px;
-  height: 3px;
+  height: 6px;
   background-color: rgb(132, 168, 255) 70%;
 }
 
@@ -262,9 +262,9 @@ td.gridjs-td {
   text-overflow: ellipsis !important;
   overflow: hidden !important;
 }
-button.gridjs-sort {
+/* button.gridjs-sort {
   display: none !important;
-}
+} */
 .gridjs-search-input{
   width: 75% !important;
 }
@@ -275,3 +275,45 @@ button.gridjs-sort {
     .filter-btn {
       top:1.3rem;    }
   }
+
+
+
+
+  /* Issuer table min width */
+
+  .gridjs-th[data-column-id="serialNo"] {
+    min-width: 300px !important;
+  }
+  
+  .gridjs-th[data-column-id="name"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="issuer"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="date"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="state"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="region"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="validity"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="subjectType"] {
+    min-width: 200px !important;
+  }
+  
+  .gridjs-th[data-column-id="Actions"] {
+    min-width: 150px !important;
+  }
+  

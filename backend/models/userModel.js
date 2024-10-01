@@ -467,15 +467,12 @@ async function getCompactCardData() {
 async function getAllAuthsData() {
   const queryAuthorities = `SELECT a.*, l.username, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
   const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
-  const lastAuthNo = `SELECT MAX(AuthNo) AS last_authno FROM authorities;`;
   try {
     const authoritiesResults = await db.executeQuery(queryAuthorities);
     const distinctRolesResults = await db.executeQuery(queryDistinctRoles);
-    const lastAuth = await db.executeQuery(lastAuthNo);
     return {
       authorities: authoritiesResults,
       distinctRoles: distinctRolesResults,
-      AuthNo: lastAuth,
     };
   } catch (e) {
     console.log("error fetching user data", e);
@@ -496,6 +493,15 @@ async function updateAuthsData(authCode, authName, authNo) {
   } catch (e) {
     console.error("Error updating data:", e);
     throw new Error("Database error");
+  }
+}
+async function getSubjectTypes() {
+  const querySubtypes = `SELECT DISTINCT Subject_Type FROM cert`;
+  try {
+    const distinctSubtypes = await db.executeQuery(querySubtypes);
+    return distinctSubtypes;
+  } catch (e) {
+    console.log("error fetching data", e);
   }
 }
 
@@ -621,6 +627,7 @@ module.exports = {
   getCompactCardData,
   getAllAuthsData,
   updateAuthsData,
+  getSubjectTypes,
   getRevocationReasons,
   getCertSerialNumber,
   signup,
