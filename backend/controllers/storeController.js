@@ -768,7 +768,19 @@ async function updateAuths(req, res) {
           authName,
           authNo
         );
-        const remark = "Updated details of Authority " + authNameOld[0].AuthName;
+        var remark = "";
+        if(authNameOld[0].AuthName!==authName&&authNameOld[0].AuthCode!==authCode){
+          remark ="Updated details of authority " + authNameOld[0].AuthName;
+        }
+        else if(authNameOld[0].AuthName!==authName){
+        remark = "Updated authority Name of " + authNameOld[0].AuthName + " to "+ authName;
+        }
+        else if(authNameOld[0].AuthCode!==authCode){
+          remark = "Updated Authcode of " + authNameOld[0].AuthCode + " to "+ authCode;
+        }
+        else {
+          remark = "Updated Authcode and Name of authority " + authName;
+        }
         userModel.logUserAction(
           "Admin",
           new Date().toISOString().replace("T", " ").slice(0, 19),

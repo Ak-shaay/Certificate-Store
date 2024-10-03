@@ -190,7 +190,7 @@ const LogsDataTable = () => {
         { id: "Id", name: "Id", width: "200px" },
         { id: "UserId", name: "User Id", width: "200px" },
         { id: "Action", name: "Action", width: "200px" },
-        { id: "Remark", name: "Remark", width: "200px" },
+        { id: "Remark", name: "Remark", width: "350px" },
         { id: "IPAddress", name: "IP address", width: "200px" },
         { id: "Timestamp", name: "Timestamp", width: "200px" },
         { id: "Latitude", name: "Latitude", width: "200px" },
