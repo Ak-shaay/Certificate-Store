@@ -78,7 +78,7 @@ function formatDate(isoDate) {
 }
 
 async function signupController(req, res) {
-  const { username, password, role, authCode } = req.body;
+  const { username, password, role, authCode,email,address,organization,state,postalcode } = req.body;
   // console.log(req.body);
   const fileBuffer = req.files.cert.data;
   // Check if user exists
@@ -125,22 +125,27 @@ async function signupController(req, res) {
         serialNumber,
         issuerCommonName
       );
-      console.log("response: " + response);
+      const newAuth = await userModel.getNextSerial()
 
       if (response) {
-        const authNo = authCode.replace(/^AUTH0*/, "");
+        const authNo = newAuth;
         const hasedPassword = await bcrypt.hash(password, 10);
         const params = {
           username: username,
           password: hasedPassword,
           role: role,
           authCode: authCode,
+          email:email,
+          address:address,
+          organization:organization,
+          state:state,
+          postalcode:postalcode,
           authNo: authNo,
           authName: subjectCommonName,
           serialNumber: serialNumber,
         };
         const result = await userModel.signup(params);
-        console.log("result: ", result);
+        // console.log("result: ", result);
         if (result) {
           return res.status(200).json({ message: "Signup successful" });
         }

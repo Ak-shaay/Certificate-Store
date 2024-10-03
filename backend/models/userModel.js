@@ -208,7 +208,6 @@ async function getLogsData(filterCriteria, authNo) {
       query =
         "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE  UserName NOT IN (SELECT UserName from login WHERE AuthNo IS NULL)";
     } else {
-      
       query =
         "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs  WHERE UserName IN (SELECT UserName from login WHERE AuthNo = ?)";
     }
@@ -518,7 +517,9 @@ async function getRevocationReasons() {
 async function getCertSerialNumber(serialNumber, issuerName) {
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName = ?`;
   try {
-    const result = await db.executeQuery(query, [serialNumber, issuerName]);    
+    const result = await db.executeQuery(query, [serialNumber, issuerName]);
+    console.log("result of presence", result);
+    
     if (result.length > 0) {
       return true;
     }
@@ -527,15 +528,27 @@ async function getCertSerialNumber(serialNumber, issuerName) {
     console.log("Error while comparing certificate");
   }
 }
+async function getNextSerial(){
+  const query = `SELECT MAX(Authno) + 1 AS next FROM authorities`;
+  try{
+    const result = await db.executeQuery(query);
+  if (result.length > 0) {
+    return result[0].next;
+  }
+  return null;
+} catch (e) {
+  console.log("Error fetching Auth number");
+  return null;
+}
+}
 
 async function signup(params) {
-  // console.log("params: ", params);
-  const { username, password, role, authCode, authNo, authName, serialNumber } =
+  const { username, password, role, authCode,email,address,organization,state,postalcode, authNo, authName, serialNumber } =
     params;
   const query1 =
-    "INSERT into authorities (AuthNo,AuthCode,AuthName) VALUES (?, ?, ?)";
+    "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, Postal_Code) VALUES (?, ?, ?,?,?, ?, ?,?)";
   const query2 =
-    "INSERT into login (UserName, Password, Role, AuthNo) VALUES (?,?,?,?)";
+    "INSERT into login (UserName, Password,LoginStatus, Attempts, Role, AuthNo) VALUES (?,?,?,?,?,?)";
   const query3 = "INSERT into auth_cert VALUES (?,?)";
   try {
     // Start a transaction
@@ -552,12 +565,12 @@ async function signup(params) {
                 // Execute queries
                 await db.executeQuery(
                   query1,
-                  [authNo, authCode, authName],
+                  [authNo, authCode, authName,email,address,organization,state,postalcode],
                   connection
                 );
                 await db.executeQuery(
                   query2,
-                  [username, password, role, authNo],
+                  [username, password,'active',2, role, authNo],
                   connection
                 );
                 await db.executeQuery(
@@ -588,7 +601,7 @@ async function signup(params) {
         }
       });
     });
-    return result
+    return result;
   } catch (error) {
     console.error("Transaction failed:", error);
     return false;
@@ -630,6 +643,7 @@ module.exports = {
   getSubjectTypes,
   getRevocationReasons,
   getCertSerialNumber,
+  getNextSerial,
   signup,
   getCertInfo,
 };

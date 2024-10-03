@@ -21,19 +21,6 @@
   border-radius: 1.5rem;
 }
 
-/* .card:nth-child(2n){
-    background-color: #DCFAFB;
-}
-.card:nth-child(2n+1){
-    background-color: #FFE8DF;
-}
-.card:nth-child(2n):hover{
-    background-color: #FFE8DF;
-}
-.card:nth-child(2n+1):hover{
-    background-color: #DCFAFB;
-} */
-
 .card {
   background-color: #DCFAFB;
 }
@@ -115,13 +102,45 @@
   width: 90%;
 }
 
-.form-group {
+/* .form-group {
   font-weight: bold;
   display: flex;
   margin-top: 2rem;
   width: 97%;
   margin-right: 0;
   justify-content: center;
+} */
+
+/* test */
+
+.form-group {
+  font-weight: bold;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  margin-top: 2rem;
+  width: 97%;
+  margin-right: 0;
+  justify-content: center;
+}
+
+/* Media Query for Larger Screens */
+@media (min-width: 600px) {
+  .form-group {
+      flex-direction: row; 
+      flex-wrap: wrap; 
+  }
+
+  .inputGroup {
+      flex: 1; 
+      min-width: 200px; 
+      margin: 0 1rem;
+  }
+}
+
+@media (max-width: 599px) {
+  .inputGroup {
+      margin-bottom: 1rem; 
+  }
 }
 
 .form-group label {
@@ -131,7 +150,8 @@
 
 .form-group input,
 select {
-  width: 10rem;
+  /* width: 10rem; */
+  max-width: 10rem;
 }
 
 .errorMsg {
@@ -198,7 +218,8 @@ select {
 }
 
 .inputGroup {
-  margin: 2rem;
+  /* margin: 2rem; */
+  margin: 2rem 0;
 }
 
 
@@ -530,11 +551,15 @@ select {
 }
 
 .gen-button {
-  width: 2rem;
-  height: 2rem;
+  width: 1.3rem;
+  height: 1.3rem;
   border: none;
-  border-radius: 50%;
+  border-radius: 75%;
   color: #ffffff;
   background-color: #40e070;
   ;
+}
+
+.gen-button img{
+  margin-left: -2px;
 }

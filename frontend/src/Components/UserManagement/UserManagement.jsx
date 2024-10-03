@@ -20,23 +20,36 @@ const UserManagement = () => {
     name: "",
     password: "",
     role: "",
-    authCode: "",
+    // authCode: "",
+    email: "",
+    organization: "",
+    address: "",
+    state: "",
+    postalcode: "",
     file: null,
   });
 
-  // const [subType, setSubType] = useState([]);
   const [dragOver, setDragOver] = useState(false);
 
-  // const [entity, setEntity] = useState("");
   const [msg, setMsg] = useState("");
   const [updateMsg, setUpdateMsg] = useState("");
-  // const [refreshData, setRefreshData] = useState(false);
-
-  // const [authCodeEdit, setAuthCodeEdit] = useState("");
-  // const [authNameEdit, setAuthNameEdit] = useState("");
+  const [newAuth,setNewAuth]= useState('')
+  
+  const [newAuthErr,setNewAuthErr] = useState('')
 
   const validateForm = () => {
-    const { name, password, role, authCode, file } = formData;
+    const {
+      name,
+      password,
+      role,
+      // authCode,
+      email,
+      organization,
+      address,
+      state,
+      postalcode,
+      file,
+    } = formData;
     const newErrors = {};
 
     // Name validation
@@ -61,11 +74,33 @@ const UserManagement = () => {
     }
 
     // Authorization Code validation
-    const authCodePattern = /^AUTH\d{3}$/;
-    if (!authCode.match(authCodePattern)) {
-      newErrors.authCode = "Authorization code must be in given format";
+    // const authCodePattern = /^AUTH\d{3}$/;
+    if (!newAuth.trim()) {
+      setNewAuthErr("Invalid authorization number")
     }
-
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = "email is required";
+    }
+    // Email validation
+    if (!organization.trim()) {
+      newErrors.organization = "Organization name is required";
+    }
+    // address validation
+    if (!address.trim()) {
+      newErrors.address = "address is required";
+    }
+    // state validation
+    if (!state.trim()) {
+      newErrors.state = "state is required";
+    }
+    // postalcode validation
+    const postalRegex = /^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/;
+    if (!postalcode) {
+      newErrors.postalcode = "Postal code is required";
+    } else if (!postalRegex.test(postalcode.trim())) {
+      newErrors.postalcode = "Postal code must be at least 6 digits";
+    }
     // File validation
     if (file) {
       const fileExtension = file.name.split(".").pop();
@@ -118,7 +153,12 @@ const UserManagement = () => {
           data.append("username", formData.name);
           data.append("password", formData.password);
           data.append("role", formData.role);
-          data.append("authCode", formData.authCode);
+          data.append("authCode", newAuth);
+          data.append("email", formData.email);
+          data.append("organization", formData.organization);
+          data.append("address", formData.address);
+          data.append("state", formData.state);
+          data.append("postalcode", formData.postalcode);
           data.append("cert", formData.file);
           const response = await api.axiosInstance.post("/signup", data, {
             headers: {
@@ -130,9 +170,15 @@ const UserManagement = () => {
               name: "",
               password: "",
               role: "",
-              authCode: "",
+              // authCode: "",
+              email: "",
+              organization: "",
+              address: "",
+              state: "",
+              postalcode: "",
               file: null,
             });
+            setNewAuth('');
             const msg = document.getElementById("signupMsg");
             msg.style.color = "green";
             msg.innerHTML = response.data.message;
@@ -143,9 +189,15 @@ const UserManagement = () => {
           name: "",
           password: "",
           role: "",
-          authCode: "",
+          // authCode: "",
+          email: "",
+          organization: "",
+          address: "",
+          state: "",
+          postalcode: "",
           file: null,
         });
+        setNewAuth('');
         const msg = document.getElementById("signupMsg");
         msg.style.color = "red";
         msg.innerHTML = "Signup failed!";
@@ -215,6 +267,15 @@ const UserManagement = () => {
     }
   }, [updateMsg]);
 
+  useEffect(() => {
+    if (newAuthErr) {
+      const timer = setTimeout(() => {
+        setNewAuthErr("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [newAuthErr]);
+
   const handleSave = async (authName, authCode, authNo) => {
     const respSpan = document.getElementById("respMessage");
 
@@ -229,7 +290,7 @@ const UserManagement = () => {
         });
         if (response.status === 200) {
           respSpan.style.color = "green";
-         setUpdateMsg(response.data.message);
+          setUpdateMsg(response.data.message);
           setIsEditing(false);
           getAuthorities();
         }
@@ -258,6 +319,23 @@ const UserManagement = () => {
     } catch (error) {
       respSpan.style.color = "red";
       setUpdateMsg("Error generating auth code");
+    }
+  };
+
+  const handleNewAuth = async () => {
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.get("/generateAuthCode");
+
+        if (response.status === 200) {
+          setNewAuth(response.data.authCode);
+          // setNewAuthErr(response.data.message);
+        }
+      }
+    } catch (error) {
+      setNewAuthErr("Error generating auth code");
     }
   };
 
@@ -545,7 +623,7 @@ const UserManagement = () => {
           name="authCode"
           value={authCode}
           placeholder="AuthCode"
-          readOnly={!isEditing}
+          readOnly
           onChange={(e) => setAuthCode(e.target.value)}
         />
         {isEditing ? (
@@ -666,19 +744,95 @@ const UserManagement = () => {
               {errors.role && <p className="errorMsg">{errors.role}</p>}
             </div>
             <div className="inputGroup">
-              <label htmlFor="authCode">
-                Authorization Code
-              </label>
+              <label htmlFor="authCode">Authorization Code</label>
               <input
                 type="text"
                 id="authCode"
                 name="authCode"
                 placeholder="Auth code"
-                value={formData.authCode}
+                value={newAuth}
+                readOnly
                 onChange={handleChange}
                 required
               />
-              {errors.authCode && <p className="errorMsg">{errors.authCode}</p>}
+               <button
+              type="button"
+              className="gen-button"
+              onClick={handleNewAuth}
+            >
+              <img src={refreshIcon} alt="regenerate" />
+            </button>
+              {/* {errors.authCode && <p className="errorMsg">{errors.authCode}</p>} */}
+              {newAuthErr && <p className="errorMsg">{newAuthErr}</p>}
+            </div>
+            <div className="inputGroup">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              {errors.email && <p className="errorMsg">{errors.email}</p>}
+            </div>
+            <div className="inputGroup">
+              <label htmlFor="organization">Organization</label>
+              <input
+                type="text"
+                id="organization"
+                name="organization"
+                placeholder="Organization"
+                value={formData.organization}
+                onChange={handleChange}
+                required
+              />
+              {errors.organization && (
+                <p className="errorMsg">{errors.organization}</p>
+              )}
+            </div>
+            <div className="inputGroup">
+              <label htmlFor="address">Address</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                placeholder="Address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+              {errors.address && <p className="errorMsg">{errors.address}</p>}
+            </div>
+            <div className="inputGroup">
+              <label htmlFor="state">State</label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="State"
+                value={formData.state}
+                onChange={handleChange}
+                required
+              />
+              {errors.state && <p className="errorMsg">{errors.state}</p>}
+            </div>
+            <div className="inputGroup">
+              <label htmlFor="postalcode">Postal Code</label>
+              <input
+                type="text"
+                id="postalcode"
+                name="postalcode"
+                placeholder="Postal Code"
+                value={formData.postalcode}
+                onChange={handleChange}
+                required
+              />
+              {errors.postalcode && (
+                <p className="errorMsg">{errors.postalcode}</p>
+              )}
             </div>
           </div>
 
