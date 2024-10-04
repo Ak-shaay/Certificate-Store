@@ -11,6 +11,7 @@ import {
   Routes,
 } from "react-router-dom";
 import LandingPage from "./Components/LandingPage/LandingPage";
+import ForgotPassword from "./Pages/ForgotPassword";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
           {/* Public routes */}
           <Route path="" element={<LandingPage/>}/>
           <Route path="login" element={<Login />}/>
+          <Route path="forgotpassword" element={<ForgotPassword />}/>
           <Route path="unauthorized" element={<Unauthorized/>}/>
           {/* Protected Routes */}
           <Route element={<RequireAuth allowedRoles={["CA", "CCA", "Admin"]}/>}>

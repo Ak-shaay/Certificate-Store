@@ -42,6 +42,9 @@ const Login = () => {
       alert("Geolocation is not supported by this browser.");
     }
   }
+  const handleForgot=(async () => {
+navigate("/forgotpassword");
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -131,7 +134,7 @@ const Login = () => {
               required
               disabled={loading}
             />
-            <a href="#">Forgot your password?</a>
+            <a href="#" onClick={handleForgot}>Forgot your password?</a>
             <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
