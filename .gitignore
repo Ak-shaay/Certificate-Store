@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # backend env variable removed
-/backend/.env
+backend/.env
