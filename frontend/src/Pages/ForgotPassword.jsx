@@ -1,49 +1,59 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdaclogoRound.png";
-import { useNavigate, useLocation, redirect } from "react-router-dom";
 import { domain } from "../Context/config";
 
 const ForgotPassword = () => {
   const userRef = useRef();
   const errRef = useRef();
+  const timeoutRef = useRef(null);
   const [email, setEmail] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
+  
     try {
-      const myHeaders =new Headers();
-      myHeaders.append("Content-Type","application/json");
-
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+  
       const requestOptions = {
         method: "POST",
         headers: myHeaders,
-        body:JSON.stringify({
-          "email": email,
+        body: JSON.stringify({
+          email: email,
         }),
-        redirect:"follow"
+        redirect: "follow"
+      };
+  
+      const response = await fetch("http://" + domain + ":8080/email", requestOptions);
+      const result = await response.json();
+  
+      if (!response.ok) {
+        setErrMsg(result.error || "An error occurred");
+      } else {
+        setErrMsg(result); 
       }
-      fetch("http://"+domain+"/email", requestOptions)
-      .then((response)=>{
-        setErrMsg(response.text());
-        setLoading(false);
-      }).then((result)=>{
-        setErrMsg(result);
-        setLoading(false);
-      })
-      .catch((error) => {console.error(error)
-        setLoading(false)
-      });  
     } catch (error) {
-      console.log(error);
-      setLoading(false);
+      console.error(error);
       setErrMsg("No response from the server. Please try again later.");
-      errRef.current.focus();
+    } finally {
+      setLoading(false); 
     }
   };
+  useEffect(() => {
+    if (errMsg) {
+      timeoutRef.current = setTimeout(() => {
+        setErrMsg(""); 
+      }, 3000); 
+    }
 
+    return () => {
+      clearTimeout(timeoutRef.current);
+    };
+  }, [errMsg]);
   return (
     <div className="bodylogin">
       <div className="container" id="container">

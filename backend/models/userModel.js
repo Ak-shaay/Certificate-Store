@@ -619,6 +619,16 @@ async function getCertInfo(serialNo, issuerCN) {
     throw new Error("Database query failed");
   }
 }
+async function emailExists(email) {
+  const query = `SELECT 1 FROM authorities WHERE Email = ?`;
+  try {
+    const result = await db.executeQuery(query, [email]);
+    return result.length > 0; 
+  } catch (error) {
+    console.error("Transaction failed:", error); 
+    return false;
+  }
+}
 
 module.exports = {
   findUserByUsername,
@@ -646,4 +656,5 @@ module.exports = {
   getNextSerial,
   signup,
   getCertInfo,
+  emailExists,
 };

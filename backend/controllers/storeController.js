@@ -6,6 +6,7 @@ const forge = require("node-forge");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
+const nodemailer = require('nodemailer');
 
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
@@ -1169,19 +1170,7 @@ async function generateAuthCode(req, res) {
       }
       return result;
     }
-
-    // // Helper function to hash a string using SHA-256
-    // function hashStringSHA256(input) {
-    //     const hash = crypto.createHash('sha256');
-    //     hash.update(input);
-    //     return hash.digest('hex');
-    // }
-
-    // Generate a random string and hash it
     const randomString = generateRandomString(20);
-    // const authCode = hashStringSHA256(randomString);
-
-    // res.status(200).json({ authCode });
     res
       .status(200)
       .json({ authCode: randomString, message: "Successfully generated" });
@@ -1197,7 +1186,7 @@ async function certInfo(req, res) {
   try {
     const result = await userModel.getCertInfo(serialNo, issuerCN);
 
-    console.log("Result:", result);
+    // console.log("Result:", result);
 
     if (result.length === 0) {
       return res.status(404).json({ error: "Certificate not found" });
@@ -1221,6 +1210,54 @@ async function certInfo(req, res) {
   }
 }
 
+async function emailService(req,res){
+  const email = req.body.email;
+  const Sender = process.env.ID || '';
+  const Secret = process.env.SECRET || '';
+  try{
+    const exist = await userModel.emailExists(email);
+    if(exist){
+      var transporter = nodemailer.createTransport({
+        host: 'smtp.cdac.in',
+        port: 587,
+        // secure: true,
+        auth: {
+          user: Sender,
+          pass: Secret
+        },
+        timeout: 60000
+      });
+      var mailOptions = {
+        from: Sender,
+        to: email,
+        subject: "Reset Password",
+        text: `Dear Sir/Ma'am
+        we have received a request to change the password on yout certStore account.Please click the link below {link to be mentioned here} for confirming your request.If you didnt request a password change please ignore this message
+        Thanks and Regards, 
+        Admin 
+        Certstore`,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+          return res.status(400).json({ error: "Failed to Send" });
+        } else {
+          console.log("Email sent: " + info.response);
+          return res.status(200).json("Email Sent Successfully");
+        }
+      });
+    }
+    else{
+      return res.status(200).json("Incorrect Email Address. Please check again");
+    }
+    
+  }
+  catch(error){
+    console.error("Error Sending Email:", error.message);
+    res.status(500).json({ error: "Error Sending Email" });
+  }
+}
 module.exports = {
   signupController,
   landingPage,
@@ -1255,4 +1292,5 @@ module.exports = {
   getAllRevocationReasons,
   generateAuthCode,
   certInfo,
+  emailService,
 };
