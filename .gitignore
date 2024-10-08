@@ -129,5 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# backend env variables
+# backend env variable removed
 /backend/.env
