@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # backend env variables
-backend/.env
+/backend/.env
