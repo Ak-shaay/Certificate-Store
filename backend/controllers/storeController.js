@@ -6,7 +6,8 @@ const forge = require("node-forge");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
+const log = require("node-forge/lib/log");
 
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
@@ -79,7 +80,17 @@ function formatDate(isoDate) {
 }
 
 async function signupController(req, res) {
-  const { username, password, role, authCode,email,address,organization,state,postalcode } = req.body;
+  const {
+    username,
+    password,
+    role,
+    authCode,
+    email,
+    address,
+    organization,
+    state,
+    postalcode,
+  } = req.body;
   // console.log(req.body);
   const fileBuffer = req.files.cert.data;
   // Check if user exists
@@ -126,7 +137,7 @@ async function signupController(req, res) {
         serialNumber,
         issuerCommonName
       );
-      const newAuth = await userModel.getNextSerial()
+      const newAuth = await userModel.getNextSerial();
 
       if (response) {
         const authNo = newAuth;
@@ -136,11 +147,11 @@ async function signupController(req, res) {
           password: hasedPassword,
           role: role,
           authCode: authCode,
-          email:email,
-          address:address,
-          organization:organization,
-          state:state,
-          postalcode:postalcode,
+          email: email,
+          address: address,
+          organization: organization,
+          state: state,
+          postalcode: postalcode,
           authNo: authNo,
           authName: subjectCommonName,
           serialNumber: serialNumber,
@@ -208,6 +219,29 @@ async function login(req, res) {
       req.session.username = userExist[0].UserName;
       req.session.userid = userExist[0].AuthNo;
       req.session.userRole = userExist[0].Role;
+      if (userExist[0].LoginStatus == "temporary") {
+        await userModel.logUserAction(
+          userExist[0].UserName,
+          new Date().toISOString().replace("T", " ").slice(0, 19),
+          req.ip,
+          "Login",
+          "Logged In Using Temporary Password",
+          latitude,
+          longitude
+        );
+        await userModel.updateStatus(
+          userExist[0].UserName,
+          "inactive",
+          0,
+          new Date().toISOString().replace("T", " ").slice(0, 19)
+        );
+        return res.json({ accessToken, refreshToken });
+      }
+      if (userExist[0].LoginStatus == "inactive") {
+        return res
+        .status(423)
+        .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
+      }
       await userModel.logUserAction(
         userExist[0].UserName,
         new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -231,7 +265,9 @@ async function login(req, res) {
           0,
           new Date().toISOString().replace("T", " ").slice(0, 19)
         );
-        return res.status(423).json({ timeStamp: userExist[0].LastAttempt });
+        return res
+          .status(423)
+          .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
       }
       return res.status(401).json({ error: "Incorrect credentials" });
     }
@@ -770,16 +806,24 @@ async function updateAuths(req, res) {
           authNo
         );
         var remark = "";
-        if(authNameOld[0].AuthName!==authName&&authNameOld[0].AuthCode!==authCode){
-          remark ="Updated details of authority " + authNameOld[0].AuthName;
-        }
-        else if(authNameOld[0].AuthName!==authName){
-        remark = "Updated authority Name of " + authNameOld[0].AuthName + " to "+ authName;
-        }
-        else if(authNameOld[0].AuthCode!==authCode){
-          remark = "Updated Authcode of " + authNameOld[0].AuthCode + " to "+ authCode;
-        }
-        else {
+        if (
+          authNameOld[0].AuthName !== authName &&
+          authNameOld[0].AuthCode !== authCode
+        ) {
+          remark = "Updated details of authority " + authNameOld[0].AuthName;
+        } else if (authNameOld[0].AuthName !== authName) {
+          remark =
+            "Updated authority Name of " +
+            authNameOld[0].AuthName +
+            " to " +
+            authName;
+        } else if (authNameOld[0].AuthCode !== authCode) {
+          remark =
+            "Updated Authcode of " +
+            authNameOld[0].AuthCode +
+            " to " +
+            authCode;
+        } else {
           remark = "Updated Authcode and Name of authority " + authName;
         }
         userModel.logUserAction(
@@ -1210,29 +1254,64 @@ async function certInfo(req, res) {
   }
 }
 
-async function emailService(req,res){
+function generatePassword(length) {
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digits = "0123456789";
+  const specialCharacters = "@$!%*?&.#";
+
+  // Ensure at least one of each character type
+  const passwordArray = [
+    lowercase[Math.floor(Math.random() * lowercase.length)],
+    uppercase[Math.floor(Math.random() * uppercase.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    specialCharacters[Math.floor(Math.random() * specialCharacters.length)],
+  ];
+
+  // Fill the rest of the password length with random characters from all sets
+  const allCharacters = lowercase + uppercase + digits + specialCharacters;
+
+  for (let i = 4; i < length; i++) {
+    passwordArray.push(
+      allCharacters[Math.floor(Math.random() * allCharacters.length)]
+    );
+  }
+
+  // Shuffle the password array to randomize character positions
+  for (let i = passwordArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [passwordArray[i], passwordArray[j]] = [passwordArray[j], passwordArray[i]];
+  }
+
+  return passwordArray.join("");
+}
+async function emailService(req, res) {
   const email = req.body.email;
-  const Sender = process.env.ID || '';
-  const Secret = process.env.SECRET || '';
-  try{
-    const exist = await userModel.emailExists(email);
-    if(exist){
+  email.toLowerCase();
+  const Sender = process.env.ID || "";
+  const Secret = process.env.SECRET || "";
+  const pass = generatePassword(12);
+
+  try {
+    const exist = await userModel.setTemporaryPass(email, pass);
+    if (exist) {
+      console.log("password: " + pass);
       var transporter = nodemailer.createTransport({
-        host: 'smtp.cdac.in',
+        host: "smtp.cdac.in",
         port: 587,
         // secure: true,
         auth: {
           user: Sender,
-          pass: Secret
+          pass: Secret,
         },
-        timeout: 60000
+        timeout: 60000,
       });
       var mailOptions = {
         from: Sender,
         to: email,
         subject: "Reset Password",
         text: `Dear Sir/Ma'am
-        we have received a request to change the password on yout certStore account.Please click the link below {link to be mentioned here} for confirming your request.If you didnt request a password change please ignore this message
+        we have received a request to change the password on yout certStore account.Please use the temporary password ${pass} for your account. Kindly change the password on your account after logging in.
         Thanks and Regards, 
         Admin 
         Certstore`,
@@ -1247,13 +1326,12 @@ async function emailService(req,res){
           return res.status(200).json("Email Sent Successfully");
         }
       });
+    } else {
+      return res
+        .status(200)
+        .json("Incorrect Email Address. Please check again");
     }
-    else{
-      return res.status(200).json("Incorrect Email Address. Please check again");
-    }
-    
-  }
-  catch(error){
+  } catch (error) {
     console.error("Error Sending Email:", error.message);
     res.status(500).json({ error: "Error Sending Email" });
   }

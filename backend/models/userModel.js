@@ -519,7 +519,7 @@ async function getCertSerialNumber(serialNumber, issuerName) {
   try {
     const result = await db.executeQuery(query, [serialNumber, issuerName]);
     console.log("result of presence", result);
-    
+
     if (result.length > 0) {
       return true;
     }
@@ -528,23 +528,35 @@ async function getCertSerialNumber(serialNumber, issuerName) {
     console.log("Error while comparing certificate");
   }
 }
-async function getNextSerial(){
+async function getNextSerial() {
   const query = `SELECT MAX(Authno) + 1 AS next FROM authorities`;
-  try{
+  try {
     const result = await db.executeQuery(query);
-  if (result.length > 0) {
-    return result[0].next;
+    if (result.length > 0) {
+      return result[0].next;
+    }
+    return null;
+  } catch (e) {
+    console.log("Error fetching Auth number");
+    return null;
   }
-  return null;
-} catch (e) {
-  console.log("Error fetching Auth number");
-  return null;
-}
 }
 
 async function signup(params) {
-  const { username, password, role, authCode,email,address,organization,state,postalcode, authNo, authName, serialNumber } =
-    params;
+  const {
+    username,
+    password,
+    role,
+    authCode,
+    email,
+    address,
+    organization,
+    state,
+    postalcode,
+    authNo,
+    authName,
+    serialNumber,
+  } = params;
   const query1 =
     "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, Postal_Code) VALUES (?, ?, ?,?,?, ?, ?,?)";
   const query2 =
@@ -565,12 +577,21 @@ async function signup(params) {
                 // Execute queries
                 await db.executeQuery(
                   query1,
-                  [authNo, authCode, authName,email,address,organization,state,postalcode],
+                  [
+                    authNo,
+                    authCode,
+                    authName,
+                    email,
+                    address,
+                    organization,
+                    state,
+                    postalcode,
+                  ],
                   connection
                 );
                 await db.executeQuery(
                   query2,
-                  [username, password,'active',2, role, authNo],
+                  [username, password, "active", 2, role, authNo],
                   connection
                 );
                 await db.executeQuery(
@@ -619,14 +640,62 @@ async function getCertInfo(serialNo, issuerCN) {
     throw new Error("Database query failed");
   }
 }
+// async function emailExists(email) {
+//   const query = `SELECT 1 FROM authorities WHERE Email = ?`;
+//   try {
+//     const result = await db.executeQuery(query, [email]);
+//     return result.length > 0;
+//   } catch (error) {
+//     console.error("Transaction failed:", error);
+//     return false;
+//   }
+// }
+// async function setTemporaryPass(email) {
+//   const query = `UPDATE login SET Password = ? WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
+//   try {
+//     const result = await db.executeQuery(query, [password,email]);
+//     return result;
+//   } catch (error) {
+//     console.error("Transaction failed:", error);
+//     return null;
+//   }
+// }
+
 async function emailExists(email) {
   const query = `SELECT 1 FROM authorities WHERE Email = ?`;
   try {
     const result = await db.executeQuery(query, [email]);
-    return result.length > 0; 
+    return result.length > 0;
   } catch (error) {
-    console.error("Transaction failed:", error); 
+    console.error("Failed to check email existence:", error);
+    return false; // Return false to indicate email doesn't exist.
+  }
+}
+
+async function setTemporaryPass(email, password) {
+  if (!(await emailExists(email))) {
+    console.error("Email does not exist:", email);
     return false;
+  }
+
+  const query = `
+   UPDATE login 
+SET Password = ?, 
+    LoginStatus = 'temporary', 
+    Attempts = 1 
+WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await db.executeQuery(query, [hashedPassword, email]);
+
+    if (result && result.affectedRows > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Failed to set temporary password:", error);
+    return { success: false, error: error.message };
   }
 }
 
@@ -657,4 +726,5 @@ module.exports = {
   signup,
   getCertInfo,
   emailExists,
+  setTemporaryPass,
 };

@@ -13,6 +13,7 @@ const Login = () => {
 
   const userRef = useRef();
   const errRef = useRef();
+  const timeoutRef = useRef(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
@@ -107,6 +108,17 @@ navigate("/forgotpassword");
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (errMsg) {
+      timeoutRef.current = setTimeout(() => {
+        setErrMsg(""); 
+      }, 3000); 
+    }
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+    };
+  }, [errMsg]);
 
   return (
     <div className="bodylogin">
