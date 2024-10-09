@@ -712,6 +712,12 @@ async function updatePasswordController(req, res, next) {
         req.user.authNo
       );
       const remark = userExist[0].UserName + " Updated their password!";
+      await userModel.updateStatus(
+        userExist[0].UserName,
+        "active",
+        2,
+        new Date().toISOString().replace("T", " ").slice(0, 19)
+      );
       await userModel.logUserAction(
         userExist[0].UserName,
         new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -1322,7 +1328,7 @@ async function emailService(req, res) {
           console.log(error);
           return res.status(400).json({ error: "Failed to Send" });
         } else {
-          console.log("Email sent: " + info.response);
+          // console.log("Email sent: " + info.response);
           return res.status(200).json("Email Sent Successfully");
         }
       });
