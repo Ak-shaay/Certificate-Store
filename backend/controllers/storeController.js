@@ -494,9 +494,7 @@ async function fetchData(req, res) {
           certDetails[i].Region = await getIndianRegion(certDetails[i].Subject_ST)
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
-        }   
-        console.log(certDetails[1]);
-          
+        }             
         res.json(certDetails);
       }
     });
