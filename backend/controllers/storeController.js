@@ -7,8 +7,6 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
-const log = require("node-forge/lib/log");
-
 const TOKEN_FILE = "tokens.json";
 let refreshTokens = {};
 
@@ -493,9 +491,12 @@ async function fetchData(req, res) {
           user.authNo
         );
         for (i in certDetails) {
+          certDetails[i].Region = await getIndianRegion(certDetails[i].Subject_ST)
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
-        }
+        }   
+        console.log(certDetails[1]);
+          
         res.json(certDetails);
       }
     });
@@ -890,6 +891,24 @@ async function region(req, res) {
     res
       .status(500)
       .json({ error: "An error occurred while processing your request." });
+  }
+}
+async function getIndianRegion(state) {
+  try {
+    const filePath = "backend/" + statesByRegionPath;
+    const data = fs.readFileSync(filePath, "utf8");
+    const allRegions = JSON.parse(data);
+
+    for (const region in allRegions) {
+      const states = allRegions[region];
+      if (states.some(s => s.value === state)) {
+        return region;
+      }
+    }
+    return 'Not found';
+  } catch (error) {
+      console.error("Error occurred while processing", error);
+      return "Not Found";
   }
 }
 

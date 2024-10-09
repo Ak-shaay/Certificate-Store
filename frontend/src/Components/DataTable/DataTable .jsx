@@ -6,12 +6,6 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import {
-  getIndianRegion,
-  // IndianRegion,
-  // getStatesByRegions,
-  // subType,
-} from "../../Data";
 import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 import axios from "axios";
@@ -215,7 +209,7 @@ const DataTable = () => {
       let issuer_name = entry[2];
       let issue_date = entry[3];
       let subject_state = entry[4];
-      // region logic
+     let subject_region = entry[5];
       let expiry_date = entry[6];
       let subject_Type = entry[7];
 
@@ -224,6 +218,7 @@ const DataTable = () => {
         cert_serial_no: cert_serial_no,
         subject_name: subject_name,
         subject_state: subject_state,
+        subject_region:subject_region,
         issuer_name: issuer_name,
         issue_date: issue_date,
         expiry_date: expiry_date,
@@ -238,7 +233,7 @@ const DataTable = () => {
       ca.issuer_name,
       ca.issue_date,
       ca.subject_state,
-      getIndianRegion(ca.subject_state),
+      ca.subject_region,
       ca.expiry_date,
       ca.subject_Type,
     ]);
@@ -297,7 +292,7 @@ const DataTable = () => {
               cert.IssuerCommonName,
               cert.IssueDate,
               cert.Subject_ST,
-              getIndianRegion(cert.Subject_ST),
+              cert.Region,
               cert.ExpiryDate,
               cert.subject_Type,
               cert.RawCertificate,
@@ -333,6 +328,7 @@ const DataTable = () => {
         { id: "subjectType", name: "Subject Type", width: "200px" },
         {
           name: "Actions",
+          width: "150px",
           formatter: (cell, row) => {
             return h("div", { className: "action-row" }, [
               h(
@@ -517,53 +513,7 @@ const DataTable = () => {
     // setEncipherOnly(extensionsInfo.encipherOnly);
   }, [extensionsInfo]);
 
-  // const handleFileUpload = (pemString) => {
-  //   if (pemString) {
-  //     // Convert PEM string to Blob
-  //     const blob = new Blob([pemString], {
-  //       type: "application/x-x509-cert.pem",
-  //     });
-  //     // Create File object
-  //     const file = new File([blob], "certificate.pem", {
-  //       type: "application/x-x509-cert.pem",
-  //     });
-  //     // Create FormData object
-  //     const data = new FormData();
-  //     data.append("certificate", file);
-
-  //     // Axios configuration
-  //     const config = {
-  //       method: "post",
-  //       maxBodyLength: Infinity,
-  //       url: `http://${domain}:8080/cert`,
-  //       withCredentials: true,
-  //       data: data,
-  //     };
-  //     axios
-  //       .request(config)
-  //       .then((response) => {
-  //         document.querySelector(".information-block").style.display = "flex";
-  //         document.querySelector(".error-block").style.display = "none";
-  //         setSerialNoInfo(response.data.serialNo);
-  //         setCommonNameInfo(response.data.commonName);
-  //         setIssuerInfo(response.data.issuer);
-  //         setExtensionsInfo(response.data.extensions[8]);
-  //         setHashInfo(response.data.hash);
-  //         setIssuerO(response.data.issuerO);
-  //         setIssuerOU(response.data.issuerOU);
-  //         setIssuerCN(response.data.issuerCN);
-  //       })
-  //       .catch((error) => {
-  //         // console.log("error getting response", error);
-  //         document.querySelector(".error-block").style.display = "flex";
-  //         document.querySelector(".information-block").style.display = "none";
-  //       });
-  //   } else {
-  //     alert("Couldn't parse the certificate.");
-  //     console.log("No certificate data provided.");
-  //   }
-  // };
-  const handleFileUpload = (serial, issueSerial) => {
+const handleFileUpload = (serial, issueSerial) => {
     const raw = JSON.stringify({
       serialNo: serial,
       issuerCN: issueSerial
