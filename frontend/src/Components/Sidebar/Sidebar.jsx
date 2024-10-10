@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import "./Sidebar.css";
 import Logo from "../../Images/cdaclogoRound.png";
 import { SidebarData } from "../../Data";
@@ -13,11 +13,34 @@ const Sidebar = ({ onIndexChange, role }) => {
     const [expanded, setExpanded] = useState(true);
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
+    const hasCalledFunction = useRef(false);
 
+    const [temp, setTemp] = useState(false);
     useEffect(() => {
         geolocation();
     }, []);
 
+
+    useEffect(() => {
+      if (!hasCalledFunction.current) {
+        async function loginStatus() {
+            try{
+            const accessToken = api.getAccessToken();
+          api.setAuthHeader(accessToken);
+          const response = await api.axiosInstance.post("/statusCheck");
+          if(response.data.login == 'Temporary'){
+           alert(`You have used temporary Password for logging in! Please Change Your Password`);
+           setTemp(true); 
+        }}
+          catch (error) {
+          console.error(error);
+        }
+        }
+  
+        loginStatus();
+        hasCalledFunction.current = true; 
+      }
+    }, []);
     function geolocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -33,6 +56,7 @@ const Sidebar = ({ onIndexChange, role }) => {
             alert("Geolocation is not supported by this browser.");
         }
     }
+    
 
     const handleLogout = async () => {
         // if (latitude === null || longitude === null) {
@@ -111,6 +135,11 @@ const Sidebar = ({ onIndexChange, role }) => {
                 <div className="menu">
                     {SidebarData.map((item, index) => {
                         try {
+                            if (temp) {
+                                handleMenuItemClick(5); 
+                                setTemp(false)
+                                return null; 
+                            }
                             if (
                                 role != "Admin" &&
                                 // (index === 6 || index === 7)

@@ -699,6 +699,38 @@ WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
   }
 }
 
+async function getEmail(userName) {
+  const query = `SELECT Email FROM authorities WHERE AuthNo = (SELECT AuthNo FROM login WHERE UserName = ?)`;
+  try {
+    const result = await db.executeQuery(query, [userName]);
+    
+    if (result && result.length > 0) {
+      return result[0].Email;
+    } else {
+      return ''; 
+    }
+  } catch (error) {
+    console.error("Failed to retrieve email:", error);
+    return false;
+  }
+}
+
+async function getProfileStatus(userName) {
+  const query = `SELECT LoginStatus FROM login WHERE UserName = ?`;
+  try {
+    const result = await db.executeQuery(query, [userName]);
+    
+    if (result && result.length > 0) {
+      return result[0].LoginStatus;
+    } else {
+      return null 
+    }
+  } catch (error) {
+    console.error("Failed to retrieve email:", error);
+    return null;
+  }
+}
+
 module.exports = {
   findUserByUsername,
   findUserByAuthNo,
@@ -727,4 +759,6 @@ module.exports = {
   getCertInfo,
   emailExists,
   setTemporaryPass,
+  getEmail,
+  getProfileStatus,
 };

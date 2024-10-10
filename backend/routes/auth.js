@@ -40,5 +40,7 @@ router.post('/removeRegion', authController.removeRegion);
 
 router.post('/certInfo',authController.certInfo);
 router.post('/email',authController.emailService);
+router.post('/report',authentication.authenticateUser,authController.reportGenerator);
+router.post('/statusCheck',authentication.authenticateUser,authController.statusCheck);
 
 module.exports = router;

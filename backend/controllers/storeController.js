@@ -8,6 +8,9 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
 const TOKEN_FILE = "tokens.json";
+const { jsPDF } = require("jspdf");
+require("jspdf-autotable");
+
 let refreshTokens = {};
 
 if (fs.existsSync(TOKEN_FILE)) {
@@ -217,7 +220,7 @@ async function login(req, res) {
       req.session.username = userExist[0].UserName;
       req.session.userid = userExist[0].AuthNo;
       req.session.userRole = userExist[0].Role;
-      if (userExist[0].LoginStatus == "temporary") {
+      if ((userExist[0].LoginStatus == "temporary")&&(userExist[0].Attempts>0)) {
         await userModel.logUserAction(
           userExist[0].UserName,
           new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -229,7 +232,7 @@ async function login(req, res) {
         );
         await userModel.updateStatus(
           userExist[0].UserName,
-          "inactive",
+          "tempLogin",
           0,
           new Date().toISOString().replace("T", " ").slice(0, 19)
         );
@@ -1318,7 +1321,6 @@ async function emailService(req, res) {
   try {
     const exist = await userModel.setTemporaryPass(email, pass);
     if (exist) {
-      console.log("password: " + pass);
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",
         port: 587,
@@ -1359,6 +1361,134 @@ async function emailService(req, res) {
     res.status(500).json({ error: "Error Sending Email" });
   }
 }
+async function pdfGeneration(data,title,headers){
+  try{
+  const unit = "pt";
+    const size = "A4"; 
+    const orientation = "landscape";
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(10);
+    const transformedData = data.map((ca) => [
+      ca.cert_serial_no,
+      ca.subject_name,
+      ca.issuer_name,
+      ca.issue_date,
+      ca.subject_state,
+      ca.subject_region,
+      ca.expiry_date,
+      ca.subject_Type,
+    ]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: transformedData,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+    };
+
+    doc.text(title, marginLeft, 40);
+    await doc.autoTable(content);
+    doc.save("./public/Certificates_report.pdf");
+    return true
+  }
+  catch(err){
+    console.log(err);
+    return false;
+  }
+}
+
+async function reportGenerator(req, res) {
+  const {data,title,headers} = req.body;
+  const Sender = process.env.ID || "";
+  const Secret = process.env.SECRET || "";
+
+  try {
+  //   const authHeader = req.headers["authorization"];
+  // const token = authHeader && authHeader.split(" ")[1];
+  // if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+  //   if (err) return res.res.status(403).json({ error: "Forbidden" });     
+  //   });
+  let email= ''
+    const userName = req.session.username;
+    if (userName == 'admin'){
+      email = 'testcdac.akshay@gmail.com';
+    }
+    else{
+    email = await userModel.getEmail(userName);
+    }
+    const result = await pdfGeneration(data,title,headers);
+    if (result) {
+      var transporter = nodemailer.createTransport({
+        host: "smtp.cdac.in",
+        port: 587,
+        // secure: true,
+        auth: {
+          user: Sender,
+          pass: Secret,
+        },
+        timeout: 60000,
+      });
+      var mailOptions = {
+        from: Sender,
+        to: email,
+        subject: "Report generated",
+        text: `Dear Sir/Ma'am
+        we have received a report generation request from your account. Please find the attachment.
+        Thanks and Regards, 
+        Admin 
+        Certstore`,
+        attachments: [{
+          filename: 'Report.pdf',
+          path: './public/Certificates_report.pdf',
+          contentType: 'application/pdf'
+        }],
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+          return res.status(400).json({ error: "Failed to Send" });
+        } else {
+          return res.status(200).json("Email Sent Successfully");
+        }
+      });
+    } else {
+      return res
+        .status(200)
+        .json("Incorrect Email Address. Please check again");
+    }
+  } catch (error) {
+    console.error("Error Sending Email:", error.message);
+    res.status(500).json({ error: "Error Sending Email" });
+  }
+}
+
+async function statusCheck(req, res) {
+  try{
+    const userName = req.session.username;
+    const status = await userModel.getProfileStatus(userName)
+    console.log("Status: ", status);
+    
+    if (status=='tempLogin'){
+      return res.status(200).json({login:"Temporary"} );
+    }
+    else {
+      return res.status(200).json({login:"Normal"} );
+    }
+  }
+  catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   signupController,
   landingPage,
@@ -1394,4 +1524,6 @@ module.exports = {
   generateAuthCode,
   certInfo,
   emailService,
+  reportGenerator,
+  statusCheck
 };
