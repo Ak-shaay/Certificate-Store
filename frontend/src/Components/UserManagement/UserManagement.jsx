@@ -349,7 +349,7 @@ const UserManagement = () => {
   const [isStateDialogOpen, setIsStateDialogOpen] = useState(false); // State for new state dialog
   const [newRegionName, setNewRegionName] = useState("");
   const [newStateName, setNewStateName] = useState(""); // New state name
-  const [newStateCode, setNewStateCode] = useState(""); // New state code
+  // const [newStateCode, setNewStateCode] = useState(""); // New state code
   const [targetRegion, setTargetRegion] = useState("");
 
   // Fetch regions and states on component mount
@@ -473,12 +473,12 @@ const UserManagement = () => {
   function openNewStateDialog() {
     setIsStateDialogOpen(true);
     setNewStateName("");
-    setNewStateCode("");
+    // setNewStateCode("");
   }
 
   async function handleSaveNewState() {
-    if (!newStateName || !newStateCode) {
-      alert("Both state name and state code are required");
+    if (!newStateName) {
+      alert("State name is required");
       return;
     }
 
@@ -490,9 +490,9 @@ const UserManagement = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             region: "unassigned",
-            oldValue: null, // Not applicable for new state, use null or a default value
+            oldValue: null, 
             newLabel: newStateName,
-            newValue: newStateCode,
+            newValue: newStateName,
           }),
         }
       );
@@ -554,44 +554,44 @@ const UserManagement = () => {
       });
   }
 
-  // delete from unasssigned
-  async function deleteFromUnassigned() {
-    if (selectedState == "") {
-      alert("Please select a state for deletion.");
-    } else {
-      // Confirm the deletion
-      const confirmDeletion = window.confirm(
-        `Are you sure you want to delete: ${selectedState}?`
-      );
-      if (!confirmDeletion) {
-        return;
-      }
+  // // delete from unasssigned
+  // async function deleteFromUnassigned() {
+  //   if (selectedState == "") {
+  //     alert("Please select a state for deletion.");
+  //   } else {
+  //     // Confirm the deletion
+  //     const confirmDeletion = window.confirm(
+  //       `Are you sure you want to delete: ${selectedState}?`
+  //     );
+  //     if (!confirmDeletion) {
+  //       return;
+  //     }
 
-      // Perform the deletion
-      fetch(`http://${domain}:8080/updateStatesOfRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ region: "unassigned", state: selectedState }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to delete state.");
-          }
-          return response.json();
-        })
-        .then(() => {
-          alert(`Region ${selectedState} has been deleted.`);
+  //     // Perform the deletion
+  //     fetch(`http://${domain}:8080/updateStatesOfRegion`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ region: "unassigned", state: selectedState }),
+  //     })
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error("Failed to delete state.");
+  //         }
+  //         return response.json();
+  //       })
+  //       .then(() => {
+  //         alert(`Region ${selectedState} has been deleted.`);
 
-          fetchUnassignedStates();
+  //         fetchUnassignedStates();
 
-          setSelectedState("");
-        })
-        .catch((error) => {
-          console.error("Error deleting statefrom unassigned:", error);
-          alert("There was an error deleting the state from unassigned.");
-        });
-    }
-  }
+  //         setSelectedState("");
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error deleting statefrom unassigned:", error);
+  //         alert("There was an error deleting the state from unassigned.");
+  //       });
+  //   }
+  // }
 
   return (
     <div className="mainUser">
@@ -968,11 +968,11 @@ const UserManagement = () => {
                     Add New State
                   </button>
                 </div>
-                <div id="delete-button" className="button-container">
+              {/* <div id="delete-button" className="button-container">
                   <button onClick={() => deleteFromUnassigned()}>
                     Delete from Unassigned
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -1003,14 +1003,6 @@ const UserManagement = () => {
                     value={newStateName}
                     onChange={(e) => setNewStateName(e.target.value)}
                     required
-                  />
-                </label>
-                <label>
-                  State Code:
-                  <input
-                    type="text"
-                    value={newStateCode}
-                    onChange={(e) => setNewStateCode(e.target.value)}
                   />
                 </label>
                 <button onClick={handleSaveNewState}>Save</button>

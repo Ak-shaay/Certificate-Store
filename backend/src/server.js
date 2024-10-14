@@ -10,6 +10,9 @@ const path = require("path");
 const fileUpload = require("express-fileupload");
 app.use(fileUpload());
 
+const cron = require("node-cron");
+const findRemoveSync = require('find-remove');
+
 const corsOptions = {
   origin: 'http://10.182.3.123:3000',
   credentials: true,
@@ -25,7 +28,6 @@ app.use(bodyParser.json());
 
 //static routes for images
 app.use(express.static(path.join(__dirname, '..', 'public')));
-
 // Initialize the database and create a new table dynamically
 initializeDatabase();
 
@@ -37,6 +39,19 @@ const sessionStore = new MySQLStore(
   },
   pool
 );
+// pdf deletion cron
+cron.schedule("0 */6 * * *", () => {
+  try {
+    const result = findRemoveSync(".\\public\\reports", {
+      age: { seconds: 86400 },
+      extensions: [".pdf"]
+    });
+    
+  } catch (error) {
+    console.error("Error removing files: ", error);
+  }
+});
+
 // Creating session
 app.use(
   session({

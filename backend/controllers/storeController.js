@@ -1032,7 +1032,6 @@ async function updateStatesOfRegion(req, res) {
             message: "State deleted successfully from unassigned",
           });
         } else {
-          console.log("State not found in unassigned");
           return res.status(404).send("State not found in unassigned region");
         }
       } else {
@@ -1081,41 +1080,34 @@ async function moveStatesOfRegion(req, res) {
     const data = JSON.parse(allRegions);
 
     const { region, state, action, newRegion } = req.body;
-    console.log("moveStatesOfRegion Request Body:", req.body);
 
     if (action !== "add" && action !== "remove") {
-      console.log("Invalid action");
       return res.status(400).send("Invalid action");
     }
 
     if (!data[newRegion]) {
-      console.log("New region not found");
       return res.status(404).send("New region not found");
     }
 
     if (!data[region]) {
-      console.log("Current region not found");
       return res.status(404).send("Current region not found");
     }
 
     const index = data[region].findIndex((item) => item.value === state);
 
     if (index === -1) {
-      console.log("State not found in the current region");
       return res.status(404).send("State not found in the current region");
     }
 
     //hello
     if (action === "remove") {
       if (!data[region]) {
-        console.log("Region not found:", region);
         return res.status(404).send("Region not found");
       }
 
       const index = data[region].findIndex((item) => item.value === state);
 
       if (index === -1) {
-        console.log("State not found in the current region");
         return res.status(404).send("State not found in the current region");
       }
 
@@ -1142,7 +1134,7 @@ async function moveStatesOfRegion(req, res) {
     const index2 = data[newRegion].findIndex((item) => item.value === state);
 
     if (index2 !== -1) {
-      console.log("State already exists in the new region");
+      // console.log("State already exists in the new region");
       return res
         .status(400)
         .json({ error: "State already exists in the new region" });
@@ -1394,13 +1386,6 @@ async function pdfGeneration(data,title,headers,filePath){
     return false;
   }
 }
-async function deletePdf(filePath){
-  fs.unlink(filePath, (err) => {
-    if (err) {
-        console.error(`Error deleting file: ${err}`);
-    }
-});
-}
 
 async function reportGenerator(req, res) {
   const {data,title,headers} = req.body;
@@ -1408,8 +1393,8 @@ async function reportGenerator(req, res) {
   const Secret = process.env.SECRET || "";
 
   const uuid =uuidv4();
-  const filePath = './public/reports/'+title+'_'+uuid+'.pdf';
-
+  const filePath = './public/reports/'+uuid+'.pdf';
+  const link = 'http://10.182.3.123:8080/reports/'+uuid+'.pdf';
   try {
   //   const authHeader = req.headers["authorization"];
   // const token = authHeader && authHeader.split(" ")[1];
@@ -1443,35 +1428,27 @@ async function reportGenerator(req, res) {
         to: email,
         subject: "Report generated",
         text: `Dear Sir/Ma'am
-        we have received a report generation request from your account. Please find the attachment.
+        we have received a report generation request from your account. Please download the report using the link ${link}.
+        Link will be availbale for the next 24 hours.
         Thanks and Regards, 
         Admin 
         Certstore`,
-        attachments: [{
-          filename: title+'.pdf',
-          path: filePath,
-          contentType: 'application/pdf'
-        }],
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
-          console.log(error);
-          deletePdf(filePath)
+          // console.log(error);
           return res.status(400).json({ error: "Failed to Send" });
         } else {
-          deletePdf(filePath)
           return res.status(200).json("Email Sent Successfully");
         }
       });
     } else {
-      deletePdf(filePath)
       return res
         .status(200)
         .json("Incorrect Email Address. Please check again");
     }
   } catch (error) {
-    deletePdf(filePath)
     console.error("Error Sending Email:", error.message);
     res.status(500).json({ error: "Error Sending Email" });
   }
