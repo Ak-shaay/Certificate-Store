@@ -3,8 +3,6 @@ import { Grid, h,PluginPosition } from "gridjs"; //datagrid js
 import "./UsageDataTable .css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
 import api from "../../Pages/axiosInstance";
 import { usageOptions } from "../../Data";
 
@@ -24,20 +22,12 @@ const UsageDataTable = () => {
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
+
   async function handleDownload(usageData) {
     if(usageData.length<=0){
       alert("No data available for download!!")
       return null
     }
-    const unit = "pt";
-    const size = "A4"; // Use A1, A2, A3 or A4
-    const orientation = "landscape"; // portrait or landscape
-
-    const marginLeft = 40;
-    const doc = new jsPDF(orientation, unit, size);
-
-    doc.setFontSize(10);
-
     const title = "Usage of Certificates";
     const headers = [
       [
@@ -45,7 +35,7 @@ const UsageDataTable = () => {
       ],
     ];
 
-    let transformedData = [];
+    let data = [];
     usageData.forEach(entry => {
     const serial_number = entry[0];
     const IssuerCommonName = entry[1];
@@ -57,39 +47,29 @@ const UsageDataTable = () => {
 
     // Creating object in desired format
     let transformedObject = {
-        "serial_number": serial_number,
-        "issuer_name":IssuerCommonName,
-        "commonName": commonName,
-        "time_stamp": time_stamp,
-        "remark": remark,
-        // "count": count,
+      serial_number: serial_number,
+        issuer_name:IssuerCommonName,
+        commonName: commonName,
+        time_stamp: time_stamp,
+        remark: remark,
+        // count: count,
     };
-    transformedData.push(transformedObject);
+    data.push(transformedObject);
 });
 
-    const data = transformedData.map((use) => [
-      use.serial_number,
-      use.issuer_name,
-      use.commonName,
-       use.time_stamp,
-          use.remark,
-          // use.count,
-    ]);
-
-    let content = {
-      startY: 50,
-      head: headers,
-      body: data,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-      },
-    };
-
-    doc.text(title, marginLeft, 40);
-    await doc.autoTable(content);
-    doc.save("Usage_of_Certificates_report.pdf");
+try{
+  const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);
+    const response = await api.axiosInstance.post("/report",{data,title,headers});
+    if(response.data){
+      alert("An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes")
+    }}
+    catch (error) {
+    console.error(error);
+   alert("No response from the server. Please try again later.");
   }
+  }
+
   const applyFilter = (e) => {
     e.preventDefault();
     fetchData();

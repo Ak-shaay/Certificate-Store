@@ -10,6 +10,7 @@ const nodemailer = require("nodemailer");
 const TOKEN_FILE = "tokens.json";
 const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
+const { v4: uuidv4 } = require('uuid');
 
 let refreshTokens = {};
 
@@ -1361,7 +1362,7 @@ async function emailService(req, res) {
     res.status(500).json({ error: "Error Sending Email" });
   }
 }
-async function pdfGeneration(data,title,headers){
+async function pdfGeneration(data,title,headers,filePath){
   try{
   const unit = "pt";
     const size = "A4"; 
@@ -1371,16 +1372,7 @@ async function pdfGeneration(data,title,headers){
     const doc = new jsPDF(orientation, unit, size);
 
     doc.setFontSize(10);
-    const transformedData = data.map((ca) => [
-      ca.cert_serial_no,
-      ca.subject_name,
-      ca.issuer_name,
-      ca.issue_date,
-      ca.subject_state,
-      ca.subject_region,
-      ca.expiry_date,
-      ca.subject_Type,
-    ]);
+    const transformedData = data.map((item) => Object.values(item));
 
     let content = {
       startY: 50,
@@ -1394,7 +1386,7 @@ async function pdfGeneration(data,title,headers){
 
     doc.text(title, marginLeft, 40);
     await doc.autoTable(content);
-    doc.save("./public/Certificates_report.pdf");
+    doc.save(filePath);
     return true
   }
   catch(err){
@@ -1402,11 +1394,21 @@ async function pdfGeneration(data,title,headers){
     return false;
   }
 }
+async function deletePdf(filePath){
+  fs.unlink(filePath, (err) => {
+    if (err) {
+        console.error(`Error deleting file: ${err}`);
+    }
+});
+}
 
 async function reportGenerator(req, res) {
   const {data,title,headers} = req.body;
   const Sender = process.env.ID || "";
   const Secret = process.env.SECRET || "";
+
+  const uuid =uuidv4();
+  const filePath = './public/reports/'+title+'_'+uuid+'.pdf';
 
   try {
   //   const authHeader = req.headers["authorization"];
@@ -1419,12 +1421,12 @@ async function reportGenerator(req, res) {
   let email= ''
     const userName = req.session.username;
     if (userName == 'admin'){
-      email = 'testcdac.akshay@gmail.com';
+      email = process.env.ADMIN || "";;
     }
     else{
     email = await userModel.getEmail(userName);
     }
-    const result = await pdfGeneration(data,title,headers);
+    const result = await pdfGeneration(data,title,headers,filePath);
     if (result) {
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",
@@ -1446,8 +1448,8 @@ async function reportGenerator(req, res) {
         Admin 
         Certstore`,
         attachments: [{
-          filename: 'Report.pdf',
-          path: './public/Certificates_report.pdf',
+          filename: title+'.pdf',
+          path: filePath,
           contentType: 'application/pdf'
         }],
       };
@@ -1455,17 +1457,21 @@ async function reportGenerator(req, res) {
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           console.log(error);
+          deletePdf(filePath)
           return res.status(400).json({ error: "Failed to Send" });
         } else {
+          deletePdf(filePath)
           return res.status(200).json("Email Sent Successfully");
         }
       });
     } else {
+      deletePdf(filePath)
       return res
         .status(200)
         .json("Incorrect Email Address. Please check again");
     }
   } catch (error) {
+    deletePdf(filePath)
     console.error("Error Sending Email:", error.message);
     res.status(500).json({ error: "Error Sending Email" });
   }
@@ -1474,9 +1480,7 @@ async function reportGenerator(req, res) {
 async function statusCheck(req, res) {
   try{
     const userName = req.session.username;
-    const status = await userModel.getProfileStatus(userName)
-    console.log("Status: ", status);
-    
+    const status = await userModel.getProfileStatus(userName)    
     if (status=='tempLogin'){
       return res.status(200).json({login:"Temporary"} );
     }

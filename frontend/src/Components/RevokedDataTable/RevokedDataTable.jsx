@@ -3,10 +3,7 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./RevokedDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-// import { revocationReasons } from "../../Data";
-import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
-import { autoTable } from "jspdf-autotable";
 import { domain } from "../../Context/config";
 
 
@@ -41,68 +38,52 @@ const RevokedDataTable = () => {
     filtersElement.style.display = "none";
   };
 
-  async function handleDownload(revocationData) {
-    if(revocationData.length<=0){
-      alert("No data available for download!!")
-      return null
-    }
-    const unit = "pt";
-    const size = "A4"; // Use A1, A2, A3 or A4
-    const orientation = "landscape"; // portrait or landscape
 
-    const marginLeft = 40;
-    const doc = new jsPDF(orientation, unit, size);
-
-    doc.setFontSize(10);
-
-    const title = "Issuer Certificates";
-    const headers = [
-      [
-        "Serial No",
-        "Issuer",
-        "Revokation Date",
-        "Reason",
-      ],
-    ];
-
-    let transformedData = [];
-    revocationData.forEach(entry => {
-    const serial_number = entry[0];
-    const issuer = entry[1];
-    const revoke_date_time = entry[2];
-    const reason = entry[3];
-
-    // Creating object in desired format
-    let transformedObject = {
-        "serial_number": serial_number,
-        "issuer":issuer,
-        "revoke_date_time": revoke_date_time,
-        "reason": reason,
-        
-    };
-    transformedData.push(transformedObject);
-});
-    const data = transformedData.map((rev) => [
-      rev.serial_number,
-      rev.issuer,
-      rev.revoke_date_time,
-      rev.reason,
-    ]);
-
-    let content = {
-      startY: 50,
-      head: headers,
-      body: data,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-      },
-    };
-
-    doc.text(title, marginLeft, 40);
-    await doc.autoTable(content);
-    doc.save("Revocation_report.pdf");
+async function handleDownload(revocationData) {
+  if(revocationData.length<=0){
+    alert("No data available for download!!")
+    return null
   }
+  const title = "Revoked Certificates";
+  const headers = [
+    [
+      "Serial No",
+      "Issuer",
+      "Revokation Date",
+      "Reason",
+    ],
+  ];
+
+  let data = [];
+  revocationData.forEach(entry => {
+  const serial_number = entry[0];
+  const issuer = entry[1];
+  const revoke_date_time = entry[2];
+  const reason = entry[3];
+
+  // Creating object in desired format
+  let transformedObject = {
+    serial_number: serial_number,
+      issuer:issuer,
+      revoke_date_time: revoke_date_time,
+      reason: reason,
+      
+  };
+  data.push(transformedObject);
+});
+try{
+  const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);
+    const response = await api.axiosInstance.post("/report",{data,title,headers});
+    if(response.data){
+      // console.log(response.data); 
+      alert("An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes")
+    }}
+    catch (error) {
+    console.error(error);
+   alert("No response from the server. Please try again later.");
+  }
+}
 
   const applyFilter = (e) => {
     e.preventDefault();

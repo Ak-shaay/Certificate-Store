@@ -6,7 +6,6 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
 import exclamation from "../../Images/exclamation.png";
-import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
 import axios from "axios";
 import { domain } from "../../Context/config";
@@ -175,83 +174,6 @@ const DataTable = () => {
     fetchIssuer();
   }, []);
 
-  // async function handleDownload(issuedData) {
-  //   if(issuedData.length<=0){
-  //     alert("No data available for download!!")
-  //     return null
-  //   }
-  //   const unit = "pt";
-  //   const size = "A4"; // Use A1, A2, A3 or A4
-  //   const orientation = "landscape"; // portrait or landscape
-
-  //   const marginLeft = 40;
-  //   const doc = new jsPDF(orientation, unit, size);
-
-  //   doc.setFontSize(10);
-
-  //   const title = "Issued Certificates";
-  //   const headers = [
-  //     [
-  //       "Serial No",
-  //       "Name",
-  //       "Issuer",
-  //       "Issued Date",
-  //       "State",
-  //       "Region",
-  //       "Expiry Date",
-  //       "Subject Type",
-  //     ],
-  //   ];
-  //   let transformedData = [];
-  //   issuedData.forEach((entry) => {
-  //     let cert_serial_no = entry[0];
-  //     let subject_name = entry[1];
-  //     let issuer_name = entry[2];
-  //     let issue_date = entry[3];
-  //     let subject_state = entry[4];
-  //    let subject_region = entry[5];
-  //     let expiry_date = entry[6];
-  //     let subject_Type = entry[7];
-
-  //     // Creating object in desired format
-  //     let transformedObject = {
-  //       cert_serial_no: cert_serial_no,
-  //       subject_name: subject_name,
-  //       subject_state: subject_state,
-  //       subject_region:subject_region,
-  //       issuer_name: issuer_name,
-  //       issue_date: issue_date,
-  //       expiry_date: expiry_date,
-  //       subject_Type: subject_Type,
-  //     };
-  //     transformedData.push(transformedObject);
-  //   });
-
-  //   const data = transformedData.map((ca) => [
-  //     ca.cert_serial_no,
-  //     ca.subject_name,
-  //     ca.issuer_name,
-  //     ca.issue_date,
-  //     ca.subject_state,
-  //     ca.subject_region,
-  //     ca.expiry_date,
-  //     ca.subject_Type,
-  //   ]);
-
-  //   let content = {
-  //     startY: 50,
-  //     head: headers,
-  //     body: data,
-  //     styles: {
-  //       fontSize: 8,
-  //       cellPadding: 2,
-  //     },
-  //   };
-
-  //   doc.text(title, marginLeft, 40);
-  //   await doc.autoTable(content);
-  //   doc.save("Certificates_report.pdf");
-  // }
   async function handleDownload(issuedData) {
     if(issuedData.length<=0){
       alert("No data available for download!!")
@@ -294,28 +216,12 @@ const DataTable = () => {
       data.push(transformedObject);
     });
     try{
-    // const myHeaders = new Headers();
-    //   myHeaders.append("Content-Type", "application/json");
-  
-    //   const requestOptions = {
-    //     method: "POST",
-    //     headers: myHeaders,
-    //     body: JSON.stringify({
-    //       data:transformedData,
-    //       title:title,
-    //       headers:headers,
-    //     }),
-    //     redirect: "follow"
-    //   };
-  
-    //   const response = await fetch("http://" + domain + ":8080/report", requestOptions);
-    //   const result = await response.json();
     const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
       const response = await api.axiosInstance.post("/report",{data,title,headers});
       if(response.data){
-        console.log(response.data); 
-        alert("Please check your mail")
+        // console.log(response.data); 
+        alert("An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes")
       }}
       catch (error) {
       console.error(error);

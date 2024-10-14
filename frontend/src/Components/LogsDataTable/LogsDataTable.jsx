@@ -3,18 +3,15 @@ import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
 import "./LogsDataTable.css";
 import "gridjs/dist/theme/mermaid.css";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { jsPDF } from "jspdf";
 import api from "../../Pages/axiosInstance";
-import { autoTable } from "jspdf-autotable";
 
 const LogsDataTable = () => {
-  let logData = "";
   const [authorities, setAuthorities] = useState();
   const [selectedUser, setSelectedUser] = useState([]);
   const [selectedAction, setSelectedAction] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [authNumber, setAuthNumber] = useState("");
+  // const [authNumber, setAuthNumber] = useState("");
   const wrapperRef = useRef(null);
   const gridRef = useRef(null);
 
@@ -53,86 +50,62 @@ const LogsDataTable = () => {
     };
     fetchIssuer();
   }, []);
-  async function handleDownload(logData) {
-    if(logData.length<=0){
-      alert("No data available for download!!")
-      return null
-    }
-    const unit = "pt";
-    const size = "A4"; // Use A1, A2, A3 or A4
-    const orientation = "landscape"; // portrait or landscape
+async function handleDownload(logData) {
+  if(logData.length<=0){
+    alert("No data available for download!!")
+    return null
+  }
+  const title = "Logs";
+  const headers = [
+    [
+      "Id",
+      "User Id",
+      "Action",
+      "Remarks",
+      "IP address",
+      "Timestamp",
+      "Latitude",
+      "Longitude",
+    ],
+  ];
+  let data = [];
+  logData.forEach((entry) => {
+  let id = entry[0];
+  let user_id = entry[1];
+  let action = entry[2];
+  let remark = entry[3];
+  let ip_address = entry[4];
+  let timestamp = entry[5];
+  let latitude = entry[6];
+  let longitude = entry[7];
 
-    const marginLeft = 40;
-    const doc = new jsPDF(orientation, unit, size);
-
-    doc.setFontSize(10);
-
-    const title = "Report";
-    const headers = [
-      [
-        "Id",
-        "User Id",
-        "Action",
-        "Remarks",
-        "IP address",
-        "Timestamp",
-        "Latitude",
-        "Longitude",
-      ],
-    ];
-    let transformedData = [];
-    logData.forEach(entry => {
-    let id = entry[0];
-    let user_id = entry[1];
-    let action = entry[2];
-    let remark = entry[3];
-    let ip_address = entry[4];
-    let timestamp = entry[5];
-    let latitude = entry[6];
-    let longitude = entry[7];
-
-    // Creating object in desired format
-    let transformedObject = {
-        "id": id,
-        // "session_id": session_id,
-        "user_id": user_id,
-        "action": action,
-        "remark":remark,
-        "ip_address": ip_address,
-        "timestamp": timestamp,
-        "latitude": latitude,
-        "longitude": longitude,
-
-    };
-    transformedData.push(transformedObject);
+  // Creating object in desired format
+  let transformedObject = {
+    id:id,
+    user_id :user_id,
+    action :action,
+    remark :remark,
+    ip_address :ip_address,
+    timestamp :timestamp,
+    latitude:latitude,
+    longitude:longitude,
+  };
+  data.push(transformedObject);
 });
 
-    const data = transformedData.map((log) => [
-      log.id,
-      log.user_id,
-      log.action,
-      log.remark,
-      log.ip_address,
-      log.timestamp,
-      log.latitude,
-      log.longitude,
-    ]);
-
-    let content = {
-      startY: 50,
-      head: headers,
-      body: data,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-      },
-    };
-
-    doc.text(title, marginLeft, 40);
-    await doc.autoTable(content);
-    doc.save("report.pdf");
+try{
+  const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);    
+    const response = await api.axiosInstance.post("/report",{data,title,headers});
+    if(response.data){
+      // console.log(response.data); 
+      alert("An email has been sent to your registered mail address. Please check your inbox.  This may take a few minutes")
+    }}
+    catch (error) {
+    console.error(error);
+   alert("No response from the server. Please try again later.");
   }
-
+}
   const applyFilter = (e) => {
     e.preventDefault();
     fetchData();
@@ -150,11 +123,11 @@ const LogsDataTable = () => {
 
     try {
       const accessToken = api.getAccessToken();
-      const decodedToken = accessToken
-        ? JSON.parse(atob(accessToken.split(".")[1]))
-        : null;
-      const authNo = decodedToken ? decodedToken.authNo : [];
-      setAuthNumber(authNo);
+      // const decodedToken = accessToken
+      //   ? JSON.parse(atob(accessToken.split(".")[1]))
+      //   : null;
+      // const authNo = decodedToken ? decodedToken.authNo : [];
+      // setAuthNumber(authNo);
 
       if (accessToken) {
         api.setAuthHeader(accessToken);
