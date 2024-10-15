@@ -616,27 +616,7 @@ async function fetchLogsData(req, res) {
     res.status(500).json({ error: "Error." });
   }
 }
-// async function fetchLogsData(req, res) {
-//     try {
-//         const { user, action, startDate, endDate } = req.body;
-//         const filterCriteria = {};
-//         if (user && user.length > 0) {
-//             filterCriteria.users = user;
-//         }
-//         if (action && action.length > 0) {
-//             filterCriteria.actions = action;
-//         }
-//         if (startDate && endDate) {
-//             filterCriteria.startDate = startDate;
-//             filterCriteria.endDate = endDate;
-//         }
-//         const logsDetails = await userModel.getLogsData(filterCriteria);
-//         res.json(logsDetails);
-//     } catch (error) {
-//         console.error("Error:", error.message);
-//         res.status(500).json({ error: "Error." });
-//     }
-// }
+
 async function profileData(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -678,11 +658,14 @@ async function profile(req, res, next) {
     if (err) return res.sendStatus(403);
 
     try {
-      // const profile = await userModel.findUserByUsername(user.username);
-      const total = await userModel.getNumberofCertificates(user.authNo);
-      const count = await userModel.getProfileStatus(user.authNo);
-
-      res.status(200).json({ count, total });
+      const result = await userModel.getLastLogin(user.authNo);
+      const data = {
+        "ip": result[0].IpAddress,
+        "lastLogin": formatDate(result[0].TimeStamp),
+        // "latitude": result[0].Latitude,
+        // "longitude":result[0].Longitude,
+      }
+      res.status(200).json(data);
     } catch (error) {
       console.error("Error fetching profile data:", error);
       res.sendStatus(500);
@@ -805,7 +788,7 @@ async function updateAuths(req, res) {
       try {
         const { authName, authCode, authNo } = req.body;
 
-        if (!authCode || !authName || !authNo)
+        if (!authCode || !authName || !authNo )
           return res.status(400).json({ error: "Missing required fields" });
 
         const authNameOld = await userModel.findUserByAuthNo(authNo);
@@ -833,7 +816,8 @@ async function updateAuths(req, res) {
             " to " +
             authCode;
         } else {
-          remark = "Updated Authcode and Name of authority " + authName;
+          // remark = "Updated Authcode and Name of authority " + authName;
+          remark = " Attempt to Change the data of" + authName;
         }
         userModel.logUserAction(
           "Admin",

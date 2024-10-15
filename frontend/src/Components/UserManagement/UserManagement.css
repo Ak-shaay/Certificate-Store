@@ -563,3 +563,17 @@ select {
 .gen-button img{
   margin-left: -2px;
 }
+.popup-head{
+  display: flex;
+}
+.plusBtn{
+  background-color: whitesmoke;
+  color: #1a1919;
+  cursor: pointer;
+  max-height: 13px;
+  padding: 5px;
+  font-weight: 700;
+  border-radius: 17px;
+  margin-left: -34px;
+  margin-top: 26px;
+}

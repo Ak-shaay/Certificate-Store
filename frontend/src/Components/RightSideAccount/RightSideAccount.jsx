@@ -5,12 +5,9 @@ import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 const RightSideAccount = () => {
   const [username, setUsername] = useState(null);
-  const [authNo, setAuthNo] = useState('');
-  const [issuedCount, setIssuedCount] = useState("--");
-  const [certCount, setCertCount] = useState("--");
-
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authNo, setAuthNo] = useState("");
+  const [ipAddress, setIpAddress] = useState(null);
+  const [lastLogin, setLastLogin] = useState(null);
 
   const imgURL = "http://" + domain + ":8080/images/" + authNo + ".png" || "";
   useEffect(() => {
@@ -24,19 +21,16 @@ const RightSideAccount = () => {
         if (response.status !== 200) {
           throw new Error("Network response was not ok");
         } else {
-          setIssuedCount(response.data.count[0].cert_count);
           const base64Url = accessToken.split(".")[1];
           const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const decodedToken = JSON.parse(atob(base64));
           setUsername(decodedToken.username);
           setAuthNo(decodedToken.authNo);
-          setCertCount(response.data.total[0].total_cert)
-          // console.log("my log", decodedToken);
+          setIpAddress(response.data.ip);
+          setLastLogin(response.data.lastLogin);
         }
       } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
+        console.error("An error occurred while processing", error);
       }
     };
     fetchData();
@@ -50,19 +44,10 @@ const RightSideAccount = () => {
             <img src={imgURL} alt="profile image" />
             <div className="ProfileData">
               <h3 className="ProfileName">{username}</h3>
+              <strong>Last Login Detaails</strong>
               <div className="ProfileStatus">
-                <div className="ProfileStatus1">
-                  <span>Certificates</span>
-                  <p>{certCount}</p>
-                </div>
-                <div className="ProfileStatus2">
-                  <span>Issued</span>
-                  <p>{issuedCount}</p>
-                </div>
-                <div className="ProfileStatus3">
-                  <span>Active</span>
-                  <p>--</p>
-                </div>
+                <p className="status"><b>IP Address : </b>{ipAddress != null ? ipAddress : ""}</p>
+                <p className="status"><b>Time : </b>{lastLogin != null ? lastLogin : ""}</p>
               </div>
             </div>
           </div>

@@ -41,12 +41,6 @@
     justify-content: center;
     transform: translateY(-90px);
 }
-.ProfileStatus {
-    margin-top: 1rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-gap: 1rem;
-}
 .ProfileStatus span{
     font-weight: bold;
     font-size: initial;
@@ -65,13 +59,10 @@
         margin-top: 0;
         order: 1;
     }
-
-    /* .RightMain>div{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    } */
     .ProfileContainer {
         margin-top: 2rem;
     }
+}
+.status{
+    font-size: 13px;
 }

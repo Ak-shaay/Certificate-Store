@@ -169,34 +169,6 @@ async function getCertUsageData(filterCriteria, authNo) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
-// async function getLogsData(filterCriteria) {
-//   try {
-//     let query =
-//       "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
-//     if (filterCriteria) {
-//       if (filterCriteria.users && filterCriteria.users.length > 0) {
-//         const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
-//         query += ` AND UserName IN (${users})`;
-//       }
-//       if (filterCriteria.actions && filterCriteria.actions.length > 0) {
-//         const actions = filterCriteria.actions
-//           .map((action) => `'${action}'`)
-//           .join(",");
-//         query += ` AND ActionType IN (${actions})`;
-//       }
-
-//       if (filterCriteria.startDate && filterCriteria.endDate) {
-//         query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
-//       }
-//     }
-//     query += " ORDER BY TimeStamp DESC";
-//     const result = await db.executeQuery(query);
-//     return result;
-//   } catch (e) {
-//     console.log("Error while fetching certificate details: ", e);
-//   }
-// }
-
 //logs data based on logins
 async function getLogsData(filterCriteria, authNo) {
   try {
@@ -252,19 +224,16 @@ async function updateAttempts(username, attempts) {
     console.log("Error while fetching user: ", e);
   }
 }
-async function getProfileStatus(authNo) {
+
+async function getLastLogin(authNo) {
   try {
     const query =
-      "SELECT COUNT(c.SerialNumber) AS cert_count FROM cert c INNER JOIN auth_cert ac ON ac.SerialNumber = c.IssuerCert_SrNo WHERE ac.AuthNo = ?";
-    return db.executeQuery(query, [authNo]);
-  } catch (e) {
-    console.log("Error while fetching user: ", e);
-  }
-}
-async function getNumberofCertificates(authNo) {
-  try {
-    const query =
-      "SELECT COUNT(SerialNumber) AS total_cert FROM auth_cert  WHERE  AuthNo = ?";
+      `SELECT l.*
+FROM logs l
+JOIN login lg ON l.UserName = lg.UserName
+WHERE lg.AuthNo = 6 AND l.ActionType = 'login'
+ORDER BY l.LogsSrNo DESC
+LIMIT 1`;
     return db.executeQuery(query, [authNo]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
@@ -299,18 +268,6 @@ async function updatePassword(newPass, authNo) {
 // function to get all authorities
 function findAuthorities() {
   try {
-    // removed cca from authorities list
-    // let query= '';
-    // if(role == 'CCA'){
-    // query =
-    //   "SELECT AuthName FROM authorities WHERE AuthName NOT LIKE ?";
-    //   return db.executeQuery(query,role);
-    // }
-    // else{
-    //   query =
-    //     "SELECT AuthName FROM authorities";
-    //     return db.executeQuery(query);
-    //   }
 
     let query =
       'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
@@ -640,26 +597,6 @@ async function getCertInfo(serialNo, issuerCN) {
     throw new Error("Database query failed");
   }
 }
-// async function emailExists(email) {
-//   const query = `SELECT 1 FROM authorities WHERE Email = ?`;
-//   try {
-//     const result = await db.executeQuery(query, [email]);
-//     return result.length > 0;
-//   } catch (error) {
-//     console.error("Transaction failed:", error);
-//     return false;
-//   }
-// }
-// async function setTemporaryPass(email) {
-//   const query = `UPDATE login SET Password = ? WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
-//   try {
-//     const result = await db.executeQuery(query, [password,email]);
-//     return result;
-//   } catch (error) {
-//     console.error("Transaction failed:", error);
-//     return null;
-//   }
-// }
 
 async function emailExists(email) {
   const query = `SELECT 1 FROM authorities WHERE Email = ?`;
@@ -744,7 +681,6 @@ module.exports = {
   updateStatus,
   updateAttempts,
   getProfileStatus,
-  getNumberofCertificates,
   updatePassword,
   findAuthorities,
   getCardsData,
@@ -761,4 +697,5 @@ module.exports = {
   setTemporaryPass,
   getEmail,
   getProfileStatus,
+  getLastLogin
 };

@@ -248,6 +248,7 @@ const UserManagement = () => {
     if (filtersElement) {
       filtersElement.style.display = "none";
     }
+    setIsEditing(false);
   };
   useEffect(() => {
     if (msg) {
@@ -554,52 +555,18 @@ const UserManagement = () => {
       });
   }
 
-  // // delete from unasssigned
-  // async function deleteFromUnassigned() {
-  //   if (selectedState == "") {
-  //     alert("Please select a state for deletion.");
-  //   } else {
-  //     // Confirm the deletion
-  //     const confirmDeletion = window.confirm(
-  //       `Are you sure you want to delete: ${selectedState}?`
-  //     );
-  //     if (!confirmDeletion) {
-  //       return;
-  //     }
-
-  //     // Perform the deletion
-  //     fetch(`http://${domain}:8080/updateStatesOfRegion`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ region: "unassigned", state: selectedState }),
-  //     })
-  //       .then((response) => {
-  //         if (!response.ok) {
-  //           throw new Error("Failed to delete state.");
-  //         }
-  //         return response.json();
-  //       })
-  //       .then(() => {
-  //         alert(`Region ${selectedState} has been deleted.`);
-
-  //         fetchUnassignedStates();
-
-  //         setSelectedState("");
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error deleting statefrom unassigned:", error);
-  //         alert("There was an error deleting the state from unassigned.");
-  //       });
-  //   }
-  // }
-
   return (
     <div className="mainUser">
       <h2>Manage System Settings</h2>
       <div className="filterWindow" id="filter">
-        <h2 className="popup-head">
+        <div className="popup-head">
           <img src={imgURL} className="image" alt="logo" />
-        </h2>
+          {isEditing?<>
+          <label className="plusBtn">
+          <input type="file" name="image" id="imgUpload" hidden>
+          </input>&#128397;</label>
+          </>:<></>}
+        </div>
         <span className="close" onClick={handlePopupClose}>
           X
         </span>
