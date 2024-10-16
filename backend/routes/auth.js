@@ -42,5 +42,6 @@ router.post('/certInfo',authController.certInfo);
 router.post('/email',authController.emailService);
 router.post('/report',authentication.authenticateUser,authController.reportGenerator);
 router.post('/statusCheck',authentication.authenticateUser,authController.statusCheck);
+router.post('/profileImage',authController.profileImage);
 
 module.exports = router;

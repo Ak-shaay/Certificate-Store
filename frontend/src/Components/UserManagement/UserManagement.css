@@ -563,17 +563,16 @@ select {
 .gen-button img{
   margin-left: -2px;
 }
-.popup-head{
-  display: flex;
+.editBtnContainer{
+  margin-bottom: 0.8rem;
 }
 .plusBtn{
   background-color: whitesmoke;
   color: #1a1919;
   cursor: pointer;
-  max-height: 13px;
-  padding: 5px;
-  font-weight: 700;
-  border-radius: 17px;
-  margin-left: -34px;
-  margin-top: 26px;
+  border-radius: 20px;
+  border: 1px solid #89CFF0;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px 12px;
 }

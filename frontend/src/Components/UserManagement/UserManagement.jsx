@@ -3,7 +3,6 @@ import "./UserManagement.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import refreshIcon from "../../Images/Icons/refresh.png";
-
 const UserManagement = () => {
   const [authData, setAuthData] = useState([]);
   const [openSection, setOpenSection] = useState(null);
@@ -16,6 +15,7 @@ const UserManagement = () => {
   const [imgURL, setImgURL] = useState(
     "http://" + domain + ":8080/images/null.png"
   );
+  const [imgKey, setImgKey] = useState(0); // key is used to re render the image
   const [formData, setFormData] = useState({
     name: "",
     password: "",
@@ -205,7 +205,7 @@ const UserManagement = () => {
     }
   };
 
-  async function getAuthorities() {
+  async function getAuthorities() {    
     try {
       const accessToken = api.getAccessToken();
 
@@ -293,12 +293,14 @@ const UserManagement = () => {
           respSpan.style.color = "green";
           setUpdateMsg(response.data.message);
           setIsEditing(false);
+          setImgKey(prevKey => prevKey + 1);
           getAuthorities();
         }
       }
     } catch (error) {
       respSpan.style.color = "red";
       setUpdateMsg("Error updating the data");
+      setImgKey(prevKey => prevKey + 1);
       setIsEditing(false);
     }
   };
@@ -462,7 +464,6 @@ const UserManagement = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ region: newRegionName }),
       });
-      // Refresh the list of regions after adding a new one
       fetchRegions();
       setIsDialogOpen(false);
       setNewRegionName("");
@@ -474,7 +475,6 @@ const UserManagement = () => {
   function openNewStateDialog() {
     setIsStateDialogOpen(true);
     setNewStateName("");
-    // setNewStateCode("");
   }
 
   async function handleSaveNewState() {
@@ -555,18 +555,58 @@ const UserManagement = () => {
       });
   }
 
+async function handleImage(e,authNo) {  
+    const size = e.target.files[0].size;
+    const type = e.target.files[0].type;
+    if (size/1024 > 200) {
+      alert("image size must not be greater than to 200Kb")
+      return
+    }
+    if( type != 'image/png'){
+      alert("image must be in png format")
+      return
+    }
+    try {
+      if (e.target.files[0]) {
+        setImgKey(prevKey => prevKey + 1); 
+    const imageUrl = URL.createObjectURL(e.target.files[0]);
+      setImgURL(imageUrl);
+        const data = new FormData();
+        data.append('image', e.target.files[0]);
+        data.append('authNo', authNo); 
+        fetch(`http://${domain}:8080/profileImage`, {
+          method: 'POST',
+          body: data,
+          credentials: 'include'
+        })
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.log("Error getting response", error); 
+          });
+      } else {
+        console.log("Empty profile image"); 
+      }
+    } catch (error) {
+      console.log("Error processing file upload", error); 
+    }
+   
+  }
   return (
     <div className="mainUser">
       <h2>Manage System Settings</h2>
       <div className="filterWindow" id="filter">
         <div className="popup-head">
-          <img src={imgURL} className="image" alt="logo" />
-          {isEditing?<>
+          <img src={imgURL} key={imgKey} className="image" alt="logo" />
+          </div>
+            {isEditing?<div className="editBtnContainer">
           <label className="plusBtn">
-          <input type="file" name="image" id="imgUpload" hidden>
-          </input>&#128397;</label>
-          </>:<></>}
-        </div>
+          <input type="file" name="image"  id="imgUpload" hidden onChange={(e) => {
+           handleImage(e,authNo);
+          }}>
+          </input>Edit &#128397;</label>
+          </div>:<></>}
         <span className="close" onClick={handlePopupClose}>
           X
         </span>
@@ -645,6 +685,7 @@ const UserManagement = () => {
             >
               <div className="card_img">
                 <img
+                key={imgKey} 
                   className="image"
                   src={`http://${domain}:8080/images/${auth.AuthNo}.png`}
                   alt="image"
@@ -935,11 +976,6 @@ const UserManagement = () => {
                     Add New State
                   </button>
                 </div>
-              {/* <div id="delete-button" className="button-container">
-                  <button onClick={() => deleteFromUnassigned()}>
-                    Delete from Unassigned
-                  </button>
-                </div> */}
               </div>
             </div>
 

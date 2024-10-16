@@ -1453,7 +1453,35 @@ async function statusCheck(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+async function profileImage(req, res) {  
+  try {
+    if (!req.files || !req.files.image) {
+      return res.status(400).send('No file uploaded.');
+    }
 
+    const img = req.files.image;
+    const fileName = req.body.authNo +'.png';
+    const uploadPath = path.join(__dirname, '..', 'public/images', fileName);
+    if (fs.existsSync(uploadPath)) {
+      fs.unlinkSync(uploadPath); // Delete the existing file
+      // console.log(`Existing file ${fileName} deleted.`);
+    }
+
+    // Move the file to the desired directory
+    img.mv(uploadPath, (err) => {
+      if (err) {
+        console.error("File upload error:", err); 
+        return res.status(500).json({ error: "Failed to upload file", details: err });
+      }
+
+      // console.log("ProfileImage", img.name);
+      return res.status(200).json('File uploaded successfully.');
+    });
+  } catch (error) {
+    console.error("Internal server error:", error); // Log the error
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 module.exports = {
   signupController,
   landingPage,
@@ -1490,5 +1518,6 @@ module.exports = {
   certInfo,
   emailService,
   reportGenerator,
-  statusCheck
+  statusCheck,
+  profileImage
 };

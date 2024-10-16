@@ -226,14 +226,26 @@ async function updateAttempts(username, attempts) {
 }
 
 async function getLastLogin(authNo) {
+  let query = "";
   try {
-    const query =
+    if (authNo != null){
+      query =
       `SELECT l.*
 FROM logs l
 JOIN login lg ON l.UserName = lg.UserName
-WHERE lg.AuthNo = 6 AND l.ActionType = 'login'
+WHERE lg.AuthNo = ? AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
+    }
+    else{
+    query =
+      `SELECT l.*
+FROM logs l
+JOIN login lg ON l.UserName = lg.UserName
+WHERE lg.UserName = 'admin' AND l.ActionType = 'login'
+ORDER BY l.LogsSrNo DESC
+LIMIT 1;`;
+    }
     return db.executeQuery(query, [authNo]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
