@@ -2,8 +2,11 @@ import React, { useRef, useState,useEffect } from "react";
 import "../Css/Login.css";
 import cdaclogo from "../Images/cdac.png";
 import { domain } from "../Context/config";
+import { useNavigate, useLocation } from "react-router-dom";
+
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const userRef = useRef();
   const errRef = useRef();
   const timeoutRef = useRef(null);
@@ -54,6 +57,10 @@ const ForgotPassword = () => {
       clearTimeout(timeoutRef.current);
     };
   }, [errMsg]);
+
+  const handleBack=(async () => {
+    navigate("/login");
+      });
   return (
     <div className="bodylogin">
       <div className="container" id="container">
@@ -70,9 +77,12 @@ const ForgotPassword = () => {
               required
               disabled={loading}
             />
+            <div className="buttonGroup">
+             <button className="backbtn" disabled={loading} onClick={handleBack}>Back</button>
             <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Please wait..." : "Send"}
             </button>
+            </div>
             <p
               ref={errRef}
               className={errMsg ? "errmsg" : "offscreen"}
