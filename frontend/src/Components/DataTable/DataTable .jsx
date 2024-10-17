@@ -113,9 +113,9 @@ const DataTable = () => {
     filtersElement.style.display = "none";
   };
   // information options
-  const handleInformationCert = (rawCertificate,serial,issueSerial) => {
+  const handleInformationCert = (rawCertificate, serial, issueSerial) => {
     setRawCertificate(rawCertificate);
-    handleFileUpload(serial,issueSerial);
+    handleFileUpload(serial, issueSerial);
     const filtersElement = document.getElementById("information");
     const blurFilter = document.getElementById("applyFilter");
     blurFilter.style.filter = "blur(3px)";
@@ -175,9 +175,9 @@ const DataTable = () => {
   }, []);
 
   async function handleDownload(issuedData) {
-    if(issuedData.length<=0){
-      alert("No data available for download!!")
-      return null
+    if (issuedData.length <= 0) {
+      alert("No data available for download!!");
+      return null;
     }
     const title = "Issued Certificates";
     const headers = [
@@ -199,7 +199,7 @@ const DataTable = () => {
       let issuer_name = entry[2];
       let issue_date = entry[3];
       let subject_state = entry[4];
-     let subject_region = entry[5];
+      let subject_region = entry[5];
       let expiry_date = entry[6];
       let subject_Type = entry[7];
 
@@ -207,7 +207,7 @@ const DataTable = () => {
         cert_serial_no: cert_serial_no,
         subject_name: subject_name,
         subject_state: subject_state,
-        subject_region:subject_region,
+        subject_region: subject_region,
         issuer_name: issuer_name,
         issue_date: issue_date,
         expiry_date: expiry_date,
@@ -215,19 +215,24 @@ const DataTable = () => {
       };
       data.push(transformedObject);
     });
-    try{
-    const accessToken = api.getAccessToken();
+    try {
+      const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
-      const response = await api.axiosInstance.post("/report",{data,title,headers});
-      if(response.data){
-        // console.log(response.data); 
-        alert("An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes")
-      }}
-      catch (error) {
+      const response = await api.axiosInstance.post("/report", {
+        data,
+        title,
+        headers,
+      });
+      if (response.data) {
+        // console.log(response.data);
+        alert(
+          "An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes"
+        );
+      }
+    } catch (error) {
       console.error(error);
-     alert("No response from the server. Please try again later.");
+      alert("No response from the server. Please try again later.");
     }
-
   }
   const applyFilter = (e) => {
     e.preventDefault();
@@ -261,7 +266,7 @@ const DataTable = () => {
           JSON.stringify(filterData)
         );
         if (response.data) {
-          const data = await response.data;          
+          const data = await response.data;
           gridRef.current.updateConfig({
             data: data.map((cert) => [
               cert.SerialNumber,
@@ -295,11 +300,11 @@ const DataTable = () => {
         // { id: "region", name: "Region" },
         // { id: "validity", name: "Expiry Date" },
         // { id: "subjectType", name: "Subject Type"},
-        { id: "serialNo", name: "Serial No", width: "300px"  },
+        { id: "serialNo", name: "Serial No", width: "300px" },
         { id: "name", name: "Name", width: "200px" },
-        { id: "issuer", name: "Issuer", width: "200px"  },
-        { id: "date", name: "Issued Date", width: "200px"  },
-        { id: "state", name: "State", width: "200px"  },
+        { id: "issuer", name: "Issuer", width: "200px" },
+        { id: "date", name: "Issued Date", width: "200px" },
+        { id: "state", name: "State", width: "200px" },
         { id: "region", name: "Region", width: "200px" },
         { id: "validity", name: "Expiry Date", width: "200px" },
         { id: "subjectType", name: "Subject Type", width: "200px" },
@@ -314,7 +319,11 @@ const DataTable = () => {
                   className: "",
                   onClick: () =>
                     // alert(`view "${row.cells[0].data}" "${row.cells[2].data}"`),
-                    handleInformationCert(row.cells[8].data,row.cells[0].data,row.cells[2].data),
+                    handleInformationCert(
+                      row.cells[8].data,
+                      row.cells[0].data,
+                      row.cells[2].data
+                    ),
                 },
                 [
                   h("img", {
@@ -363,7 +372,7 @@ const DataTable = () => {
                 ]
               ),
             ]);
-          }
+          },
         },
       ],
       data: [],
@@ -381,7 +390,7 @@ const DataTable = () => {
         td: {
           borderRight: "none",
           borderLeft: "none",
-          textAlign: 'center'
+          textAlign: "center",
         },
       },
       plugins: [
@@ -473,13 +482,13 @@ const DataTable = () => {
     if (issuerRef.current) issuerRef.current.resetSelectedValues();
     setStartDate("");
     setEndDate("");
-    setValidity("")
+    setValidity("");
   };
 
-
   useEffect(() => {
-    if(extensionsInfo=='Signature'){
-    setDigitalSignature(true);}
+    if (extensionsInfo == "Signature") {
+      setDigitalSignature(true);
+    }
     // setDigitalSignature(extensionsInfo.digitalSignature);
     // setNonRepudiation(extensionsInfo.nonRepudiation);
     // setKeyEncipherment(extensionsInfo.keyEncipherment);
@@ -490,27 +499,28 @@ const DataTable = () => {
     // setEncipherOnly(extensionsInfo.encipherOnly);
   }, [extensionsInfo]);
 
-const handleFileUpload = (serial, issueSerial) => {
+  const handleFileUpload = (serial, issueSerial) => {
     const raw = JSON.stringify({
       serialNo: serial,
-      issuerCN: issueSerial
+      issuerCN: issueSerial,
     });
-  
+
     const config = {
       method: "post",
       maxBodyLength: Infinity,
       url: `http://${domain}:8080/certInfo`,
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       withCredentials: true,
       data: raw,
     };
-  
-    axios.request(config)
+
+    axios
+      .request(config)
       .then((response) => {
         // console.log("Response:", response);
-        
+
         document.querySelector(".information-block").style.display = "flex";
         document.querySelector(".error-block").style.display = "none";
         setSerialNoInfo(response.data.serialNo);
@@ -518,10 +528,13 @@ const handleFileUpload = (serial, issueSerial) => {
         setIssuerInfo(response.data.issuer);
         setIssuerCN(response.data.issuerCN);
         setHashInfo(response.data.hash);
-        setExtensionsInfo(response.data.keyUsage)
+        setExtensionsInfo(response.data.keyUsage);
       })
       .catch((error) => {
-        console.error("Error getting response:", error.response || error.message);
+        console.error(
+          "Error getting response:",
+          error.response || error.message
+        );
         document.querySelector(".error-block").style.display = "flex";
         document.querySelector(".information-block").style.display = "none";
       });
@@ -552,7 +565,6 @@ const handleFileUpload = (serial, issueSerial) => {
             onChange={handleSubTypeFilter}
             placeholder="Subject Type"
             ref={subTypeRef}
-
           />
           <MultiSelect
             options={regions}
@@ -569,14 +581,18 @@ const handleFileUpload = (serial, issueSerial) => {
         </div>
         <div className="col">
           <div className="row date_picker">
-            <label className="dateLable">Start Date</label>
+            <select className="datepicker" name="date" id="date">
+              <option value="issued" defaultChecked >Issued Date</option>
+              <option value="expiry">Expiry Date</option>
+            </select>
+            <label className="dateLable">from</label>
             <input
               type="date"
               className="datepicker"
               onChange={handleStartDateChange}
               value={startDate}
             />
-            <label className="dateLable">End Date</label>
+            <label className="dateLable">to</label>
             <input
               type="date"
               className="datepicker"
@@ -601,10 +617,7 @@ const handleFileUpload = (serial, issueSerial) => {
           <br />
           <hr />
           <div className="filter-row">
-          <button
-              className="commonApply-btn clear"
-              onClick={handleClearAll}
-            >
+            <button className="commonApply-btn clear" onClick={handleClearAll}>
               Clear
             </button>
             <button

@@ -15,7 +15,6 @@ const UserManagement = () => {
   const [imgURL, setImgURL] = useState(
     "http://" + domain + ":8080/images/null.png"
   );
-  const [imgKey, setImgKey] = useState(0); // key is used to re render the image
   const [formData, setFormData] = useState({
     name: "",
     password: "",
@@ -293,14 +292,12 @@ const UserManagement = () => {
           respSpan.style.color = "green";
           setUpdateMsg(response.data.message);
           setIsEditing(false);
-          setImgKey(prevKey => prevKey + 1);
           getAuthorities();
         }
       }
     } catch (error) {
       respSpan.style.color = "red";
       setUpdateMsg("Error updating the data");
-      setImgKey(prevKey => prevKey + 1);
       setIsEditing(false);
     }
   };
@@ -568,7 +565,6 @@ async function handleImage(e,authNo) {
     }
     try {
       if (e.target.files[0]) {
-        setImgKey(prevKey => prevKey + 1); 
     const imageUrl = URL.createObjectURL(e.target.files[0]);
       setImgURL(imageUrl);
         const data = new FormData();
@@ -598,7 +594,7 @@ async function handleImage(e,authNo) {
       <h2>Manage System Settings</h2>
       <div className="filterWindow" id="filter">
         <div className="popup-head">
-          <img src={imgURL} key={imgKey} className="image" alt="logo" />
+          <img src={imgURL}className="image" alt="logo" />
           </div>
             {isEditing?<div className="editBtnContainer">
           <label className="plusBtn">
@@ -678,6 +674,7 @@ async function handleImage(e,authNo) {
       >
         <div className="grid-container">
           {authData.map((auth, index) => (
+            <div className="test">
             <article
               key={index}
               className="card"
@@ -685,14 +682,13 @@ async function handleImage(e,authNo) {
             >
               <div className="card_img">
                 <img
-                key={imgKey} 
                   className="image"
                   src={`http://${domain}:8080/images/${auth.AuthNo}.png`}
                   alt="image"
                 />
               </div>
-              <div className="card_name">{auth.AuthName || "Default Name"}</div>
             </article>
+              <div className="card_name">{auth.AuthName || "Default Name"}</div></div>
           ))}
         </div>
       </div>

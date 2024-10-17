@@ -1,6 +1,7 @@
 import React from "react";
 import "./LandingPage.css";
-import cdacLogo from "../../Images/cdaclogoRound.png";
+import cdacLogo from "../../Images/cdac.png";
+import ccaLogo from "../../Images/cca.png";
 import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
@@ -15,7 +16,8 @@ const LandingPage = () => {
     <>
       <header className="head-bg gradient-background">
         <nav className="navbar">
-          <img className="landing-logo" src={cdacLogo} alt="" />
+          <img className="landing-logo" src={ccaLogo} alt="CCA Logo" />
+          <img className="landing-logo" src={cdacLogo} alt="CDAC logo" />
           <div className="nav-container">
             <p className="nav-item" onClick={handleLogin}>
               Login

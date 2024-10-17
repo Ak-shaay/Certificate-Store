@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
-import cdaclogo from "../Images/cdaclogoRound.png";
+import cdacLogo from "../Images/cdac.png";
+import ccaLogo from "../Images/cca.png";
 import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "./axiosInstance";
@@ -122,6 +123,10 @@ navigate("/forgotpassword");
 
   return (
     <div className="bodylogin">
+      {/* <nav className="navbarLogin">
+          <img className="landing-logo" src={ccaLogo} alt="CCA Logo" />
+          <img className="landing-logo" src={cdacLogo} alt="CDAC logo" />
+        </nav> */}
       <div className="container" id="container">
         <div className="form-container sign-in-container">
           <form method="post" onSubmit={handleSubmit}>
@@ -162,7 +167,7 @@ navigate("/forgotpassword");
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              <img className="bg-img" src={cdaclogo} alt="logo" />
+              <img className="bg-img" src={cdacLogo} alt="logo" />
               <h1>Hello!</h1>
               <p>Enter your login credentials for a seamless experience.</p>
             </div>

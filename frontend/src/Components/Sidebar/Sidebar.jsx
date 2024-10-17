@@ -1,6 +1,6 @@
 import React, { useState, useEffect,useRef } from "react";
 import "./Sidebar.css";
-import Logo from "../../Images/cdaclogoRound.png";
+import Logo from "../../Images/cdac.png";
 import { SidebarData } from "../../Data";
 import menuIcon from "../../Images/Icons/menu.png";
 import closeIcon from "../../Images/Icons/cross.png";

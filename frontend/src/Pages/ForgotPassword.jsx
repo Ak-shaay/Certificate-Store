@@ -1,6 +1,6 @@
 import React, { useRef, useState,useEffect } from "react";
 import "../Css/Login.css";
-import cdaclogo from "../Images/cdaclogoRound.png";
+import cdaclogo from "../Images/cdac.png";
 import { domain } from "../Context/config";
 
 const ForgotPassword = () => {

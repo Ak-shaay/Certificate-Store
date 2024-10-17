@@ -96,7 +96,7 @@ h1{
 .landing-logo {
   height: 4rem;
   width: auto;
-  padding: 8px 0 0 8px;
+  padding: 8px 8px 0 12px;
 }
 
 .nav-item:hover::after {

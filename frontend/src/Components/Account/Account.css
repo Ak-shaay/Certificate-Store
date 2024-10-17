@@ -5,25 +5,26 @@
     align-items: center;
     justify-content: flex-start;
 }
+
 .AccountContainer {
     margin-top: 4rem;
-  background-color: #ffffff00;
-  width: 90%;
-  max-width: 1020px;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: rgba(255, 255, 255, 0.41) 0px 10px 20px 0px;
-  background: #FFDD70;
-  background: linear-gradient(to bottom, #d0f0ff, #b0e0ff);
-  color: #000;
-  margin-bottom: 2rem;
+    background-color: #ffffff00;
+    width: 90%;
+    max-width: 1020px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: rgba(255, 255, 255, 0.41) 0px 10px 20px 0px;
+    background: #FFDD70;
+    background: linear-gradient(to bottom, #d0f0ff, #b0e0ff);
+    color: #000;
+    margin-bottom: 2rem;
 }
 
 .header {
     display: flex;
     font-weight: bolder;
     font-size: 1.2em;
-    margin-bottom: 1rem;
+    margin: 1rem 0 1rem 0;
     justify-content: flex-start;
 }
 
@@ -38,7 +39,8 @@
 .row {
     display: flex;
     flex-wrap: wrap;
-    row-gap: 1rem;
+    /* row-gap: 1rem; */
+    gap: 3rem;
     justify-content: center;
 }
 
@@ -91,16 +93,19 @@
     }
 
 }
-.forgotPassword{
+
+.forgotPassword {
     font-size: .9rem;
     font-style: italic;
     text-decoration: underline;
     cursor: pointer;
     margin-bottom: 1rem;
 }
-#inputpass{
-    width:85% !important;
+
+#inputpass {
+    width: 85% !important;
 }
-.loginbtn{
+
+.loginbtn {
     margin-top: 1rem;
 }

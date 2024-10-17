@@ -168,89 +168,38 @@ const Account = () => {
           </button>
         </div>
       </div>
-      <div className="AccountContainer" id="accountContainer">
+       <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
         <hr className="" />
         <form id="forms">
           <div className="row">
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="fname">Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].AuthName}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="fname"><b>Name : </b>{data[0].AuthName}</label>
             </div>
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].Email}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="email"><b>Email : </b>{data[0].Email}</label>
             </div>
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="organization">Organization</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].Organization}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="organization"><b>Organization : </b>{data[0].Organization}</label>
             </div>
           </div>
-          <div className="header mg-tp">Address</div>
+          <div className="header mg-tp"><b></b>Address</div>
           <hr className="" />
           <div className="row">
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="address">Address</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].Address}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="address"><b>Locality : </b>{data[0].Address}</label>
             </div>
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="state">State</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].State}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="state"><b>State : </b>{data[0].State}</label>
             </div>
             <div className="column">
-              <div className="form-group">
-                <label htmlFor="Postal Code">Postal Code</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={data[0].Postal_Code}
-                  disabled
-                ></input>
-              </div>
+                <label htmlFor="Postal Code"><b>Postal Code : </b>{data[0].Postal_Code}</label>
             </div>
           </div>
           <br />
           <span className="forgotPassword" onClick={handlePasswordChange}>
             Change password?
           </span>
-          <div>
-            <button className="loginbtn">Save</button>
-          </div>
         </form>
       </div>
     </div>

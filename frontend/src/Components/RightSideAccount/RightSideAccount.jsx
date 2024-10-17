@@ -44,7 +44,7 @@ const RightSideAccount = () => {
             <img src={imgURL} alt="profile image" />
             <div className="ProfileData">
               <h3 className="ProfileName">{username}</h3>
-              <strong>Last Login Detaails</strong>
+              <strong>Last Login Details</strong>
               <div className="ProfileStatus">
                 <p className="status"><b>IP Address : </b>{ipAddress != null ? ipAddress : ""}</p>
                 <p className="status"><b>Time : </b>{lastLogin != null ? lastLogin : ""}</p>

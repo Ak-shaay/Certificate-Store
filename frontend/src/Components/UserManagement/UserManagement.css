@@ -13,7 +13,18 @@
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
 }
-
+@media only screen and (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(100px,1fr));
+    gap: 8px;
+  }
+}
+@media only screen and (max-width: 400px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(60px,1fr));
+    gap: 5px;
+  }
+}
 .card {
   text-align: center;
   overflow: hidden;
@@ -35,11 +46,18 @@
 }
 
 .card_img img {
-  max-width: 70%;
-  height: auto;
+  /* max-width: 50%;
+  height: auto; */
+  height: 40px;
+  width: auto;
   border-radius: 4px;
 }
-
+@media only screen and (max-width: 420px) {
+  .card_img img {
+    height: 30px;
+  width: auto;
+  }
+}
 .card_name {
   margin-top: 10px;
 }
@@ -217,10 +235,9 @@ select {
   border: none;
 }
 
-.inputGroup {
-  /* margin: 2rem; */
+/* .inputGroup {
   margin: 2rem 0;
-}
+} */
 
 
 /* system parameters */

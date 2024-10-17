@@ -11,7 +11,7 @@ import expiredtIcon from "./Images/Icons/expired.png";
 import userManagementIcon from "./Images/Icons/usermanagment.png";
 
 // Recent Card Imports
-import img1 from "./Images/cdaclogoRound.png";
+import img1 from "./Images/cdac.png";
 import img2 from "./Images/NSDL-eGov.jpg";
 import img3 from "./Images/IDSign.png";
 
