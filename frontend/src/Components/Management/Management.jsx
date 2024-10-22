@@ -1,7 +1,7 @@
 import React from "react";
-import "./UserManagement.css";
+import "./Management.css";
 
-const UserManagement = () => {
+const Management = () => {
   const handleManageOrg = async () => {
     window.open("/organizations", "_blank");
   };
@@ -53,4 +53,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default Management;

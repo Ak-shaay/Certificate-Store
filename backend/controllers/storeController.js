@@ -972,29 +972,29 @@ async function addRegion(req, res) {
   }
 }
 
-async function updateRegion(req, res) {
-  const filePath = "backend/" + statesByRegionPath;
-  try {
-    const allRegions = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(allRegions);
+// async function updateRegion(req, res) {
+//   const filePath = "backend/" + statesByRegionPath;
+//   try {
+//     const allRegions = fs.readFileSync(filePath, "utf8");
+//     const data = JSON.parse(allRegions);
 
-    const { region, newValue } = req.body;
+//     const { region, newValue } = req.body;
 
-    if (data[region]) {
-      data[newValue] = data[region];
-      delete data[region]; // Remove the old key
+//     if (data[region]) {
+//       data[newValue] = data[region];
+//       delete data[region]; // Remove the old key
 
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-      res.json({ message: "Key updated successfully" });
-    } else {
-      res.status(404).send(`Key "${oldKey}" not found.`);
-    }
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
-  }
-}
+//       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+//       res.json({ message: "Key updated successfully" });
+//     } else {
+//       res.status(404).send(`Key "${oldKey}" not found.`);
+//     }
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ error: "An error occurred while processing your request." });
+//   }
+// }
 
 async function updateStatesOfRegion(req, res) {
   const filePath = "backend/" + statesByRegionPath;
@@ -1508,7 +1508,6 @@ module.exports = {
   getStatesByRegion,
   viewStatesByRegion,
   addRegion,
-  updateRegion,
   updateStatesOfRegion,
   moveStatesOfRegion,
   removeRegion,

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import './SystemParameters.css';
-import { domain } from "../../Context/config";
+import "./SystemParameters.css";
+import api from "../../Pages/axiosInstance";
 
 const SystemParameters = () => {
-
   const [regions, setRegions] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [statesInRegion, setStatesInRegion] = useState([]);
@@ -21,28 +20,45 @@ const SystemParameters = () => {
 
   async function fetchRegions() {
     try {
-      const response = await fetch(`http://${domain}:8080/region`);
-      const data = await response.json();
-      setRegions(data.filter((region) => region.label !== "unassigned"));
-      if (data.length > 0) {
-        const firstRegion = data[0].label;
-        setSelectedRegion(firstRegion);
-        fetchStatesByRegion(firstRegion);
+      const accessToken = api.getAccessToken();
+      if(accessToken==null){
+      console.log("access",accessToken);
+    }
+      
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.get("/region");
+      if (response.status == 200) {
+        const data = response.data;
+        setRegions(data.filter((region) => region.label !== "unassigned"));
+        if (data.length > 0) {
+          const firstRegion = data[0].label;
+          setSelectedRegion(firstRegion);
+          fetchStatesByRegion(firstRegion);
+        }
+      } else {
+        throw new Error("Error fetching regions");
       }
     } catch (error) {
       console.error("Error fetching regions:", error);
     }
   }
-
   async function fetchUnassignedStates() {
     try {
-      const response = await fetch(`http://${domain}:8080/getStatesByRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ regions: ["unassigned"] }),
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/getStatesByRegion", {
+        regions: ["unassigned"],
       });
-      const data = await response.json();
-      setUnassignedStates(data || []);
+      if (response.status == 200) {
+        const data = response.data;
+        setUnassignedStates(data || []);
+      } else {
+        throw new Error("Error fetching regions");
+      }
     } catch (error) {
       console.error("Error fetching unassigned states:", error);
     }
@@ -50,13 +66,19 @@ const SystemParameters = () => {
 
   async function fetchStatesByRegion(region) {
     try {
-      const response = await fetch(`http://${domain}:8080/getStatesByRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ regions: [region] }),
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/getStatesByRegion", {
+        regions: [region],
       });
-      const data = await response.json();
-      setStatesInRegion(data || []);
+      if (response.status == 200) {
+        const data = response.data;
+        setStatesInRegion(data || []);
+      } else {
+        throw new Error("Error fetching regions");
+      }
     } catch (error) {
       console.error("Error fetching states:", error);
     }
@@ -74,39 +96,47 @@ const SystemParameters = () => {
 
   async function removeStateFromRegion() {
     try {
-      await fetch(`http://${domain}:8080/moveStatesOfRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          region: selectedRegion,
-          state: selectedState,
-          action: "remove",
-          newRegion: "unassigned",
-        }),
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/moveStatesOfRegion", {
+        region: selectedRegion,
+        state: selectedState,
+        action: "remove",
+        newRegion: "unassigned",
       });
-      fetchStatesByRegion(selectedRegion);
-      fetchUnassignedStates(); // Refresh unassigned states after removal
+      if (response.status == 200) {
+        fetchStatesByRegion(selectedRegion);
+        fetchUnassignedStates();
+      } else {
+        throw new Error("Error processing the request");
+      }
     } catch (error) {
-      console.error("Error removing state:", error);
+      console.error("Error processing the request", error);
     }
   }
 
   async function addStateToRegion() {
     try {
-      await fetch(`http://${domain}:8080/moveStatesOfRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          region: "unassigned", // Current region
-          state: selectedState, // State to move
-          action: "add", // Action: 'add' to add to new region or 'move' to move
-          newRegion: selectedRegion, // The region to which state is moved
-        }),
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/moveStatesOfRegion", {
+        region: "unassigned", 
+        state: selectedState,
+        action: "add", 
+        newRegion: selectedRegion, 
       });
-      fetchStatesByRegion(selectedRegion); // Refresh the states of the current region
-      fetchUnassignedStates(); // Refresh unassigned states
+      if (response.status == 200) {
+        fetchStatesByRegion(selectedRegion); 
+        fetchUnassignedStates(); 
+      } else {
+        throw new Error("Error processing the request");
+      }
     } catch (error) {
-      console.error("Error adding state:", error);
+      console.error("Error processing the request", error);
     }
   }
 
@@ -115,18 +145,21 @@ const SystemParameters = () => {
       alert("Region name is required!");
       return;
     }
-
     try {
-      await fetch(`http://${domain}:8080/addRegion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ region: newRegionName }),
-      });
-      fetchRegions();
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/addRegion",{ region: newRegionName });
+      if (response.status == 200) {
+        fetchRegions();
       setIsDialogOpen(false);
       setNewRegionName("");
+      } else {
+        throw new Error("Error processing the request");
+      }
     } catch (error) {
-      console.error("Error creating new region:", error);
+      console.error("Error processing the request:", error);
     }
   }
 
@@ -140,31 +173,24 @@ const SystemParameters = () => {
       alert("State name is required");
       return;
     }
-
     try {
-      const response = await fetch(
-        `http://${domain}:8080/updateStatesOfRegion`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            region: "unassigned",
-            oldValue: null, 
-            newLabel: newStateName,
-            newValue: newStateName,
-          }),
-        }
-      );
-
-      if (!response.ok) {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/updateStatesOfRegion",{
+        region: "unassigned",
+        oldValue: null,
+        newLabel: newStateName,
+        newValue: newStateName,
+      });
+      if (response.status !== 200) {
         throw new Error("Failed to save new state");
       }
-
-      // Refresh unassigned states after adding
       fetchUnassignedStates();
       setIsStateDialogOpen(false);
     } catch (error) {
-      console.error("Error saving new state:", error);
+      console.error("Error saving the new state:", error);
     }
   }
 
@@ -172,7 +198,7 @@ const SystemParameters = () => {
     setIsStateDialogOpen(false);
   }
 
-  function handleDeleteRegion() {
+  async function handleDeleteRegion() {
     // Check if a region is selected
     if (!selectedRegion) {
       alert("Please select a region to delete.");
@@ -186,165 +212,155 @@ const SystemParameters = () => {
     if (!confirmDeletion) {
       return;
     }
-
-    // Perform the deletion
-    fetch(`http://${domain}:8080/removeRegion`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ region: selectedRegion }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to delete region.");
-        }
-        return response.json();
-      })
-      .then(() => {
-        alert(`Region ${selectedRegion} has been deleted.`);
+    // { region: selectedRegion }
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/removeRegion",{ region: selectedRegion });
+      if (response.status !== 200) {
+        throw new Error("Failed to delete region.");
+      }
+      alert(`Region ${selectedRegion} has been deleted.`);
         // Refresh the list of regions after deletion
         fetchRegions();
         // Reset the selected region
         setSelectedRegion("");
         setStatesInRegion([]);
-      })
-      .catch((error) => {
-        console.error("Error deleting region:", error);
-        alert("There was an error deleting the region.");
-      });
+    } catch (error) {
+      console.error("Error deleting region:", error);
+      alert("There was an error deleting the region.");
+    }
   }
   return (
     <div className="spBody">
       <div className="mainSp">
         <h2>Manage System Parameters</h2>
         <div className="mainContainer">
-            <div className="gridContainer">
-              <h3>Select Region</h3>
-              {regions.map((region) => (
-                <div key={region.value} className="list">
-                  <label>
-                    {region.label}
-                  </label>
-                    <input
-                      type="radio"
-                      name="region"
-                      value={region.label}
-                      checked={selectedRegion === region.label}
-                      onChange={handleRegionChange}
-                    />
-                </div>
-              ))}
-              <div className="button-container">
-                <button
-                  id="greenBtn"
-                  onClick={() => setIsDialogOpen(true)}
-                >
-                  Create New Region
-                </button>
+          <div className="gridContainer">
+            <h3>Select Region</h3>
+            {regions.map((region) => (
+              <div key={region.value} className="list">
+                <label>{region.label}</label>
+                <input
+                  type="radio"
+                  name="region"
+                  value={region.label}
+                  checked={selectedRegion === region.label}
+                  onChange={handleRegionChange}
+                />
               </div>
-              <div  className="button-container">
-                <button id="redBtn" onClick={handleDeleteRegion}>
-                  Delete Selected Region
-                </button>
-              </div>
+            ))}
+            <div className="button-container">
+              <button id="greenBtn" onClick={() => setIsDialogOpen(true)}>
+                Create New Region
+              </button>
             </div>
-
-            <div className="gridContainer">
-              <h3>States in {selectedRegion}</h3>
-              {Array.isArray(statesInRegion) && statesInRegion.length > 0 ? (
-                statesInRegion.map((state) => (
-                  <div key={state.value} className="list">
-                    <label>
-
-                      {state.label}
-                    </label>
-                      <input
-                        type="checkbox"
-                        name="stateInRegion"
-                        value={state.value}
-                        checked={selectedState === state.value}
-                        onChange={handleStateSelection}
-                      />
-                  </div>
-                ))
-              ) : (
-                <div>No states available for this region.</div>
-              )}
-              <div className="button-container">
-                <button id="redBtn" onClick={removeStateFromRegion}>
-                  Remove State from {selectedRegion}{" "}
-                </button>
-              </div>
+            <div className="button-container">
+              <button id="redBtn" onClick={handleDeleteRegion}>
+                Delete Selected Region
+              </button>
             </div>
-
-            <div className="gridContainer">
-              <h3>Unassigned States</h3>
-              {Array.isArray(unassignedStates) &&
-              unassignedStates.length > 0 ? (
-                unassignedStates.map((state) => (
-                  <div key={state.value} className="list">
-                    <label>
-                      {state.label} ({state.value})
-                    </label>
-                      <input
-                        type="checkbox"
-                        name="unassignedState"
-                        value={state.value}
-                        checked={selectedState === state.value}
-                        onChange={handleStateSelection}
-                      />
-                  </div>
-                ))
-              ) : (
-                <div>No unassigned states available.</div>
-              )}
-              <div>
-                <div className="button-container">
-                  <button id="blueBtn" onClick={addStateToRegion}>
-                    Add to {selectedRegion} region
-                  </button>
-                </div>
-                <div className="button-container">
-                  <button id="blueBtn" onClick={() => openNewStateDialog(true)}>
-                    Add New State
-                  </button>
-                </div>
-              </div>
-            </div>
-            {isDialogOpen && (
-              <div className="dialog">
-                <h2>Add New Region</h2>
-                <label>
-                  Region Name:
-                  <input
-                    type="text"
-                    value={newRegionName}
-                    onChange={(e) => setNewRegionName(e.target.value)}
-                    required
-                  />
-                </label>
-                <button onClick={createNewRegion}>Save</button>
-                <button onClick={() => setIsDialogOpen(false)}>Close</button>
-              </div>
-            )}
-
-            {isStateDialogOpen && (
-              <div className="dialog">
-                <h2>Add New State</h2>
-                <label>
-                  State Name:
-                  <input
-                    type="text"
-                    value={newStateName}
-                    onChange={(e) => setNewStateName(e.target.value)}
-                    required
-                  />
-                </label>
-                <button id="blueBtn" onClick={handleSaveNewState}>Save</button>
-                <button id="redBtn" onClick={closeNewStateDialog}>Close</button>
-              </div>
-            )}
           </div>
+
+          <div className="gridContainer">
+            <h3>States in {selectedRegion}</h3>
+            {Array.isArray(statesInRegion) && statesInRegion.length > 0 ? (
+              statesInRegion.map((state) => (
+                <div key={state.value} className="list">
+                  <label>{state.label}</label>
+                  <input
+                    type="checkbox"
+                    name="stateInRegion"
+                    value={state.value}
+                    checked={selectedState === state.value}
+                    onChange={handleStateSelection}
+                  />
+                </div>
+              ))
+            ) : (
+              <div>No states available for this region.</div>
+            )}
+            <div className="button-container">
+              <button id="redBtn" onClick={removeStateFromRegion}>
+                Remove State from {selectedRegion}{" "}
+              </button>
+            </div>
+          </div>
+
+          <div className="gridContainer">
+            <h3>Unassigned States</h3>
+            {Array.isArray(unassignedStates) && unassignedStates.length > 0 ? (
+              unassignedStates.map((state) => (
+                <div key={state.value} className="list">
+                  <label>
+                    {state.label} ({state.value})
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="unassignedState"
+                    value={state.value}
+                    checked={selectedState === state.value}
+                    onChange={handleStateSelection}
+                  />
+                </div>
+              ))
+            ) : (
+              <div>No unassigned states available.</div>
+            )}
+            <div>
+              <div className="button-container">
+                <button id="blueBtn" onClick={addStateToRegion}>
+                  Add to {selectedRegion} region
+                </button>
+              </div>
+              <div className="button-container">
+                <button id="blueBtn" onClick={() => openNewStateDialog(true)}>
+                  Add New State
+                </button>
+              </div>
+            </div>
+          </div>
+          {isDialogOpen && (
+            <div className="dialog">
+              <h2>Add New Region</h2>
+              <label>
+                Region Name:
+                <input
+                  type="text"
+                  value={newRegionName}
+                  onChange={(e) => setNewRegionName(e.target.value)}
+                  required
+                />
+              </label>
+              <button onClick={createNewRegion}>Save</button>
+              <button onClick={() => setIsDialogOpen(false)}>Close</button>
+            </div>
+          )}
+
+          {isStateDialogOpen && (
+            <div className="dialog">
+              <h2>Add New State</h2>
+              <label>
+                State Name:
+                <input
+                  type="text"
+                  value={newStateName}
+                  onChange={(e) => setNewStateName(e.target.value)}
+                  required
+                />
+              </label>
+              <button id="blueBtn" onClick={handleSaveNewState}>
+                Save
+              </button>
+              <button id="redBtn" onClick={closeNewStateDialog}>
+                Close
+              </button>
+            </div>
+          )}
         </div>
+      </div>
     </div>
   );
 };

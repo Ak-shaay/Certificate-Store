@@ -29,14 +29,14 @@ router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)//
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 
 // json routes
-router.get('/region', authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-router.post('/getStatesByRegion', authController.getStatesByRegion);
+router.get('/region',authentication.authenticateUser,  authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+router.post('/getStatesByRegion',authentication.authenticateUser, authController.getStatesByRegion);
 
-router.post('/addRegion', authController.addRegion);
-router.post('/updateRegion', authController.updateRegion);
-router.post('/updateStatesOfRegion', authController.updateStatesOfRegion);
-router.post('/moveStatesOfRegion', authController.moveStatesOfRegion);
-router.post('/removeRegion', authController.removeRegion);
+router.post('/addRegion',authentication.authenticateAdmin, authController.addRegion);
+// router.post('/updateRegion', authController.updateRegion);
+router.post('/updateStatesOfRegion',authentication.authenticateAdmin, authController.updateStatesOfRegion);
+router.post('/moveStatesOfRegion',authentication.authenticateAdmin, authController.moveStatesOfRegion);
+router.post('/removeRegion',authentication.authenticateAdmin, authController.removeRegion);
 
 router.post('/certInfo',authController.certInfo);
 router.post('/email',authController.emailService);
