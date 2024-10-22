@@ -11,6 +11,23 @@ const axiosInstance = axios.create({
   withCredentials: true, // Include credentials (like cookies) with requests
 });
 
+// removes session from other tabs 
+function logout() {
+  removeTokens();
+  document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  window.location.href = "http://" + domain + ":3000";
+}
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "token") {
+    if (event.newValue === null) {
+      logout(); // Call the imported logout function
+    } else {
+      console.log("Token updated in another tab:", event.newValue);
+      setAuthHeader(event.newValue); // Ensure this function is defined
+    }
+  }
+});
 const setAccessToken = (token) => {
   localStorage.setItem("token", token);
 };
