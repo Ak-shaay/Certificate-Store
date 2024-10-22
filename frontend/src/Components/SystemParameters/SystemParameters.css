@@ -1,0 +1,131 @@
+.spBody{
+    height: auto;
+    min-height: 98vh;
+    width: 98%;
+    display: flex;
+    border-radius: 2rem;
+    background-color: #ffffff;
+    background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff 54%);
+    justify-content: center;
+}
+.mainSp{
+    padding: 1rem 1.5rem;
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8em;
+    position: relative;
+}
+.orgcontainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.mainContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+.gridContainer {
+    display: grid;
+    background-color: beige;
+    border-radius: 18px;
+    min-width: 13rem;
+    padding: 10px;
+}
+.list{
+   display: grid;
+   grid-template-columns: 2fr 1fr;
+   align-items: center;
+   margin-bottom: 0.8rem;
+}
+
+
+/* old css */
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 1000;
+  /* Ensure it appears on top of other content */
+}
+
+.dialog h2 {
+  margin-top: 0;
+}
+
+.dialog label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.dialog input[type="text"] {
+  /* width: 100%; */
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dialog button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.dialog button:hover {
+  background-color: #0056b3;
+}
+
+.dialog .close-btn {
+  background-color: #6c757d;
+}
+
+.dialog .close-btn:hover {
+  background-color: #5a6268;
+}
+
+#greenBtn{
+padding: 12px 15px !important;
+  border-radius: 8px;
+  cursor: pointer !important;
+  border: 0;
+  color: #ffffff;
+  background-color: rgb(76, 230, 76);
+  width:11rem;
+}
+#redBtn{
+padding: 12px 15px !important;
+margin: 1rem;
+  border-radius: 8px;
+  cursor: pointer !important;
+  border: 0;
+  color: #ffffff;
+  background-color: rgb(230, 76, 76);
+  width:11rem;
+}
+#blueBtn{
+    padding: 12px 15px !important;
+    margin: 1rem;
+      border-radius: 8px;
+      cursor: pointer !important;
+      border: 0;
+      color: #ffffff;
+      background-color: rgb(76, 194, 230);
+      width:11rem;
+    }
+    

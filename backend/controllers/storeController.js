@@ -1313,7 +1313,7 @@ async function emailService(req, res) {
         to: email,
         subject: "Reset Password",
         text: `Dear Sir/Ma'am
-        we have received a request to change the password on yout certStore account.Please use the temporary password ${pass} for your account. Kindly change the password on your account after logging in.
+        We have received a request to change the password on your certStore account. Please use the temporary password ${pass} for your account. Kindly change the password on your account after logging in.
         Thanks and Regards, 
         Admin 
         Certstore`,
@@ -1412,8 +1412,8 @@ async function reportGenerator(req, res) {
         to: email,
         subject: "Report generated",
         text: `Dear Sir/Ma'am
-        we have received a report generation request from your account. Please download the report using the link ${link}.
-        Link will be availbale for the next 24 hours.
+        We have received a report generation request from your account. Please download the report using the link ${link}.
+        The link will be available for the next 24 hours.
         Thanks and Regards, 
         Admin 
         Certstore`,

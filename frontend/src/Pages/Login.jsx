@@ -167,7 +167,7 @@ navigate("/forgotpassword");
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              <img className="bg-img" src={cdacLogo} alt="logo" />
+              {/* <img className="bg-img" src={cdacLogo} alt="logo" /> */}
               <h1>Hello!</h1>
               <p>Enter your login credentials for a seamless experience.</p>
             </div>

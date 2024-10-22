@@ -6,6 +6,11 @@
   justify-content: center;
   font-family: 'Inter', sans-serif;
 }
+@media only screen and (max-width: 810px) {
+  .App {
+    height: auto;
+  }
+}
 
 .appglass {
   display: grid;
@@ -95,6 +100,7 @@
 @media only screen and (max-width: 768px) {
   .appglass-other {
     grid-template-columns: 100%;
+    height: 100dvh;
   }
 
   .sidebar-icons {
@@ -143,7 +149,26 @@
   padding: 2rem;
   border-radius: 10px;
 }
-
+.commonBtn{
+  padding: 12px 15px !important;
+  border-radius: 8px;
+  cursor: pointer !important;
+  border: 0;
+  color: #ffffff;
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1px !important;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+.commonBtn:hover {
+  letter-spacing: 2px;
+  background-color: #ffffff;
+  color: hsl(0, 0%, 100%);
+  box-shadow: #4aa7d3 0px 0px 0px 0px;
+  transform: translateY(5px);
+  transition: 100ms;
+}
 
 .commonApply-btn {
   height: 2rem;

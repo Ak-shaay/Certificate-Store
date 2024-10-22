@@ -95,7 +95,7 @@ const ForgotPassword = () => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              <img className="bg-img" src={cdaclogo} alt="logo" />
+              {/* <img className="bg-img" src={cdaclogo} alt="logo" /> */}
               <h1>Hello!</h1>
               <p>Enter your Email address for resetting the password.</p>
             </div>

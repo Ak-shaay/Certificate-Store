@@ -82,7 +82,8 @@ axiosInstance.interceptors.response.use(
       }
     } else if (error.response.status === 403) {
       removeTokens();
-      sessionTimeout();
+      // sessionTimeout();
+      window.location.href = "/login";
     } else if (error.request) {
       // Network error (no response was received)
       console.error("Network error:", error.request);
@@ -94,15 +95,15 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-let alertTimeout;
+// let alertTimeout;
 
-const sessionTimeout = () => {
-  clearTimeout(alertTimeout); // Clear any existing timeout
-  alertTimeout = setTimeout(() => {
-    alert("Session Timed Out!!! Login to continue");
-    window.location.href = "/login";
-  }, 100);
-};
+// const sessionTimeout = () => {
+//   clearTimeout(alertTimeout); // Clear any existing timeout
+//   alertTimeout = setTimeout(() => {
+//     // alert("Session Timed Out!!! Login to continue");
+//     window.location.href = "/login";
+//   }, 100);
+// };
 const getNewToken = async () => {
   try {
     const storedToken = getRefreshToken();

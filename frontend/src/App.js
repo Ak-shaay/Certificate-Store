@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React from "react";
 import "./App.css";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
@@ -12,6 +12,11 @@ import {
 } from "react-router-dom";
 import LandingPage from "./Components/LandingPage/LandingPage";
 import ForgotPassword from "./Pages/ForgotPassword";
+import Organization from "./Components/Organization/Organization";
+import SystemParameters from "./Components/SystemParameters/SystemParameters";
+import OrganizationCreation from "./Components/OrganizationCreation/OrganizationCreation";
+import UserCreation from "./Components/UserCreation/UserCreation";
+import Users from "./Components/Users/Users";
 
 function App() {
 
@@ -26,6 +31,13 @@ function App() {
           {/* Protected Routes */}
           <Route element={<RequireAuth allowedRoles={["CA", "CCA", "Admin"]}/>}>
           <Route path="dashboard" element={<Dashboard />}/>
+          </Route>
+          <Route element={<RequireAuth allowedRoles={["Admin"]}/>}>
+          <Route path="systemparameters" element={<SystemParameters />}/>
+          <Route path="organizations" element={<Organization />}/>
+          <Route path="users" element={<Users />}/>
+          <Route path="create/organization" element={<OrganizationCreation />}/>
+          <Route path="create/user" element={<UserCreation />}/>
           </Route>
           {/* catch all for missing routes */}
           <Route path="*" element={<Missing/>}/>
