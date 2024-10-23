@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 function logout() {
   removeTokens();
   document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  window.location.href = "http://" + domain + ":3000";
+  window.location.href = "http://" + domain + ":3000/unauthorized";
 }
 
 window.addEventListener("storage", (event) => {

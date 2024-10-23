@@ -21,10 +21,6 @@ const SystemParameters = () => {
   async function fetchRegions() {
     try {
       const accessToken = api.getAccessToken();
-      if(accessToken==null){
-      console.log("access",accessToken);
-    }
-      
       if (accessToken) {
         api.setAuthHeader(accessToken);
       }

@@ -29,7 +29,7 @@ router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)//
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 
 // json routes
-router.get('/region',authentication.authenticateUser,  authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+router.get('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 router.post('/getStatesByRegion',authentication.authenticateUser, authController.getStatesByRegion);
 
 router.post('/addRegion',authentication.authenticateAdmin, authController.addRegion);

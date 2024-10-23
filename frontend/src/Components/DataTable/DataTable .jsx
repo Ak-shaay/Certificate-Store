@@ -51,44 +51,47 @@ const DataTable = () => {
 
   // region from statesByRegion.json
   useEffect(() => {
-    fetch("http://" + domain + ":8080/region")
-      .then((response) => response.json())
-      .then((data) => setRegions(data))
-      .catch((error) => console.error("Error fetching data:", error));
+    fetchRegion()
   }, []);
 
-  // states by region from statesByRegion.json
-  async function getStates(region) {
-    const raw = JSON.stringify({
-      regions: region,
-    });
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: raw,
-      redirect: "follow",
-    };
-
-    try {
-      const response = await fetch(
-        "http://" + domain + ":8080/getStatesByRegion",
-        requestOptions
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  async function fetchRegion(){
+    try{
+      const accessToken = api.getAccessToken();
+      if(accessToken){
+        api.setAuthHeader(accessToken)
       }
-      const result = await response.json();
-      // console.log("API Response:", result);
-      return result;
-    } catch (error) {
-      console.error("Error fetching states:", error);
-      return [];
+            const response = await api.axiosInstance.get("/region");
+      if(response.status==200){
+        setRegions(response.data)
+      }
+    }
+    catch(error) {
+      console.error("Error fetching the data: ", error);
     }
   }
 
+  // states by region from statesByRegion.json
+  async function getStates(region) {
+    try{
+      const accessToken = api.getAccessToken();
+      if(accessToken){
+        api.setAuthHeader(accessToken)
+      }
+      const response = await api.axiosInstance.post("/getStatesByRegion",{
+        regions: region,
+      });
+      if(response.status==200){
+        return response.data;
+      }else{
+        return [];
+      }
+
+    }
+    catch(error) {
+      console.error("Error fetching data : ", error);
+      return [];
+    }
+  }
   // subject type from subjectType.json
   useEffect(() => {
     fetch("http://" + domain + ":8080/getSubType")
@@ -292,14 +295,6 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        // { id: "serialNo", name: "Serial No"  },
-        // { id: "name", name: "Name" },
-        // { id: "issuer", name: "Issuer"  },
-        // { id: "date", name: "Issued Date" },
-        // { id: "state", name: "State" },
-        // { id: "region", name: "Region" },
-        // { id: "validity", name: "Expiry Date" },
-        // { id: "subjectType", name: "Subject Type"},
         { id: "serialNo", name: "Serial No", width: "300px" },
         { id: "name", name: "Name", width: "200px" },
         { id: "issuer", name: "Issuer", width: "200px" },
@@ -442,12 +437,13 @@ const DataTable = () => {
   };
 
   const handleRegionFilter = async (selectedItems) => {
-    setRegion(selectedItems.map((item) => item.value));
-    const statesByRegion = await getStates(region);
+    const selectedRegions = selectedItems.map((item) => item.value);
+    setRegion(selectedRegions);    
+    const statesByRegion = await getStates(selectedRegions);
     setStateByRegion(statesByRegion);
   };
 
-  useEffect(() => {
+  useEffect(() => {    
     const fetchStatesByRegion = async () => {
       try {
         const states = await getStates(region);

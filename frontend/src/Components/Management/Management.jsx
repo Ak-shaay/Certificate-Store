@@ -19,33 +19,33 @@ const Management = () => {
   };
   return (
     <div>
-      <div class="menu-container">
-        <h1 class="menu-title">System Management</h1>
-        <div class="menu-grid" onClick={handleManageOrg}>
-          <div class="menu-item">
-            <h2 class="item-title">Manage Organizations</h2>
-            <p class="item-price"></p>
-            {/* <p class="item-description">description</p> */}
+      <div className="menu-container">
+        <h1 className="menu-title">System Management</h1>
+        <div className="menu-grid" onClick={handleManageOrg}>
+          <div className="menu-item">
+            <h2 className="item-title">Manage Organizations</h2>
+            <p className="item-price"></p>
+            {/* <p className="item-description">description</p> */}
           </div>
-          <div class="menu-item" onClick={handleManageUser}>
-            <h2 class="item-title">Manage Users</h2>
-            <p class="item-description"></p>
-            {/* <p class="item-price"></p> */}
+          <div className="menu-item" onClick={handleManageUser}>
+            <h2 className="item-title">Manage Users</h2>
+            <p className="item-description"></p>
+            {/* <p className="item-price"></p> */}
           </div>
-          <div class="menu-item" onClick={handleCreateOrg}>
-            <h2 class="item-title">Add Organization</h2>
-            <p class="item-description"></p>
-            {/* <p class="item-price"></p> */}
+          <div className="menu-item" onClick={handleCreateOrg}>
+            <h2 className="item-title">Add Organization</h2>
+            <p className="item-description"></p>
+            {/* <p className="item-price"></p> */}
           </div>
-          <div class="menu-item" onClick={handleCreateUser}>
-            <h2 class="item-title">Add User</h2>
-            <p class="item-description"></p>
-            {/* <p class="item-price"></p> */}
+          <div className="menu-item" onClick={handleCreateUser}>
+            <h2 className="item-title">Add User</h2>
+            <p className="item-description"></p>
+            {/* <p className="item-price"></p> */}
           </div>
-          <div class="menu-item" onClick={handleSystemSettings}>
-            <h2 class="item-title">System Parameters</h2>
-            <p class="item-description"></p>
-            {/* <p class="item-price"></p> */}
+          <div className="menu-item" onClick={handleSystemSettings}>
+            <h2 className="item-title">System Parameters</h2>
+            <p className="item-description"></p>
+            {/* <p className="item-price"></p> */}
           </div>
         </div>
       </div>
