@@ -18,16 +18,12 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-
-// Set EJS as the view engine (optional if you want to render dynamic EJS files)
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "../views"));
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //static routes for images
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
 // Initialize the database and create a new table dynamically
 initializeDatabase();
 
@@ -59,7 +55,7 @@ app.use(
     secret: "cert-store-key-123098-store-765432-key-88409-cert",
     resave: false,
     store: sessionStore,
-    saveUninitialized: true,
+    saveUninitialized: false,// new session will not be saved to the store even if it hasn’t been modified
     cookie: {maxAge: 24 * 60 * 60 * 1000 }// 1 day in milliseconds
   })
 );

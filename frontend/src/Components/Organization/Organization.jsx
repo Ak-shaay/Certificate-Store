@@ -148,7 +148,7 @@ const Organization = () => {
           <img src={imgURL}className="image" alt="logo" />
           </div>
             {isEditing?<div className="editBtnContainer">
-          <label className="plusBtn">
+          <label id="smallBtn">
           <input type="file" name="image"  id="imgUpload" hidden onChange={(e) => {
            handleImage(e,authNo);
           }}>
@@ -170,6 +170,7 @@ const Organization = () => {
             setAuthName(e.target.value);
           }}
         />
+        <div className="authGroup">
         <input
           id="AuthCode"
           className="popup-input auth-code"
@@ -184,7 +185,7 @@ const Organization = () => {
           <>
             <button
               type="button"
-              className="gen-button"
+              id="smallBtn"
               onClick={handleGenAuth}
             >
               <img src={refreshIcon} alt="regenerate" />
@@ -192,11 +193,11 @@ const Organization = () => {
           </>
         ) : (
           <></>
-        )}
+        )}</div>
         {!isEditing ? (
           <button
+           id="editBtn"
             type="button"
-            className="submitForm"
             onClick={() => setIsEditing(true)}
           >
             Edit
@@ -204,6 +205,7 @@ const Organization = () => {
         ) : (
           <button
             type="button"
+            id="editBtn"
             className="submitForm"
             onClick={() => {
               handleSave(authName, authCode, authNo);

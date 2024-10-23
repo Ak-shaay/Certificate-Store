@@ -575,20 +575,22 @@ const DataTable = () => {
             ref={stateRef}
           />
         </div>
-        <div className="col">
-          <div className="row date_picker">
-            <select className="datepicker" name="date" id="date">
+          <div className="dateFilter">
+            <select className="datepicker mb" name="date" id="date">
               <option value="issued" defaultChecked >Issued Date</option>
               <option value="expiry">Expiry Date</option>
             </select>
-            <label className="dateLable">from</label>
+            <div className="dateGroup">
+            <label className="dateLabel">from</label>
             <input
               type="date"
               className="datepicker"
               onChange={handleStartDateChange}
               value={startDate}
             />
-            <label className="dateLable">to</label>
+            </div>
+            <div className="dateGroup">
+            <label className="dateLabel">to</label>
             <input
               type="date"
               className="datepicker"
@@ -597,18 +599,18 @@ const DataTable = () => {
               value={endDate}
             />
           </div>
-
-          <div className="row date_picker">
-            <label className="dateLable">Validity </label>
+          </div>
+          <div className="validity">
+            <label className="validityLabel">Validity </label>
             <input
               type="number"
               className="datepicker"
               step="1"
               min="0"
-              max="5"
+              max="10"
               onChange={handleValidity}
             />
-            <label className="dateLable">Year(s)</label>
+            <label className="validityLabel">Year(s)</label>
           </div>
           <br />
           <hr />
@@ -626,7 +628,7 @@ const DataTable = () => {
               Apply
             </button>
           </div>
-        </div>
+        {/* </div> */}
       </div>
       <div className="" id="download">
         <span className="close" onClick={handleDownloadCertClose}>

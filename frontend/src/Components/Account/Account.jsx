@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import "./Account.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
+import FormControl from "@mui/material/FormControl";
+import TextField from "@mui/material/TextField";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const Account = () => {
   const [data, setData] = useState(null);
@@ -24,10 +29,9 @@ const Account = () => {
             window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
           }, 2000);
           throw new Error("Network response was not ok");
-         
         }
 
-        setData(response.data.profileData);        
+        setData(response.data.profileData);
       } catch (error) {
         setError(error);
       } finally {
@@ -107,8 +111,9 @@ const Account = () => {
           }, 3800);
         }
       } catch (err) {
-        console.log("this is error: ", err.response.data.message)
-        document.getElementById("updatePasswordMsg").textContent = err.response.data.message;
+        console.log("this is error: ", err.response.data.message);
+        document.getElementById("updatePasswordMsg").textContent =
+          err.response.data.message;
         setTimeout(() => {
           document.getElementById("updatePasswordMsg").textContent = "";
         }, 8000);
@@ -132,27 +137,43 @@ const Account = () => {
         </span>
         <h2 className="filter-head">Change Password</h2>
         <hr className="filter-line" />
-        <input
+        {/* <input
           id="oldPassword"
           type="password"
           name="oldPassword"
           placeholder="Old Password"
           required
-        />
-        <input
-          id="newPassword"
-          type="password"
-          name="newPassword"
-          placeholder="New password"
-          required
-        />
-        <input
-          id="confirmPassword"
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm new password"
-          required
-        />
+        /> */}
+        <FormControl fullWidth sx={{ m: 1 }}>
+          <InputLabel htmlFor="oldPassword">Old Password</InputLabel>
+          <OutlinedInput
+            id="oldPassword"
+            type="password"
+            name="oldPassword"
+            label="Old Password"
+            required
+          />
+        </FormControl>
+        <FormControl fullWidth sx={{ m: 1 }}>
+          <InputLabel htmlFor="newPassword">New Password</InputLabel>
+          <OutlinedInput
+            id="newPassword"
+            type="password"
+            name="newPassword"
+            label="New Password"
+            required
+          />
+        </FormControl>
+        <FormControl fullWidth sx={{ m: 1 }}>
+          <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+          <OutlinedInput
+            id="confirmPassword"
+            type="password"
+            name="confirmPassword"
+            label="New Password"
+            required
+          />
+        </FormControl>
         <span id="updatePasswordMsg"></span>
         <br />
         <hr />
@@ -168,32 +189,52 @@ const Account = () => {
           </button>
         </div>
       </div>
-       <div className="AccountContainer" id="accountContainer">
+      <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
         <hr className="" />
         <form id="forms">
           <div className="row">
             <div className="column">
-                <label htmlFor="fname"><b>Name : </b>{data[0].AuthName}</label>
+              <label htmlFor="fname">
+                <b>Name : </b>
+                {data[0].AuthName}
+              </label>
             </div>
             <div className="column">
-                <label htmlFor="email"><b>Email : </b>{data[0].Email}</label>
+              <label htmlFor="email">
+                <b>Email : </b>
+                {data[0].Email}
+              </label>
             </div>
             <div className="column">
-                <label htmlFor="organization"><b>Organization : </b>{data[0].Organization}</label>
+              <label htmlFor="organization">
+                <b>Organization : </b>
+                {data[0].Organization}
+              </label>
             </div>
           </div>
-          <div className="header mg-tp"><b></b>Address</div>
+          <div className="header mg-tp">
+            <b></b>Address
+          </div>
           <hr className="" />
           <div className="row">
             <div className="column">
-                <label htmlFor="address"><b>Locality : </b>{data[0].Address}</label>
+              <label htmlFor="address">
+                <b>Locality : </b>
+                {data[0].Address}
+              </label>
             </div>
             <div className="column">
-                <label htmlFor="state"><b>State : </b>{data[0].State}</label>
+              <label htmlFor="state">
+                <b>State : </b>
+                {data[0].State} 
+              </label>
             </div>
             <div className="column">
-                <label htmlFor="Postal Code"><b>Postal Code : </b>{data[0].Postal_Code}</label>
+              <label htmlFor="Postal Code">
+                <b>Postal Code : </b>
+                {data[0].Postal_Code}
+              </label>
             </div>
           </div>
           <br />

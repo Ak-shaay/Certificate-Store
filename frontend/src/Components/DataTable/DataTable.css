@@ -17,16 +17,37 @@
     max-width: 85vw;
     border-radius: 20px;
 }
-
-.dateLable {
+.mb{
+    margin-bottom: 1.5rem;
+}
+.dateLabel {
+    margin: 0 0.5rem;
+}
+.validityLabel {
+    margin: 1rem 0.5rem;
+}
+.dateGroup{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
     margin: 1rem;
 }
-
 .date_picker {
     display: flex;
     flex-direction: row;
 }
-
+.validity{
+    display: flex;
+    justify-content: center;
+}
+.dateFilter{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
 .action-row {
     display: flex;
     flex-direction: row;

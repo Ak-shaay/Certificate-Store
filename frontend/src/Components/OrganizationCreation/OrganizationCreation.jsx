@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./OrganizationCreation.css";
 import TextField from "@mui/material/TextField";
+import { Button } from "@mui/material";
 
 const OrganizationCreation = () => {
   const [certificate, setCertificate] = useState(null);
@@ -48,7 +49,7 @@ const OrganizationCreation = () => {
               <p>
                 {certificate
                   ? certificate.name
-                  : "Drag & drop a file here or click to upload"}
+                  : "Drag & drop certificate file here or click to upload"}
               </p>
               <input
                 type="file"
@@ -67,11 +68,15 @@ const OrganizationCreation = () => {
             <TextField required id="address" label="Address" />
             <TextField required id="state" label="State" />
             <TextField required id="postal-code" label="Postal Code" />
+            <Button variant="text" size="medium" component="label">
+              Upload Image
+              <input type="file" hidden />
+            </Button>
           </div>
           <div className="btnContainer">
-          <button type="submit" className="commonBtn">
-            Create
-          </button>
+            <button type="submit" className="commonBtn">
+              Create
+            </button>
           </div>
         </div>
       </div>

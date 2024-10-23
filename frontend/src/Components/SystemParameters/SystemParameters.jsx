@@ -267,7 +267,7 @@ const SystemParameters = () => {
                 <div key={state.value} className="list">
                   <label>{state.label}</label>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name="stateInRegion"
                     value={state.value}
                     checked={selectedState === state.value}
