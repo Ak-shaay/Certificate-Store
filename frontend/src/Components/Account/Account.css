@@ -40,7 +40,7 @@
     display: flex;
     flex-wrap: wrap;
     /* row-gap: 1rem; */
-    gap: 3rem;
+    gap: 2rem;
     justify-content: center;
 }
 
@@ -69,6 +69,9 @@
     box-shadow: 0 1px 2px 0 #89cff0;
     border-radius: 4px;
     background: #ffffff00;
+}
+.column{
+    margin-top: 2.5rem;
 }
 
 
@@ -111,4 +114,7 @@
 
 .loginbtn {
     margin-top: 1rem;
+}
+.passwordFrom{
+    background: papayawhip !important;
 }

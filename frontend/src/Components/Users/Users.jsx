@@ -38,7 +38,7 @@ const Users = () => {
       <div className="usersMain">
         <h2>Users</h2>
           <div className="userTableWrapper">
-          <div ref={wrapperRef} />;
+          <div ref={wrapperRef} />
           </div>
       </div>
     </div>

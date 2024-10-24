@@ -3,10 +3,8 @@ import "./Account.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import FormControl from "@mui/material/FormControl";
-import TextField from "@mui/material/TextField";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
-import InputAdornment from "@mui/material/InputAdornment";
 
 const Account = () => {
   const [data, setData] = useState(null);
@@ -147,6 +145,7 @@ const Account = () => {
         <FormControl fullWidth sx={{ m: 1 }}>
           <InputLabel htmlFor="oldPassword">Old Password</InputLabel>
           <OutlinedInput
+            className="passwordFrom"
             id="oldPassword"
             type="password"
             name="oldPassword"
@@ -157,6 +156,7 @@ const Account = () => {
         <FormControl fullWidth sx={{ m: 1 }}>
           <InputLabel htmlFor="newPassword">New Password</InputLabel>
           <OutlinedInput
+            className="passwordFrom"
             id="newPassword"
             type="password"
             name="newPassword"
@@ -167,6 +167,7 @@ const Account = () => {
         <FormControl fullWidth sx={{ m: 1 }}>
           <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
           <OutlinedInput
+            className="passwordFrom"
             id="confirmPassword"
             type="password"
             name="confirmPassword"
@@ -227,7 +228,7 @@ const Account = () => {
             <div className="column">
               <label htmlFor="state">
                 <b>State : </b>
-                {data[0].State} 
+                {data[0].State}
               </label>
             </div>
             <div className="column">
