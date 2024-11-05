@@ -29,7 +29,7 @@ let initialized = false;
 
 async function initializeDatabase(callback){
     if(!initialized){
-        await createTableDynamically();
+        // await createTableDynamically();
         initialized = true;
     }
     else{

@@ -30,7 +30,7 @@
     border-radius: 8px;
     border-width: 2px;
     border-style: solid;
-    border-color: #00A4BD #ffffff;
+    border-color: #9592fc #ffffff;
     height: auto;
     width: 150px;
 }
@@ -53,6 +53,9 @@
     background-color: rgb(76, 194, 230);
     width: 4rem;
   }
+  .editBtnContainer{
+    padding: 8px;
+  }
   #smallBtn{
     margin: 1rem;
     padding: 5px;
@@ -62,8 +65,11 @@
     color: #ffffff;
     background-color: rgb(76, 194, 230);;
   }
-  .authGroup{
+  .managementInput{
+    background-color: papayawhip!important;
+  }
+  .managementBtn .managementMsg{
     display: flex;
-    justify-content: space-between;
-    
+    justify-content: center;
+    margin: 1rem 0;
   }

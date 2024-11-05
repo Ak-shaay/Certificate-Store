@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import "./Users.css";
 import { Grid } from "gridjs";
-const Users = () => {
+const Users = ({ onBack }) => {
     const wrapperRef = useRef(null);
 
   const grid = new Grid({
@@ -15,7 +15,7 @@ const Users = () => {
     data: [],
     pagination: true,
     // sort: true,
-    search: true,
+    // search: true,
     style: {
       th: {
         backgroundColor: "rgb(132 168 255 / 70%)",
@@ -36,6 +36,8 @@ const Users = () => {
   return (
     <div className="usersBody">
       <div className="usersMain">
+      <div className="backClass">
+      <button onClick={onBack} className="backButton">Back</button></div>
         <h2>Users</h2>
           <div className="userTableWrapper">
           <div ref={wrapperRef} />

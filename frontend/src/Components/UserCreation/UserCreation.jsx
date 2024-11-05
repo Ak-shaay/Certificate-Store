@@ -3,7 +3,7 @@ import "./UserCreation.css";
 import TextField from "@mui/material/TextField";
 import { MenuItem } from "@mui/material";
 
-const UserCreation = () => {
+const UserCreation = ({ onBack }) => {
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
   const [email, setEmail] = useState("");
@@ -34,6 +34,8 @@ const UserCreation = () => {
   return (
     <div className="userCreation">
       <div className="userCreationBody">
+      <div className="backClass">
+      <button onClick={onBack} className="backButton">Back</button></div>
         <h2>Create User</h2>
         <div className="accountCreation">
           <TextField

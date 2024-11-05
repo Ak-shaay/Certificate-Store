@@ -3,7 +3,7 @@ import "./OrganizationCreation.css";
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 
-const OrganizationCreation = () => {
+const OrganizationCreation = ({ onBack }) => {
   const [certificate, setCertificate] = useState(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -36,7 +36,10 @@ const OrganizationCreation = () => {
 
   return (
     <div className="orgCreation">
+      
       <div className="orgCreationBody">
+        <div className="backClass">
+      <button onClick={onBack} className="backButton">Back</button></div>
         <h2>Create Organization</h2>
         <div className="accountCreation">
           <div className="fileContainer">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./SystemParameters.css";
 import api from "../../Pages/axiosInstance";
 
-const SystemParameters = () => {
+const SystemParameters = ({ onBack }) => {
   const [regions, setRegions] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [statesInRegion, setStatesInRegion] = useState([]);
@@ -232,6 +232,8 @@ const SystemParameters = () => {
   return (
     <div className="spBody">
       <div className="mainSp">
+      <div className="backClass">
+      <button onClick={onBack} className="backButton">Back</button></div>
         <h2>Manage System Parameters</h2>
         <div className="mainContainer">
           <div className="gridContainer">
