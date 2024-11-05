@@ -45,9 +45,11 @@ async function authenticateAdmin(req, res, next) {
 }
 
 function findUserByUsername(username) {
-  const query = "SELECT * FROM Login WHERE UserName = ?";
+  const query = "SELECT * FROM Login WHERE UserEmail = ?";
   return db.executeQuery(query, [username]);
 }
+
+
 // changed for account section
 function findUserByAuthNo(authNo) {
   const query = "SELECT * FROM authorities WHERE AuthNo = ?";
@@ -62,7 +64,6 @@ async function createUser(username, password) {
 }
 async function logUserAction(
   UserName,
-  timeStamp,
   ip,
   Action,
   Remark,
@@ -70,12 +71,11 @@ async function logUserAction(
   longitude
 ) {
   const query =
-    "INSERT INTO logs (UserName, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO logs (UserEmail, IpAddress, ActionType, Remark, Lattitude, Longitude) VALUES (?, ?, ?, ?, ?, ?)";
   try {
     ip = ip.toString().replace("::ffff:", "");
     await db.executeQuery(query, [
       UserName,
-      timeStamp,
       ip,
       Action,
       Remark,
@@ -91,45 +91,41 @@ async function getCertData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subject_Type,RawCertificate FROM cert WHERE 1=1";
+        "SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE 1=1";
     } else {
       query =
-        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,Subject_CommonName,Subject_ST,IssuerCert_SrNo,IssuerCommonName,IssueDate, ExpiryDate,subject_Type,RawCertificate FROM cert WHERE IssuerCert_SrNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.Subject_CommonName,c.Subject_ST,c.IssuerCert_SrNo,c.IssuerCommonName,c.IssueDate,c.ExpiryDate,c.subject_Type,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
+        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE IssuerSlNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.SubjectName,c.State,c.IssuerSlNo,c.IssuerName,c.IssueDate,c.ExpiryDate,c.SubjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
     }
-    if (filterCriteria) {
+    if (filterCriteria) {      
       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
         const issuers = filterCriteria.issuers
           .map((issuer) => `'${issuer}'`)
           .join(",");
-        query += ` AND IssuerCommonName IN (WITH RECURSIVE hierarchy AS ( SELECT c.Subject_CommonName FROM cert c WHERE c.IssuerCommonName in (${issuers}) or c.Subject_CommonName in (${issuers}) UNION ALL SELECT e.Subject_CommonName FROM cert e INNER JOIN hierarchy eh ON e.IssuerCommonName = eh.Subject_CommonName ) SELECT * FROM hierarchy)`;
+        query += ` AND IssuerName IN (WITH RECURSIVE hierarchy AS ( SELECT c.SubjectName FROM cert c WHERE c.IssuerName in (${issuers}) or c.SubjectName in (${issuers}) UNION ALL SELECT e.SubjectName FROM cert e INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName ) SELECT * FROM hierarchy)`;
       }
       if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
         const subjectTypes = filterCriteria.subjectType
           .map((state) => `'${state}'`)
           .join(",");
-        query += ` AND subject_Type IN (${subjectTypes})`;
+        query += ` AND SubjectType IN (${subjectTypes})`;
       }
       if (filterCriteria.states && filterCriteria.states.length > 0) {
         const states = filterCriteria.states
           .map((state) => `'${state}'`)
           .join(",");
-        query += ` AND Subject_ST IN (${states})`;
+        query += ` AND State IN (${states})`;
       }
-      if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-        query += ` AND Subject_ST IN (${regionMap(filterCriteria.regions)})`;
+      if (filterCriteria.regions && filterCriteria.regions.length > 0) {        
+        query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
       }
       if (filterCriteria.startDate && filterCriteria.endDate) {
         query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
-      // if (filterCriteria.validityStartDate && filterCriteria.validityEndDate) {
-      //   query += ` AND ExpiryDate > '${filterCriteria.validityEndDate}'`;
-      // }
       if (filterCriteria.validity && filterCriteria.validity != 0) {
         query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
       }
     }
-    query += " ORDER BY IssueDate DESC";
-
+    query += " ORDER BY IssueDate DESC";    
     const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
@@ -141,10 +137,10 @@ async function getRevokedCertData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE 1=1";
+        "SELECT SerialNumber ,IssuerName, RevokeDateTime, Reason FROM Revocation_Data WHERE 1=1";
     } else {
       query =
-        "SELECT SerialNumber AS serial_number,IssuerCommonName, RevokeDateTime AS revoke_date_time, Reason AS reason FROM Revocation_Data WHERE IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
+        "SELECT SerialNumber ,IssuerName, RevokeDateTime, Reason FROM Revocation_Data WHERE IssuerSlNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
     }
     if (filterCriteria) {
       if (filterCriteria.reason && filterCriteria.reason.length > 0) {
@@ -169,10 +165,10 @@ async function getCertUsageData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE 1=1";
+        "SELECT CU.SerialNumber AS serial_number,C.SubjectName AS subject_common_name,CU.IssuerName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE 1=1";
     } else {
       query =
-        "SELECT CU.SerialNumber AS serial_number,C.Subject_CommonName AS subject_common_name,CU.IssuerCommonName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerCert_SrNo = C.IssuerCert_SrNo WHERE C.IssuerCert_SrNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerCert_SrNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
+        "SELECT CU.SerialNumber AS serial_number,C.SubjectName AS subject_common_name,CU.IssuerName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE C.IssuerSlNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
     }
     if (filterCriteria) {
       if (filterCriteria.usage && filterCriteria.usage.length > 0) {
@@ -198,18 +194,18 @@ async function getLogsData(filterCriteria, authNo) {
     let query = "";
     if (authNo == null) {
       query =
-        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
+        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
     } else if (authNo == 1) {
       query =
-        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs WHERE  UserName NOT IN (SELECT UserName from login WHERE AuthNo IS NULL)";
+        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE  UserName NOT IN (SELECT UserName from login WHERE AuthNo IS NULL)";
     } else {
       query =
-        "SELECT LogsSrNo AS id, UserName AS user_id, TimeStamp AS timestamp, IpAddress AS ip_address, ActionType AS action, Remark, Lattitude, Longitude FROM Logs  WHERE UserName IN (SELECT UserName from login WHERE AuthNo = ?)";
+        "SELECT LogsSrNo , UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs  WHERE UserName IN (SELECT UserName from login WHERE AuthNo = ?)";
     }
     if (filterCriteria) {
       if (filterCriteria.users && filterCriteria.users.length > 0) {
         const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
-        query += ` AND UserName IN (${users})`;
+        query += ` AND UserEmail IN (${users})`;
       }
       if (filterCriteria.actions && filterCriteria.actions.length > 0) {
         const actions = filterCriteria.actions
@@ -230,18 +226,19 @@ async function getLogsData(filterCriteria, authNo) {
   }
 }
 
-async function updateStatus(username, status, attempts, timestamp) {
+async function updateStatus(username, status, attempts) {
   try {
     const query =
-      "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
-    return db.executeQuery(query, [status, attempts, timestamp, username]);
+      "UPDATE Login SET LoginStatus = ? , Attempts = ? WHERE UserEmail = ?";
+      // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
+    return db.executeQuery(query, [status, attempts, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }
 }
 async function updateAttempts(username, attempts) {
   try {
-    const query = "UPDATE Login SET Attempts = ? WHERE UserName = ?";
+    const query = "UPDATE Login SET Attempts = ? WHERE UserEmail = ?";
     return db.executeQuery(query, [attempts, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
@@ -487,7 +484,7 @@ async function updateAuthsData(authCode, authName, authNo) {
   }
 }
 async function getSubjectTypes() {
-  const querySubtypes = `SELECT DISTINCT Subject_Type FROM cert`;
+  const querySubtypes = `SELECT DISTINCT SubjectType FROM cert`;
   try {
     const distinctSubtypes = await db.executeQuery(querySubtypes);
     return distinctSubtypes;
@@ -507,7 +504,7 @@ async function getRevocationReasons() {
 }
 
 async function getCertSerialNumber(serialNumber, issuerName) {
-  const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerCommonName = ?`;
+  const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerName = ?`;
   try {
     const result = await db.executeQuery(query, [serialNumber, issuerName]);
     console.log("result of presence", result);
@@ -623,7 +620,7 @@ async function signup(params) {
 }
 
 async function getCertInfo(serialNo, issuerCN) {
-  const query = `SELECT * FROM cert WHERE SerialNumber = ? AND IssuerCommonName like ?`;
+  const query = `SELECT * FROM cert WHERE SerialNumber = ? AND IssuerName like ?`;
   try {
     const result = await db.executeQuery(query, [serialNo, issuerCN]);
     return result;
@@ -688,7 +685,7 @@ async function getEmail(userName) {
 }
 
 async function getProfileStatus(userName) {
-  const query = `SELECT LoginStatus FROM login WHERE UserName = ?`;
+  const query = `SELECT LoginStatus FROM login WHERE UserEmail = ?`;
   try {
     const result = await db.executeQuery(query, [userName]);
     

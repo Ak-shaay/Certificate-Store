@@ -253,15 +253,16 @@ const DataTable = () => {
       endDate: endDate,
       validity: validity,
     };
+    
     try {
       const accessToken = api.getAccessToken();
       const decodedToken = accessToken
-        ? JSON.parse(atob(accessToken.split(".")[1]))
-        : null;
+      ? JSON.parse(atob(accessToken.split(".")[1]))
+      : null;
       const authNo = decodedToken ? decodedToken.authNo : [];
       const username = decodedToken ? decodedToken.username : [];
       setAuthNumber(authNo);
-
+      
       if (accessToken) {
         api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.post(
@@ -273,15 +274,14 @@ const DataTable = () => {
           gridRef.current.updateConfig({
             data: data.map((cert) => [
               cert.SerialNumber,
-              cert.Subject_CommonName,
-              cert.IssuerCommonName,
+              cert.SubjectName,
+              cert.IssuerName,
               cert.IssueDate,
-              cert.Subject_ST,
+              cert.State,
               cert.Region,
               cert.ExpiryDate,
-              cert.subject_Type,
+              cert.SubjectType,
               cert.RawCertificate,
-              // "Status"
             ]),
           });
           gridRef.current.forceRender();
@@ -295,7 +295,7 @@ const DataTable = () => {
   useEffect(() => {
     gridRef.current = new Grid({
       columns: [
-        { id: "serialNo", name: "Serial No", width: "300px" },
+        { id: "serialNo", name: "Serial No", width: "330px" },
         { id: "name", name: "Name", width: "200px" },
         { id: "issuer", name: "Issuer", width: "200px" },
         { id: "date", name: "Issued Date", width: "200px" },

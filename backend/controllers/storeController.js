@@ -174,7 +174,7 @@ async function signupController(req, res) {
 // update the user status
 async function loginAttempt(userExist) {
   if (userExist.LoginStatus == "inactive") {
-    const currentTime = new Date();
+    // const currentTime = new Date();
     const timeDifferenceMs = currentTime - userExist.LastAttempt;
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
@@ -182,10 +182,10 @@ async function loginAttempt(userExist) {
     if (timeDifferenceHours > 24) {
       //updates the database
       await userModel.updateStatus(
-        userExist.UserName,
+        userExist.UserEmail,
         "active",
         2,
-        currentTime
+        // currentTime
       );
       return true;
     } else {
@@ -223,8 +223,8 @@ async function login(req, res) {
       req.session.userRole = userExist[0].Role;
       if ((userExist[0].LoginStatus == "temporary")&&(userExist[0].Attempts>0)) {
         await userModel.logUserAction(
-          userExist[0].UserName,
-          new Date().toISOString().replace("T", " ").slice(0, 19),
+          userExist[0].UserEmail,
+          // new Date().toISOString().replace("T", " ").slice(0, 19),
           req.ip,
           "Login",
           "Logged In Using Temporary Password",
@@ -232,10 +232,10 @@ async function login(req, res) {
           longitude
         );
         await userModel.updateStatus(
-          userExist[0].UserName,
+          userExist[0].UserEmail,
           "tempLogin",
           0,
-          new Date().toISOString().replace("T", " ").slice(0, 19)
+          // new Date().toISOString().replace("T", " ").slice(0, 19)
         );
         return res.json({ accessToken, refreshToken });
       }
@@ -245,27 +245,27 @@ async function login(req, res) {
         .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
       }
       await userModel.logUserAction(
-        userExist[0].UserName,
-        new Date().toISOString().replace("T", " ").slice(0, 19),
+        userExist[0].UserEmail,
+        // new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
         "Login",
         "Logged In",
         latitude,
         longitude
       );
-      await userModel.updateAttempts(userExist[0].UserName, 2);
+      await userModel.updateAttempts(userExist[0].UserEmail, 2);
       return res.json({ accessToken, refreshToken });
     } else {
       // Failed login attempt
       if (userExist[0].Attempts > 0) {
         let attempt = (userExist[0].Attempts -= 1);
-        await userModel.updateAttempts(userExist[0].UserName, attempt);
+        await userModel.updateAttempts(userExist[0].UserEmail, attempt);
       } else {
         await userModel.updateStatus(
           userExist[0].UserName,
           "inactive",
           0,
-          new Date().toISOString().replace("T", " ").slice(0, 19)
+          // new Date().toISOString().replace("T", " ").slice(0, 19)
         );
         return res
           .status(423)
@@ -422,7 +422,7 @@ async function logout(req, res) {
     }
     userModel.logUserAction(
       userName,
-      new Date().toISOString().replace("T", " ").slice(0, 19),
+      // new Date().toISOString().replace("T", " ").slice(0, 19),
       req.ip,
       "Logout",
       "Logged Out",
@@ -434,21 +434,21 @@ async function logout(req, res) {
 }
 
 async function fetchData(req, res) {
-  function addYears(date, years) {
-    const dateCopy = new Date(date);
-    const yearsInt = parseInt(years, 10); // Ensure years is an integer
-    dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
-    const year = dateCopy.getFullYear();
-    const month = dateCopy.getMonth() + 1; // Months are zero-based
-    const day = dateCopy.getDate();
+  // function addYears(date, years) {
+  //   const dateCopy = new Date(date);
+  //   const yearsInt = parseInt(years, 10); // Ensure years is an integer
+  //   dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
+  //   const year = dateCopy.getFullYear();
+  //   const month = dateCopy.getMonth() + 1; // Months are zero-based
+  //   const day = dateCopy.getDate();
 
-    // Format the month and day to always be two digits
-    const monthFormatted = month < 10 ? `0${month}` : month;
-    const dayFormatted = day < 10 ? `0${day}` : day;
+  //   // Format the month and day to always be two digits
+  //   const monthFormatted = month < 10 ? `0${month}` : month;
+  //   const dayFormatted = day < 10 ? `0${day}` : day;
 
-    // Return the formatted date in yyyy-mm-dd
-    return `${year}-${monthFormatted}-${dayFormatted}`;
-  }
+  //   // Return the formatted date in yyyy-mm-dd
+  //   return `${year}-${monthFormatted}-${dayFormatted}`;
+  // }
 
   try {
     const authHeader = req.headers["authorization"];
@@ -467,25 +467,31 @@ async function fetchData(req, res) {
           endDate,
           validity,
         } = req.body;
-
+        
         const filterCriteria = {};
-
-        if (issuer && issuer.length > 0) {
+        
+        // Constructing filterCriteria based on request body values
+        if (issuer && Array.isArray(issuer) && issuer.length > 0) {
           filterCriteria.issuers = issuer;
         }
-        if (subjectType && subjectType.length > 0) {
+        
+        if (subjectType && Array.isArray(subjectType) && subjectType.length > 0) {
           filterCriteria.subjectType = subjectType;
         }
-        if (state && state.length > 0) {
+        
+        if (state && Array.isArray(state) && state.length > 0) {
           filterCriteria.states = state;
         }
-        if (region && region.length > 0) {
+        
+        if (region && Array.isArray(region) && region.length > 0) {
           filterCriteria.regions = region;
         }
+        
         if (startDate && endDate) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
         }
+        
         if (validity && validity !== 0) {
           filterCriteria.validity = validity;
         }
@@ -495,7 +501,7 @@ async function fetchData(req, res) {
           user.authNo
         );
         for (i in certDetails) {
-          certDetails[i].Region = await getIndianRegion(certDetails[i].Subject_ST)
+          certDetails[i].Region = await getIndianRegion(certDetails[i].State)
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
         }             
@@ -531,8 +537,8 @@ async function fetchRevokedData(req, res) {
           user.authNo
         );
         for (i in revokedCertDetails) {
-          revokedCertDetails[i].revoke_date_time = formatDate(
-            revokedCertDetails[i].revoke_date_time
+          revokedCertDetails[i].RevokeDateTime = formatDate(
+            revokedCertDetails[i].RevokeDateTime
           );
         }
         res.json(revokedCertDetails);
@@ -605,7 +611,7 @@ async function fetchLogsData(req, res) {
             userToken.authNo
           );
           for (i in logsDetails) {
-            logsDetails[i].timestamp = formatDate(logsDetails[i].timestamp);
+            logsDetails[i].TimeStamp = formatDate(logsDetails[i].TimeStamp);
           }
           res.json(logsDetails);
         }
@@ -626,7 +632,6 @@ async function profileData(req, res, next) {
     if (err) return res.sendStatus(403);
 
     try {
-      // const profileData = await userModel.findUserByUsername(user.username);
       const profileData = await userModel.findUserByAuthNo(user.authNo);
       if (profileData.length > 0) {
         res.status(200).json({ profileData });
@@ -706,7 +711,7 @@ async function updatePasswordController(req, res, next) {
       );
       await userModel.logUserAction(
         userExist[0].UserName,
-        new Date().toISOString().replace("T", " ").slice(0, 19),
+        // new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
         "Password change",
         remark,
@@ -821,7 +826,7 @@ async function updateAuths(req, res) {
         }
         userModel.logUserAction(
           "Admin",
-          new Date().toISOString().replace("T", " ").slice(0, 19),
+          // new Date().toISOString().replace("T", " ").slice(0, 19),
           req.ip,
           "Update",
           remark,
@@ -1180,8 +1185,8 @@ async function getSubType(req, res) {
     const distinctSubTypes = await userModel.getSubjectTypes();
 
     const result = distinctSubTypes.map((item) => ({
-      label: item.Subject_Type,
-      value: item.Subject_Type,
+      label: item.SubjectType,
+      value: item.SubjectType,
     }));
     res.json(result);
   } catch (error) {

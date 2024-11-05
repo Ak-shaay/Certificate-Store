@@ -105,7 +105,7 @@ try{
         const data = await response.data;
         gridRef.current.updateConfig({
           data:data.map((params)=>[
-            params.serial_number, params.IssuerCommonName,params.revoke_date_time, params.reason
+            params.SerialNumber , params.IssuerName ,params.RevokeDateTime, params.Reason
           ])
         });
         gridRef.current.forceRender();

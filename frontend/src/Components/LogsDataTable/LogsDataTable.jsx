@@ -139,14 +139,14 @@ try{
           const data = await response.data;          
           gridRef.current.updateConfig({
           data: data.map((log) => [
-          log.id,
-          log.user_id,
-          log.action,
+          log.LogsSrNo,
+          log.UserEmail,
+          log.ActionType,
           log.Remark,
-          log.ip_address,
-          log.timestamp,
-          log.latitude,
-          log.longitude,
+          log.IpAddress,
+          log.TimeStamp,
+          log.Latitude,
+          log.Longitude,
         ]),
         });
         gridRef.current.forceRender();
