@@ -163,10 +163,10 @@ async function getCertUsageData(filterCriteria, authNo) {
     let query = "";
     if (authNo == 1 || authNo == null) {
       query =
-        "SELECT CU.SerialNumber AS serial_number,C.SubjectName AS subject_common_name,CU.IssuerName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE 1=1";
+        "SELECT CU.SerialNumber,C.SubjectName,CU.IssuerName, CU.UsageDate,CU.Remark ,CU.Count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE 1=1";
     } else {
       query =
-        "SELECT CU.SerialNumber AS serial_number,C.SubjectName AS subject_common_name,CU.IssuerName, CU.UsageDate AS time_stamp,CU.Remark AS remark,CU.Count AS count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE C.IssuerSlNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
+        "SELECT CU.SerialNumber,C.SubjectName,CU.IssuerName, CU.UsageDate,CU.Remark,CU.Count FROM Cert_Usage CU INNER JOIN Cert C ON CU.SerialNumber = C.SerialNumber AND CU.IssuerSlNo = C.IssuerSlNo WHERE C.IssuerSlNo IN (WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber FROM auth_cert WHERE AuthNo = ? union ALL SELECT c.SerialNumber FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST) AND 1=1";
     }
     if (filterCriteria) {
       if (filterCriteria.usage && filterCriteria.usage.length > 0) {
@@ -257,7 +257,7 @@ FROM logs l
 JOIN login lg ON l.UserEmail = lg.UserEmail
 WHERE lg.UserEmail = 'admin' AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
-LIMIT 1;`;
+LIMIT 1`;
     }
     return db.executeQuery(query, [authNo]);
   } catch (e) {

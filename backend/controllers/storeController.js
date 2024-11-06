@@ -10,7 +10,7 @@ const nodemailer = require("nodemailer");
 const TOKEN_FILE = "tokens.json";
 const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 let refreshTokens = {};
 
@@ -184,7 +184,7 @@ async function loginAttempt(userExist) {
       await userModel.updateStatus(
         userExist.UserEmail,
         "active",
-        2,
+        2
         // currentTime
       );
       return true;
@@ -221,7 +221,10 @@ async function login(req, res) {
       req.session.username = userExist[0].UserEmail;
       req.session.userid = userExist[0].AuthNo;
       req.session.userRole = userExist[0].Role;
-      if ((userExist[0].LoginStatus == "temporary")&&(userExist[0].Attempts>0)) {
+      if (
+        userExist[0].LoginStatus == "temporary" &&
+        userExist[0].Attempts > 0
+      ) {
         await userModel.logUserAction(
           userExist[0].UserEmail,
           // new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -234,15 +237,15 @@ async function login(req, res) {
         await userModel.updateStatus(
           userExist[0].UserEmail,
           "tempLogin",
-          0,
+          0
           // new Date().toISOString().replace("T", " ").slice(0, 19)
         );
         return res.json({ accessToken, refreshToken });
       }
       if (userExist[0].LoginStatus == "inactive") {
         return res
-        .status(423)
-        .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
+          .status(423)
+          .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
       }
       await userModel.logUserAction(
         userExist[0].UserEmail,
@@ -264,7 +267,7 @@ async function login(req, res) {
         await userModel.updateStatus(
           userExist[0].UserEmail,
           "inactive",
-          0,
+          0
           // new Date().toISOString().replace("T", " ").slice(0, 19)
         );
         return res
@@ -467,31 +470,35 @@ async function fetchData(req, res) {
           endDate,
           validity,
         } = req.body;
-        
+
         const filterCriteria = {};
-        
+
         // Constructing filterCriteria based on request body values
         if (issuer && Array.isArray(issuer) && issuer.length > 0) {
           filterCriteria.issuers = issuer;
         }
-        
-        if (subjectType && Array.isArray(subjectType) && subjectType.length > 0) {
+
+        if (
+          subjectType &&
+          Array.isArray(subjectType) &&
+          subjectType.length > 0
+        ) {
           filterCriteria.subjectType = subjectType;
         }
-        
+
         if (state && Array.isArray(state) && state.length > 0) {
           filterCriteria.states = state;
         }
-        
+
         if (region && Array.isArray(region) && region.length > 0) {
           filterCriteria.regions = region;
         }
-        
+
         if (startDate && endDate) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
         }
-        
+
         if (validity && validity !== 0) {
           filterCriteria.validity = validity;
         }
@@ -501,10 +508,10 @@ async function fetchData(req, res) {
           user.authNo
         );
         for (i in certDetails) {
-          certDetails[i].Region = await getIndianRegion(certDetails[i].State)
+          certDetails[i].Region = await getIndianRegion(certDetails[i].State);
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
-        }             
+        }
         res.json(certDetails);
       }
     });
@@ -572,7 +579,7 @@ async function fetchUsageData(req, res) {
           user.authNo
         );
         for (i in usageDetails) {
-          usageDetails[i].time_stamp = formatDate(usageDetails[i].time_stamp);
+          usageDetails[i].UsageDate = formatDate(usageDetails[i].UsageDate);
         }
         res.json(usageDetails);
       }
@@ -664,9 +671,15 @@ async function profile(req, res, next) {
 
     try {
       const result = await userModel.getLastLogin(user.authNo);
-      const data = {
-        "ip": result[0].IpAddress,
-        "lastLogin": formatDate(result[0].TimeStamp),
+      var data = {
+        ip: "---",
+        lastLogin: "---",
+      };
+      if (result.length > 0) {
+        data = {
+          ip: result[0].IpAddress,
+          lastLogin: formatDate(result[0].TimeStamp),
+        };
       }
       res.status(200).json(data);
     } catch (error) {
@@ -682,7 +695,7 @@ async function updatePasswordController(req, res, next) {
   if (!token) return res.sendStatus(401);
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    const userExist = await userModel.findUserByUsername(req.user.username);    
+    const userExist = await userModel.findUserByUsername(req.user.username);
     const passwordMatch = await bcrypt.compare(
       oldPassword,
       userExist[0].Password
@@ -724,7 +737,7 @@ async function updatePasswordController(req, res, next) {
       }
     }
   } catch (err) {
-    console.error("An error occurred while",err);
+    console.error("An error occurred while", err);
     res.status(500).json({ error: err });
   }
 }
@@ -792,7 +805,7 @@ async function updateAuths(req, res) {
       try {
         const { authName, authCode, authNo } = req.body;
 
-        if (!authCode || !authName || !authNo )
+        if (!authCode || !authName || !authNo)
           return res.status(400).json({ error: "Missing required fields" });
 
         const authNameOld = await userModel.findUserByAuthNo(authNo);
@@ -891,14 +904,14 @@ async function getIndianRegion(state) {
 
     for (const region in allRegions) {
       const states = allRegions[region];
-      if (states.some(s => s.value === state)) {
+      if (states.some((s) => s.value === state)) {
         return region;
       }
     }
-    return 'Not found';
+    return "Not found";
   } catch (error) {
-      console.error("Error occurred while processing", error);
-      return "Not Found";
+    console.error("Error occurred while processing", error);
+    return "Not Found";
   }
 }
 
@@ -1342,10 +1355,10 @@ async function emailService(req, res) {
     res.status(500).json({ error: "Error Sending Email" });
   }
 }
-async function pdfGeneration(data,title,headers,filePath){
-  try{
-  const unit = "pt";
-    const size = "A4"; 
+async function pdfGeneration(data, title, headers, filePath) {
+  try {
+    const unit = "pt";
+    const size = "A4";
     const orientation = "landscape";
 
     const marginLeft = 40;
@@ -1367,39 +1380,37 @@ async function pdfGeneration(data,title,headers,filePath){
     doc.text(title, marginLeft, 40);
     await doc.autoTable(content);
     doc.save(filePath);
-    return true
-  }
-  catch(err){
+    return true;
+  } catch (err) {
     console.log(err);
     return false;
   }
 }
 
 async function reportGenerator(req, res) {
-  const {data,title,headers} = req.body;
+  const { data, title, headers } = req.body;
   const Sender = process.env.ID || "";
   const Secret = process.env.SECRET || "";
 
-  const uuid =uuidv4();
-  const filePath = './public/reports/'+uuid+'.pdf';
-  const link = 'http://10.182.3.123:8080/reports/'+uuid+'.pdf';
+  const uuid = uuidv4();
+  const filePath = "./public/reports/" + uuid + ".pdf";
+  const link = "http://10.182.3.123:8080/reports/" + uuid + ".pdf";
   try {
-  //   const authHeader = req.headers["authorization"];
-  // const token = authHeader && authHeader.split(" ")[1];
-  // if (!token) return res.status(401).json({ error: "Unauthorized" });
+    //   const authHeader = req.headers["authorization"];
+    // const token = authHeader && authHeader.split(" ")[1];
+    // if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-  // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-  //   if (err) return res.res.status(403).json({ error: "Forbidden" });     
-  //   });
-  let email= ''
+    // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    //   if (err) return res.res.status(403).json({ error: "Forbidden" });
+    //   });
+    let email = "";
     const userName = req.session.username;
-    if (userName == 'admin'){
-      email = process.env.ADMIN || "";;
+    if (userName == "admin") {
+      email = process.env.ADMIN || "";
+    } else {
+      email = await userModel.getEmail(userName);
     }
-    else{
-    email = await userModel.getEmail(userName);
-    }
-    const result = await pdfGeneration(data,title,headers,filePath);
+    const result = await pdfGeneration(data, title, headers, filePath);
     if (result) {
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",
@@ -1443,29 +1454,27 @@ async function reportGenerator(req, res) {
 }
 
 async function statusCheck(req, res) {
-  try{
+  try {
     const userName = req.session.username;
-    const status = await userModel.getProfileStatus(userName)    
-    if (status=='tempLogin'){
-      return res.status(200).json({login:"Temporary"} );
+    const status = await userModel.getProfileStatus(userName);
+    if (status == "tempLogin") {
+      return res.status(200).json({ login: "Temporary" });
+    } else {
+      return res.status(200).json({ login: "Normal" });
     }
-    else {
-      return res.status(200).json({login:"Normal"} );
-    }
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-async function profileImage(req, res) {  
+async function profileImage(req, res) {
   try {
     if (!req.files || !req.files.image) {
-      return res.status(400).send('No file uploaded.');
+      return res.status(400).send("No file uploaded.");
     }
 
     const img = req.files.image;
-    const fileName = req.body.authNo +'.png';
-    const uploadPath = path.join(__dirname, '..', 'public/images', fileName);
+    const fileName = req.body.authNo + ".png";
+    const uploadPath = path.join(__dirname, "..", "public/images", fileName);
     if (fs.existsSync(uploadPath)) {
       fs.unlinkSync(uploadPath); // Delete the existing file
       // console.log(`Existing file ${fileName} deleted.`);
@@ -1474,12 +1483,14 @@ async function profileImage(req, res) {
     // Move the file to the desired directory
     img.mv(uploadPath, (err) => {
       if (err) {
-        console.error("File upload error:", err); 
-        return res.status(500).json({ error: "Failed to upload file", details: err });
+        console.error("File upload error:", err);
+        return res
+          .status(500)
+          .json({ error: "Failed to upload file", details: err });
       }
 
       // console.log("ProfileImage", img.name);
-      return res.status(200).json('File uploaded successfully.');
+      return res.status(200).json("File uploaded successfully.");
     });
   } catch (error) {
     console.error("Internal server error:", error); // Log the error
@@ -1522,5 +1533,5 @@ module.exports = {
   emailService,
   reportGenerator,
   statusCheck,
-  profileImage
+  profileImage,
 };

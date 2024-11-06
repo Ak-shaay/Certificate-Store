@@ -145,3 +145,6 @@ width: 100%;
     background: linear-gradient(rgb(175 115 155) 0%, rgb(207 142 142) 100%);
 }
 
+.textWrap{
+    overflow-wrap: anywhere;
+}

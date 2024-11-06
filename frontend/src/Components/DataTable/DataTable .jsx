@@ -516,7 +516,6 @@ const DataTable = () => {
       .request(config)
       .then((response) => {
         // console.log("Response:", response);
-
         document.querySelector(".information-block").style.display = "flex";
         document.querySelector(".error-block").style.display = "none";
         setSerialNoInfo(response.data.serialNo);
@@ -744,7 +743,7 @@ const DataTable = () => {
           <h3 className="filter-head">Fingerprints</h3>
           <br />
           <label>
-            Hash Value : <span>{hashInfo}</span>{" "}
+            Hash Value : <span className="textWrap">{hashInfo}</span>{" "}
           </label>
           <br />
         </div>

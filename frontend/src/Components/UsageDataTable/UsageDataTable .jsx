@@ -91,12 +91,11 @@ try{
         const data= await response.data;
         gridRef.current.updateConfig({
           data: data.map((use)=>[
-            use.serial_number,
-            use.subject_common_name,
-            use.IssuerCommonName,
-            use.time_stamp,
-            use.remark,
-            // use.count
+            use.SerialNumber,
+            use.SubjectName,
+            use.IssuerName,
+            use.UsageDate,
+            use.Remark,
           ])
         })
         gridRef.current.forceRender();
