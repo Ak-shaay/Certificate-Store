@@ -209,16 +209,16 @@ async function login(req, res) {
     if (passwordMatch && (await loginAttempt(userExist[0]))) {
       // Successful login
       const accessToken = generateAccessToken(
-        userExist[0].UserName,
+        userExist[0].UserEmail,
         userExist[0].Role,
         userExist[0].AuthNo
       );
       const refreshToken = generateRefreshToken(
-        userExist[0].UserName,
+        userExist[0].UserEmail,
         userExist[0].Role,
         userExist[0].AuthNo
       );
-      req.session.username = userExist[0].UserName;
+      req.session.username = userExist[0].UserEmail;
       req.session.userid = userExist[0].AuthNo;
       req.session.userRole = userExist[0].Role;
       if ((userExist[0].LoginStatus == "temporary")&&(userExist[0].Attempts>0)) {
@@ -262,7 +262,7 @@ async function login(req, res) {
         await userModel.updateAttempts(userExist[0].UserEmail, attempt);
       } else {
         await userModel.updateStatus(
-          userExist[0].UserName,
+          userExist[0].UserEmail,
           "inactive",
           0,
           // new Date().toISOString().replace("T", " ").slice(0, 19)
@@ -667,8 +667,6 @@ async function profile(req, res, next) {
       const data = {
         "ip": result[0].IpAddress,
         "lastLogin": formatDate(result[0].TimeStamp),
-        // "latitude": result[0].Latitude,
-        // "longitude":result[0].Longitude,
       }
       res.status(200).json(data);
     } catch (error) {
@@ -684,7 +682,7 @@ async function updatePasswordController(req, res, next) {
   if (!token) return res.sendStatus(401);
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    const userExist = await userModel.findUserByUsername(req.user.username);
+    const userExist = await userModel.findUserByUsername(req.user.username);    
     const passwordMatch = await bcrypt.compare(
       oldPassword,
       userExist[0].Password
@@ -702,15 +700,15 @@ async function updatePasswordController(req, res, next) {
         newPassword,
         req.user.authNo
       );
-      const remark = userExist[0].UserName + " Updated their password!";
+      const remark = userExist[0].UserEmail + " Updated their password!";
       await userModel.updateStatus(
-        userExist[0].UserName,
+        userExist[0].UserEmail,
         "active",
         2,
         new Date().toISOString().replace("T", " ").slice(0, 19)
       );
       await userModel.logUserAction(
-        userExist[0].UserName,
+        userExist[0].UserEmail,
         // new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
         "Password change",
@@ -726,6 +724,7 @@ async function updatePasswordController(req, res, next) {
       }
     }
   } catch (err) {
+    console.error("An error occurred while",err);
     res.status(500).json({ error: err });
   }
 }

@@ -109,7 +109,7 @@ const Account = () => {
           }, 3800);
         }
       } catch (err) {
-        console.log("this is error: ", err.response.data.message);
+        console.log("this is error: ", err);
         document.getElementById("updatePasswordMsg").textContent =
           err.response.data.message;
         setTimeout(() => {

@@ -28,16 +28,15 @@ async function authenticateAdmin(req, res, next) {
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   } else {
-    
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) {
         return res.sendStatus(403); // Forbidden
       }
-      if(user.role =='Admin'){      
+      if (user.role == "Admin") {
         req.user = user;
-         // Add the decoded user information to the request object
+        // Add the decoded user information to the request object
         next();
-      }else{
+      } else {
         return res.sendStatus(403);
       }
     });
@@ -48,7 +47,6 @@ function findUserByUsername(username) {
   const query = "SELECT * FROM Login WHERE UserEmail = ?";
   return db.executeQuery(query, [username]);
 }
-
 
 // changed for account section
 function findUserByAuthNo(authNo) {
@@ -96,7 +94,7 @@ async function getCertData(filterCriteria, authNo) {
       query =
         "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE IssuerSlNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.SubjectName,c.State,c.IssuerSlNo,c.IssuerName,c.IssueDate,c.ExpiryDate,c.SubjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
     }
-    if (filterCriteria) {      
+    if (filterCriteria) {
       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
         const issuers = filterCriteria.issuers
           .map((issuer) => `'${issuer}'`)
@@ -115,7 +113,7 @@ async function getCertData(filterCriteria, authNo) {
           .join(",");
         query += ` AND State IN (${states})`;
       }
-      if (filterCriteria.regions && filterCriteria.regions.length > 0) {        
+      if (filterCriteria.regions && filterCriteria.regions.length > 0) {
         query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
       }
       if (filterCriteria.startDate && filterCriteria.endDate) {
@@ -125,7 +123,7 @@ async function getCertData(filterCriteria, authNo) {
         query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
       }
     }
-    query += " ORDER BY IssueDate DESC";    
+    query += " ORDER BY IssueDate DESC";
     const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
@@ -197,10 +195,10 @@ async function getLogsData(filterCriteria, authNo) {
         "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
     } else if (authNo == 1) {
       query =
-        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE  UserName NOT IN (SELECT UserName from login WHERE AuthNo IS NULL)";
+        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE  UserEmail NOT IN (SELECT UserEmail from login WHERE AuthNo IS NULL)";
     } else {
       query =
-        "SELECT LogsSrNo , UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs  WHERE UserName IN (SELECT UserName from login WHERE AuthNo = ?)";
+        "SELECT LogsSrNo , UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs  WHERE UserEmail IN (SELECT UserEmail from login WHERE AuthNo = ?)";
     }
     if (filterCriteria) {
       if (filterCriteria.users && filterCriteria.users.length > 0) {
@@ -230,7 +228,7 @@ async function updateStatus(username, status, attempts) {
   try {
     const query =
       "UPDATE Login SET LoginStatus = ? , Attempts = ? WHERE UserEmail = ?";
-      // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
+    // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
     return db.executeQuery(query, [status, attempts, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
@@ -248,21 +246,16 @@ async function updateAttempts(username, attempts) {
 async function getLastLogin(authNo) {
   let query = "";
   try {
-    if (authNo != null){
-      query =
-      `SELECT l.*
-FROM logs l
-JOIN login lg ON l.UserName = lg.UserName
-WHERE lg.AuthNo = ? AND l.ActionType = 'login'
+    if (authNo != null) {
+      query = `SELECT l.*FROM logs l JOIN login lg ON l.UserEmail = lg.UserEmail
+  WHERE lg.AuthNo = ? AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
-    }
-    else{
-    query =
-      `SELECT l.*
+    } else {
+      query = `SELECT l.*
 FROM logs l
-JOIN login lg ON l.UserName = lg.UserName
-WHERE lg.UserName = 'admin' AND l.ActionType = 'login'
+JOIN login lg ON l.UserEmail = lg.UserEmail
+WHERE lg.UserEmail = 'admin' AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
 LIMIT 1;`;
     }
@@ -300,7 +293,6 @@ async function updatePassword(newPass, authNo) {
 // function to get all authorities
 function findAuthorities() {
   try {
-
     let query =
       'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
     return db.executeQuery(query);
@@ -453,7 +445,7 @@ async function getCompactCardData() {
 }
 
 async function getAllAuthsData() {
-  const queryAuthorities = `SELECT a.*, l.username, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
+  const queryAuthorities = `SELECT a.*, l.UserEmail, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
   const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
   try {
     const authoritiesResults = await db.executeQuery(queryAuthorities);
@@ -672,11 +664,11 @@ async function getEmail(userName) {
   const query = `SELECT Email FROM authorities WHERE AuthNo = (SELECT AuthNo FROM login WHERE UserName = ?)`;
   try {
     const result = await db.executeQuery(query, [userName]);
-    
+
     if (result && result.length > 0) {
       return result[0].Email;
     } else {
-      return ''; 
+      return "";
     }
   } catch (error) {
     console.error("Failed to retrieve email:", error);
@@ -688,11 +680,11 @@ async function getProfileStatus(userName) {
   const query = `SELECT LoginStatus FROM login WHERE UserEmail = ?`;
   try {
     const result = await db.executeQuery(query, [userName]);
-    
+
     if (result && result.length > 0) {
       return result[0].LoginStatus;
     } else {
-      return null 
+      return null;
     }
   } catch (error) {
     console.error("Failed to retrieve email:", error);
@@ -730,5 +722,5 @@ module.exports = {
   setTemporaryPass,
   getEmail,
   getProfileStatus,
-  getLastLogin
+  getLastLogin,
 };
