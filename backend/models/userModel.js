@@ -224,12 +224,12 @@ async function getLogsData(filterCriteria, authNo) {
   }
 }
 
-async function updateStatus(username, status, attempts) {
+async function updateStatus(username, status, attempts,last) {
   try {
     const query =
-      "UPDATE Login SET LoginStatus = ? , Attempts = ? WHERE UserEmail = ?";
+      "UPDATE Login SET LoginStatus = ? , Attempts = ? ,LastAttempt = ? WHERE UserEmail = ?";
     // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
-    return db.executeQuery(query, [status, attempts, username]);
+    return db.executeQuery(query, [status, attempts,last, username]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }
@@ -610,6 +610,43 @@ async function signup(params) {
     // You might want to handle the error or notify the user here
   }
 }
+async function getAuthNo(organization) {
+  try {
+    const query = "SELECT AuthNo FROM authorities WHERE AuthName = ?";
+    const result = await db.executeQuery(query, [organization]);
+
+    if (result && result.length > 0) {
+      return result[0].AuthNo;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Transaction failed:", error);
+    return null;
+  }
+}
+async function signupUser(params) {
+  const { email, password, name, role, authNo } = params;
+  const loginStatus = "active";
+  const attempts = 2;
+  const query =
+    "INSERT INTO `login`(`UserEmail`, `Password`, `LoginStatus`, `Attempts`, `Role`, `AuthNo`, `Name`) VALUES (?,?,?,?,?,?,?)";
+  try {
+    const result = await db.executeQuery(query, [
+      email,
+      password,
+      loginStatus,
+      attempts,
+      role,
+      authNo,
+      name,
+    ]);
+    return result;
+  } catch (error) {
+    console.error("Database insertion failed:", error);
+    throw new Error("Database operation failed");
+  }
+}
 
 async function getCertInfo(serialNo, issuerCN) {
   const query = `SELECT * FROM cert WHERE SerialNumber = ? AND IssuerName like ?`;
@@ -717,6 +754,8 @@ module.exports = {
   getCertSerialNumber,
   getNextSerial,
   signup,
+  getAuthNo,
+  signupUser,
   getCertInfo,
   emailExists,
   setTemporaryPass,

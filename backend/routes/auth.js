@@ -8,6 +8,7 @@ router.get('/profile', authentication.authenticateUser, authController.profile);
 router.get('/profileData', authentication.authenticateUser, authController.profileData);
 router.post('/login', authController.login);
 router.post('/signup', authentication.authenticateUser, authController.signupController);
+router.post('/signupUser', authentication.authenticateUser, authController.signupUserController);
 router.post('/data', authentication.authenticateUser,authController.fetchData);
 router.post('/refreshToken', authController.refreshToken);
 router.post('/revokedData',authentication.authenticateUser, authController.fetchRevokedData);

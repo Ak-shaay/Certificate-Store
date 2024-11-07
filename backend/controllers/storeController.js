@@ -80,6 +80,13 @@ function formatDate(isoDate) {
 
   return formattedDateTime;
 }
+// current time IST 
+function currentISTime(){
+  const now = new Date();
+// const offsetIST = 5.5 * 60;
+const localTime = new Date(now.getTime());
+return localTime;
+}
 
 async function signupController(req, res) {
   const {
@@ -170,6 +177,66 @@ async function signupController(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+function returnRole(auth) {
+  switch (auth) {
+    case null:
+      return "Admin";
+    case 1:
+      return "CCA";
+    default:
+      return "CA";
+  }
+}
+async function signupUserController(req, res) {
+  const { name, email, password, organisation } = req.body;
+
+  // Check if user already exists
+  const existingUser = await userModel.findUserByUsername(email);
+  if (existingUser.length > 0) {
+    return res.status(409).json({ message: "User already exists" });
+  }
+
+  // Validate email format
+  const emailPattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  if (!emailPattern.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" }); 
+  }
+
+  // Validate password format
+  const passwordPattern =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+  if (!passwordPattern.test(password)) {
+    return res.status(400).json({ message: "Invalid password format" }); 
+  }
+
+  try {
+    // Get the authnumber based on the organisation
+    const authNumber = await userModel.getAuthNo(organisation);
+
+    // Return the role based on the auth number
+    const role = returnRole(authNumber);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const params = {
+      name,
+      password: hashedPassword,
+      role,
+      email,
+      authNo: authNumber,
+    };
+
+    const result = await userModel.signupUser(params);
+    if (result) {
+      return res.status(200).json({ message: "Signup successful" });
+    } else {
+      return res.status(400).json({ message: "Signup failed, please try again." }); 
+    }
+  } catch (err) {
+    console.error("Error during signup:", err);
+    return res.status(500).json({ message: "Internal server error" }); 
+  }
+}
+
 
 // update the user status
 async function loginAttempt(userExist) {
@@ -184,8 +251,8 @@ async function loginAttempt(userExist) {
       await userModel.updateStatus(
         userExist.UserEmail,
         "active",
-        2
-        // currentTime
+        2,
+        currentISTime()
       );
       return true;
     } else {
@@ -237,15 +304,15 @@ async function login(req, res) {
         await userModel.updateStatus(
           userExist[0].UserEmail,
           "tempLogin",
-          0
-          // new Date().toISOString().replace("T", " ").slice(0, 19)
+          0,
+          currentISTime()
         );
         return res.json({ accessToken, refreshToken });
       }
       if (userExist[0].LoginStatus == "inactive") {
         return res
           .status(423)
-          .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
+          .json({ timeStamp: userExist[0].LastAttemp });
       }
       await userModel.logUserAction(
         userExist[0].UserEmail,
@@ -267,8 +334,8 @@ async function login(req, res) {
         await userModel.updateStatus(
           userExist[0].UserEmail,
           "inactive",
-          0
-          // new Date().toISOString().replace("T", " ").slice(0, 19)
+          0,
+          currentISTime()
         );
         return res
           .status(423)
@@ -718,7 +785,7 @@ async function updatePasswordController(req, res, next) {
         userExist[0].UserEmail,
         "active",
         2,
-        new Date().toISOString().replace("T", " ").slice(0, 19)
+        currentISTime()
       );
       await userModel.logUserAction(
         userExist[0].UserEmail,
@@ -1499,6 +1566,7 @@ async function profileImage(req, res) {
 }
 module.exports = {
   signupController,
+  signupUserController,
   landingPage,
   login,
   dashboard,

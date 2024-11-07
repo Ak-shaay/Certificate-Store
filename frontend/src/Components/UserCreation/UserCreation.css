@@ -27,3 +27,8 @@
     padding: 75px 50px;
     border-radius: 15px;
 }
+.messageContainer{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}

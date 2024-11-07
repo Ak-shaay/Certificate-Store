@@ -167,7 +167,6 @@ const DataTable = () => {
         api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.post("/authorities");
         if (response.data) {
-          // console.log("response:",response.data);
           setAuthorities(response.data);
         }
       } catch (err) {

@@ -22,8 +22,10 @@ const Login = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
 
-  const nameRegex = /^(?![@$!%*?&.])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/
-  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  const nameRegex =
+    /^(?![@$!%*?&.])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  const passRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   useEffect(() => {
     geolocation();
@@ -44,9 +46,9 @@ const Login = () => {
       alert("Geolocation is not supported by this browser.");
     }
   }
-  const handleForgot=(async () => {
-navigate("/forgotpassword");
-  });
+  const handleForgot = async () => {
+    navigate("/forgotpassword");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ navigate("/forgotpassword");
     //   alert("Please enable location services to proceed.");
     //   return;
     // }
-    
+
     // if(!nameRegex.test(username)){
     //   setErrMsg("Please enter a valid username");
     //   return;
@@ -76,8 +78,8 @@ navigate("/forgotpassword");
       if (response?.data?.accessToken) {
         const accessToken = await response.data.accessToken;
         const refreshToken = await response.data.refreshToken;
-        api.setAccessToken(accessToken)
-        api.setRefreshToken(refreshToken)
+        api.setAccessToken(accessToken);
+        api.setRefreshToken(refreshToken);
         setUsername("");
         setPassword("");
         setErrMsg("");
@@ -112,8 +114,8 @@ navigate("/forgotpassword");
   useEffect(() => {
     if (errMsg) {
       timeoutRef.current = setTimeout(() => {
-        setErrMsg(""); 
-      }, 3000); 
+        setErrMsg("");
+      }, 3000);
     }
 
     return () => {
@@ -151,7 +153,9 @@ navigate("/forgotpassword");
               required
               disabled={loading}
             />
-            <a href="#" onClick={handleForgot}>Forgot your password?</a>
+            <a href="#" onClick={handleForgot}>
+              Forgot your password?
+            </a>
             <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
