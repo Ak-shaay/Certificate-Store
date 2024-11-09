@@ -58,3 +58,11 @@
     justify-content: center;
     display: inline-flex;
 }
+.imgBtn{
+    display: flex;
+    flex-direction: column;
+}
+.imgName{
+    color: black;
+    font-size: 12px;
+}

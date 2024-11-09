@@ -19,6 +19,7 @@ router.post('/logout',authController.logout);
 router.get('/userDetails', authentication.authenticateUser, authController.userDetails);
 router.get('/userSessionInfo', authentication.authenticateUser, authController.userSessionInfo);
 router.post('/cert',authController.certDetails);
+router.post('/extractCert',authentication.authenticateUser,authController.extractCert);
 router.post('/updatePassword', authentication.authenticateUser, authController.updatePasswordController);
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
 router.post('/cards', authController.cards);

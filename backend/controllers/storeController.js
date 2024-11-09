@@ -11,6 +11,7 @@ const TOKEN_FILE = "tokens.json";
 const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
 const { v4: uuidv4 } = require("uuid");
+const jsrsasign = require("jsrsasign");
 
 let refreshTokens = {};
 
@@ -80,103 +81,144 @@ function formatDate(isoDate) {
 
   return formattedDateTime;
 }
-// current time IST 
-function currentISTime(){
+// current time IST
+function currentISTime() {
   const now = new Date();
-// const offsetIST = 5.5 * 60;
-const localTime = new Date(now.getTime());
-return localTime;
+  // const offsetIST = 5.5 * 60;
+  const localTime = new Date(now.getTime());
+  return localTime;
 }
 
+// async function signupController(req, res) {
+//   const {
+//     username,
+//     password,
+//     role,
+//     authCode,
+//     email,
+//     address,
+//     organization,
+//     state,
+//     postalcode,
+//   } = req.body;
+//   // console.log(req.body);
+//   const fileBuffer = req.files.cert.data;
+//   // Check if user exists
+//   const existingUser = await userModel.findUserByUsername(username);
+//   if (existingUser.length > 0) {
+//     return res.status(500).json({ message: "User already exists" });
+//   }
+
+//   // Validation for username and password
+//   const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
+//   const passwordPattern =
+//     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+
+//   if (!usernamePattern.test(username)) {
+//     return res.status(500).json({ message: "Invalid username" });
+//   }
+//   if (!passwordPattern.test(password)) {
+//     return res.status(500).json({ message: "Invalid password" });
+//   }
+//   try {
+//     const pki = forge.pki;
+//     parsedCertificate = pki.certificateFromPem(fileBuffer);
+//     if (!parsedCertificate) {
+//       res.status(500).json({
+//         error: "Failed to parse the certificate.",
+//       });
+//       return;
+//     } else {
+//       const issuerAttributes = parsedCertificate.issuer.attributes;
+//       const subjectAttributes = parsedCertificate.subject.attributes;
+//       let issuerCommonName = issuerAttributes.find(
+//         (attr) => attr.name === "commonName"
+//       );
+//       issuerCommonName = issuerCommonName ? issuerCommonName.value : "Unknown";
+//       const serialNumber = parsedCertificate.serialNumber;
+//       let subjectCommonName = subjectAttributes.find(
+//         (attr) => attr.name === "commonName"
+//       );
+
+//       subjectCommonName = subjectCommonName
+//         ? subjectCommonName.value
+//         : "Unknown";
+//       const response = await userModel.getCertSerialNumber(
+//         serialNumber,
+//         issuerCommonName
+//       );
+//       const newAuth = await userModel.getNextSerial();
+
+//       if (response) {
+//         const authNo = newAuth;
+//         const hasedPassword = await bcrypt.hash(password, 10);
+//         const params = {
+//           username: username,
+//           password: hasedPassword,
+//           role: role,
+//           authCode: authCode,
+//           email: email,
+//           address: address,
+//           organization: organization,
+//           state: state,
+//           postalcode: postalcode,
+//           authNo: authNo,
+//           authName: subjectCommonName,
+//           serialNumber: serialNumber,
+//         };
+//         const result = await userModel.signup(params);
+//         // console.log("result: ", result);
+//         if (result) {
+//           return res.status(200).json({ message: "Signup successful" });
+//         }
+//       } else return res.status(500).json({ message: "Signup unsuccessful" });
+//     }
+//   } catch (err) {
+//     console.error("Error during signup: ", err);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// }
 async function signupController(req, res) {
   const {
-    username,
-    password,
-    role,
-    authCode,
+    commonName,
+    serialNo,
     email,
-    address,
     organization,
+    address,
     state,
-    postalcode,
+    postalCode,
+    base64Img
   } = req.body;
-  // console.log(req.body);
-  const fileBuffer = req.files.cert.data;
-  // Check if user exists
-  const existingUser = await userModel.findUserByUsername(username);
+
+  const existingUser = await userModel.findOrgByCN(commonName);
   if (existingUser.length > 0) {
-    return res.status(500).json({ message: "User already exists" });
-  }
-
-  // Validation for username and password
-  const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
-  const passwordPattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
-
-  if (!usernamePattern.test(username)) {
-    return res.status(500).json({ message: "Invalid username" });
-  }
-  if (!passwordPattern.test(password)) {
-    return res.status(500).json({ message: "Invalid password" });
+    return res.status(500).json({ message: "Organization already exists" });
   }
   try {
-    const pki = forge.pki;
-    parsedCertificate = pki.certificateFromPem(fileBuffer);
-    if (!parsedCertificate) {
-      res.status(500).json({
-        error: "Failed to parse the certificate.",
-      });
-      return;
-    } else {
-      const issuerAttributes = parsedCertificate.issuer.attributes;
-      const subjectAttributes = parsedCertificate.subject.attributes;
-      let issuerCommonName = issuerAttributes.find(
-        (attr) => attr.name === "commonName"
-      );
-      issuerCommonName = issuerCommonName ? issuerCommonName.value : "Unknown";
-      const serialNumber = parsedCertificate.serialNumber;
-      let subjectCommonName = subjectAttributes.find(
-        (attr) => attr.name === "commonName"
-      );
-
-      subjectCommonName = subjectCommonName
-        ? subjectCommonName.value
-        : "Unknown";
-      const response = await userModel.getCertSerialNumber(
-        serialNumber,
-        issuerCommonName
-      );
-      const newAuth = await userModel.getNextSerial();
-
-      if (response) {
-        const authNo = newAuth;
-        const hasedPassword = await bcrypt.hash(password, 10);
-        const params = {
-          username: username,
-          password: hasedPassword,
-          role: role,
-          authCode: authCode,
-          email: email,
-          address: address,
-          organization: organization,
-          state: state,
-          postalcode: postalcode,
-          authNo: authNo,
-          authName: subjectCommonName,
-          serialNumber: serialNumber,
-        };
-        const result = await userModel.signup(params);
-        // console.log("result: ", result);
-        if (result) {
-          return res.status(200).json({ message: "Signup successful" });
-        }
-      } else return res.status(500).json({ message: "Signup unsuccessful" });
-    }
+    const authNo = await userModel.getNextSerial();
+    const authCode = generateRandomString(20);//generate authcode
+    const params = {
+      commonName: commonName,
+      authNo: authNo,
+      authCode:authCode,
+      serialNo: serialNo,
+      email: email,
+      organization: organization,
+      address: address,
+      state: state,
+      postalCode: postalCode,
+    };
+    const result = await userModel.signup(params);
+    if (result) {
+      return res.status(200).json({ message: "Signup successful" });
+    } else return res.status(500).json({ message: "Signup unsuccessful" });
   } catch (err) {
     console.error("Error during signup: ", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+
+// return role based on auth
 function returnRole(auth) {
   switch (auth) {
     case null:
@@ -199,14 +241,14 @@ async function signupUserController(req, res) {
   // Validate email format
   const emailPattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
   if (!emailPattern.test(email)) {
-    return res.status(400).json({ message: "Invalid email format" }); 
+    return res.status(400).json({ message: "Invalid email format" });
   }
 
   // Validate password format
   const passwordPattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
   if (!passwordPattern.test(password)) {
-    return res.status(400).json({ message: "Invalid password format" }); 
+    return res.status(400).json({ message: "Invalid password format" });
   }
 
   try {
@@ -229,14 +271,15 @@ async function signupUserController(req, res) {
     if (result) {
       return res.status(200).json({ message: "Signup successful" });
     } else {
-      return res.status(400).json({ message: "Signup failed, please try again." }); 
+      return res
+        .status(400)
+        .json({ message: "Signup failed, please try again." });
     }
   } catch (err) {
     console.error("Error during signup:", err);
-    return res.status(500).json({ message: "Internal server error" }); 
+    return res.status(500).json({ message: "Internal server error" });
   }
 }
-
 
 // update the user status
 async function loginAttempt(userExist) {
@@ -310,9 +353,7 @@ async function login(req, res) {
         return res.json({ accessToken, refreshToken });
       }
       if (userExist[0].LoginStatus == "inactive") {
-        return res
-          .status(423)
-          .json({ timeStamp: userExist[0].LastAttemp });
+        return res.status(423).json({ timeStamp: userExist[0].LastAttemp });
       }
       await userModel.logUserAction(
         userExist[0].UserEmail,
@@ -456,6 +497,69 @@ async function certDetails(req, res) {
     res.status(500).json({ error: "Error parsing the certificate." });
   }
 }
+
+async function extractCert(req, res) {
+  let pemCert;
+
+  if (req.body.base64Cert) {
+    try {
+      pemCert = Buffer.from(req.body.base64Cert, "base64").toString("utf-8");
+    } catch (error) {
+      console.error("Error decoding base64 certificate:", error);
+      return res.status(400).json({ error: "Invalid base64 certificate" });
+    }
+  }
+  try {
+    // Parse the certificate
+    const x509 = new jsrsasign.X509();
+    x509.readCertPEM(pemCert);
+
+    commonName = x509.getSubjectString().split("/CN=")[1] || "";
+    issuerName = x509.getIssuerString().split("/CN=")[1] || "";
+    serialNumber = x509.getSerialNumberHex();
+    extKeyUsage = x509.getExtKeyUsage();
+    validFrom = x509.getNotBefore();
+    validTo = x509.getNotAfter();
+    const organization =
+      x509.getSubjectString().split("/O=")[1]?.split("/")[0] || "";
+    const address1 =
+      x509.getSubjectString().split("/STREET=")[1]?.split("/")[0] || "";
+    const address2 =
+      x509.getSubjectString().split("/2.5.4.51 =")[1]?.split("/")[0] || "";
+    const address = address1 + address2;
+    const state = x509.getSubjectString().split("/ST=")[1]?.split("/")[0] || "";
+    const postalcode =
+      x509.getSubjectString().split("/postalCode=")[1]?.split("/")[0] || "";
+    const response = await userModel.getCertSerialNumber(
+      serialNumber,
+      issuerName
+    );
+    if (!response) {
+      return res
+        .status(201)
+        .json("Certificate does not belong to a registered CA");
+    } else {
+      return res.json({
+        commonName,
+        issuerName,
+        serialNumber,
+        extKeyUsage,
+        validFrom,
+        validTo,
+        organization,
+        address,
+        state,
+        postalcode,
+      });
+    }
+  } catch (error) {
+    console.error("Error processing certificate:", error);
+    return res.status(500).json({
+      error: "Invalid certificate format or error processing the certificate",
+    });
+  }
+}
+
 async function refreshToken(req, res) {
   const refreshToken = req.body.refreshToken;
   const username = req.body.username; // Assuming username is sent with the request
@@ -1288,19 +1392,20 @@ async function getAllRevocationReasons(req, res) {
   }
 }
 
+function generateRandomString(length) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters[randomIndex];
+  }
+  return result;
+}
+
 async function generateAuthCode(req, res) {
   try {
-    function generateRandomString(length) {
-      const characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-      let result = "";
-      const charactersLength = characters.length;
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charactersLength);
-        result += characters[randomIndex];
-      }
-      return result;
-    }
     const randomString = generateRandomString(20);
     res
       .status(200)
@@ -1574,6 +1679,7 @@ module.exports = {
   userDetails,
   userSessionInfo,
   certDetails,
+  extractCert,
   fetchData,
   fetchRevokedData,
   fetchUsageData,

@@ -47,6 +47,10 @@ function findUserByUsername(username) {
   const query = "SELECT * FROM Login WHERE UserEmail = ?";
   return db.executeQuery(query, [username]);
 }
+function findOrgByCN(commonName) {
+  const query = "SELECT * FROM Authorities WHERE AuthName = ?";
+  return db.executeQuery(query, [commonName]);
+}
 
 // changed for account section
 function findUserByAuthNo(authNo) {
@@ -499,8 +503,6 @@ async function getCertSerialNumber(serialNumber, issuerName) {
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerName = ?`;
   try {
     const result = await db.executeQuery(query, [serialNumber, issuerName]);
-    console.log("result of presence", result);
-
     if (result.length > 0) {
       return true;
     }
@@ -525,24 +527,19 @@ async function getNextSerial() {
 
 async function signup(params) {
   const {
-    username,
-    password,
-    role,
-    authCode,
-    email,
-    address,
-    organization,
-    state,
-    postalcode,
+    commonName,
     authNo,
-    authName,
-    serialNumber,
+    authCode,
+    serialNo,
+    email,
+    organization,
+    address,
+    state,
+    postalCode
   } = params;
   const query1 =
-    "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, Postal_Code) VALUES (?, ?, ?,?,?, ?, ?,?)";
-  const query2 =
-    "INSERT into login (UserName, Password,LoginStatus, Attempts, Role, AuthNo) VALUES (?,?,?,?,?,?)";
-  const query3 = "INSERT into auth_cert VALUES (?,?)";
+    "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, PostalCode) VALUES (?, ?, ?,?,?, ?, ?,?)";
+  const query2 = "INSERT into auth_cert VALUES (?,?)";
   try {
     // Start a transaction
     const result = await new Promise((resolve, reject) => {
@@ -555,29 +552,23 @@ async function signup(params) {
               reject(err);
             } else {
               try {
-                // Execute queries
                 await db.executeQuery(
                   query1,
                   [
                     authNo,
                     authCode,
-                    authName,
+                    commonName,
                     email,
-                    address,
                     organization,
+                    address,
                     state,
-                    postalcode,
+                    postalCode,
                   ],
                   connection
                 );
                 await db.executeQuery(
                   query2,
-                  [username, password, "active", 2, role, authNo],
-                  connection
-                );
-                await db.executeQuery(
-                  query3,
-                  [authNo, serialNumber],
+                  [authNo, serialNo],
                   connection
                 );
 
@@ -607,9 +598,95 @@ async function signup(params) {
   } catch (error) {
     console.error("Transaction failed:", error);
     return false;
-    // You might want to handle the error or notify the user here
   }
 }
+// async function signup(params) {
+//   const {
+//     username,
+//     password,
+//     role,
+//     authCode,
+//     email,
+//     address,
+//     organization,
+//     state,
+//     postalcode,
+//     authNo,
+//     authName,
+//     serialNumber,
+//   } = params;
+//   const query1 =
+//     "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, Postal_Code) VALUES (?, ?, ?,?,?, ?, ?,?)";
+//   const query2 =
+//     "INSERT into login (UserName, Password,LoginStatus, Attempts, Role, AuthNo) VALUES (?,?,?,?,?,?)";
+//   const query3 = "INSERT into auth_cert VALUES (?,?)";
+//   try {
+//     // Start a transaction
+//     const result = await new Promise((resolve, reject) => {
+//       db.pool.getConnection((err, connection) => {
+//         if (err) reject(err);
+//         else {
+//           connection.beginTransaction(async (err) => {
+//             if (err) {
+//               connection.release();
+//               reject(err);
+//             } else {
+//               try {
+//                 // Execute queries
+//                 await db.executeQuery(
+//                   query1,
+//                   [
+//                     authNo,
+//                     authCode,
+//                     authName,
+//                     email,
+//                     address,
+//                     organization,
+//                     state,
+//                     postalcode,
+//                   ],
+//                   connection
+//                 );
+//                 await db.executeQuery(
+//                   query2,
+//                   [username, password, "active", 2, role, authNo],
+//                   connection
+//                 );
+//                 await db.executeQuery(
+//                   query3,
+//                   [authNo, serialNumber],
+//                   connection
+//                 );
+
+//                 // Commit transaction
+//                 connection.commit((err) => {
+//                   connection.release();
+//                   if (err) reject(err);
+//                   else {
+//                     // console.log("Saved to database");
+//                     resolve(true);
+//                     // return true;
+//                   }
+//                 });
+//               } catch (error) {
+//                 connection.rollback(() => {
+//                   connection.release();
+//                   reject(error);
+//                   // return false;
+//                 });
+//               }
+//             }
+//           });
+//         }
+//       });
+//     });
+//     return result;
+//   } catch (error) {
+//     console.error("Transaction failed:", error);
+//     return false;
+//     // You might want to handle the error or notify the user here
+//   }
+// }
 async function getAuthNo(organization) {
   try {
     const query = "SELECT AuthNo FROM authorities WHERE AuthName = ?";
@@ -754,6 +831,7 @@ module.exports = {
   getCertSerialNumber,
   getNextSerial,
   signup,
+  findOrgByCN,
   getAuthNo,
   signupUser,
   getCertInfo,
