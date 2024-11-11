@@ -449,7 +449,8 @@ async function getCompactCardData() {
 }
 
 async function getAllAuthsData() {
-  const queryAuthorities = `SELECT a.*, l.UserEmail, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
+  const queryAuthorities = `SELECT * FROM authorities ORDER BY authorities.AuthNo ASC`;
+  // const queryAuthorities = `SELECT a.*, l.UserEmail, l.password FROM authorities a JOIN login l ON a.authno = l.authno`;
   const queryDistinctRoles = `SELECT DISTINCT role FROM login`;
   try {
     const authoritiesResults = await db.executeQuery(queryAuthorities);
