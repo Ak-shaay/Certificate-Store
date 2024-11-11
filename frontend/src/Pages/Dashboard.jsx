@@ -74,7 +74,7 @@ function Dashboard() {
     return null;
   }
 
-  const username = decodedToken.username || "";
+  const username = decodedToken.name || "";
   const role = decodedToken.role || "";
 
   //handle index change

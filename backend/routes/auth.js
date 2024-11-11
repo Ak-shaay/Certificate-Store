@@ -25,6 +25,7 @@ router.post('/authorities', authentication.authenticateUser, authController.auth
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
+router.post('/getAllUsers',authentication.authenticateUser, authController.getAllUsers)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
 router.get('/getSubType', authController.getSubType);
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database

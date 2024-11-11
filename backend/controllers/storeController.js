@@ -24,10 +24,11 @@ const saveTokensToFile = () => {
 };
 
 // Generate an access token
-const generateAccessToken = (userName, role, authNo) => {
+const generateAccessToken = (userName,name, role, authNo) => {
   // Include the necessary claims (payload) in the token
   const payload = {
     username: userName,
+    name : name,
     role: role,
     authNo: authNo,
   };
@@ -39,10 +40,11 @@ const generateAccessToken = (userName, role, authNo) => {
 };
 
 // Generate a refresh token
-const generateRefreshToken = (userName, role, authNo) => {
+const generateRefreshToken = (userName,name, role, authNo) => {
   // Include the necessary claims (payload) in the token
   const payload = {
     username: userName,
+    name : name,
     role: role,
     authNo: authNo,
   };
@@ -339,15 +341,18 @@ async function login(req, res) {
       // Successful login
       const accessToken = generateAccessToken(
         userExist[0].UserEmail,
+        userExist[0].Name,
         userExist[0].Role,
         userExist[0].AuthNo
       );
       const refreshToken = generateRefreshToken(
         userExist[0].UserEmail,
+        userExist[0].Name,
         userExist[0].Role,
         userExist[0].AuthNo
       );
       req.session.username = userExist[0].UserEmail;
+      req.session.name = userExist[0].Name;
       req.session.userid = userExist[0].AuthNo;
       req.session.userRole = userExist[0].Role;
       if (
@@ -982,6 +987,15 @@ async function getAllAuths(req, res) {
     res.sendStatus(500);
   }
 }
+async function getAllUsers(req, res) {
+  try {
+    const users = await userModel.getAllUsersData();
+    res.json(users)
+  } catch (error) {
+    console.error("Error fetching authorities & role data:", error);
+    res.sendStatus(500);
+  }
+}
 
 async function updateAuths(req, res) {
   try {
@@ -1587,19 +1601,15 @@ async function reportGenerator(req, res) {
   const filePath = "./public/reports/" + uuid + ".pdf";
   const link = "http://10.182.3.123:8080/reports/" + uuid + ".pdf";
   try {
-    //   const authHeader = req.headers["authorization"];
-    // const token = authHeader && authHeader.split(" ")[1];
-    // if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-    // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-    //   if (err) return res.res.status(403).json({ error: "Forbidden" });
-    //   });
     let email = "";
     const userName = req.session.username;
     if (userName == "admin") {
       email = process.env.ADMIN || "";
     } else {
-      email = await userModel.getEmail(userName);
+      // email = await userModel.getEmail(userName);
+      email = userName;
+      
     }
     const result = await pdfGeneration(data, title, headers, filePath);
     if (result) {
@@ -1618,7 +1628,7 @@ async function reportGenerator(req, res) {
         to: email,
         subject: "Report generated",
         text: `Dear Sir/Ma'am
-        We have received a report generation request from your account. Please download the report using the link ${link}.
+        We have received a ${title} report generation request from your account. Please download the report using the link ${link}.
         The link will be available for the next 24 hours.
         Thanks and Regards, 
         Admin 
@@ -1710,6 +1720,7 @@ module.exports = {
   authorities,
   cards,
   compactCard,
+  getAllUsers,
   getAllAuths,
   updateAuths,
   region,

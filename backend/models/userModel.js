@@ -43,9 +43,9 @@ async function authenticateAdmin(req, res, next) {
   }
 }
 
-function findUserByUsername(username) {
+function findUserByUsername(email) {
   const query = "SELECT * FROM Login WHERE UserEmail = ?";
-  return db.executeQuery(query, [username]);
+  return db.executeQuery(query, [email]);
 }
 function findOrgByCN(commonName) {
   const query = "SELECT * FROM Authorities WHERE AuthName = ?";
@@ -228,20 +228,20 @@ async function getLogsData(filterCriteria, authNo) {
   }
 }
 
-async function updateStatus(username, status, attempts,last) {
+async function updateStatus(email, status, attempts,last) {
   try {
     const query =
       "UPDATE Login SET LoginStatus = ? , Attempts = ? ,LastAttempt = ? WHERE UserEmail = ?";
     // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
-    return db.executeQuery(query, [status, attempts,last, username]);
+    return db.executeQuery(query, [status, attempts,last, email]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }
 }
-async function updateAttempts(username, attempts) {
+async function updateAttempts(email, attempts) {
   try {
     const query = "UPDATE Login SET Attempts = ? WHERE UserEmail = ?";
-    return db.executeQuery(query, [attempts, username]);
+    return db.executeQuery(query, [attempts, email]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }
@@ -459,6 +459,16 @@ async function getAllAuthsData() {
       authorities: authoritiesResults,
       distinctRoles: distinctRolesResults,
     };
+  } catch (e) {
+    console.log("error fetching data", e);
+  }
+}
+async function getAllUsersData() {
+  const query = `SELECT l.*,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
+
+  try {
+    const users = await db.executeQuery(query);
+    return users;
   } catch (e) {
     console.log("error fetching user data", e);
   }
@@ -738,7 +748,7 @@ async function getCertInfo(serialNo, issuerCN) {
 }
 
 async function emailExists(email) {
-  const query = `SELECT 1 FROM authorities WHERE Email = ?`;
+  const query = `SELECT 1 FROM login WHERE UserEmail = ?`;
   try {
     const result = await db.executeQuery(query, [email]);
     return result.length > 0;
@@ -759,7 +769,13 @@ async function setTemporaryPass(email, password) {
 SET Password = ?, 
     LoginStatus = 'temporary', 
     Attempts = 1 
-WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
+WHERE UserEmail = ?`;
+//   const query = `
+//    UPDATE login 
+// SET Password = ?, 
+//     LoginStatus = 'temporary', 
+//     Attempts = 1 
+// WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.executeQuery(query, [hashedPassword, email]);
@@ -825,6 +841,7 @@ module.exports = {
   findAuthorities,
   getCardsData,
   getCompactCardData,
+  getAllUsersData,
   getAllAuthsData,
   updateAuthsData,
   getSubjectTypes,

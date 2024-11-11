@@ -132,18 +132,6 @@ try{
             h("button", { className: "download-btn", onClick:()=> handleDownload(gridRef.current.config.data) }, "Download Report"),
           position: PluginPosition.Footer,
         },
-        // {
-        //   id: "titlePlugin",
-        //   component: () =>
-        //     h(
-        //       "h1",
-        //       {
-        //         className: "title-btn",
-        //       },
-        //       "Certificate Usage"
-        //     ),
-        //   position: PluginPosition.Header,
-        // },
         {
           id: "filterPlugin",
           component: () =>

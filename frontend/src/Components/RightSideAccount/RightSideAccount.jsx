@@ -24,7 +24,7 @@ const RightSideAccount = () => {
           const base64Url = accessToken.split(".")[1];
           const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const decodedToken = JSON.parse(atob(base64));
-          setUsername(decodedToken.username);
+          setUsername(decodedToken.name);
           setAuthNo(decodedToken.authNo);
           setIpAddress(response.data.ip);
           setLastLogin(response.data.lastLogin);
