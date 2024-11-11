@@ -178,6 +178,24 @@ function currentISTime() {
 //     return res.status(500).json({ message: "Internal server error" });
 //   }
 // }
+
+async function saveImage(bas64Img,filename){
+  const base64Data = bas64Img.replace(/^data:image\/\w+;base64,/, '');
+
+// Specify the file path where you want to save the image
+const filePath = './public/images/'+filename+'.png';
+
+// Decode base64 and write the image to file
+fs.writeFile(filePath, base64Data, 'base64', (err) => {
+    if (err) {
+        // console.log('Error saving the file:', err);
+        return false;
+    } else {
+        // console.log('Image saved successfully!');
+        return true;
+    }
+});
+}
 async function signupController(req, res) {
   const {
     commonName,
@@ -209,7 +227,8 @@ async function signupController(req, res) {
       postalCode: postalCode,
     };
     const result = await userModel.signup(params);
-    if (result) {
+    const imgState = saveImage(base64Img,authNo);
+    if (result && imgState) {
       return res.status(200).json({ message: "Signup successful" });
     } else return res.status(500).json({ message: "Signup unsuccessful" });
   } catch (err) {
@@ -269,14 +288,14 @@ async function signupUserController(req, res) {
 
     const result = await userModel.signupUser(params);
     if (result) {
-      return res.status(200).json({ message: "Signup successful" });
+      return res.status(200).json({ message: "User created successful" });
     } else {
       return res
         .status(400)
-        .json({ message: "Signup failed, please try again." });
+        .json({ message: "Account creation failed, please try again." });
     }
   } catch (err) {
-    console.error("Error during signup:", err);
+    console.error("Error during account Creation:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 }

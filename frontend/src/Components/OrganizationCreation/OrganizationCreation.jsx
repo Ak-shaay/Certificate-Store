@@ -20,6 +20,7 @@ const OrganizationCreation = ({ onBack }) => {
 
   // Function to clear all form values
   const clearForm = () => {
+    setCertificate(null);
     setCommonName("");
     setSerialNo("");
     setEmail("");
@@ -197,8 +198,7 @@ const OrganizationCreation = ({ onBack }) => {
             showMessage("There was an error loading the image.");
         }
     }
-    const base64Img = await convertFileToBase64(image);
-
+    const base64Img = await convertFileToBase64(image);    
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
 

@@ -18,6 +18,13 @@ const UserCreation = ({ onBack }) => {
     password: "",
   });
 
+    // Function to clear all form values
+    const clearForm = () => {
+      setName("");
+      setOrganisation("");
+      setEmail("");
+      setPassword("");
+    };
   useEffect(() => {
     const fetchIssuer = async () => {
       try {
@@ -122,6 +129,7 @@ const UserCreation = ({ onBack }) => {
       if (response.status == 200) {
         msgSpan.style.color='green';
         setMessage(response.data.message);
+        clearForm();
       }
       
       setTimeout(() => {
@@ -130,7 +138,7 @@ const UserCreation = ({ onBack }) => {
       
     } catch (err) {
       console.error("Error during signup:", err);
-  
+      clearForm();
       if (err.response) {
         msgSpan.style.color='red';
         if (err.response.status === 409) {
