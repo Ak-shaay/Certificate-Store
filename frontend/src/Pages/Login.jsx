@@ -22,8 +22,7 @@ const Login = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
 
-  const nameRegex =
-    /^(?![@$!%*?&.])(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  const nameRegex =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -118,7 +117,6 @@ const Login = () => {
     }
   };
   useEffect(() => {
-    console.log("errMsg updated:", errMsg);
     if (errMsg) {
       timeoutRef.current = setTimeout(() => {
         setErrMsg(""); 
