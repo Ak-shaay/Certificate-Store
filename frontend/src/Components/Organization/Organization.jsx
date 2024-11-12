@@ -21,6 +21,12 @@ const Organization = ({ onBack }) => {
   );
   const [roles, setRoles] = useState([]);
   const [updateMsg, setUpdateMsg] = useState("");
+  const [imageKey, setImageKey] = useState(Date.now()); // Initialize with a timestamp to avoid caching
+
+  // Trigger image reloading by changing the imageKey state
+  const handleEvent = () => {
+    setImageKey(Date.now()); // Update the key to force re-rendering with a new query parameter or URL
+  };
 
   const handlePopup = (auth) => {
     setUpdateMsg("");
@@ -30,7 +36,7 @@ const Organization = ({ onBack }) => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://${domain}:8080/images/${auth.AuthNo}.png`);
+    setImgURL(`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`);
     setAuthNo(auth.AuthNo);
   };
 
@@ -41,6 +47,8 @@ const Organization = ({ onBack }) => {
     }
     setIsEditing(false);
   };
+
+  // Fetch data for authorities
   async function getAuthorities() {
     try {
       const accessToken = api.getAccessToken();
@@ -48,20 +56,21 @@ const Organization = ({ onBack }) => {
       if (accessToken) {
         api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.post("/getAllAuths");
-        if (response.status === 200) {          
+        if (response.status === 200) {
           setAuthData(response.data.authorities);
           setRoles(response.data.distinctRoles);
         }
       }
     } catch (error) {
       console.error(error);
-      // console.log("Error fetching the data: " + error);
     }
   }
+
   useEffect(() => {
     getAuthorities();
   }, []);
 
+  // Save changes to authority
   const handleSave = async (authName, authCode, authNo) => {
     const respSpan = document.getElementById("respMessage");
 
@@ -87,6 +96,8 @@ const Organization = ({ onBack }) => {
       setIsEditing(false);
     }
   };
+
+  // Generate new auth code
   const handleGenAuth = async () => {
     const respSpan = document.getElementById("respMessage");
 
@@ -107,6 +118,8 @@ const Organization = ({ onBack }) => {
       setUpdateMsg("Error generating auth code");
     }
   };
+
+  // Handle image upload and processing
   async function handleImage(e, authNo) {
     try {
       const file = e.target.files[0];
@@ -114,43 +127,43 @@ const Organization = ({ onBack }) => {
         console.log("Empty profile image");
         return;
       }
-  
-      const size = file.size / 1024; 
+
+      const size = file.size / 1024; // size in KB
       const type = file.type;
-  
+
       if (size > 200) {
         alert("Image size must not exceed 200KB");
         return;
       }
-  
+
       if (type !== "image/png") {
         alert("Image must be in PNG format");
         return;
       }
-  
+
       const imageUrl = URL.createObjectURL(file);
-      
+
       // Create an off-screen canvas to check dimensions and resize the image
       const img = new Image();
       img.src = imageUrl;
-      
+
       img.onload = async () => {
         // Check image dimensions
         if (img.width > 100 || img.height > 100) {
           alert("Image dimensions must not exceed 100px by 100px");
           return;
         }
-        setImgURL(imageUrl);
-  
+        setImgURL(imageUrl); // Update image preview
+
         // Proceed with resizing if needed
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const maxSize = 100; // Limit height and width to 100px
-  
+
         // Set canvas dimensions
         canvas.width = maxSize;
         canvas.height = maxSize;
-  
+
         // Calculate the new dimensions while maintaining aspect ratio
         const aspectRatio = img.width / img.height;
         if (aspectRatio > 1) {
@@ -160,34 +173,38 @@ const Organization = ({ onBack }) => {
           // Portrait
           canvas.width = maxSize * aspectRatio;
         }
-  
+
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
+
         // Convert canvas to Blob
         canvas.toBlob(async (blob) => {
           const data = new FormData();
           data.append("image", blob, file.name);
           data.append("authNo", authNo);
-  
+
           const response = await fetch(`http://${domain}:8080/profileImage`, {
             method: "POST",
             body: data,
             credentials: "include",
           });
-  
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-  
+
           const result = await response.json();
-          console.log(result);
+          handleEvent(); // Trigger image re-render
         }, 'image/png');
       };
     } catch (error) {
       console.log("Error processing file upload", error);
     }
   }
-  
+
+  setTimeout(() => {
+    setUpdateMsg(""); // Clear update message after 3 seconds
+  }, 3000);
+
   return (
     <div className="orgBody">
       <div className="mainOrg">
@@ -197,27 +214,23 @@ const Organization = ({ onBack }) => {
           </button>
         </div>
         <h2>Manage Organizations</h2>
-        <div className="filterWindow" id="filter">
+        <div className="filterWindow filterWidth" id="filter">
           <div className="popup-head">
             <img src={imgURL} className="image" alt="logo" />
           </div>
-          {isEditing ? (
-            <div className="editBtnContainer">
+          {isEditing && (
+            <div className="editBtnContainer managementMsg">
               <label id="smallBtn">
                 <input
                   type="file"
                   name="image"
                   id="imgUpload"
                   hidden
-                  onChange={(e) => {
-                    handleImage(e, authNo);
-                  }}
-                ></input>
+                  onChange={(e) => handleImage(e, authNo)}
+                />
                 Edit &#128397;
               </label>
             </div>
-          ) : (
-            <></>
           )}
           <span className="close" onClick={handlePopupClose}>
             X
@@ -225,7 +238,7 @@ const Organization = ({ onBack }) => {
           <div className="managementMsg">
             <span id="respMessage">{updateMsg}</span>
           </div>
-          <FormControl variant="outlined" sx={{gap:'1rem'}}>
+          <FormControl variant="outlined" sx={{ gap: '1rem' }}>
             <TextField
               className="managementInput"
               id="authority"
@@ -233,9 +246,7 @@ const Organization = ({ onBack }) => {
               value={authName}
               placeholder="Authority Name"
               readOnly={!isEditing}
-              onChange={(e) => {
-                setAuthName(e.target.value);
-              }}
+              onChange={(e) => setAuthName(e.target.value)}
             />
             <OutlinedInput
               className="managementInput"
@@ -246,21 +257,17 @@ const Organization = ({ onBack }) => {
               readOnly
               onChange={(e) => setAuthCode(e.target.value)}
               endAdornment={
-                <InputAdornment position="end">
-                  {isEditing ? (
-                    <>
-                      <button
-                        type="button"
-                        id="smallBtn"
-                        onClick={handleGenAuth}
-                      >
-                        <img src={refreshIcon} alt="regenerate" />
-                      </button>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </InputAdornment>
+                isEditing ? (
+                  <InputAdornment position="end">
+                    <button
+                      type="button"
+                      id="smallBtn"
+                      onClick={handleGenAuth}
+                    >
+                      <img src={refreshIcon} alt="regenerate" />
+                    </button>
+                  </InputAdornment>
+                ) : null
               }
             />
           </FormControl>
@@ -278,9 +285,7 @@ const Organization = ({ onBack }) => {
                 type="button"
                 id="editBtn"
                 className="submitForm"
-                onClick={() => {
-                  handleSave(authName, authCode, authNo);
-                }}
+                onClick={() => handleSave(authName, authCode, authNo)}
               >
                 Save
               </button>
@@ -289,16 +294,15 @@ const Organization = ({ onBack }) => {
         </div>
         <div className="orgcontainer">
           {authData.map((auth, index) => (
-            <div className="">
+            <div key={index}>
               <article
-                key={index}
                 className="orgCard"
                 onClick={() => handlePopup(auth)}
               >
                 <div>
                   <img
                     className="orgImg"
-                    src={`http://${domain}:8080/images/${auth.AuthNo}.png`}
+                    src={`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`} // Add imageKey as query param
                     alt="image"
                   />
                 </div>

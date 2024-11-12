@@ -111,7 +111,7 @@ const Sidebar = ({ onIndexChange, role }) => {
         <>
             <div
                 className="bars"
-                style={expanded ? { left: "35%" } : { left: "2%" }}
+                style={expanded ? { left: "45%" } : { left: "2%" }}
                 onClick={() => setExpanded(!expanded)}
             >
                 {expanded ? (

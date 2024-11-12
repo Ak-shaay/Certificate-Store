@@ -114,7 +114,8 @@
     position: fixed;
     z-index: 99;
     background: #ffe0e0;
-    width: 40%;
+    /* width: 40%; */
+    width: 55%;
     padding-right: 1rem;
     height: 100%;
     overflow-y: auto;

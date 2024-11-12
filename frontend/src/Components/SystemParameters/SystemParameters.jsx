@@ -293,7 +293,7 @@ const SystemParameters = ({ onBack }) => {
               unassignedStates.map((state) => (
                 <div key={state.value} className="list">
                   <label>
-                    {state.label} ({state.value})
+                    {state.label}
                   </label>
                   <input
                     type="checkbox"

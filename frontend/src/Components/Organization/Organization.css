@@ -73,3 +73,9 @@
     justify-content: center;
     margin: 1rem 0;
   }
+  .filterWidth{
+    min-width: 18rem ;
+  }
+.managementMsg{
+  height: 1.5rem;
+}
