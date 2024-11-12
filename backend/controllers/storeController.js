@@ -24,11 +24,11 @@ const saveTokensToFile = () => {
 };
 
 // Generate an access token
-const generateAccessToken = (userName,name, role, authNo) => {
+const generateAccessToken = (userName, name, role, authNo) => {
   // Include the necessary claims (payload) in the token
   const payload = {
     username: userName,
-    name : name,
+    name: name,
     role: role,
     authNo: authNo,
   };
@@ -40,11 +40,11 @@ const generateAccessToken = (userName,name, role, authNo) => {
 };
 
 // Generate a refresh token
-const generateRefreshToken = (userName,name, role, authNo) => {
+const generateRefreshToken = (userName, name, role, authNo) => {
   // Include the necessary claims (payload) in the token
   const payload = {
     username: userName,
-    name : name,
+    name: name,
     role: role,
     authNo: authNo,
   };
@@ -181,22 +181,22 @@ function currentISTime() {
 //   }
 // }
 
-async function saveImage(bas64Img,filename){
-  const base64Data = bas64Img.replace(/^data:image\/\w+;base64,/, '');
+async function saveImage(bas64Img, filename) {
+  const base64Data = bas64Img.replace(/^data:image\/\w+;base64,/, "");
 
-// Specify the file path where you want to save the image
-const filePath = './public/images/'+filename+'.png';
+  // Specify the file path where you want to save the image
+  const filePath = "./public/images/" + filename + ".png";
 
-// Decode base64 and write the image to file
-fs.writeFile(filePath, base64Data, 'base64', (err) => {
+  // Decode base64 and write the image to file
+  fs.writeFile(filePath, base64Data, "base64", (err) => {
     if (err) {
-        // console.log('Error saving the file:', err);
-        return false;
+      // console.log('Error saving the file:', err);
+      return false;
     } else {
-        // console.log('Image saved successfully!');
-        return true;
+      // console.log('Image saved successfully!');
+      return true;
     }
-});
+  });
 }
 async function signupController(req, res) {
   const {
@@ -207,7 +207,7 @@ async function signupController(req, res) {
     address,
     state,
     postalCode,
-    base64Img
+    base64Img,
   } = req.body;
 
   const existingUser = await userModel.findOrgByCN(commonName);
@@ -216,11 +216,11 @@ async function signupController(req, res) {
   }
   try {
     const authNo = await userModel.getNextSerial();
-    const authCode = generateRandomString(20);//generate authcode
+    const authCode = generateRandomString(20); //generate authcode
     const params = {
       commonName: commonName,
       authNo: authNo,
-      authCode:authCode,
+      authCode: authCode,
       serialNo: serialNo,
       email: email,
       organization: organization,
@@ -229,7 +229,7 @@ async function signupController(req, res) {
       postalCode: postalCode,
     };
     const result = await userModel.signup(params);
-    const imgState = saveImage(base64Img,authNo);
+    const imgState = saveImage(base64Img, authNo);
     if (result && imgState) {
       return res.status(200).json({ message: "Signup successful" });
     } else return res.status(500).json({ message: "Signup unsuccessful" });
@@ -301,6 +301,30 @@ async function signupUserController(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+// Toggle user login  (enable/disable)
+async function enableAccount(req, res) {
+  try {
+    const { userId, action } = req.body;
+
+    const status = action === "enable" ? "active" : "blocked";
+
+    const result = await userModel.toggleLoginAction(userId, status);
+
+    if (result) {
+      return res.json({ message: "Account status changed successfully" });
+    } else {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Failed to update the account status. It may already be in the desired state.",
+        });
+    }
+  } catch (error) {
+    console.error("Error occurred while enabling/disabling account:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
 
 // update the user status
 async function loginAttempt(userExist) {
@@ -335,33 +359,41 @@ async function login(req, res) {
     if (!userExist.length) {
       return res.status(400).json({ error: "User does not exist" });
     }
-    const storedHashedPassword = userExist[0].Password;
+    
+    const user = userExist[0];
+    if (user.LoginStatus === "blocked") {
+      return res.status(403).json({ error: "Your account is blocked" });
+    }
+
+    const storedHashedPassword = user.Password;
     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
-    if (passwordMatch && (await loginAttempt(userExist[0]))) {
+
+    if (passwordMatch && (await loginAttempt(user))) {
       // Successful login
       const accessToken = generateAccessToken(
-        userExist[0].UserEmail,
-        userExist[0].Name,
-        userExist[0].Role,
-        userExist[0].AuthNo
+        user.UserEmail,
+        user.Name,
+        user.Role,
+        user.AuthNo
       );
       const refreshToken = generateRefreshToken(
-        userExist[0].UserEmail,
-        userExist[0].Name,
-        userExist[0].Role,
-        userExist[0].AuthNo
+        user.UserEmail,
+        user.Name,
+        user.Role,
+        user.AuthNo
       );
-      req.session.username = userExist[0].UserEmail;
-      req.session.name = userExist[0].Name;
-      req.session.userid = userExist[0].AuthNo;
-      req.session.userRole = userExist[0].Role;
+
+      req.session.username = user.UserEmail;
+      req.session.name = user.Name;
+      req.session.userid = user.AuthNo;
+      req.session.userRole = user.Role;
+
       if (
-        userExist[0].LoginStatus == "temporary" &&
-        userExist[0].Attempts > 0
+        user.LoginStatus == "temporary" &&
+        user.Attempts > 0
       ) {
         await userModel.logUserAction(
-          userExist[0].UserEmail,
-          // new Date().toISOString().replace("T", " ").slice(0, 19),
+          user.UserEmail,
           req.ip,
           "Login",
           "Logged In Using Temporary Password",
@@ -369,42 +401,43 @@ async function login(req, res) {
           longitude
         );
         await userModel.updateStatus(
-          userExist[0].UserEmail,
+          user.UserEmail,
           "tempLogin",
           0,
           currentISTime()
         );
         return res.json({ accessToken, refreshToken });
       }
-      if (userExist[0].LoginStatus == "inactive") {
-        return res.status(423).json({ timeStamp: userExist[0].LastAttemp });
+
+      if (user.LoginStatus == "inactive") {
+        return res.status(423).json({ timeStamp: user.LastAttempt });
       }
+
       await userModel.logUserAction(
-        userExist[0].UserEmail,
-        // new Date().toISOString().replace("T", " ").slice(0, 19),
+        user.UserEmail,
         req.ip,
         "Login",
         "Logged In",
         latitude,
         longitude
       );
-      await userModel.updateAttempts(userExist[0].UserEmail, 2);
+      await userModel.updateAttempts(user.UserEmail, 2);
       return res.json({ accessToken, refreshToken });
     } else {
       // Failed login attempt
-      if (userExist[0].Attempts > 0) {
-        let attempt = (userExist[0].Attempts -= 1);
-        await userModel.updateAttempts(userExist[0].UserEmail, attempt);
+      if (user.Attempts > 0) {
+        let attempt = (user.Attempts -= 1);
+        await userModel.updateAttempts(user.UserEmail, attempt);
       } else {
         await userModel.updateStatus(
-          userExist[0].UserEmail,
+          user.UserEmail,
           "inactive",
           0,
           currentISTime()
         );
         return res
           .status(423)
-          .json({ timeStamp: formatDate(userExist[0].LastAttempt) });
+          .json({ timeStamp: formatDate(user.LastAttempt) });
       }
       return res.status(401).json({ error: "Incorrect credentials" });
     }
@@ -413,6 +446,7 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
 
 async function dashboard(req, res, next) {
   if (!req.session && !req.session.username) {
@@ -990,7 +1024,7 @@ async function getAllAuths(req, res) {
 async function getAllUsers(req, res) {
   try {
     const users = await userModel.getAllUsersData();
-    res.json(users)
+    res.json(users);
   } catch (error) {
     console.error("Error fetching authorities & role data:", error);
     res.sendStatus(500);
@@ -1533,12 +1567,16 @@ async function emailService(req, res) {
       var mailOptions = {
         from: Sender,
         to: email,
-        subject: "Reset Password",
-        text: `Dear Sir/Ma'am
-        We have received a request to change the password on your certStore account. Please use the temporary password ${pass} for your account. Kindly change the password on your account after logging in.
-        Thanks and Regards, 
-        Admin 
-        Certstore`,
+        subject: "Password Reset Request",
+        text: `Dear Sir/Ma'am,
+      
+      We have received a request to change the password on your account. Please use the temporary password: ${pass} to log in to your account.
+      
+      For security reasons, we recommend that you change your password as soon as you log in.
+      
+      Thank you and regards,  
+      Admin Team
+      Certificate Store`,
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
@@ -1601,7 +1639,6 @@ async function reportGenerator(req, res) {
   const filePath = "./public/reports/" + uuid + ".pdf";
   const link = "http://10.182.3.123:8080/reports/" + uuid + ".pdf";
   try {
-
     let email = "";
     const userName = req.session.username;
     if (userName == "admin") {
@@ -1609,7 +1646,6 @@ async function reportGenerator(req, res) {
     } else {
       // email = await userModel.getEmail(userName);
       email = userName;
-      
     }
     const result = await pdfGeneration(data, title, headers, filePath);
     if (result) {
@@ -1705,6 +1741,7 @@ module.exports = {
   login,
   dashboard,
   logout,
+  enableAccount,
   userDetails,
   userSessionInfo,
   certDetails,

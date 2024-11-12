@@ -246,6 +246,29 @@ async function updateAttempts(email, attempts) {
     console.log("Error while fetching user: ", e);
   }
 }
+// Toggle the login action (enable/disable)
+async function toggleLoginAction(email, status) {
+  try {
+    let query = '';
+    if(status === 'active'){
+      query = "UPDATE Login SET LoginStatus = ?, Attempts= 2 WHERE UserEmail = ?";
+    }else{
+
+      query = "UPDATE Login SET LoginStatus = ?,Attempts= 0 WHERE UserEmail = ?";
+    }
+    const result = await db.executeQuery(query, [status, email]);
+    
+    if (result && result.affectedRows > 0) {
+      return true; 
+    } else {
+      // console.log(`No changes made for ${email}: LoginStatus might already be '${status}' or user does not exist.`);
+      return false; 
+    }
+  } catch (e) {
+    console.error("Error while changing the Login Status:", e);
+    return false; 
+  }
+}
 
 async function getLastLogin(authNo) {
   let query = "";
@@ -836,6 +859,7 @@ module.exports = {
   getLogsData,
   updateStatus,
   updateAttempts,
+  toggleLoginAction,
   getProfileStatus,
   updatePassword,
   findAuthorities,

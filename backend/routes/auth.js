@@ -35,8 +35,8 @@ router.get('/generateAuthCode', authController.generateAuthCode)// generate auth
 router.get('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 router.post('/getStatesByRegion',authentication.authenticateUser, authController.getStatesByRegion);
 
+router.post('/changeStatus',authentication.authenticateAdmin, authController.enableAccount);
 router.post('/addRegion',authentication.authenticateAdmin, authController.addRegion);
-// router.post('/updateRegion', authController.updateRegion);
 router.post('/updateStatesOfRegion',authentication.authenticateAdmin, authController.updateStatesOfRegion);
 router.post('/moveStatesOfRegion',authentication.authenticateAdmin, authController.moveStatesOfRegion);
 router.post('/removeRegion',authentication.authenticateAdmin, authController.removeRegion);

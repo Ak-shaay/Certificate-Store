@@ -37,3 +37,27 @@
   }
 }
 
+.actionRow {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  justify-content: center;
+}
+
+.actionButton1{
+  background-color: #46fa64;
+  border: 1px solid #0c8f38;
+  padding: 8px;
+  border-radius: 0.25rem;
+  color: #ffffff;
+  cursor: pointer;
+}
+.actionButton2{
+  background-color: #fc413a;
+  border: 1px solid #ff0000;
+  padding: 8px;
+  border-radius: 0.25rem;
+  color: #ffffff;
+  cursor: pointer;
+}
+

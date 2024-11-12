@@ -96,12 +96,18 @@ const Login = () => {
         setErrMsg(
           "Invalid username or password. Please check your credentials."
         );
-      } else if (err.response.status === 401) {
+      } 
+      else if (err.response.status === 401) {
         setErrMsg("Unauthorized access. Please check your credentials.");
-      } else if (err.response.status === 423) {
+      }
+      else if (err.response.status === 403) {
         setErrMsg(
-          "Maximum attempts reached.Please try after 24 hr." +
-            err.response.data.timeStamp
+          "Your account has been temporarily blocked. Please contact Admin."
+        );
+      }  else if (err.response.status === 423) {
+        setErrMsg(
+          "Maximum attempts reached.Please try after 24 h"
+          //  +err.response.data.timeStamp
         );
       } else {
         setErrMsg("Unexpected error occurred. Please try again later.");
@@ -112,12 +118,15 @@ const Login = () => {
     }
   };
   useEffect(() => {
+    console.log("errMsg updated:", errMsg);
     if (errMsg) {
       timeoutRef.current = setTimeout(() => {
-        setErrMsg("");
+        setErrMsg(""); 
       }, 3000);
+    } else {
+      clearTimeout(timeoutRef.current);
     }
-
+  
     return () => {
       clearTimeout(timeoutRef.current);
     };
@@ -131,7 +140,7 @@ const Login = () => {
         </nav> */}
       <div className="container" id="container">
         <div className="form-container sign-in-container">
-          <form method="post" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <h1>Sign in</h1>
             <input
               type="text"
