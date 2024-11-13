@@ -53,6 +53,10 @@ function findOrgByCN(commonName) {
 }
 
 // changed for account section
+function findUserData(email) {
+  const query = "SELECT L.UserEmail, L.Name,L.AuthNo, A.AuthName,A.Organization, A.Address, A.State, A.PostalCode FROM `login` AS L LEFT JOIN `authorities` AS A ON L.AuthNo = A.AuthNo WHERE L.UserEmail = ?;";
+  return db.executeQuery(query, [email]);
+}
 function findUserByAuthNo(authNo) {
   const query = "SELECT * FROM authorities WHERE AuthNo = ?";
   return db.executeQuery(query, [authNo]);
@@ -848,6 +852,7 @@ async function getProfileStatus(userName) {
 
 module.exports = {
   findUserByUsername,
+  findUserData,
   findUserByAuthNo,
   createUser,
   logUserAction,

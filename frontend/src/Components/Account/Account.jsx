@@ -28,8 +28,7 @@ const Account = () => {
           }, 2000);
           throw new Error("Network response was not ok");
         }
-
-        setData(response.data.profileData);
+        setData(response.data.profile);
       } catch (error) {
         setError(error);
       } finally {
@@ -198,19 +197,19 @@ const Account = () => {
             <div className="column">
               <label htmlFor="fname">
                 <b>Name : </b>
-                {data[0].AuthName}
+                {data.Name}
               </label>
             </div>
             <div className="column">
               <label htmlFor="email">
                 <b>Email : </b>
-                {data[0].Email}
+                {data.Email}
               </label>
             </div>
             <div className="column">
               <label htmlFor="organization">
                 <b>Organization : </b>
-                {data[0].Organization}
+                {data.Organization}
               </label>
             </div>
           </div>
@@ -222,19 +221,19 @@ const Account = () => {
             <div className="column">
               <label htmlFor="address">
                 <b>Locality : </b>
-                {data[0].Address}
+                {data.Address}
               </label>
             </div>
             <div className="column">
               <label htmlFor="state">
                 <b>State : </b>
-                {data[0].State}
+                {data.State}
               </label>
             </div>
             <div className="column">
               <label htmlFor="Postal Code">
                 <b>Postal Code : </b>
-                {data[0].Postal_Code}
+                {data.PostalCode}
               </label>
             </div>
           </div>

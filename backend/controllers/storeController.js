@@ -868,22 +868,36 @@ async function profileData(req, res, next) {
     if (err) return res.sendStatus(403);
 
     try {
-      const profileData = await userModel.findUserByAuthNo(user.authNo);
+      
+      const profileData = await userModel.findUserData(user.username);
+           
       if (profileData.length > 0) {
-        res.status(200).json({ profileData });
-      } else {
-        // remove values and add dummy values
-        const profileData = {
-          AuthNo: "null",
-          AuthCode: "null",
-          AuthName: "admin",
-          Email: "adminccaportal@cdac.in",
-          Organization: "admin",
+        // res.status(200).json({ profile });
+        if(profileData[0].AuthNo== null){
+          // // remove values and add dummy values
+        const profile = {
+          Name: profileData[0].Name,
+          Email: profileData[0].UserEmail,
+          Organization: "Administrator",
           Address: "CDAC Bengaluru ,E-city",
           State: "KA",
-          Postal_Code: "560100",
+          PostalCode: "560100",
         };
-        res.status(200).json({ profileData: [profileData] });
+        res.status(200).json({ profile });
+        }else{
+          const profile = {
+            Name: profileData[0].Name,
+            Email: profileData[0].UserEmail,
+            Organization: profileData[0].Organization,
+            Address:profileData[0].Address,
+            State: profileData[0].State,
+            PostalCode: profileData[0].PostalCode,
+          };
+          res.status(200).json({ profile });
+        }
+
+      } else {
+        res.status(400).json("Error Occurred");
       }
     } catch (error) {
       res.sendStatus(500);
@@ -1612,6 +1626,7 @@ async function pdfGeneration(data, title, headers, filePath) {
 
     let content = {
       startY: 50,
+      theme: 'grid',
       head: headers,
       body: transformedData,
       styles: {
