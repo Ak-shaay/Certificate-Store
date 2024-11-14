@@ -44,7 +44,7 @@ const Users = ({ onBack }) => {
         { id: "Role", name: "Role", width: "150px" },
         { id: "Status", name: "Status", width: "100px" },
         {
-          name: "Actions",
+          name: "Enable/Disable Login",
           width: "150px",
           formatter: (cell, row) => {
             const isActive = row.cells[4].data === "active";

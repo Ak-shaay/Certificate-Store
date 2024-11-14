@@ -43,7 +43,6 @@ const OrganizationCreation = ({ onBack }) => {
     const file = e.target.files[0];
     if (file) {
       setCertificate(file);
-      console.log("File selected:", file);
     }
   };
 
@@ -61,7 +60,6 @@ const OrganizationCreation = ({ onBack }) => {
     const file = e.dataTransfer.files[0];
     if (file) {
       setCertificate(file);
-      console.log("File dropped:", file);
     }
   };
 
@@ -332,6 +330,14 @@ const OrganizationCreation = ({ onBack }) => {
             >
               {isLoading ? "Creating..." : "Create"}
             </button>
+            <Button
+              type="button"
+               variant="outlined"
+              className="clearBtn"
+              onClick={clearForm}
+            >
+              Clear
+            </Button>
           </div>
         </div>
       </div>

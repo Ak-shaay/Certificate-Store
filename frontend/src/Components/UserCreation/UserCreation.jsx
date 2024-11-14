@@ -102,7 +102,6 @@ const UserCreation = ({ onBack }) => {
     } else {
       errorMessages.password = "";
     }
-
     setErrors(errorMessages);
     return valid;
   };
