@@ -37,6 +37,8 @@
 .orgImg{
     height:55px;
     width: auto;
+    max-width: -webkit-fill-available;
+    max-width: -moz-available;
 }
 .orgCard:hover .orgImg {
     cursor: pointer;
