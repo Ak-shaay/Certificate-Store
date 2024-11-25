@@ -149,8 +149,8 @@ const Organization = ({ onBack }) => {
 
       img.onload = async () => {
         // Check image dimensions
-        if (img.width > 100 || img.height > 100) {
-          alert("Image dimensions must not exceed 100px by 100px");
+        if (img.width > 150 || img.height > 150) {
+          alert("Image dimensions must not exceed 150px by 150px");
           return;
         }
         setImgURL(imageUrl); // Update image preview
