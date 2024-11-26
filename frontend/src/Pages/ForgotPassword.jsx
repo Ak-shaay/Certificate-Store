@@ -1,8 +1,7 @@
 import React, { useRef, useState,useEffect } from "react";
 import "../Css/Login.css";
-import cdaclogo from "../Images/cdac.png";
 import { domain } from "../Context/config";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const ForgotPassword = () => {
@@ -95,7 +94,6 @@ const ForgotPassword = () => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              {/* <img className="bg-img" src={cdaclogo} alt="logo" /> */}
               <h1>Hello!</h1>
               <p>Enter your Email address for resetting the password.</p>
             </div>

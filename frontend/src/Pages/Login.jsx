@@ -1,7 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
-import cdacLogo from "../Images/cdac.png";
-import ccaLogo from "../Images/cca.png";
 import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "./axiosInstance";
@@ -30,6 +28,15 @@ const Login = () => {
     geolocation();
   }, []);
 
+  // If there's an error message stored in sessionStorage, set it in state
+  useEffect(() => {
+    const storedErrMsg = sessionStorage.getItem("errMsg");
+    if (storedErrMsg) {
+      setErrMsg(storedErrMsg);
+      sessionStorage.removeItem("errMsg");  // Clear the error after setting
+    }
+  }, []);
+
   function geolocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -45,26 +52,13 @@ const Login = () => {
       alert("Geolocation is not supported by this browser.");
     }
   }
+  
   const handleForgot = async () => {
     navigate("/forgotpassword");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if (latitude === null || longitude === null) {
-    //   alert("Please enable location services to proceed.");
-    //   return;
-    // }
-
-    // if(!nameRegex.test(username)){
-    //   setErrMsg("Please enter a valid username");
-    //   return;
-    // }
-    // if(!passRegex.test(password)){
-    //   setErrMsg("Please enter a valid password");
-    //   return;
-    // }
 
     try {
       setLoading(true);
@@ -83,39 +77,37 @@ const Login = () => {
         setPassword("");
         setErrMsg("");
         navigate(from, { replace: true });
-        // console.log("from", from);
       } else {
         setErrMsg("Invalid username or password");
+        sessionStorage.setItem("errMsg", "Invalid username or password. Please check your credentials.");
         errRef.current.focus();
       }
     } catch (err) {
       if (!err.response) {
         setErrMsg("No response from the server. Please try again later.");
+        sessionStorage.setItem("errMsg", "No response from the server. Please try again later.");
       } else if (err.response.status === 400) {
-        setErrMsg(
-          "Invalid username or password. Please check your credentials."
-        );
-      } 
-      else if (err.response.status === 401) {
+        setErrMsg("Invalid username or password. Please check your credentials.");
+        sessionStorage.setItem("errMsg", "Invalid username or password. Please check your credentials.");
+      } else if (err.response.status === 401) {
         setErrMsg("Unauthorized access. Please check your credentials.");
-      }
-      else if (err.response.status === 403) {
-        setErrMsg(
-          "Your account has been temporarily blocked. Please contact Admin."
-        );
-      }  else if (err.response.status === 423) {
-        setErrMsg(
-          "Maximum attempts reached.Please try after 24 h"
-          //  +err.response.data.timeStamp
-        );
+        sessionStorage.setItem("errMsg", "Unauthorized access. Please check your credentials.");
+      } else if (err.response.status === 403) {
+        setErrMsg("Your account has been temporarily blocked. Please contact Admin.");
+        sessionStorage.setItem("errMsg", "Your account has been temporarily blocked. Please contact Admin.");
+      } else if (err.response.status === 423) {
+        setErrMsg("Maximum attempts reached. Please try after 24 hours.");
+        sessionStorage.setItem("errMsg", "Maximum attempts reached. Please try after 24 hours.");
       } else {
         setErrMsg("Unexpected error occurred. Please try again later.");
+        sessionStorage.setItem("errMsg", "Unexpected error occurred. Please try again later.");
       }
       errRef.current.focus();
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (errMsg) {
       timeoutRef.current = setTimeout(() => {
@@ -124,7 +116,7 @@ const Login = () => {
     } else {
       clearTimeout(timeoutRef.current);
     }
-  
+
     return () => {
       clearTimeout(timeoutRef.current);
     };
@@ -132,10 +124,6 @@ const Login = () => {
 
   return (
     <div className="bodylogin">
-      {/* <nav className="navbarLogin">
-          <img className="landing-logo" src={ccaLogo} alt="CCA Logo" />
-          <img className="landing-logo" src={cdacLogo} alt="CDAC logo" />
-        </nav> */}
       <div className="container" id="container">
         <div className="form-container sign-in-container">
           <form onSubmit={handleSubmit}>
@@ -178,7 +166,6 @@ const Login = () => {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-right">
-              {/* <img className="bg-img" src={cdacLogo} alt="logo" /> */}
               <h1>Hello!</h1>
               <p>Enter your login credentials for a seamless experience.</p>
             </div>
