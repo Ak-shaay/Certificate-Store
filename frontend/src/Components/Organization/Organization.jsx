@@ -8,6 +8,7 @@ import {
   InputAdornment,
   OutlinedInput,
   TextField,
+  Tooltip,
 } from "@mui/material";
 
 const Organization = ({ onBack }) => {
@@ -228,7 +229,8 @@ const Organization = ({ onBack }) => {
                   hidden
                   onChange={(e) => handleImage(e, authNo)}
                 />
-                Edit &#128397;
+                <Tooltip  title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px" placement="top">
+                Edit &#128397;</Tooltip>
               </label>
             </div>
           )}
@@ -245,7 +247,7 @@ const Organization = ({ onBack }) => {
               variant="outlined"
               value={authName}
               placeholder="Authority Name"
-              readOnly={!isEditing}
+              disabled={!isEditing}
               onChange={(e) => setAuthName(e.target.value)}
             />
             <OutlinedInput
@@ -254,7 +256,7 @@ const Organization = ({ onBack }) => {
               name="authCode"
               value={authCode}
               placeholder="AuthCode"
-              readOnly
+              disabled={!isEditing}
               onChange={(e) => setAuthCode(e.target.value)}
               endAdornment={
                 isEditing ? (

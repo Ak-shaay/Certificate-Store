@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./OrganizationCreation.css";
 import TextField from "@mui/material/TextField";
+import Tooltip from '@mui/material/Tooltip';
 import { Button } from "@mui/material";
 import api from "../../Pages/axiosInstance";
 
@@ -49,6 +50,31 @@ const OrganizationCreation = ({ onBack }) => {
   const handleImageChange = async (e) => {
     const image = e.target.files[0];
     if (image) {
+      const size = image.size / 1024; 
+      const type = image.type;
+
+      if (size > 200) {
+        alert("Image size must not exceed 200KB");
+        return;
+      }
+
+      if (type !== "image/png") {
+        alert("Image must be in PNG format");
+        return;
+      }
+      const imageUrl = URL.createObjectURL(image);
+      const img = new Image();
+      img.src = imageUrl;
+
+      async function imgSize(img) {
+        // Check image dimensions
+        if (img.width > 150 || img.height > 150) {
+          alert("Image dimensions must not exceed 150px by 150px");
+          return;
+        }
+      }
+        imgSize(img)
+      
       setImage(image);
     }
   };
@@ -313,6 +339,7 @@ const OrganizationCreation = ({ onBack }) => {
               onChange={handleInputChange(setPostalCode)}
               placeholder="Enter postal code"
             />
+            <Tooltip  title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px" placement="top">
             <Button variant="text" size="medium" component="label">
               <div className="imgBtn">
                 <span className="imgName">{image ? image.name : ""}</span>
@@ -320,6 +347,7 @@ const OrganizationCreation = ({ onBack }) => {
                 <input type="file" hidden onChange={handleImageChange} />
               </div>
             </Button>
+            </Tooltip >
           </div>
           <div className="btnContainer">
             <button

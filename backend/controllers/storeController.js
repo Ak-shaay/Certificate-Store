@@ -1275,6 +1275,10 @@ async function updateStatesOfRegion(req, res) {
     //console.log('Update state Request Body:', req.body); // Check incoming request
 
     if (region === "unassigned") {
+        // Ensure 'unassigned' region exists
+  if (!data[region]) {
+    data[region] = [];
+  }
       if (state) {
         // If state is provided, delete the state from 'unassigned'
         const index = data[region].findIndex((item) => item.value === state);
