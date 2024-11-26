@@ -47,6 +47,20 @@ function findUserByUsername(email) {
   const query = "SELECT * FROM Login WHERE UserEmail = ?";
   return db.executeQuery(query, [email]);
 }
+async function findEmailByAuth(auth) {
+  const query = "SELECT Email FROM authorities WHERE AuthNo = ?";
+  try {
+    const result = await db.executeQuery(query, [auth]);    
+    if (result.length > 0) {
+      return result[0].Email;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    return null;  // Return null in case of an error
+  }
+}
 function findOrgByCN(commonName) {
   const query = "SELECT * FROM Authorities WHERE AuthName = ?";
   return db.executeQuery(query, [commonName]);
@@ -852,6 +866,7 @@ async function getProfileStatus(userName) {
 
 module.exports = {
   findUserByUsername,
+  findEmailByAuth,
   findUserData,
   findUserByAuthNo,
   createUser,

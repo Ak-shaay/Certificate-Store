@@ -64,7 +64,7 @@ const UserCreation = ({ onBack }) => {
   };
   setTimeout(() => {
     setMessage(""); 
-  }, 2000);
+  }, 3000);
 
   const handleNameChange = (e) => {
     setName(e.target.value);

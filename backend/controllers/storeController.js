@@ -372,7 +372,7 @@ async function enableAccount(req, res) {
 async function loginAttempt(userExist) {
   if (userExist.LoginStatus == "inactive") {
     // const currentTime = new Date();
-    const timeDifferenceMs = currentTime - userExist.LastAttempt;
+    const timeDifferenceMs = currentISTime - userExist.LastAttempt;
     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
     // Check if the time difference is greater than 24 hours
@@ -1713,10 +1713,11 @@ async function reportGenerator(req, res) {
   try {
     let email = "";
     const userName = req.session.username;
+    const auth = req.session.userid;
+    const ccEmail = await userModel.findEmailByAuth(auth) || "";        
     if (userName == "admin") {
       email = process.env.ADMIN || "";
     } else {
-      // email = await userModel.getEmail(userName);
       email = userName;
     }
     const result = await pdfGeneration(data, title, headers, filePath);
@@ -1734,6 +1735,7 @@ async function reportGenerator(req, res) {
       var mailOptions = {
         from: Sender,
         to: email,
+        cc :ccEmail,
         subject: "Report generated",
         text: `Dear Sir/Ma'am
         We have received a ${title} report generation request from your account. Please download the report using the link ${link}.
@@ -1742,7 +1744,7 @@ async function reportGenerator(req, res) {
         Admin 
         Certstore`,
       };
-
+      
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           // console.log(error);
