@@ -30,6 +30,7 @@ router.post('/updateAuths',authentication.authenticateUser, authController.updat
 router.get('/getSubType', authController.getSubType);
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
+router.get('/generatePassword', authController.generatePass)// generate authcode
 
 // json routes
 router.get('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
@@ -42,7 +43,7 @@ router.post('/moveStatesOfRegion',authentication.authenticateAdmin, authControll
 router.post('/removeRegion',authentication.authenticateAdmin, authController.removeRegion);
 
 router.post('/certInfo',authController.certInfo);
-router.post('/email',authController.emailService);
+router.post('/forgotPassword',authController.forgotPassword);
 router.post('/report',authentication.authenticateUser,authController.reportGenerator);
 router.post('/statusCheck',authentication.authenticateUser,authController.statusCheck);
 router.post('/profileImage',authController.profileImage);

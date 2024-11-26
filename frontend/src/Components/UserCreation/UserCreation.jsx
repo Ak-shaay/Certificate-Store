@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./UserCreation.css";
 import TextField from "@mui/material/TextField";
-import { MenuItem } from "@mui/material";
+import { InputAdornment, MenuItem } from "@mui/material";
 import api from "../../Pages/axiosInstance";
+import refreshIcon from "../../Images/Icons/refresh.png";
 
 const UserCreation = ({ onBack }) => {
   const [name, setName] = useState("");
@@ -18,13 +19,13 @@ const UserCreation = ({ onBack }) => {
     password: "",
   });
 
-    // Function to clear all form values
-    const clearForm = () => {
-      setName("");
-      setOrganisation("");
-      setEmail("");
-      setPassword("");
-    };
+  // Function to clear all form values
+  const clearForm = () => {
+    setName("");
+    setOrganisation("");
+    setEmail("");
+    setPassword("");
+  };
   useEffect(() => {
     const fetchIssuer = async () => {
       try {
@@ -42,6 +43,28 @@ const UserCreation = ({ onBack }) => {
     };
     fetchIssuer();
   }, []);
+  const handleGenPass = async () => {
+    const msgSpan = document.getElementById("messageText");
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.get("/generatePassword");
+
+        if (response.status === 200) {
+          setPassword(response.data.password);          
+          msgSpan.style.color = "green";
+          setMessage(response.data.message);
+        }
+      }
+    } catch (error) {
+      msgSpan.style.color = "red";
+      setMessage("Error generating Password");
+    }
+  };
+  setTimeout(() => {
+    setMessage(""); 
+  }, 2000);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -109,56 +132,60 @@ const UserCreation = ({ onBack }) => {
   const handleSubmit = async (e) => {
     const msgSpan = document.getElementById("messageText");
     e.preventDefault();
-  
+
     if (!validate()) {
       return;
     }
-  
+
     try {
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
-  
+
       const response = await api.axiosInstance.post("/signupUser", {
         name,
         organisation,
         email,
         password,
       });
-  
+
       if (response.status == 200) {
-        msgSpan.style.color='green';
+        msgSpan.style.color = "green";
         setMessage(response.data.message);
         clearForm();
       }
-      
+
       setTimeout(() => {
         setMessage("");
       }, 3000);
-      
     } catch (err) {
       console.error("Error during signup:", err);
       clearForm();
       if (err.response) {
-        msgSpan.style.color='red';
+        msgSpan.style.color = "red";
         if (err.response.status === 409) {
           setMessage("User already exists. Please try with a different email.");
         } else if (err.response.status === 400) {
-          setMessage(err.response.data.message || "Invalid email or password format.");
+          setMessage(
+            err.response.data.message || "Invalid email or password format."
+          );
         } else if (err.response.status === 403) {
           setMessage("The email you entered is not valid.");
         } else {
-          setMessage("An error occurred while processing your request. Please try again later.");
+          setMessage(
+            "An error occurred while processing your request. Please try again later."
+          );
         }
       } else {
-        setMessage("Network error. Please check your connection and try again.");
+        setMessage(
+          "Network error. Please check your connection and try again."
+        );
       }
-      
+
       setTimeout(() => {
         setMessage("");
       }, 3000);
     }
   };
-  
 
   return (
     <div className="userCreation">
@@ -214,6 +241,22 @@ const UserCreation = ({ onBack }) => {
             onChange={handlePasswordChange}
             error={!!errors.password}
             helperText={errors.password}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <button
+                    type="button"
+                    id="smallBtn"
+                    onClick={handleGenPass}
+                  >
+                    <img
+                      src={refreshIcon}
+                      alt="regenerate"
+                    />
+                  </button>
+                </InputAdornment>
+              ),
+            }}
           />
           <div className="messageContainer">
             <span id="messageText">{message}</span>

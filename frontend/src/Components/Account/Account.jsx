@@ -142,7 +142,7 @@ const Account = () => {
           required
         /> */}
         <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="oldPassword">Old Password</InputLabel>
+          <InputLabel htmlFor="oldPassword">Current Password</InputLabel>
           <OutlinedInput
             className="passwordFrom"
             id="oldPassword"

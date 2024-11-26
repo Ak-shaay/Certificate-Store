@@ -250,6 +250,49 @@ function returnRole(auth) {
       return "CA";
   }
 }
+
+async function emailUser(email, password) {
+  email.toLowerCase();
+  const Sender = process.env.ID || "";
+  const Secret = process.env.SECRET || "";
+  try {
+    var transporter = nodemailer.createTransport({
+      host: "smtp.cdac.in",
+      port: 587,
+      // secure: true,
+      auth: {
+        user: Sender,
+        pass: Secret,
+      },
+      timeout: 60000,
+    });
+    var mailOptions = {
+      from: Sender,
+      to: email,
+      subject: "Account has been created successfully",
+      text: `Dear Sir/Ma'am,
+      We are pleased to inform you that your account has been successfully created.
+
+      You can now access your account and start using our services. Please use the temporary password : ${password} 
+      
+      for login If you have any questions or need assistance, please feel free to reach out to our support team.
+
+      We look forward to serving you!
+      
+      Thank you and regards,  
+      Admin Team
+      Certificate Store`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.error("Error :", error.message);
+      }
+    });
+  } catch (error) {
+    console.error("Error Sending Email:", error.message);
+  }
+}
 async function signupUserController(req, res) {
   const { name, email, password, organisation } = req.body;
 
@@ -290,6 +333,7 @@ async function signupUserController(req, res) {
 
     const result = await userModel.signupUser(params);
     if (result) {
+      await emailUser(email, password)
       return res.status(200).json({ message: "User created successful" });
     } else {
       return res
@@ -313,12 +357,10 @@ async function enableAccount(req, res) {
     if (result) {
       return res.json({ message: "Account status changed successfully" });
     } else {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Failed to update the account status. It may already be in the desired state.",
-        });
+      return res.status(400).json({
+        message:
+          "Failed to update the account status. It may already be in the desired state.",
+      });
     }
   } catch (error) {
     console.error("Error occurred while enabling/disabling account:", error);
@@ -359,7 +401,7 @@ async function login(req, res) {
     if (!userExist.length) {
       return res.status(400).json({ error: "User does not exist" });
     }
-    
+
     const user = userExist[0];
     if (user.LoginStatus === "blocked") {
       return res.status(403).json({ error: "Your account is blocked" });
@@ -388,10 +430,7 @@ async function login(req, res) {
       req.session.userid = user.AuthNo;
       req.session.userRole = user.Role;
 
-      if (
-        user.LoginStatus == "temporary" &&
-        user.Attempts > 0
-      ) {
+      if (user.LoginStatus == "temporary" && user.Attempts > 0) {
         await userModel.logUserAction(
           user.UserEmail,
           req.ip,
@@ -446,7 +485,6 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
 
 async function dashboard(req, res, next) {
   if (!req.session && !req.session.username) {
@@ -868,34 +906,32 @@ async function profileData(req, res, next) {
     if (err) return res.sendStatus(403);
 
     try {
-      
       const profileData = await userModel.findUserData(user.username);
-           
+
       if (profileData.length > 0) {
         // res.status(200).json({ profile });
-        if(profileData[0].AuthNo== null){
+        if (profileData[0].AuthNo == null) {
           // // remove values and add dummy values
-        const profile = {
-          Name: profileData[0].Name,
-          Email: profileData[0].UserEmail,
-          Organization: "Administrator",
-          Address: "CDAC Bengaluru ,E-city",
-          State: "KA",
-          PostalCode: "560100",
-        };
-        res.status(200).json({ profile });
-        }else{
+          const profile = {
+            Name: profileData[0].Name,
+            Email: profileData[0].UserEmail,
+            Organization: "Administrator",
+            Address: "CDAC Bengaluru ,E-city",
+            State: "KA",
+            PostalCode: "560100",
+          };
+          res.status(200).json({ profile });
+        } else {
           const profile = {
             Name: profileData[0].Name,
             Email: profileData[0].UserEmail,
             Organization: profileData[0].Organization,
-            Address:profileData[0].Address,
+            Address: profileData[0].Address,
             State: profileData[0].State,
             PostalCode: profileData[0].PostalCode,
           };
           res.status(200).json({ profile });
         }
-
       } else {
         res.status(400).json("Error Occurred");
       }
@@ -1275,10 +1311,10 @@ async function updateStatesOfRegion(req, res) {
     //console.log('Update state Request Body:', req.body); // Check incoming request
 
     if (region === "unassigned") {
-        // Ensure 'unassigned' region exists
-  if (!data[region]) {
-    data[region] = [];
-  }
+      // Ensure 'unassigned' region exists
+      if (!data[region]) {
+        data[region] = [];
+      }
       if (state) {
         // If state is provided, delete the state from 'unassigned'
         const index = data[region].findIndex((item) => item.value === state);
@@ -1494,9 +1530,26 @@ async function generateAuthCode(req, res) {
     const randomString = generateRandomString(20);
     res
       .status(200)
-      .json({ authCode: randomString, message: "Successfully generated" });
+      .json({
+        authCode: randomString,
+        message: "Authcode  generated successfully",
+      });
   } catch (err) {
     console.error("Error generating auth code: ", err);
+    res.sendStatus(500);
+  }
+}
+async function generatePass(req, res) {
+  try {
+    const randomString = generatePassword(10);
+    res
+      .status(200)
+      .json({
+        password: randomString,
+        message: "Password generated successfully",
+      });
+  } catch (err) {
+    console.error("Error generating password: ", err);
     res.sendStatus(500);
   }
 }
@@ -1539,8 +1592,8 @@ function generatePassword(length) {
 
   // Ensure at least one of each character type
   const passwordArray = [
-    lowercase[Math.floor(Math.random() * lowercase.length)],
     uppercase[Math.floor(Math.random() * uppercase.length)],
+    lowercase[Math.floor(Math.random() * lowercase.length)],
     digits[Math.floor(Math.random() * digits.length)],
     specialCharacters[Math.floor(Math.random() * specialCharacters.length)],
   ];
@@ -1562,7 +1615,7 @@ function generatePassword(length) {
 
   return passwordArray.join("");
 }
-async function emailService(req, res) {
+async function forgotPassword(req, res) {
   const email = req.body.email;
   email.toLowerCase();
   const Sender = process.env.ID || "";
@@ -1630,7 +1683,7 @@ async function pdfGeneration(data, title, headers, filePath) {
 
     let content = {
       startY: 50,
-      theme: 'grid',
+      theme: "grid",
       head: headers,
       body: transformedData,
       styles: {
@@ -1789,8 +1842,9 @@ module.exports = {
   getSubType,
   getAllRevocationReasons,
   generateAuthCode,
+  generatePass,
   certInfo,
-  emailService,
+  forgotPassword,
   reportGenerator,
   statusCheck,
   profileImage,

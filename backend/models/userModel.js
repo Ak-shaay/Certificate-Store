@@ -742,7 +742,7 @@ async function getAuthNo(organization) {
 }
 async function signupUser(params) {
   const { email, password, name, role, authNo } = params;
-  const loginStatus = "active";
+  const loginStatus = "temporary";
   const attempts = 2;
   const query =
     "INSERT INTO `login`(`UserEmail`, `Password`, `LoginStatus`, `Attempts`, `Role`, `AuthNo`, `Name`) VALUES (?,?,?,?,?,?,?)";
