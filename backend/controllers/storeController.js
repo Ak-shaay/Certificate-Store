@@ -12,6 +12,8 @@ const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
 const { v4: uuidv4 } = require("uuid");
 const jsrsasign = require("jsrsasign");
+const { KJUR, pemtohex } = require("jsrsasign");
+const moment = require("moment");
 
 let refreshTokens = {};
 
@@ -333,7 +335,7 @@ async function signupUserController(req, res) {
 
     const result = await userModel.signupUser(params);
     if (result) {
-      await emailUser(email, password)
+      await emailUser(email, password);
       return res.status(200).json({ message: "User created successful" });
     } else {
       return res
@@ -533,67 +535,201 @@ async function userSessionInfo(req, res) {
   });
 }
 
-async function certDetails(req, res) {
-  const certificateFile = req.files.certificate;
-  // console.log("certificate file", certificateFile);
+async function certificateUpload(req, res) {
+  let certPem;
+  let certInfoList = [];
 
-  let Certificate = {};
-  if (certificateFile == null) {
-    res.status(400).json({ error: "Certificate file is required." });
-    return;
+  // Check if base64Cert is provided in the request body
+  if (!req.body.base64Cert) {
+    return res.status(400).json({ error: "No certificate provided" });
   }
 
-  function isCertificateCA(cert) {
-    // Check if Basic Constraints extension is present
-    const extensions = cert.extensions;
-    for (let i = 0; i < extensions.length; ++i) {
-      const ext = extensions[i];
-      if (ext.name === "basicConstraints") {
-        // basicConstraints extension found
-        if (ext.cA === true) {
-          // It is a CA certificate
-          return true;
-        }
-        break; // No need to check further
-      }
-    }
-    // Not a CA certificate
-    return false;
-  }
   try {
-    const pki = forge.pki;
-    const buffer = certificateFile.data;
-
-    parsedCertificate = pki.certificateFromPem(buffer);
-
-    if (!parsedCertificate) {
-      console.error("Error: Failed to parse the certificate.");
-      res.status(500).json({ error: "Failed to parse the certificate." });
-      return;
-    } else {
-      // console.log("ParsedCertificate: ", parsedCertificate.issuer.attributes[2].value);
-      Certificate = {
-        serialNo: parsedCertificate.serialNumber,
-        commonName: parsedCertificate.subject.attributes[7].value,
-        country: parsedCertificate.subject.attributes[0].value,
-        state: parsedCertificate.subject.attributes[4].value,
-        region: parsedCertificate.subject.attributes[5].value,
-        issuer: parsedCertificate.issuer.attributes[2].value,
-        validity: parsedCertificate.validity.notAfter,
-        hash: parsedCertificate.subject.hash,
-        extensions: parsedCertificate.extensions,
-        issuerO: parsedCertificate.issuer.attributes[1].value,
-        issuerOU: parsedCertificate.issuer.attributes[2].value,
-        issuerCN: parsedCertificate.issuer.attributes[3].value,
-      };
-    }
-    res.json({ ...Certificate });
+    // Decode the base64 certificate PEM
+    certPem = Buffer.from(req.body.base64Cert, "base64").toString("utf-8");
   } catch (error) {
-    console.error("Error parsing the certificate:", error.message);
-    res.status(500).json({ error: "Error parsing the certificate." });
+    console.error("Error processing base64 certificate:", error);
+    return res.status(400).json({ error: "Invalid base64 certificate format" });
+  }
+
+  try {
+    // Split the PEM into individual certificates
+    const pemCertificates = certPem
+      .split(/(?=-----BEGIN CERTIFICATE-----)/g)
+      .map(cert => cert.trim())
+      .filter(cert => cert); // Remove any empty certificates
+
+    // Parse each certificate
+    for (const cert of pemCertificates) {
+      const certInfo = await parseCertificate(cert);
+      if (certInfo) certInfoList.push(certInfo);
+    }
+
+    // Handle cases where no valid certificates are found
+    if (certInfoList.length === 0) {
+      return res.status(400).json({ error: "No valid certificates found" });
+    }
+
+    // Process certificates based on subject type
+    const firstCert = certInfoList[0];
+    const certificateList = createCertSummaryList(certInfoList);
+
+    // Business logic based on certificate type and relationships
+    const response = await handleCertificateInsertion(certificateList, firstCert);
+    return res.status(response.status).json(response.message);
+
+  } catch (error) {
+    console.error("Error processing certificates:", error);
+    return res.status(500).json({ error: error.message });
   }
 }
 
+// Function to parse individual certificates
+async function parseCertificate(cert) {
+  try {
+    const x = new jsrsasign.X509();
+    x.readCertPEM(cert);
+    const certInfo = {};
+
+    certInfo.x509Cert = cert.replace(/\r\n/g, "\n").trim();
+    certInfo.commonName = extractCertificateField(x.getSubjectString(), 'CN');
+    certInfo.issuerName = extractCertificateField(x.getIssuerString(), 'CN');
+    certInfo.certSerialNumber = x.getSerialNumberHex();
+    certInfo.validFrom = formatDate(x.getNotBefore());
+    certInfo.validTo = formatDate(x.getNotAfter());
+    certInfo.validityPeriod = calculateValidityPeriod(x);
+    certInfo.organization = extractCertificateField(x.getSubjectString(), 'O');
+    certInfo.city = extractCertificateField(x.getSubjectString(), 'L');
+    certInfo.state = extractCertificateField(x.getSubjectString(), 'ST');
+    certInfo.country = extractCertificateField(x.getSubjectString(), 'C');
+    certInfo.certType = x.getExtKeyUsageString();
+    certInfo.constraints = x.getExtBasicConstraints();
+    certInfo.subjectType = determineSubjectType(x);
+    certInfo.fp = getCertificateFingerprint(cert);
+    certInfo.email = getCertificateEmail(x);
+
+    return certInfo;
+
+  } catch (err) {
+    console.error("Error parsing certificate:", err);
+    return null;
+  }
+}
+
+// Extracts the field from the certificate's subject string
+function extractCertificateField(subjectString, field) {
+  const regex = new RegExp(`/(${field}=)([^/]+)`);
+  const match = subjectString.match(regex);
+  return match ? match[2] : "";
+}
+
+// Formats date from the certificate
+function formatDate(date) {
+  return moment(date, "YYMMDDHHmmssZ").format("YYYY-MM-DD HH:mm:ss");
+}
+
+// Calculates the validity period of the certificate
+function calculateValidityPeriod(x) {
+  return Math.round(
+    moment(x.getNotAfter(), "YYMMDDHHmmssZ").diff(
+      moment(x.getNotBefore(), "YYMMDDHHmmssZ"),
+      "years",
+      true
+    )
+  );
+}
+
+// Determines the subject type of the certificate
+function determineSubjectType(x) {
+  const basicConstraints = x.getExtBasicConstraints();
+  if (basicConstraints && basicConstraints.cA) {
+    if (basicConstraints.pathLen == null) return "CCA";
+    if (basicConstraints.pathLen >= 1) return "CA";
+    if (basicConstraints.pathLen === 0) return "Sub-CA";
+  }
+  return "End Entity";
+}
+
+// Returns the certificate fingerprint
+function getCertificateFingerprint(cert) {
+  const hex = pemtohex(cert);
+  return KJUR.crypto.Util.hashHex(hex, "sha1");
+}
+
+// Returns the certificate email (from Subject Alternative Name)
+function getCertificateEmail(x) {
+  const san = x.getExtSubjectAltName();
+  const emailEntry = san && san.array.find(entry => entry.rfc822);
+  return emailEntry ? emailEntry.rfc822 : "N/A";
+}
+
+// Handles the certificate insertion logic
+async function handleCertificateInsertion(certificateList, firstCert) {
+  try {
+    if (firstCert.subjectType === "CCA") {
+      firstCert.issuerSlNo = firstCert.certSerialNumber;
+      // Insert the first certificate into the database
+      const response = await userModel.insertCertificate(firstCert);
+      if (response) {
+        return { status: 200, message: "Successfully inserted certificate" };
+      }
+    } else if (firstCert.subjectType === "CA" && certificateList.length > 1) {
+      const secondCert = certificateList[1];
+      const exists = await userModel.checkCertificateInDatabase(secondCert);
+      if (exists) {
+        const response = await userModel.insertCertificate(firstCert);
+        if (response) {
+          return { status: 200, message: "Successfully inserted certificate" };
+        }
+      } else {
+        return { status: 400, message: "Issuer Certificate does not exist in the database" };
+      }
+    } else {
+      return { status: 400, message: "Invalid certificate chain or subject type" };
+    }
+  } catch (error) {
+    console.error("Error in certificate insertion:", error);
+    return { status: 500, message: error.message };
+  }
+}
+const createCertSummaryList = (certInfos) => {
+  const summaryList = [];
+  for (let i = 0; i < certInfos.length; i++) {
+    const cert = certInfos[i];
+    const isLastCert = i === certInfos.length - 1;
+
+    // If it's the last certificate, it issues itself, otherwise, it is issued by the next certificate
+    const issuerSlNo = isLastCert
+      ? cert.certSerialNumber
+      : certInfos[i + 1].certSerialNumber;
+
+    // Creating the summary for the current certificate
+    const summary = {
+      issuerSlNo: issuerSlNo,
+      x509Cert: cert.x509Cert,
+      commonName: cert.commonName,
+      issuerName: cert.issuerName,
+      certSerialNumber: cert.certSerialNumber,
+      validFrom: cert.validFrom,
+      validTo: cert.validTo,
+      validityPeriod: cert.validityPeriod,
+      organization: cert.organization,
+      city: cert.city,
+      state: cert.state,
+      country: cert.country,
+      certType: cert.certType,
+      constraints: cert.constraints,
+      subjectType: cert.subjectType,
+      email: cert.email,
+      // extensions: cert.extensions,
+      fp: cert.fp,
+    };
+
+    summaryList.push(summary);
+  }
+
+  return summaryList;
+};
 async function extractCert(req, res) {
   let pemCert;
 
@@ -1528,12 +1664,10 @@ function generateRandomString(length) {
 async function generateAuthCode(req, res) {
   try {
     const randomString = generateRandomString(20);
-    res
-      .status(200)
-      .json({
-        authCode: randomString,
-        message: "Authcode  generated successfully",
-      });
+    res.status(200).json({
+      authCode: randomString,
+      message: "Authcode  generated successfully",
+    });
   } catch (err) {
     console.error("Error generating auth code: ", err);
     res.sendStatus(500);
@@ -1542,12 +1676,10 @@ async function generateAuthCode(req, res) {
 async function generatePass(req, res) {
   try {
     const randomString = generatePassword(10);
-    res
-      .status(200)
-      .json({
-        password: randomString,
-        message: "Password generated successfully",
-      });
+    res.status(200).json({
+      password: randomString,
+      message: "Password generated successfully",
+    });
   } catch (err) {
     console.error("Error generating password: ", err);
     res.sendStatus(500);
@@ -1714,7 +1846,7 @@ async function reportGenerator(req, res) {
     let email = "";
     const userName = req.session.username;
     const auth = req.session.userid;
-    const ccEmail = await userModel.findEmailByAuth(auth) || "";        
+    const ccEmail = (await userModel.findEmailByAuth(auth)) || "";
     if (userName == "admin") {
       email = process.env.ADMIN || "";
     } else {
@@ -1735,7 +1867,7 @@ async function reportGenerator(req, res) {
       var mailOptions = {
         from: Sender,
         to: email,
-        cc :ccEmail,
+        cc: ccEmail,
         subject: "Report generated",
         text: `Dear Sir/Ma'am
         We have received a ${title} report generation request from your account. Please download the report using the link ${link}.
@@ -1744,7 +1876,7 @@ async function reportGenerator(req, res) {
         Admin 
         Certstore`,
       };
-      
+
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
           // console.log(error);
@@ -1818,7 +1950,7 @@ module.exports = {
   enableAccount,
   userDetails,
   userSessionInfo,
-  certDetails,
+  certificateUpload,
   extractCert,
   fetchData,
   fetchRevokedData,

@@ -35,7 +35,7 @@ export const SidebarData = [
   },
   {
     icon: uploadIcon,
-    heading: "Add Your Certificate",
+    heading: "Add Certificate",
   },
   {
     icon: userIcon,

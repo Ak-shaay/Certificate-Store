@@ -147,8 +147,8 @@ const Sidebar = ({ onIndexChange, role }) => {
                             ) {
                                 return null;
                             }
-                            // if(role == "Admin" && index === 4) {//remove upload cert for admin
-                            if(index === 4){
+                            // if(index === 4){ //remove upload cert for admin
+                            if(role !== "Admin" && index === 4) {
                             return null;
                             }
 

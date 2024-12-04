@@ -82,6 +82,89 @@ async function createUser(username, password) {
     "INSERT INTO login (UserName, Password,Role,AuthNo) VALUES (?,?,?,?)";
   return db.executeQuery(query, [username, hashedPassword]);
 }
+// check for issuer certificate
+async function checkCertificateInDatabase(certificate) {
+  const {issuerSlNo,issuerName} = certificate;
+  try{
+  const query = `
+      SELECT * FROM cert
+      WHERE IssuerSlNo = ?
+        AND IssuerName = ?
+    `;
+    const result = await db.executeQuery(query, [issuerSlNo,issuerName ]);
+      return result.length > 0; 
+  }catch(error){
+    console.error("error : ",error);
+    return false;
+  }
+}
+
+
+async function insertCertificate(certificate) {
+  const {
+    certSerialNumber,
+    validFrom,
+    validTo,
+    certType,
+    issuerSlNo,
+    issuerName,
+    country,
+    organization,
+    state,
+    commonName,
+    email,
+    city,
+    subjectType,
+    fp,
+    x509Cert,
+    validityPeriod
+  } = certificate;
+
+  // Validate the certificate object (you can add more validation here)
+  // if (!certSerialNumber || !validFrom || !validTo || !certType) {
+  //   throw new Error("Missing required certificate fields");
+  // }
+
+  const query = `
+    INSERT INTO cert (
+      SerialNumber, IssueDate, ExpiryDate, CertType, IssuerSlNo, IssuerName, Country, Organization, 
+      State, SubjectName, Email, City, SubjectType, Fp_512, RawCertificate, CAname, ValidityPeriod
+    ) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    certSerialNumber,       // SerialNumber
+    validFrom,              // IssueDate
+    validTo,                // ExpiryDate
+    certType,               // CertType
+    issuerSlNo,
+    issuerName,
+    country,
+    organization,
+    state,
+    commonName,            // SubjectName
+    email,                  // Email
+    city,
+    subjectType,           // SubjectType
+    fp,                     // Fp_512 (using hash)
+    x509Cert,
+    organization,           // CAname
+    validityPeriod          // ValidityPeriod
+  ];
+  
+  try {
+    const result = await db.executeQuery(query, values);    
+    return result && result.affectedRows > 0; // can directly return the result
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      throw new Error("Certificate already exists");
+    }
+    console.error('Error inserting certificate:', err);
+    throw new Error("Error inserting certificate");
+  }
+}
+
 async function logUserAction(
   UserName,
   ip,
@@ -870,6 +953,8 @@ module.exports = {
   findUserData,
   findUserByAuthNo,
   createUser,
+  checkCertificateInDatabase,
+  insertCertificate,
   logUserAction,
   authenticateUser,
   authenticateAdmin,
