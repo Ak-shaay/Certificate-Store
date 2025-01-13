@@ -1,165 +1,112 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Grid, h, PluginPosition } from "gridjs"; //datagrid js
-import "./DataTable.css";
-import "gridjs/dist/theme/mermaid.css";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import TablePagination from "@mui/material/TablePagination";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
-import exclamation from "../../Images/exclamation.png";
-import api from "../../Pages/axiosInstance";
-import axios from "axios";
-import { domain } from "../../Context/config";
-const DataTable = () => {
-  // var today = (new Date()).toISOString().split('T')[0];
-  const wrapperRef = useRef(null);
-  const gridRef = useRef(null);
+import "./DataTable.css";
+
+export default function DataTable() {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("serialNo");
+  const [authNumber, setAuthNumber] = useState("");
+  const [issuerData, setIssuerData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [authorities, setAuthorities] = useState();
   const [issuer, setIssuer] = useState([]);
   const [subjectType, setSubjectType] = useState([]);
   const [state, setState] = useState([]);
+  const [subType, setSubType] = useState([]);
   const [region, setRegion] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [stateByRegion, setStateByRegion] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [validity, setValidity] = useState("");
-  const [stateByRegion, setStateByRegion] = useState([]);
-  const [authNumber, setAuthNumber] = useState("");
-  const [authorities, setAuthorities] = useState();
-  const [rawCertificate, setRawCertificate] = useState("");
-  const [certificateFileName, setcertificateFileName] = useState("");
+  const subTypeRef = useRef();
+  const regionRef = useRef();
+  const stateRef = useRef();
+  const issuerRef = useRef();
 
-  // information
-  const [serialNoInfo, setSerialNoInfo] = useState();
-  const [commonNameInfo, setCommonNameInfo] = useState();
-  const [issuerInfo, setIssuerInfo] = useState();
-  const [extensionsInfo, setExtensionsInfo] = useState([]);
-  const [hashInfo, setHashInfo] = useState();
-  const [issuerO, setIssuerO] = useState();
-  const [issuerOU, setIssuerOU] = useState();
-  const [issuerCN, setIssuerCN] = useState();
+  function createData(
+    serialNo,
+    name,
+    issuer,
+    issuedDate,
+    state,
+    region,
+    expiryDate,
+    subjectType,
+    rawCertificate
+  ) {
+    return {
+      serialNo,
+      name,
+      issuer,
+      issuedDate,
+      state,
+      region,
+      expiryDate,
+      subjectType,
+      rawCertificate,
+    };
+  }
 
-  const [digitalSignature, setDigitalSignature] = useState(false);
-  const [nonRepudiation, setNonRepudiation] = useState(false);
-  const [keyEncipherment, setKeyEncipherment] = useState(false);
-  const [dataEncipherment, setDataEncipherment] = useState(false);
-  const [keyAgreement, setKeyAgreement] = useState(false);
-  const [keyCertSign, setKeyCertSign] = useState(false);
-  const [cRLSign, setCRLSign] = useState(false);
-  const [encipherOnly, setEncipherOnly] = useState(false);
-
-  // json values
-  const [subType, setSubType] = useState([]);
-  const [regions, setRegions] = useState([]);
-
-  // region from statesByRegion.json
-  useEffect(() => {
-    fetchRegion()
-  }, []);
-
-  async function fetchRegion(){
-    try{
+  async function fetchData() {
+    try {
+      const filterData = {
+        issuer: issuer,
+        subjectType: subjectType,
+        state: state,
+        region: region,
+        selectedDate: selectedDate,
+        startDate: startDate,
+        endDate: endDate,
+        validity: validity,
+      };
       const accessToken = api.getAccessToken();
-      if(accessToken){
-        api.setAuthHeader(accessToken)
+      const decodedToken = accessToken
+        ? JSON.parse(atob(accessToken.split(".")[1]))
+        : null;
+      const authNo = decodedToken ? decodedToken.authNo : [];
+      setAuthNumber(authNo);
+
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        setLoading(true);
+        const response = await api.axiosInstance.post(
+          // "/blockchain/issuedCertiifcates",
+          "/data",
+          JSON.stringify(filterData)
+        );
+        if (response.data) {
+          setIssuerData(response.data);
+        }
+        setLoading(false);
       }
-            const response = await api.axiosInstance.get("/region");
-      if(response.status==200){
-        setRegions(response.data)
-      }
-    }
-    catch(error) {
-      console.error("Error fetching the data: ", error);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
     }
   }
 
-  // states by region from statesByRegion.json
-  async function getStates(region) {
-    try{
-      const accessToken = api.getAccessToken();
-      if(accessToken){
-        api.setAuthHeader(accessToken)
-      }
-      const response = await api.axiosInstance.post("/getStatesByRegion",{
-        regions: region,
-      });
-      if(response.status==200){
-        return response.data;
-      }else{
-        return [];
-      }
-
-    }
-    catch(error) {
-      console.error("Error fetching data : ", error);
-      return [];
-    }
-  }
-  // subject type from subjectType.json
   useEffect(() => {
-    fetch("http://" + domain + ":8080/getSubType")
-      .then((response) => response.json())
-      .then((data) => setSubType(data))
-      .catch((error) => console.error("Error fetching data:", error));
+    fetchData();
   }, []);
 
-  const handleFilters = (e) => {
-    const filtersElement = document.getElementById("filter");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(3px)";
-    blurFilter.style.pointerEvents = "none";
-    filtersElement.style.display = "block";
-  };
-
-  const handleFilterClose = (e) => {
-    const filtersElement = document.getElementById("filter");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(0px)";
-    blurFilter.style.pointerEvents = "auto";
-    filtersElement.style.display = "none";
-  };
-  // information options
-  const handleInformationCert = (rawCertificate, serial, issueSerial) => {
-    setRawCertificate(rawCertificate);
-    handleFileUpload(serial, issueSerial);
-    const filtersElement = document.getElementById("information");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(3px)";
-    blurFilter.style.pointerEvents = "none";
-    filtersElement.style.display = "block";
-  };
-
-  const handleInformationCertClose = (e) => {
-    const filtersElement = document.getElementById("information");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(0px)";
-    blurFilter.style.pointerEvents = "auto";
-    filtersElement.style.display = "none";
-  };
-  //download option
-  const handleDownloadCert = (rawCertificate, filename) => {
-    setRawCertificate(rawCertificate);
-    setcertificateFileName(filename);
-    const filtersElement = document.getElementById("download");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(3px)";
-    blurFilter.style.pointerEvents = "none";
-    filtersElement.style.display = "block";
-  };
-
-  const handleDownloadCertClose = (e) => {
-    const filtersElement = document.getElementById("download");
-    const blurFilter = document.getElementById("applyFilter");
-    blurFilter.style.filter = "blur(0px)";
-    blurFilter.style.pointerEvents = "auto";
-    filtersElement.style.display = "none";
-  };
-  const handleCertDownload = (e) => {
-    const link = document.createElement("a");
-    const file = new Blob([rawCertificate], { type: "text/plain" });
-    link.href = URL.createObjectURL(file);
-    link.download = certificateFileName + ".cer";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  };
-
+  // get all the authorities
   useEffect(() => {
     const fetchIssuer = async () => {
       try {
@@ -176,273 +123,63 @@ const DataTable = () => {
     fetchIssuer();
   }, []);
 
-  async function handleDownload(issuedData) {
-    if (issuedData.length <= 0) {
-      alert("No data available for download!!");
-      return null;
-    }
-    const title = "Issued Certificates";
-    const headers = [
-      [
-        "Serial No",
-        "Name",
-        "Issuer",
-        "Issued Date",
-        "State",
-        "Region",
-        "Expiry Date",
-        "Subject Type",
-      ],
-    ];
-    let data = [];
-    issuedData.forEach((entry) => {
-      let cert_serial_no = entry[0];
-      let subject_name = entry[1];
-      let issuer_name = entry[2];
-      let issue_date = entry[3];
-      let subject_state = entry[4];
-      let subject_region = entry[5];
-      let expiry_date = entry[6];
-      let subject_Type = entry[7];
-
-      let transformedObject = {
-        cert_serial_no: cert_serial_no,
-        subject_name: subject_name,
-        subject_state: subject_state,
-        subject_region: subject_region,
-        issuer_name: issuer_name,
-        issue_date: issue_date,
-        expiry_date: expiry_date,
-        subject_Type: subject_Type,
-      };
-      data.push(transformedObject);
-    });
-    try {
-      const accessToken = api.getAccessToken();
-      api.setAuthHeader(accessToken);
-      const response = await api.axiosInstance.post("/report", {
-        data,
-        title,
-        headers,
-      });
-      if (response.data) {
-        // console.log(response.data);
-        alert(
-          "An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes"
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      alert("No response from the server. Please try again later.");
-    }
-  }
-  const applyFilter = (e) => {
-    e.preventDefault();
-    fetchData();
-    handleFilterClose();
-  };
-
-  const fetchData = async () => {
-    const filterData = {
-      issuer: issuer,
-      subjectType: subjectType,
-      state: state,
-      region: region,
-      startDate: startDate,
-      endDate: endDate,
-      validity: validity,
-    };
-    
-    try {
-      const accessToken = api.getAccessToken();
-      const decodedToken = accessToken
-      ? JSON.parse(atob(accessToken.split(".")[1]))
-      : null;
-      const authNo = decodedToken ? decodedToken.authNo : [];
-      const username = decodedToken ? decodedToken.username : [];
-      setAuthNumber(authNo);
-      
-      if (accessToken) {
-        api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.post(
-          "/data",
-          JSON.stringify(filterData)
-        );
-        if (response.data) {
-          const data = await response.data;
-          gridRef.current.updateConfig({
-            data: data.map((cert) => [
-              cert.SerialNumber,
-              cert.SubjectName,
-              cert.IssuerName,
-              cert.IssueDate,
-              cert.State,
-              cert.Region,
-              cert.ExpiryDate,
-              cert.SubjectType,
-              cert.RawCertificate,
-            ]),
-          });
-          gridRef.current.forceRender();
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching data:", err);
-    }
-  };
-
+  // get subjects type
   useEffect(() => {
-    gridRef.current = new Grid({
-      columns: [
-        { id: "serialNo", name: "Serial No", width: "330px" },
-        { id: "name", name: "Name", width: "200px" },
-        { id: "issuer", name: "Issuer", width: "200px" },
-        { id: "date", name: "Issued Date", width: "200px" },
-        { id: "state", name: "State", width: "200px" },
-        { id: "region", name: "Region", width: "200px" },
-        { id: "validity", name: "Expiry Date", width: "200px" },
-        { id: "subjectType", name: "Subject Type", width: "200px" },
-        {
-          name: "Actions",
-          width: "150px",
-          formatter: (cell, row) => {
-            return h("div", { className: "action-row" }, [
-              h(
-                "div",
-                {
-                  className: "",
-                  onClick: () =>
-                    // alert(`view "${row.cells[0].data}" "${row.cells[2].data}"`),
-                    handleInformationCert(
-                      row.cells[8].data,
-                      row.cells[0].data,
-                      row.cells[2].data
-                    ),
-                },
-                [
-                  h("img", {
-                    src: exclamation,
-                    alt: "View",
-                    className: "action-img",
-                    title: "View",
-                  }),
-                ]
-              ),
-              h(
-                "div",
-                {
-                  className: "",
-                  onClick: () =>
-                    handleDownloadCert(
-                      row.cells[8].data,
-                      row.cells[0].data + "_" + row.cells[1].data
-                    ),
-                },
-                [
-                  h("img", {
-                    src: download,
-                    alt: "Download",
-                    className: "action-img",
-                    title: "Download",
-                  }),
-                ]
-              ),
-              h(
-                "div",
-                {
-                  className: "",
-                  onClick: () =>
-                    alert(
-                      `Verify "${row.cells[0].data}" "${row.cells[1].data}"`
-                    ),
-                },
-                [
-                  h("img", {
-                    src: verify,
-                    alt: "Verifying",
-                    className: "action-img",
-                    title: "Verify",
-                  }),
-                ]
-              ),
-            ]);
-          },
-        },
-      ],
-      data: [],
-      pagination: true,
-      resizable: true,
-      autoWidth: true,
-      sort: true,
-      search: true,
-      style: {
-        th: {
-          backgroundColor: "rgb(132 168 255 / 70%)",
-          color: "white",
-          textAlign: "center",
-        },
-        td: {
-          borderRight: "none",
-          borderLeft: "none",
-          textAlign: "center",
-        },
-      },
-      plugins: [
-        {
-          id: "downloadPlugin",
-          component: () =>
-            h(
-              "button",
-              {
-                className: "download-btn",
-                onClick: () => handleDownload(gridRef.current.config.data),
-              },
-              "Download Report"
-            ),
-          position: PluginPosition.Footer,
-        },
-        {
-          id: "filterPlugin",
-          component: () =>
-            h(
-              "button",
-              {
-                className: "filter-btn",
-                onClick: () => handleFilters(),
-              },
-              "Filters"
-            ),
-          position: PluginPosition.Header,
-        },
-      ],
-    });
-
-    fetchData();
-    gridRef.current.render(wrapperRef.current);
-
-    return () => {
-      gridRef.current.destroy();
+    const fetchSubject = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/getSubType");
+        if (response.data) {
+          setSubType(response.data);
+        }
+      } catch (err) {
+        console.error("error : ", err);
+      }
     };
+    fetchSubject();
   }, []);
 
-  const handleIssuerFilter = (selectedItems) => {
-    setIssuer(selectedItems.map((item) => item.value));
-  };
-  const handleSubTypeFilter = (selectedItems) => {
-    setSubjectType(selectedItems.map((item) => item.value));
-  };
-  const handleStateFilter = (selectedItems) => {
-    setState(selectedItems.map((item) => item.value));
-  };
-
-  const handleRegionFilter = async (selectedItems) => {
-    const selectedRegions = selectedItems.map((item) => item.value);
-    setRegion(selectedRegions);    
-    const statesByRegion = await getStates(selectedRegions);
-    setStateByRegion(statesByRegion);
-  };
-
-  useEffect(() => {    
+  // get regions
+  useEffect(() => {
+    const fetchRegion = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        if (accessToken) {
+          api.setAuthHeader(accessToken);
+        }
+        const response = await api.axiosInstance.post("/region");
+        if (response.status == 200) {
+          setRegions(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching the data: ", error);
+      }
+    };
+    fetchRegion();
+  }, []);
+  // get states by region
+  async function getStates(region) {
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      const response = await api.axiosInstance.post("/getStatesByRegion", {
+        regions: region,
+      });
+      if (response.status == 200) {
+        return response.data;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching data : ", error);
+      return [];
+    }
+  }
+  // fetch the states if the region changes
+  useEffect(() => {
     const fetchStatesByRegion = async () => {
       try {
         const states = await getStates(region);
@@ -453,6 +190,96 @@ const DataTable = () => {
     };
     fetchStatesByRegion();
   }, [region]);
+
+  const handleRegionFilter = async (selectedItems) => {
+    const selectedRegions = selectedItems.map((item) => item.value);
+    setRegion(selectedRegions);
+    const statesByRegion = await getStates(selectedRegions);
+    setStateByRegion(statesByRegion);
+  };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const sortedRows = useMemo(() => {
+    if (issuerData.length === 0) return [];
+    const rows = issuerData.map((entry) => {
+      const serialNo = entry.SerialNumber;
+      const name = entry.SubjectName;
+      const issuer = entry.IssuerName;
+      const issuedDate = entry.IssueDate;
+      const state = entry.State;
+      const region = entry.Region;
+      const expiryDate = entry.ExpiryDate;
+      const subjectType = entry.SubjectType;
+      const rawCertificate = entry.RawCertificate;
+
+      return createData(
+        serialNo,
+        name,
+        issuer,
+        issuedDate,
+        state,
+        region,
+        expiryDate,
+        subjectType,
+        rawCertificate
+      );
+    });
+
+    const comparator = (a, b) => {
+      if (a[orderBy] < b[orderBy]) {
+        return order === "asc" ? -1 : 1;
+      }
+      if (a[orderBy] > b[orderBy]) {
+        return order === "asc" ? 1 : -1;
+      }
+      return 0;
+    };
+
+    return rows.slice().sort(comparator);
+  }, [issuerData, order, orderBy]);
+
+  // filters
+  const handleFilters = (e) => {
+    const filtersElement = document.getElementById("filter");
+    // const blurFilter = document.getElementById("applyFilter");
+    // blurFilter.style.filter = "blur(3px)";
+    // blurFilter.style.pointerEvents = "none";
+    filtersElement.style.display = "block";
+  };
+
+  const handleFilterClose = (e) => {
+    const filtersElement = document.getElementById("filter");
+    // const blurFilter = document.getElementById("applyFilter");
+    // blurFilter.style.filter = "blur(0px)";
+    // blurFilter.style.pointerEvents = "auto";
+    filtersElement.style.display = "none";
+  };
+  const handleIssuerFilter = (selectedItems) => {
+    setIssuer(selectedItems.map((item) => item.value));
+  };
+  const handleSubTypeFilter = (selectedItems) => {
+    setSubjectType(selectedItems.map((item) => item.value));
+  };
+  const handleStateFilter = (selectedItems) => {
+    setState(selectedItems.map((item) => item.value));
+  };
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
@@ -465,77 +292,80 @@ const DataTable = () => {
     setValidity(e.target.value);
   };
 
-  const subTypeRef = useRef();
-  const regionRef = useRef();
-  const stateRef = useRef();
-  const issuerRef = useRef();
-
   const handleClearAll = () => {
     if (subTypeRef.current) subTypeRef.current.resetSelectedValues();
     if (regionRef.current) regionRef.current.resetSelectedValues();
     if (stateRef.current) stateRef.current.resetSelectedValues();
     if (issuerRef.current) issuerRef.current.resetSelectedValues();
+    setSelectedDate("");
     setStartDate("");
     setEndDate("");
     setValidity("");
   };
-
-  useEffect(() => {
-    if (extensionsInfo == "Signature") {
-      setDigitalSignature(true);
-    }
-    // setDigitalSignature(extensionsInfo.digitalSignature);
-    // setNonRepudiation(extensionsInfo.nonRepudiation);
-    // setKeyEncipherment(extensionsInfo.keyEncipherment);
-    // setDataEncipherment(extensionsInfo.dataEncipherment);
-    // setKeyAgreement(extensionsInfo.keyAgreement);
-    // setKeyCertSign(extensionsInfo.keyCertSign);
-    // setCRLSign(extensionsInfo.cRLSign);
-    // setEncipherOnly(extensionsInfo.encipherOnly);
-  }, [extensionsInfo]);
-
-  const handleFileUpload = (serial, issueSerial) => {
-    const raw = JSON.stringify({
-      serialNo: serial,
-      issuerCN: issueSerial,
-    });
-
-    const config = {
-      method: "post",
-      maxBodyLength: Infinity,
-      url: `http://${domain}:8080/certInfo`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-      data: raw,
-    };
-
-    axios
-      .request(config)
-      .then((response) => {
-        // console.log("Response:", response);
-        document.querySelector(".information-block").style.display = "flex";
-        document.querySelector(".error-block").style.display = "none";
-        setSerialNoInfo(response.data.serialNo);
-        setCommonNameInfo(response.data.commonName);
-        setIssuerInfo(response.data.issuer);
-        setIssuerCN(response.data.issuerCN);
-        setHashInfo(response.data.hash);
-        setExtensionsInfo(response.data.keyUsage);
-      })
-      .catch((error) => {
-        console.error(
-          "Error getting response:",
-          error.response || error.message
-        );
-        document.querySelector(".error-block").style.display = "flex";
-        document.querySelector(".information-block").style.display = "none";
-      });
+  const applyFilter = (e) => {
+    e.preventDefault();
+    fetchData();
+    handleFilterClose();
+  };
+  const handleDownload = async (rawCertificate, filename) => {
+    const link = document.createElement("a");
+    const file = new Blob([rawCertificate], { type: "text/plain" });
+    link.href = URL.createObjectURL(file);
+    link.download = filename + ".cer";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+  const handleVerify = async () => {
+    alert("Verify");
   };
 
+const handleDownloadReport= async (issuedData)=> {
+    if (!issuedData.length) {
+      alert("No data available for download!!");
+      return;
+    }
+  
+    const title = "Issued Certificates";
+    const headers = [
+      ["Serial No", "Name", "Issuer", "Issued Date", "State", "Region", "Expiry Date", "Subject Type"]
+    ];
+      
+    const data = issuedData.map((entry) => ({
+      serialNo: entry.SerialNumber,
+      name: entry.SubjectName,
+      issuer: entry.IssuerName,
+      issued: entry.IssueDate,
+      state: entry.State,
+      region: entry.Region,
+      expiry: entry.ExpiryDate,
+      subjectType: entry.SubjectType,
+    }));
+    
+    try {
+      const accessToken = api.getAccessToken();
+      api.setAuthHeader(accessToken);
+  
+      const response = await api.axiosInstance.post("/report", {
+        data,
+        title,
+        headers,
+      });
+
+      if (response.data) {
+        alert(
+          "An email has been sent to your registered mail address. Please check your inbox. This may take a few minutes"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      alert("No response from the server. Please try again later.");
+    }
+  };
+  
+
   return (
-    <div className="MainTable">
+    <div className="TableContainer">
+      <h3>Issued Certificates</h3>
       <div className="filterWindow" id="filter">
         <span className="close" onClick={handleFilterClose}>
           X
@@ -573,12 +403,21 @@ const DataTable = () => {
             ref={stateRef}
           />
         </div>
-          <div className="dateFilter">
-            <select className="datepicker mb" name="date" id="date">
-              <option value="issued" defaultChecked >Issued Date</option>
-              <option value="expiry">Expiry Date</option>
-            </select>
-            <div className="dateGroup">
+        <div className="row dateFilter">
+          <select
+            className="datepicker"
+            name="date"
+            id="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+          >
+            <option value="" disabled>
+              Select your option
+            </option>
+            <option value="issued">Issued Date</option>
+            <option value="expiry">Expiry Date</option>
+          </select>
+          <div className="dateGroup">
             <label className="dateLabel">from</label>
             <input
               type="date"
@@ -586,8 +425,8 @@ const DataTable = () => {
               onChange={handleStartDateChange}
               value={startDate}
             />
-            </div>
-            <div className="dateGroup">
+          </div>
+          <div className="dateGroup">
             <label className="dateLabel">to</label>
             <input
               type="date"
@@ -597,162 +436,288 @@ const DataTable = () => {
               value={endDate}
             />
           </div>
-          </div>
-          <div className="validity">
-            <label className="validityLabel">Validity </label>
-            <input
-              type="number"
-              className="datepicker"
-              step="1"
-              min="0"
-              max="10"
-              onChange={handleValidity}
-            />
-            <label className="validityLabel">Year(s)</label>
-          </div>
-          <br />
-          <hr />
-          <div className="filter-row">
-            <button className="commonApply-btn clear" onClick={handleClearAll}>
-              Clear
-            </button>
-            <button
-              className="commonApply-btn cancel"
-              onClick={handleFilterClose}
-            >
-              Cancel
-            </button>
-            <button className="commonApply-btn" onClick={applyFilter}>
-              Apply
-            </button>
-          </div>
-        {/* </div> */}
+        </div>
+        <div className="row validity">
+          <label className="validityLabel">Validity </label>
+          <input
+            type="number"
+            className="datepicker"
+            step="1"
+            min="0"
+            max="10"
+            onChange={handleValidity}
+          />
+          <label className="validityLabel">Year(s)</label>
+        </div>
+        <br />
+        <hr />
+        <div className="filter-row">
+          <button className="commonApply-btn clear" onClick={handleClearAll}>
+            Clear
+          </button>
+          <button
+            className="commonApply-btn cancel"
+            onClick={handleFilterClose}
+          >
+            Cancel
+          </button>
+          <button className="commonApply-btn" onClick={applyFilter}>
+            Apply
+          </button>
+        </div>
       </div>
-      <div className="" id="download">
-        <span className="close" onClick={handleDownloadCertClose}>
-          X
-        </span>
-        <h2 className="filter-head">Download</h2>
-        <hr className="filter-line" />
-        <textarea
-          className="text-area"
-          rows="20"
-          cols="40"
-          disabled={true}
-          value={rawCertificate}
-        ></textarea>
-        <button className="commonApply-btn" onClick={handleCertDownload}>
-          Download
+
+      <div className="table-header">
+        <button className="filter-button" onClick={handleFilters}>
+          Filters
         </button>
       </div>
-      <h1>Issued Certificate</h1>
-      <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
+      <TableContainer
+        component={Paper}
+        style={{
+          borderRadius: "8px",
+        }}
+      >
+        <Table
+          sx={{ minWidth: 650 }}
+          aria-label="simple table"
+          style={{ borderCollapse: "collapse" }}
+        >
+          <TableHead>
+            <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
+              <TableCell
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "serialNo" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "serialNo"}
+                  direction={orderBy === "serialNo" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "serialNo")}
+                >
+                  Serial No
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "name" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "name"}
+                  direction={orderBy === "name" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "name")}
+                >
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "issuer" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "issuer"}
+                  direction={orderBy === "issuer" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "issuer")}
+                >
+                  Issuer
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "issuedDate" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "issuedDate"}
+                  direction={orderBy === "issuedDate" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "issuedDate")}
+                >
+                  Issued Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "state" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "state"}
+                  direction={orderBy === "state" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "state")}
+                >
+                  State
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "region" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "region"}
+                  direction={orderBy === "region" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "region")}
+                >
+                  Region
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+                sortDirection={orderBy === "expiryDate" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "expiryDate"}
+                  direction={orderBy === "expiryDate" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "expiryDate")}
+                >
+                  Expiry Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+              >
+                <TableSortLabel
+                  active={orderBy === "subjectType"}
+                  direction={orderBy === "subjectType" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "subjectType")}
+                >
+                  Subject Type
+                </TableSortLabel>
+              </TableCell>
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                }}
+              >
+                Actions
+              </TableCell>
+            </TableRow>
+          </TableHead>
 
-      <div className="" id="information">
-        <span className="close" onClick={handleInformationCertClose}>
-          X
-        </span>
-        <h2 className="filter-head">Information</h2>
-        <hr className="filter-line" />
-        <div className="information-block">
-          <label>
-            Serial Number : <span>{serialNoInfo}</span>
-          </label>
-          <br />
-          <label>
-            Common Name : <span>{commonNameInfo}</span>
-          </label>
-          <br />
-          <h3 className="filter-head">Issuer</h3>
-          <hr />
-          {/* <label>
-            Organization : <span>{issuerO}</span>
-          </label>
-          <br /> */}
-          <label>
-            Organization Common Name : <span>{issuerCN}</span>
-          </label>
-          <br />
-          {/* <label>
-            Organization unit : <span>{issuerOU}</span>
-          </label>
-          <br /> */}
-          <h3 className="filter-head">Usage</h3>
-          <hr />
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={10} align="center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : sortedRows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={10} align="center">
+                  No Data Available
+                </TableCell>
+              </TableRow>
+            ) : (
+              sortedRows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row.serialNo}>
+                    <TableCell sx={{ padding: "16px" }}>
+                      {row.serialNo}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.issuer}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.issuedDate}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.state}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.region}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.expiryDate}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.subjectType}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      <div className="action-row">
+                        <img
+                          src={download}
+                          alt="download"
+                          className="action-img"
+                          title="Download"
+                          onClick={() =>
+                            handleDownload(
+                              row.rawCertificate,
+                              row.serialNo + "_" + row.issuer
+                            )
+                          }
+                        />
+                        <img
+                          src={verify}
+                          alt="verify"
+                          className="action-img"
+                          title="Verify"
+                          onClick={() => handleVerify()}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+            )}
+          </TableBody>
+        </Table>
 
-          <div className="container-info">
-            {digitalSignature ? (
-              <div className="item">
-                <label>Digital Signature</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {nonRepudiation ? (
-              <div className="item">
-                <label>Non Repudiation</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {keyEncipherment ? (
-              <div className="item">
-                <label>Key Encipherment</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {dataEncipherment ? (
-              <div className="item">
-                <label>Data Encipherment</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {keyAgreement ? (
-              <div className="item">
-                <label>Key Agreement</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {keyCertSign ? (
-              <div className="item">
-                <label>Key CertSign</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {cRLSign ? (
-              <div className="item">
-                <label>CRL Sign</label>
-              </div>
-            ) : (
-              <></>
-            )}
-            {encipherOnly ? (
-              <div className="item">
-                <label>Encipher Only</label>
-              </div>
-            ) : (
-              <></>
-            )}
+        <div className="table-footer">
+          <div className="downloadContainer">
+            <button className="download-btn" onClick={() => handleDownloadReport(issuerData)}>Download Report</button>
           </div>
-
-          <h3 className="filter-head">Fingerprints</h3>
-          <br />
-          <label>
-            Hash Value : <span className="textWrap">{hashInfo}</span>{" "}
-          </label>
-          <br />
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={sortedRows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </div>
-        <div className="error-block">
-          <span className="error">Error getting the details!!!</span>
-        </div>
-      </div>
-      <div className="table-container" id="applyFilter" ref={wrapperRef}></div>
+      </TableContainer>
     </div>
   );
-};
-
-export default DataTable;
+}

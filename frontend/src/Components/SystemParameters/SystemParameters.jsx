@@ -24,7 +24,7 @@ const SystemParameters = ({ onBack }) => {
       if (accessToken) {
         api.setAuthHeader(accessToken);
       }
-      const response = await api.axiosInstance.get("/region");
+      const response = await api.axiosInstance.post("/region");
       if (response.status == 200) {
         const data = response.data;
         setRegions(data.filter((region) => region.label !== "unassigned"));

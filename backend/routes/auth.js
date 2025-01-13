@@ -27,13 +27,13 @@ router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 router.post('/getAllUsers',authentication.authenticateUser, authController.getAllUsers)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
-router.get('/getSubType', authController.getSubType);
+router.post('/getSubType',authentication.authenticateUser, authController.getSubType);
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 router.get('/generatePassword', authController.generatePass)// generate authcode
 
 // json routes
-router.get('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+router.post('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 router.post('/getStatesByRegion',authentication.authenticateUser, authController.getStatesByRegion);
 
 router.post('/changeStatus',authentication.authenticateAdmin, authController.enableAccount);
@@ -48,4 +48,9 @@ router.post('/report',authentication.authenticateUser,authController.reportGener
 router.post('/statusCheck',authentication.authenticateUser,authController.statusCheck);
 router.post('/profileImage',authController.profileImage);
 
+
+
+// blockchain routes
+
+router.post('/blockchain/issuedCertiifcates',authentication.authenticateUser,authController.getBlockchainData)
 module.exports = router;

@@ -189,52 +189,143 @@ async function logUserAction(
     console.log("Error while logging: ", err);
   }
 }
+// async function getCertData(filterCriteria, authNo) {
+//   try {
+//     let query = "";
+//     if (authNo == 1 || authNo == null) {
+//       query =
+//         "SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE 1=1";
+//     } else {
+//       query =
+//         "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE IssuerSlNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.SubjectName,c.State,c.IssuerSlNo,c.IssuerName,c.IssueDate,c.ExpiryDate,c.SubjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
+//     }
+//     if (filterCriteria) {
+//       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+//         const issuers = filterCriteria.issuers
+//           .map((issuer) => `'${issuer}'`)
+//           .join(",");
+//         query += ` AND IssuerName IN (WITH RECURSIVE hierarchy AS ( SELECT c.SubjectName FROM cert c WHERE c.IssuerName in (${issuers}) or c.SubjectName in (${issuers}) UNION ALL SELECT e.SubjectName FROM cert e INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName ) SELECT * FROM hierarchy)`;
+//       }
+//       if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
+//         const subjectTypes = filterCriteria.subjectType
+//           .map((state) => `'${state}'`)
+//           .join(",");
+//         query += ` AND SubjectType IN (${subjectTypes})`;
+//       }
+//       if (filterCriteria.states && filterCriteria.states.length > 0) {
+//         const states = filterCriteria.states
+//           .map((state) => `'${state}'`)
+//           .join(",");
+//         query += ` AND State IN (${states})`;
+//       }
+//       if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+//         query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
+//       }
+//       if(filterCriteria.selectedDate&&filterCriteria.selectedDate=='issued'){
+//         if (filterCriteria.startDate && filterCriteria.endDate) {
+//           query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//         }
+//       }
+//       else if (filterCriteria.selectedDate&&filterCriteria.selectedDate=='expiry'){
+//         query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//       }
+//       else{
+//         null;
+//       }
+//       if (filterCriteria.validity && filterCriteria.validity != 0) {
+//         query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
+//       }
+//     }
+//     query += " ORDER BY IssueDate DESC";
+//     const result = await db.executeQuery(query, authNo);
+//     return result;
+//   } catch (e) {
+//     console.log("Error while fetching certificate details: ", e);
+//   }
+// }
+
 async function getCertData(filterCriteria, authNo) {
   try {
-    let query = "";
-    if (authNo == 1 || authNo == null) {
-      query =
-        "SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE 1=1";
-    } else {
-      query =
-        "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE IssuerSlNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.SubjectName,c.State,c.IssuerSlNo,c.IssuerName,c.IssueDate,c.ExpiryDate,c.SubjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
-    }
+    let query = constructBaseQuery(authNo);
+    
     if (filterCriteria) {
-      if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
-        const issuers = filterCriteria.issuers
-          .map((issuer) => `'${issuer}'`)
-          .join(",");
-        query += ` AND IssuerName IN (WITH RECURSIVE hierarchy AS ( SELECT c.SubjectName FROM cert c WHERE c.IssuerName in (${issuers}) or c.SubjectName in (${issuers}) UNION ALL SELECT e.SubjectName FROM cert e INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName ) SELECT * FROM hierarchy)`;
-      }
-      if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
-        const subjectTypes = filterCriteria.subjectType
-          .map((state) => `'${state}'`)
-          .join(",");
-        query += ` AND SubjectType IN (${subjectTypes})`;
-      }
-      if (filterCriteria.states && filterCriteria.states.length > 0) {
-        const states = filterCriteria.states
-          .map((state) => `'${state}'`)
-          .join(",");
-        query += ` AND State IN (${states})`;
-      }
-      if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-        query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
-      }
-      if (filterCriteria.startDate && filterCriteria.endDate) {
-        query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
-      }
-      if (filterCriteria.validity && filterCriteria.validity != 0) {
-        query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
-      }
+      query = applyFilters(query, filterCriteria);
     }
+
     query += " ORDER BY IssueDate DESC";
+    
     const result = await db.executeQuery(query, authNo);
     return result;
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
 }
+
+function constructBaseQuery(authNo) {
+  if (authNo == 1 || authNo == null) {
+    return "SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate FROM cert WHERE 1=1";
+  } else {
+    return `
+      WITH RECURSIVE CERTLIST AS (
+        SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate 
+        FROM cert 
+        WHERE IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
+        UNION ALL
+        SELECT c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+        FROM cert c
+        JOIN CERTLIST cl ON c.IssuerSlNo = cl.SerialNumber
+      )
+      SELECT * FROM CERTLIST WHERE 1=1
+    `;
+  }
+}
+
+function applyFilters(query, filterCriteria) {
+  if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+    query += applyIssuerFilter(filterCriteria.issuers);
+  }
+  if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
+    query += ` AND SubjectType IN (${filterCriteria.subjectType.map(state => `'${state}'`).join(",")})`;
+  }
+  if (filterCriteria.states && filterCriteria.states.length > 0) {
+    query += ` AND State IN (${filterCriteria.states.map(state => `'${state}'`).join(",")})`;
+  }
+  if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+    query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
+  }
+  if (filterCriteria.selectedDate === 'issued' && filterCriteria.startDate && filterCriteria.endDate) {
+    query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+  }
+  if (filterCriteria.selectedDate === 'expiry' && filterCriteria.startDate && filterCriteria.endDate) {
+    query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+  }
+  if (filterCriteria.validity && filterCriteria.validity !== 0) {
+    query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
+  }
+
+  return query;
+}
+
+function applyIssuerFilter(issuers) {
+  console.log("applyIssuerFilter",issuers);
+  
+  const issuerList = issuers.map(issuer => `'${issuer}'`).join(",");
+  console.log('applyIssuerFilter',issuerList);
+  
+  return ` AND IssuerName IN (
+    WITH RECURSIVE hierarchy AS (
+      SELECT c.SubjectName
+      FROM cert c
+      WHERE c.IssuerName IN (${issuerList}) OR c.SubjectName IN (${issuerList})
+      UNION ALL
+      SELECT e.SubjectName
+      FROM cert e
+      INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName
+    )
+    SELECT * FROM hierarchy
+  )`;
+}
+
 async function getRevokedCertData(filterCriteria, authNo) {
   try {
     let query = "";

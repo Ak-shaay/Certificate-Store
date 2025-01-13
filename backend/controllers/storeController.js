@@ -14,6 +14,7 @@ const { v4: uuidv4 } = require("uuid");
 const jsrsasign = require("jsrsasign");
 const { KJUR, pemtohex } = require("jsrsasign");
 const moment = require("moment");
+const axios = require("axios");
 
 let refreshTokens = {};
 
@@ -92,96 +93,6 @@ function currentISTime() {
   const localTime = new Date(now.getTime());
   return localTime;
 }
-
-// async function signupController(req, res) {
-//   const {
-//     username,
-//     password,
-//     role,
-//     authCode,
-//     email,
-//     address,
-//     organization,
-//     state,
-//     postalcode,
-//   } = req.body;
-//   // console.log(req.body);
-//   const fileBuffer = req.files.cert.data;
-//   // Check if user exists
-//   const existingUser = await userModel.findUserByUsername(username);
-//   if (existingUser.length > 0) {
-//     return res.status(500).json({ message: "User already exists" });
-//   }
-
-//   // Validation for username and password
-//   const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/;
-//   const passwordPattern =
-//     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
-
-//   if (!usernamePattern.test(username)) {
-//     return res.status(500).json({ message: "Invalid username" });
-//   }
-//   if (!passwordPattern.test(password)) {
-//     return res.status(500).json({ message: "Invalid password" });
-//   }
-//   try {
-//     const pki = forge.pki;
-//     parsedCertificate = pki.certificateFromPem(fileBuffer);
-//     if (!parsedCertificate) {
-//       res.status(500).json({
-//         error: "Failed to parse the certificate.",
-//       });
-//       return;
-//     } else {
-//       const issuerAttributes = parsedCertificate.issuer.attributes;
-//       const subjectAttributes = parsedCertificate.subject.attributes;
-//       let issuerCommonName = issuerAttributes.find(
-//         (attr) => attr.name === "commonName"
-//       );
-//       issuerCommonName = issuerCommonName ? issuerCommonName.value : "Unknown";
-//       const serialNumber = parsedCertificate.serialNumber;
-//       let subjectCommonName = subjectAttributes.find(
-//         (attr) => attr.name === "commonName"
-//       );
-
-//       subjectCommonName = subjectCommonName
-//         ? subjectCommonName.value
-//         : "Unknown";
-//       const response = await userModel.getCertSerialNumber(
-//         serialNumber,
-//         issuerCommonName
-//       );
-//       const newAuth = await userModel.getNextSerial();
-
-//       if (response) {
-//         const authNo = newAuth;
-//         const hasedPassword = await bcrypt.hash(password, 10);
-//         const params = {
-//           username: username,
-//           password: hasedPassword,
-//           role: role,
-//           authCode: authCode,
-//           email: email,
-//           address: address,
-//           organization: organization,
-//           state: state,
-//           postalcode: postalcode,
-//           authNo: authNo,
-//           authName: subjectCommonName,
-//           serialNumber: serialNumber,
-//         };
-//         const result = await userModel.signup(params);
-//         // console.log("result: ", result);
-//         if (result) {
-//           return res.status(200).json({ message: "Signup successful" });
-//         }
-//       } else return res.status(500).json({ message: "Signup unsuccessful" });
-//     }
-//   } catch (err) {
-//     console.error("Error during signup: ", err);
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// }
 
 async function saveImage(bas64Img, filename) {
   const base64Data = bas64Img.replace(/^data:image\/\w+;base64,/, "");
@@ -556,8 +467,8 @@ async function certificateUpload(req, res) {
     // Split the PEM into individual certificates
     const pemCertificates = certPem
       .split(/(?=-----BEGIN CERTIFICATE-----)/g)
-      .map(cert => cert.trim())
-      .filter(cert => cert); // Remove any empty certificates
+      .map((cert) => cert.trim())
+      .filter((cert) => cert); // Remove any empty certificates
 
     // Parse each certificate
     for (const cert of pemCertificates) {
@@ -575,9 +486,11 @@ async function certificateUpload(req, res) {
     const certificateList = createCertSummaryList(certInfoList);
 
     // Business logic based on certificate type and relationships
-    const response = await handleCertificateInsertion(certificateList, firstCert);
+    const response = await handleCertificateInsertion(
+      certificateList,
+      firstCert
+    );
     return res.status(response.status).json(response.message);
-
   } catch (error) {
     console.error("Error processing certificates:", error);
     return res.status(500).json({ error: error.message });
@@ -592,16 +505,16 @@ async function parseCertificate(cert) {
     const certInfo = {};
 
     certInfo.x509Cert = cert.replace(/\r\n/g, "\n").trim();
-    certInfo.commonName = extractCertificateField(x.getSubjectString(), 'CN');
-    certInfo.issuerName = extractCertificateField(x.getIssuerString(), 'CN');
+    certInfo.commonName = extractCertificateField(x.getSubjectString(), "CN");
+    certInfo.issuerName = extractCertificateField(x.getIssuerString(), "CN");
     certInfo.certSerialNumber = x.getSerialNumberHex();
     certInfo.validFrom = formatDate(x.getNotBefore());
     certInfo.validTo = formatDate(x.getNotAfter());
     certInfo.validityPeriod = calculateValidityPeriod(x);
-    certInfo.organization = extractCertificateField(x.getSubjectString(), 'O');
-    certInfo.city = extractCertificateField(x.getSubjectString(), 'L');
-    certInfo.state = extractCertificateField(x.getSubjectString(), 'ST');
-    certInfo.country = extractCertificateField(x.getSubjectString(), 'C');
+    certInfo.organization = extractCertificateField(x.getSubjectString(), "O");
+    certInfo.city = extractCertificateField(x.getSubjectString(), "L");
+    certInfo.state = extractCertificateField(x.getSubjectString(), "ST");
+    certInfo.country = extractCertificateField(x.getSubjectString(), "C");
     certInfo.certType = x.getExtKeyUsageString();
     certInfo.constraints = x.getExtBasicConstraints();
     certInfo.subjectType = determineSubjectType(x);
@@ -609,7 +522,6 @@ async function parseCertificate(cert) {
     certInfo.email = getCertificateEmail(x);
 
     return certInfo;
-
   } catch (err) {
     console.error("Error parsing certificate:", err);
     return null;
@@ -659,7 +571,7 @@ function getCertificateFingerprint(cert) {
 // Returns the certificate email (from Subject Alternative Name)
 function getCertificateEmail(x) {
   const san = x.getExtSubjectAltName();
-  const emailEntry = san && san.array.find(entry => entry.rfc822);
+  const emailEntry = san && san.array.find((entry) => entry.rfc822);
   return emailEntry ? emailEntry.rfc822 : "N/A";
 }
 
@@ -682,10 +594,16 @@ async function handleCertificateInsertion(certificateList, firstCert) {
           return { status: 200, message: "Successfully inserted certificate" };
         }
       } else {
-        return { status: 400, message: "Issuer Certificate does not exist in the database" };
+        return {
+          status: 400,
+          message: "Issuer Certificate does not exist in the database",
+        };
       }
     } else {
-      return { status: 400, message: "Invalid certificate chain or subject type" };
+      return {
+        status: 400,
+        message: "Invalid certificate chain or subject type",
+      };
     }
   } catch (error) {
     console.error("Error in certificate insertion:", error);
@@ -839,23 +757,7 @@ async function logout(req, res) {
   });
 }
 
-async function fetchData(req, res) {
-  // function addYears(date, years) {
-  //   const dateCopy = new Date(date);
-  //   const yearsInt = parseInt(years, 10); // Ensure years is an integer
-  //   dateCopy.setFullYear(dateCopy.getFullYear() + yearsInt);
-  //   const year = dateCopy.getFullYear();
-  //   const month = dateCopy.getMonth() + 1; // Months are zero-based
-  //   const day = dateCopy.getDate();
-
-  //   // Format the month and day to always be two digits
-  //   const monthFormatted = month < 10 ? `0${month}` : month;
-  //   const dayFormatted = day < 10 ? `0${day}` : day;
-
-  //   // Return the formatted date in yyyy-mm-dd
-  //   return `${year}-${monthFormatted}-${dayFormatted}`;
-  // }
-
+async function fetchData(req, res) {  
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -869,6 +771,7 @@ async function fetchData(req, res) {
           subjectType,
           state,
           region,
+          selectedDate,
           startDate,
           endDate,
           validity,
@@ -897,9 +800,10 @@ async function fetchData(req, res) {
           filterCriteria.regions = region;
         }
 
-        if (startDate && endDate) {
+        if (selectedDate&&startDate && endDate) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
+          filterCriteria.selectedDate = selectedDate;
         }
 
         if (validity && validity !== 0) {
@@ -914,7 +818,7 @@ async function fetchData(req, res) {
           certDetails[i].Region = await getIndianRegion(certDetails[i].State);
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
-        }
+        }        
         res.json(certDetails);
       }
     });
@@ -1617,13 +1521,10 @@ async function removeRegion(req, res) {
   }
 }
 
-// subjectType.json
-
-const subTypePath = "../public/subjectType.json";
+// subjectType
 async function getSubType(req, res) {
   try {
     const distinctSubTypes = await userModel.getSubjectTypes();
-
     const result = distinctSubTypes.map((item) => ({
       label: item.SubjectType,
       value: item.SubjectType,
@@ -1803,6 +1704,11 @@ async function forgotPassword(req, res) {
 }
 async function pdfGeneration(data, title, headers, filePath) {
   try {
+    const dirPath = path.dirname(filePath);
+    
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
     const unit = "pt";
     const size = "A4";
     const orientation = "landscape";
@@ -1940,6 +1846,108 @@ async function profileImage(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
+//function to fetch issued certificate data from blockchain
+async function getBlockchainData(req, res) {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) {
+        return res.sendStatus(403);
+      } else {
+
+
+        const {
+          issuer,
+          subjectType,
+          region,
+          state,
+          selectedDate,
+          startDate,
+          endDate,
+          validity,
+        } = req.body;        
+
+        if (user.authNo != null) {
+          const authData = await userModel.findUserByAuthNo(user.authNo);
+          let data;
+        
+          // Check if any filter fields are provided
+          if (subjectType || region || state || selectedDate || startDate || endDate || validity) {
+            // Normalize subjectType if it's an array
+            const normalizedSubjectType = Array.isArray(subjectType) ? subjectType.join(",") : subjectType;
+            const normalizedState = Array.isArray(state) ? state.join(",") : state;
+        
+            data = JSON.stringify({
+              fcn: "queryAllCACertsByCA",
+              args: [
+                authData[0].AuthName, // CAName
+                startDate, // IssuedDate
+                endDate, // expiry_date
+                normalizedSubjectType, // subjectType
+                "", // certType
+                normalizedState, // state
+                "", // city
+                validity, // validityPeriod
+                "filterData", // queryType
+                "", // range
+              ],
+            });
+          } else {
+            // No filters applied, use the normal query
+            data = JSON.stringify({
+              fcn: "queryAllCACertsByCA",
+              args: [
+                authData[0].AuthName, // CAName
+                "", // IssuedDate
+                "", // expiry_date
+                "", // subjectType
+                "", // certType
+                "", // state
+                "", // city
+                "", // validityPeriod
+                "Ledger", // queryType
+                "", // range
+              ],
+            });
+          }
+          try {
+            // console.log("data",data);
+            
+            const result = await axios.post(
+              "http://10.244.0.197:9080/fabric/v1/invokecc",
+              data,
+              {
+                headers: {
+                  apikey: "d1c0d209b2c00e1cee448a703d639b4a0644a07b",
+                  "x-access-token": "",
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            if (result.data && result.data.Data) {
+              res.json(result.data.Data);
+            } else {
+              res.status(400).json({ error: "Invalid data received from API" });
+            }
+          } catch (error) {
+            console.error("API Error:", error.message);
+            res.status(500).json({ error: error.message });
+          }
+        } else {
+          res.status(500).json({ error: "admin API" });
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+}
 module.exports = {
   signupController,
   signupUserController,
@@ -1982,4 +1990,5 @@ module.exports = {
   reportGenerator,
   statusCheck,
   profileImage,
+  getBlockchainData,
 };

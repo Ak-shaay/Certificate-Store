@@ -1,150 +1,19 @@
-.MainTable {
-    padding: 1rem 0 1rem 0;
-    margin-top: 3rem;
-    display: flex;
-    height: -moz-fit-content;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1rem;
-    justify-content: flex-start;
-    font-size: 0.8em;
-    position: relative;
+.status {
+  padding: 8px;
+  border-radius: 9px;
 }
 
-.table-container {
-    /* margin-top: 4rem; */
-    width: 90%;
-    max-width: 85vw;
-    border-radius: 20px;
+.Details {
+  color: #00b5ff !important;
 }
-.mb{
-    margin-bottom: 1.5rem;
-}
-.dateLabel {
-    margin: 0 0.5rem;
-}
-.validityLabel {
-    margin: 1rem 0.5rem;
-}
-.dateGroup{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    margin: 1rem;
-}
-.date_picker {
-    display: flex;
-    flex-direction: row;
-}
-.validity{
-    display: flex;
-    justify-content: center;
-}
-.dateFilter{
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-}
+
 .action-row {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
 }
-
 .action-img {
-    max-width: 1.5rem;
-    height: auto;
-    cursor: pointer;
-}
-
-.date_pick_label{
-    align-self: center;
-    font-weight: bold;
-    color: rgb(149, 146, 252);
-}
-@media (max-width: 768px) {
-    .MainTable {
-        margin-top: 3rem;
-    }
-
-    .table-container {
-        width: 80%;
-        justify-content: flex-start;
-        margin-top: 2rem;
-    }
-}
-
-
-/* override */
-.gridjs-pagination .gridjs-pages button {
-    color: #6b7280 !important;
-
-}
-
-/* filters */
-.modal {
-    width: 60rem;
-    padding: 4rem 2rem;
-    border-radius: .8rem;
-
-    color: var(--light);
-    background: var(--background);
-    box-shadow: var(--m-shadow, .4rem .4rem 10.2rem .2rem) var(--shadow-1);
-    position: relative;
-
-    overflow: hidden;
-}
-.text-area{
-width: 100%;
-  height: 30rem;
-  padding: 12px 20px;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  font-size: 12px;
-  resize: none;
-}
-
-.information-block{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    position: relative;
-    justify-content: space-between;
-    align-items: center;
-    /* margin: 10px 0 15px; */
-    padding: 10px 20px;
-    border-radius: 15px;
-    justify-content: center;
-    cursor: pointer;
-}
-.information-block label{
-    color: #84a8ff;
-}
-.information-block span{
-    color: #000000;
-}
-
-.container-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px; 
-  }
-  
-  .item {
-    flex: 1 1 calc(50% - 140px);
-    box-sizing: border-box;
-  }
-
-  .clear {
-    color: #ffffff;
-    background: linear-gradient(rgb(175 115 155) 0%, rgb(207 142 142) 100%);
-}
-
-.textWrap{
-    overflow-wrap: anywhere;
+  max-width: 1.5rem;
+  height: auto;
+  cursor: pointer;
 }
