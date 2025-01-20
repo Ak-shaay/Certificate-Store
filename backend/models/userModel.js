@@ -307,23 +307,22 @@ function applyFilters(query, filterCriteria) {
 }
 
 function applyIssuerFilter(issuers) {
-  console.log("applyIssuerFilter",issuers);
   
   const issuerList = issuers.map(issuer => `'${issuer}'`).join(",");
-  console.log('applyIssuerFilter',issuerList);
   
-  return ` AND IssuerName IN (
-    WITH RECURSIVE hierarchy AS (
-      SELECT c.SubjectName
-      FROM cert c
-      WHERE c.IssuerName IN (${issuerList}) OR c.SubjectName IN (${issuerList})
-      UNION ALL
-      SELECT e.SubjectName
-      FROM cert e
-      INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName
-    )
-    SELECT * FROM hierarchy
-  )`;
+  // return ` AND IssuerName IN (
+  //   WITH RECURSIVE hierarchy AS (
+  //     SELECT c.SubjectName
+  //     FROM cert c
+  //     WHERE c.IssuerName IN (${issuerList}) OR c.SubjectName IN (${issuerList})
+  //     UNION ALL
+  //     SELECT e.SubjectName
+  //     FROM cert e
+  //     INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName
+  //   )
+  //   SELECT * FROM hierarchy
+  // )`;
+  return ` AND CAname IN (${issuerList})`;
 }
 
 async function getRevokedCertData(filterCriteria, authNo) {
