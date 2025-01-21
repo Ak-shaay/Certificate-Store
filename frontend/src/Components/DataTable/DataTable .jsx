@@ -8,6 +8,17 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
@@ -22,6 +33,7 @@ export default function DataTable() {
   const [authNumber, setAuthNumber] = useState("");
   const [issuerData, setIssuerData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bcLoading, setBcLoading] = useState(true);
 
   const [authorities, setAuthorities] = useState();
   const [issuer, setIssuer] = useState([]);
@@ -40,10 +52,51 @@ export default function DataTable() {
   const stateRef = useRef();
   const issuerRef = useRef();
 
+  const [verifyData, setVerifyData] = useState("");
+
+  const [open, setOpen] = useState(false);
+
+  const handleVerify = async (row) => {
+    setVerifyData("");
+    setOpen(true);
+    try {
+      const data = {
+        serialNo: row.serialNo,
+        issuerSerialNo: row.issuerSlNo,
+        issuerName: row.issuer,
+      };
+
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        setBcLoading(true);
+
+        const response = await api.axiosInstance.post(
+          "/blockchain/verify",
+          JSON.stringify(data)
+        );
+
+        if (response.status === 200) {
+          setVerifyData(response.data);
+        } else setVerifyData('');
+
+        setBcLoading(false);
+      }
+    } catch (error) {
+      // console.log(error);
+      setBcLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   function createData(
     serialNo,
     name,
     issuer,
+    issuerSlNo,
     issuedDate,
     state,
     region,
@@ -55,6 +108,7 @@ export default function DataTable() {
       serialNo,
       name,
       issuer,
+      issuerSlNo,
       issuedDate,
       state,
       region,
@@ -87,7 +141,6 @@ export default function DataTable() {
         api.setAuthHeader(accessToken);
         setLoading(true);
         const response = await api.axiosInstance.post(
-          // "/blockchain/issuedCertiifcates",
           "/data",
           JSON.stringify(filterData)
         );
@@ -219,6 +272,7 @@ export default function DataTable() {
       const serialNo = entry.SerialNumber;
       const name = entry.SubjectName;
       const issuer = entry.IssuerName;
+      const issuerSlNo = entry.IssuerSlNo;
       const issuedDate = entry.IssueDate;
       const state = entry.State;
       const region = entry.Region;
@@ -230,6 +284,7 @@ export default function DataTable() {
         serialNo,
         name,
         issuer,
+        issuerSlNo,
         issuedDate,
         state,
         region,
@@ -315,21 +370,27 @@ export default function DataTable() {
     link.click();
     URL.revokeObjectURL(link.href);
   };
-  const handleVerify = async () => {
-    alert("Verify");
-  };
 
-const handleDownloadReport= async (issuedData)=> {
+  const handleDownloadReport = async (issuedData) => {
     if (!issuedData.length) {
       alert("No data available for download!!");
       return;
     }
-  
+
     const title = "Issued Certificates";
     const headers = [
-      ["Serial No", "Name", "Issuer", "Issued Date", "State", "Region", "Expiry Date", "Subject Type"]
+      [
+        "Serial No",
+        "Name",
+        "Issuer",
+        "Issued Date",
+        "State",
+        "Region",
+        "Expiry Date",
+        "Subject Type",
+      ],
     ];
-      
+
     const data = issuedData.map((entry) => ({
       serialNo: entry.SerialNumber,
       name: entry.SubjectName,
@@ -340,11 +401,11 @@ const handleDownloadReport= async (issuedData)=> {
       expiry: entry.ExpiryDate,
       subjectType: entry.SubjectType,
     }));
-    
+
     try {
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
-  
+
       const response = await api.axiosInstance.post("/report", {
         data,
         title,
@@ -361,7 +422,6 @@ const handleDownloadReport= async (issuedData)=> {
       alert("No response from the server. Please try again later.");
     }
   };
-  
 
   return (
     <div className="TableContainer">
@@ -466,6 +526,56 @@ const handleDownloadReport= async (issuedData)=> {
           </button>
         </div>
       </div>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Fetching Information from blockchain"}
+        </DialogTitle>
+        <DialogContent>
+          {bcLoading ? (
+            <Box display="flex" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Box>
+          ) : (
+            <DialogContentText id="alert-dialog-description">
+              {verifyData ? (
+                <>
+                  <Typography variant="subtitle2" gutterBottom>
+                    <strong>Serial Number:</strong>{" "}
+                    {verifyData.SerialNumber || "N/A"}
+                  </Typography>
+                  <Typography variant="subtitle2" gutterBottom>
+                    <strong>Issuer Serial Number:</strong>{" "}
+                    {verifyData.issuerSerialNo || "N/A"}
+                  </Typography>
+                  <Typography variant="subtitle2" gutterBottom>
+                    <strong>Issuer Name:</strong>{" "}
+                    {verifyData.IssuerName || "N/A"}
+                  </Typography>
+                  <Typography variant="subtitle2" gutterBottom>
+                    <strong>Hash:</strong> {verifyData.Hash || "N/A"}
+                  </Typography>
+                </>
+              ) : (
+                <Typography variant="subtitle2" gutterBottom>
+                  <span className="error">
+                    Couldn't Find the requested certificate in blockchain
+                  </span>
+                </Typography>
+              )}
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Ok
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <div className="table-header">
         <button className="filter-button" onClick={handleFilters}>
@@ -693,7 +803,7 @@ const handleDownloadReport= async (issuedData)=> {
                           alt="verify"
                           className="action-img"
                           title="Verify"
-                          onClick={() => handleVerify()}
+                          onClick={() => handleVerify(row)}
                         />
                       </div>
                     </TableCell>
@@ -705,7 +815,12 @@ const handleDownloadReport= async (issuedData)=> {
 
         <div className="table-footer">
           <div className="downloadContainer">
-            <button className="download-btn" onClick={() => handleDownloadReport(issuerData)}>Download Report</button>
+            <button
+              className="download-btn"
+              onClick={() => handleDownloadReport(issuerData)}
+            >
+              Download Report
+            </button>
           </div>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/storeController');
+const blockchainController = require('../controllers/blockchainController');
 const router = express.Router();
 const authentication = require('../models/userModel');
 
@@ -51,6 +52,6 @@ router.post('/profileImage',authController.profileImage);
 
 
 // blockchain routes
-
-router.post('/blockchain/issuedCertiifcates',authentication.authenticateUser,authController.getBlockchainData)
+router.post('/blockchain/verify',authentication.authenticateUser,blockchainController.verifyCertificiate)
+router.post('/blockchain/issuedCertiifcates',authentication.authenticateUser,blockchainController.getBlockchainData)
 module.exports = router;
