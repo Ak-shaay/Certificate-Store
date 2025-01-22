@@ -757,7 +757,7 @@ async function logout(req, res) {
   });
 }
 
-async function fetchData(req, res) {  
+async function fetchData(req, res) {
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -800,7 +800,7 @@ async function fetchData(req, res) {
           filterCriteria.regions = region;
         }
 
-        if (selectedDate&&startDate && endDate) {
+        if (selectedDate && startDate && endDate) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
           filterCriteria.selectedDate = selectedDate;
@@ -818,7 +818,7 @@ async function fetchData(req, res) {
           certDetails[i].Region = await getIndianRegion(certDetails[i].State);
           certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
           certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
-        }        
+        }
         res.json(certDetails);
       }
     });
@@ -1019,7 +1019,16 @@ async function updatePasswordController(req, res, next) {
       oldPassword,
       userExist[0].Password
     );
-    if (!passwordMatch) {
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+    if (!passwordPattern.test(newPassword)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "A minimum 8 characters password contains a combination of uppercase and lowercase letter and number are required",
+        });
+    } else if (!passwordMatch) {
       return res.status(400).json({ message: "Old password is not correct!" });
     } else if (!oldPassword || !newPassword) {
       return res
@@ -1705,7 +1714,7 @@ async function forgotPassword(req, res) {
 async function pdfGeneration(data, title, headers, filePath) {
   try {
     const dirPath = path.dirname(filePath);
-    
+
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
@@ -1847,7 +1856,6 @@ async function profileImage(req, res) {
   }
 }
 
-
 module.exports = {
   signupController,
   signupUserController,
@@ -1889,5 +1897,5 @@ module.exports = {
   forgotPassword,
   reportGenerator,
   statusCheck,
-  profileImage
+  profileImage,
 };
