@@ -9,6 +9,7 @@ import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -16,7 +17,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Typography,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
@@ -77,8 +77,8 @@ export default function DataTable() {
         );
 
         if (response.status === 200) {
-          setVerifyData(response.data);
-        } else setVerifyData('');
+          setVerifyData(response.data.message);
+        } else setVerifyData("");
 
         setBcLoading(false);
       }
@@ -540,34 +540,12 @@ export default function DataTable() {
             <Box display="flex" justifyContent="center" alignItems="center">
               <CircularProgress />
             </Box>
+          ) : verifyData === "Success" ? (
+            <Alert severity="success">Verification Successful</Alert>
           ) : (
-            <DialogContentText id="alert-dialog-description">
-              {verifyData ? (
-                <>
-                  <Typography variant="subtitle2" gutterBottom>
-                    <strong>Serial Number:</strong>{" "}
-                    {verifyData.SerialNumber || "N/A"}
-                  </Typography>
-                  <Typography variant="subtitle2" gutterBottom>
-                    <strong>Issuer Serial Number:</strong>{" "}
-                    {verifyData.issuerSerialNo || "N/A"}
-                  </Typography>
-                  <Typography variant="subtitle2" gutterBottom>
-                    <strong>Issuer Name:</strong>{" "}
-                    {verifyData.IssuerName || "N/A"}
-                  </Typography>
-                  <Typography variant="subtitle2" gutterBottom>
-                    <strong>Hash:</strong> {verifyData.Hash || "N/A"}
-                  </Typography>
-                </>
-              ) : (
-                <Typography variant="subtitle2" gutterBottom>
-                  <span className="error">
-                    Couldn't Find the requested certificate in blockchain
-                  </span>
-                </Typography>
-              )}
-            </DialogContentText>
+            <Alert severity="warning">
+              Couldn't Find the requested certificate in blockchain
+            </Alert>
           )}
         </DialogContent>
         <DialogActions>

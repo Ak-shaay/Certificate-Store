@@ -29,43 +29,44 @@ const Users = ({ onBack }) => {
       loginStatus,
     };
   }
-   const handleAction = async (action, userId) => {
-                const message =
-                  action === "enable"
-                    ? `Are you sure you want to enable user  ${userId}?`
-                    : `Are you sure you want to disable user ${userId}?`;
-  
-                const confirmed = window.confirm(message);
-                if (confirmed) {
-                  try {
-                    const accessToken = api.getAccessToken();
-                    api.setAuthHeader(accessToken);
-                    const response = await api.axiosInstance.post("/changeStatus", { userId, action });
-  
-                    if (response.status == 200) {
-                      alert(
-                        `Successfully updated status of ${userId}`
-                      );
-                      fetchData();
-                      // const updatedData = gridRef.current.config.data.map((row) => {
-                      //   if (row[0] === userId) {
-                      //     row[4] = action === "enable" ? "active" : "blocked";
-                      //   }
-                      //   return row;
-                      // });
-                      // // Update grid with modified data
-                      // gridRef.current.updateConfig({ data: updatedData });
-                      // gridRef.current.forceRender();
-                    } else {
-                      alert("Failed to perform the action.");
-                    }
-                  } catch (error) {
-                    alert("Error occurred while performing the action.");
-                    console.error(error);
-                  }
-                }
-              };
-  
+  const handleAction = async (action, userId) => {
+    const message =
+      action === "enable"
+        ? `Are you sure you want to enable user  ${userId}?`
+        : `Are you sure you want to disable user ${userId}?`;
+
+    const confirmed = window.confirm(message);
+    if (confirmed) {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/changeStatus", {
+          userId,
+          action,
+        });
+
+        if (response.status == 200) {
+          alert(`Successfully updated status of ${userId}`);
+          fetchData();
+          // const updatedData = gridRef.current.config.data.map((row) => {
+          //   if (row[0] === userId) {
+          //     row[4] = action === "enable" ? "active" : "blocked";
+          //   }
+          //   return row;
+          // });
+          // // Update grid with modified data
+          // gridRef.current.updateConfig({ data: updatedData });
+          // gridRef.current.forceRender();
+        } else {
+          alert("Failed to perform the action.");
+        }
+      } catch (error) {
+        alert("Error occurred while performing the action.");
+        console.error(error);
+      }
+    }
+  };
+
   async function fetchData() {
     try {
       const accessToken = api.getAccessToken();
@@ -143,190 +144,194 @@ const Users = ({ onBack }) => {
           </button>
         </div>
         <h2>Users</h2>
-        <div className="userTableWrapper">
-          <TableContainer
-            component={Paper}
-            style={{
-              borderRadius: "8px",
-            }}
+        <TableContainer
+          component={Paper}
+          style={{
+            borderRadius: "8px",
+          }}
+        >
+          <Table
+            sx={{ minWidth: 650 }}
+            aria-label="simple table"
+            style={{ borderCollapse: "collapse" }}
           >
-            <Table
-              sx={{ minWidth: 650 }}
-              aria-label="simple table"
-              style={{ borderCollapse: "collapse" }}
-            >
-              <TableHead>
-                <TableRow
-                  style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}
+            <TableHead>
+              <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
+                <TableCell
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                  sortDirection={orderBy === "userEmail" ? order : false}
                 >
-                  <TableCell
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                    sortDirection={orderBy === "userEmail" ? order : false}
+                  <TableSortLabel
+                    active={orderBy === "userEmail"}
+                    direction={orderBy === "userEmail" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "userEmail")}
                   >
-                    <TableSortLabel
-                      active={orderBy === "userEmail"}
-                      direction={orderBy === "userEmail" ? order : "asc"}
-                      onClick={(event) => handleRequestSort(event, "userEmail")}
-                    >
-                      User Email
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                    sortDirection={orderBy === "name" ? order : false}
+                    User Email
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                  sortDirection={orderBy === "name" ? order : false}
+                >
+                  <TableSortLabel
+                    active={orderBy === "name"}
+                    direction={orderBy === "name" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "name")}
                   >
-                    <TableSortLabel
-                      active={orderBy === "name"}
-                      direction={orderBy === "name" ? order : "asc"}
-                      onClick={(event) => handleRequestSort(event, "name")}
-                    >
-                      Name
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                    sortDirection={orderBy === "authName" ? order : false}
+                    Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                  sortDirection={orderBy === "authName" ? order : false}
+                >
+                  <TableSortLabel
+                    active={orderBy === "authName"}
+                    direction={orderBy === "authName" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "authName")}
                   >
-                    <TableSortLabel
-                      active={orderBy === "authName"}
-                      direction={orderBy === "authName" ? order : "asc"}
-                      onClick={(event) => handleRequestSort(event, "authName")}
-                    >
-                      AuthName
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                    sortDirection={orderBy === "role" ? order : false}
+                    AuthName
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                  sortDirection={orderBy === "role" ? order : false}
+                >
+                  <TableSortLabel
+                    active={orderBy === "role"}
+                    direction={orderBy === "role" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "role")}
                   >
-                    <TableSortLabel
-                      active={orderBy === "role"}
-                      direction={orderBy === "role" ? order : "asc"}
-                      onClick={(event) => handleRequestSort(event, "role")}
-                    >
-                      Role
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                    sortDirection={orderBy === "loginStatus" ? order : false}
+                    Role
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                  sortDirection={orderBy === "loginStatus" ? order : false}
+                >
+                  <TableSortLabel
+                    active={orderBy === "loginStatus"}
+                    direction={orderBy === "loginStatus" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "loginStatus")}
                   >
-                    <TableSortLabel
-                      active={orderBy === "loginStatus"}
-                      direction={orderBy === "loginStatus" ? order : "asc"}
-                      onClick={(event) =>
-                        handleRequestSort(event, "loginStatus")
-                      }
-                    >
-                      Login Status
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell
-                    align="left"
-                    sx={{
-                      padding: "16px",
-                      border: "1px solid #ddd",
-                      color: "white",
-                    }}
-                  >
-                    Actions
+                    Login Status
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                  }}
+                >
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={10} align="center">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              </TableHead>
+              ) : sortedRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} align="center">
+                    No Data Available
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sortedRows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => (
+                    <TableRow key={row.userEmail}>
+                      <TableCell sx={{ padding: "16px" }}>
+                        {row.userEmail}
+                      </TableCell>
+                      <TableCell align="left" sx={{ padding: "16px" }}>
+                        {row.name}
+                      </TableCell>
+                      <TableCell align="left" sx={{ padding: "16px" }}>
+                        {row.authName}
+                      </TableCell>
+                      <TableCell align="left" sx={{ padding: "16px" }}>
+                        {row.role}
+                      </TableCell>
+                      <TableCell align="left" sx={{ padding: "16px" }}>
+                        {row.loginStatus}
+                      </TableCell>
+                      <TableCell align="left" sx={{ padding: "16px" }}>
+                        <div className="action-row">
+                          {row.loginStatus !== "active" ? (
+                            <>
+                              <button
+                                className="actionButton1"
+                                onClick={() =>
+                                  handleAction("enable", row.userEmail)
+                                }
+                              >
+                                enable
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                className="actionButton2"
+                                onClick={() =>
+                                  handleAction("disable", row.userEmail)
+                                }
+                              >
+                                disable
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
 
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={10} align="center">
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                ) : sortedRows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={10} align="center">
-                      No Data Available
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  sortedRows
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <TableRow key={row.userEmail}>
-                        <TableCell sx={{ padding: "16px" }}>
-                          {row.userEmail}
-                        </TableCell>
-                        <TableCell align="left" sx={{ padding: "16px" }}>
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="left" sx={{ padding: "16px" }}>
-                          {row.authName}
-                        </TableCell>
-                        <TableCell align="left" sx={{ padding: "16px" }}>
-                          {row.role}
-                        </TableCell>
-                        <TableCell align="left" sx={{ padding: "16px" }}>
-                          {row.loginStatus}
-                        </TableCell>
-                        <TableCell align="left" sx={{ padding: "16px" }}>
-                          <div className="action-row">
-                            {row.loginStatus !== "active" ? (
-                              <>
-                                <button className="actionButton1" onClick={() => handleAction("enable", row.userEmail)}>
-                                  enable
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button className="actionButton2" onClick={() => handleAction("disable", row.userEmail)}>
-                                  disable
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                )}
-              </TableBody>
-            </Table>
-
-            <div className="table-footer">
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={sortedRows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </div>
-          </TableContainer>
-        </div>
+          <div className="table-footer">
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 20]}
+              component="div"
+              count={sortedRows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </div>
+        </TableContainer>
       </div>
     </div>
   );

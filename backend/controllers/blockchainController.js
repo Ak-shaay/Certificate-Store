@@ -139,24 +139,11 @@ async function verifyCertificiate(req, res) {
             },
           }
         );
-
-        if (result.data && result.data.Data) {
-            
-            let parsedData;
-            try {
-                parsedData = JSON.parse(result.data.Data); 
-            } catch (e) {
-              return res.status(400).json({ error: "Failed to parse Data" });
-            }
-            res.json({
-              SerialNumber: parsedData.Metadata.SerialNumber, 
-              issuerSerialNo: parsedData.Metadata.IssuerSlNo,
-              IssuerName: parsedData.Metadata.IsssuerName,//spelling 
-              Hash: parsedData.Data.Hash,
-            });
-          } else {
-            res.status(400).json({ error: "Invalid data received from API" });
-          }
+        if (result.data.Status == "Success") {
+          res.status(200).json({ message:'Success' });
+        } else {
+          res.status(400).json({ error: "Invalid data received from API" });
+        }
       }
     });
   } catch (error) {
