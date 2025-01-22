@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const moment = require('moment');
 
 //function to fetch issued certificate data from blockchain
 async function getBlockchainData(req, res) {
@@ -141,10 +142,14 @@ async function verifyCertificiate(req, res) {
         );
         if (result.data.Status == "Success") {
             parsedData = JSON.parse(result.data.Data); 
+            const date = moment(parsedData.Metadata.IssuedDate);
+            const issuedDate = date.format('DD-MM-YYYY');
 
-          res.status(200).json({ message:'Success', serialNumber: parsedData.Metadata.SerialNumber, 
+          res.status(200).json({ message:'Success', 
+            serialNumber: parsedData.Metadata.SerialNumber, 
+            subjectName: parsedData.Metadata.Subject.SubjectName, 
             issuerSerialNo: parsedData.Metadata.IssuerSlNo,
-            issuedDate: parsedData.Metadata.IssuedDate,
+            issuedDate: issuedDate,
             // hash: parsedData.Data.Hash,
           });
         } else {

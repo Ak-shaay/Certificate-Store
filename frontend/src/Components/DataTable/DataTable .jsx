@@ -545,13 +545,16 @@ export default function DataTable() {
             <>
               <Typography component="div">
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Serial No :</b>{verifyData.serialNumber}{" "}
+                 <b>Serial No: </b>{verifyData.serialNumber}{" "}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                  <b>Issuer Serial No : </b>{verifyData.issuerSerialNo}
+                 <b>Subject Name: </b>{verifyData.subjectName}{" "}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Issued Date :</b>{verifyData.issuedDate}
+                  <b>Issuer Serial No: </b>{verifyData.issuerSerialNo}
+                </Box>
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                 <b>Issued Date: </b>{verifyData.issuedDate}
                 </Box>
               </Typography>
               <Alert severity="success">Verification Successful</Alert>

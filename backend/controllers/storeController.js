@@ -317,7 +317,7 @@ async function login(req, res) {
 
     const user = userExist[0];
     if (user.LoginStatus === "blocked") {
-      return res.status(403).json({ error: "Your account is blocked" });
+      return res.status(200).json({ error: "Your account is blocked" });
     }
 
     const storedHashedPassword = user.Password;
