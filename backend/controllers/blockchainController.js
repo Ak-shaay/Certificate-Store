@@ -140,7 +140,13 @@ async function verifyCertificiate(req, res) {
           }
         );
         if (result.data.Status == "Success") {
-          res.status(200).json({ message:'Success' });
+            parsedData = JSON.parse(result.data.Data); 
+
+          res.status(200).json({ message:'Success', serialNumber: parsedData.Metadata.SerialNumber, 
+            issuerSerialNo: parsedData.Metadata.IssuerSlNo,
+            issuedDate: parsedData.Metadata.IssuedDate,
+            // hash: parsedData.Data.Hash,
+          });
         } else {
           res.status(400).json({ error: "Invalid data received from API" });
         }

@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Typography,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
@@ -77,7 +78,7 @@ export default function DataTable() {
         );
 
         if (response.status === 200) {
-          setVerifyData(response.data.message);
+          setVerifyData(response.data);
         } else setVerifyData("");
 
         setBcLoading(false);
@@ -533,15 +534,28 @@ export default function DataTable() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Fetching Information from blockchain"}
+          {"Fetching Information from the Blockchain"}
         </DialogTitle>
         <DialogContent>
           {bcLoading ? (
             <Box display="flex" justifyContent="center" alignItems="center">
               <CircularProgress />
             </Box>
-          ) : verifyData === "Success" ? (
-            <Alert severity="success">Verification Successful</Alert>
+          ) : verifyData.message === "Success" ? (
+            <>
+              <Typography component="div">
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                 <b>Serial No :</b>{verifyData.serialNumber}{" "}
+                </Box>
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                  <b>Issuer Serial No : </b>{verifyData.issuerSerialNo}
+                </Box>
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                 <b>Issued Date :</b>{verifyData.issuedDate}
+                </Box>
+              </Typography>
+              <Alert severity="success">Verification Successful</Alert>
+            </>
           ) : (
             <Alert severity="warning">
               Couldn't Find the requested certificate in blockchain
