@@ -73,42 +73,24 @@ const Login = () => {
         longitude,
       });
       if (response?.data?.accessToken) {
-        const accessToken = await response.data.accessToken;
-        const refreshToken = await response.data.refreshToken;
+        const accessToken = response.data.accessToken;
+        const refreshToken = response.data.refreshToken;
         api.setAccessToken(accessToken);
         api.setRefreshToken(refreshToken);
         setUsername("");
         setPassword("");
         setErrMsg("");
         navigate(from, { replace: true });
-      } else {
-        setErrMsg("Invalid username or password");
-        errRef.current.focus();
+      } else{
+        if(response.status == 202 && response.data.timestamp){
+          setErrMsg("Maximum attempts reached. Please try again after 24 hours: " + response.data.timestamp);
+        }
+         else {
+          setErrMsg(response.data.message)
+        }
       }
     } catch (err) {
-      if (!err.response) {
-        setErrMsg("No response from the server. Please try again later.");
-      }
-       else if (err.response.status === 400) {
-        setErrMsg(
-          "Invalid username or password. Please check your credentials."
-        );
-      } 
-      else if (err.response.status === 401) {
-        setErrMsg("Unauthorized access. Please check your credentials.");
-      }
-      else if (err.response.status === 403) {
-        setErrMsg(
-          "Your account has been temporarily blocked. Please contact Admin."
-        );
-      }  else if (err.response.status === 423) {
-        setErrMsg(
-          "Maximum attempts reached. Please try after 24 h"
-          //  +err.response.data.timeStamp
-        );
-      } else {
-        setErrMsg("Unexpected error occurred. Please try again later.");
-      }
+      setErrMsg("Unexpected error occurred. Please try again later.");
       errRef.current.focus();
     } finally {
       setLoading(false);

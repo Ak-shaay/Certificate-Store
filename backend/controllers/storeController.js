@@ -281,123 +281,221 @@ async function enableAccount(req, res) {
   }
 }
 
-// update the user status
-async function loginAttempt(userExist) {
-  if (userExist.LoginStatus == "inactive") {
-    // const currentTime = new Date();
-    const timeDifferenceMs = currentISTime - userExist.LastAttempt;
-    const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
+// // update the user status
+// async function loginAttempt(userExist) {
+//   if (userExist.LoginStatus == "inactive") {
+//     // const currentTime = new Date();
+//     const timeDifferenceMs = currentISTime - userExist.LastAttempt;
+//     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
 
-    // Check if the time difference is greater than 24 hours
-    if (timeDifferenceHours > 24) {
-      //updates the database
-      await userModel.updateStatus(
-        userExist.UserEmail,
-        "active",
-        2,
-        currentISTime()
-      );
-      return true;
-    } else {
-      // console.log("The time difference is not greater than 24 hours.");
+//     // Check if the time difference is greater than 24 hours
+//     if (timeDifferenceHours > 24) {
+//       //updates the database
+//       await userModel.updateStatus(
+//         userExist.UserEmail,
+//         "active",
+//         2,
+//         currentISTime()
+//       );
+//       return true;
+//     } else {
+//       // console.log("The time difference is not greater than 24 hours.");
+//       return false;
+//     }
+//   } else {
+//     return true;
+//   }
+// }
+
+// async function login(req, res) {
+//   const { username, password, latitude, longitude } = req.body;
+//   try {
+//     const userExist = await userModel.findUserByUsername(username);
+//     if (!userExist.length) {
+//       return res.status(400).json({ error: "User does not exist" });
+//     }
+
+//     const user = userExist[0];
+//     if (user.LoginStatus === "blocked") {
+//       return res.status(403).json({ error: "Your account is blocked" });
+//     }
+
+//     const storedHashedPassword = user.Password;
+//     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
+
+//     if (passwordMatch && (await loginAttempt(user))) {
+//       // Successful login
+//       const accessToken = generateAccessToken(
+//         user.UserEmail,
+//         user.Name,
+//         user.Role,
+//         user.AuthNo
+//       );
+//       const refreshToken = generateRefreshToken(
+//         user.UserEmail,
+//         user.Name,
+//         user.Role,
+//         user.AuthNo
+//       );
+
+//       req.session.username = user.UserEmail;
+//       req.session.name = user.Name;
+//       req.session.userid = user.AuthNo;
+//       req.session.userRole = user.Role;
+
+//       if (user.LoginStatus == "temporary" && user.Attempts > 0) {
+//         await userModel.logUserAction(
+//           username,
+//           req.ip,
+//           "Login",
+//           "Logged In Using Temporary Password",
+//           latitude,
+//           longitude
+//         );
+//         await userModel.updateStatus(
+//           user.UserEmail,
+//           "tempLogin",
+//           0,
+//           currentISTime()
+//         );
+//         return res.json({ accessToken, refreshToken });
+//       }
+
+//       if (user.LoginStatus == "inactive") {
+//         return res.status(423).json({ timeStamp: user.LastAttempt });
+//       }
+
+//       await userModel.logUserAction(
+//         user.UserEmail,
+//         req.ip,
+//         "Login",
+//         "Logged In",
+//         latitude,
+//         longitude
+//       );
+//       await userModel.updateAttempts(user.UserEmail, 2);
+//       return res.json({ accessToken, refreshToken });
+//     } else {
+//       // Failed login attempt
+//       if (user.Attempts > 0) {
+//         let attempt = (user.Attempts -= 1);
+//         await userModel.updateAttempts(user.UserEmail, attempt);
+//       } else {
+//         await userModel.updateStatus(
+//           user.UserEmail,
+//           "inactive",
+//           0,
+//           currentISTime()
+//         );
+//         return res
+//           .status(423)
+//           .json({ timeStamp: formatDate(user.LastAttempt) });
+//       }
+//       return res.status(401).json({ error: "Incorrect credentials" });
+//     }
+//   } catch (err) {
+//     console.error("Error occurred:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// }
+async function loginAttempt(userExist) {
+  if (userExist.LoginStatus === "inactive") {
+    const now = new Date();
+    const lastAttempt = new Date(userExist.LastAttempt);
+    if (isNaN(lastAttempt)) {
+      console.error("Error: LastAttempt is not a valid date");
       return false;
     }
-  } else {
-    return true;
+
+    const timeDifferenceHours = (now - lastAttempt) / (1000 * 60 * 60);
+
+    if (timeDifferenceHours >= 24) {
+      // Ensure the database update is successful
+      const updateResult = await userModel.updateStatus(userExist.UserEmail, "active", 2, now);
+
+      if (updateResult.affectedRows > 0) {
+        // console.log("User successfully reactivated.");
+        return true;
+      } else {
+        // console.error("Error: Database update failed.");
+        return false;
+      }
+    } else {
+      // console.log("User still inactive (less than 24 hours).");
+      return false;
+    }
   }
+  return true;
 }
+
 
 async function login(req, res) {
   const { username, password, latitude, longitude } = req.body;
+
   try {
     const userExist = await userModel.findUserByUsername(username);
     if (!userExist.length) {
-      return res.status(400).json({ error: "User does not exist" });
+      return res.status(202).json({ message: "User does not exist" });
     }
 
-    const user = userExist[0];
+    let user = userExist[0];
+
     if (user.LoginStatus === "blocked") {
-      return res.status(200).json({ error: "Your account is blocked" });
+      return res.status(202).json({ message: "Your account has been blocked. Please contact the administrator." });
     }
 
-    const storedHashedPassword = user.Password;
-    const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
+    const passwordMatch = await bcrypt.compare(password, user.Password);
 
-    if (passwordMatch && (await loginAttempt(user))) {
-      // Successful login
-      const accessToken = generateAccessToken(
-        user.UserEmail,
-        user.Name,
-        user.Role,
-        user.AuthNo
-      );
-      const refreshToken = generateRefreshToken(
-        user.UserEmail,
-        user.Name,
-        user.Role,
-        user.AuthNo
-      );
+    if (passwordMatch) {
+      const canLogin = await loginAttempt(user);
+
+      if (!canLogin) {
+        // console.log("Login not allowed. User still inactive.");
+        return res.status(202).json({ timestamp: formatDate(user.LastAttempt) });
+      }
+      const updatedUserList = await userModel.findUserByUsername(username);
+      if (!updatedUserList.length) {
+        console.error("Error: User not found after update!");
+        return res.status(500).json({ error: "User data could not be refreshed" });
+      }
+      user = updatedUserList[0]; // Update user object
+
+      // console.log("Updated user status:", user.LoginStatus); // Debug log
+
+      if (user.LoginStatus !== "active") {
+        console.error("Login failed: Status is still not 'active' after update.");
+        return res.status(202).json({ message: "Account is still inactive. Try again later." });
+      }
+
+      // Generate tokens and start session
+      const accessToken = generateAccessToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
+      const refreshToken = generateRefreshToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
 
       req.session.username = user.UserEmail;
       req.session.name = user.Name;
       req.session.userid = user.AuthNo;
       req.session.userRole = user.Role;
 
-      if (user.LoginStatus == "temporary" && user.Attempts > 0) {
-        await userModel.logUserAction(
-          user.UserEmail,
-          req.ip,
-          "Login",
-          "Logged In Using Temporary Password",
-          latitude,
-          longitude
-        );
-        await userModel.updateStatus(
-          user.UserEmail,
-          "tempLogin",
-          0,
-          currentISTime()
-        );
-        return res.json({ accessToken, refreshToken });
-      }
-
-      if (user.LoginStatus == "inactive") {
-        return res.status(423).json({ timeStamp: user.LastAttempt });
-      }
-
-      await userModel.logUserAction(
-        user.UserEmail,
-        req.ip,
-        "Login",
-        "Logged In",
-        latitude,
-        longitude
-      );
+      await userModel.logUserAction(user.UserEmail, req.ip, "Login", "Logged In", latitude, longitude);
       await userModel.updateAttempts(user.UserEmail, 2);
+
       return res.json({ accessToken, refreshToken });
     } else {
-      // Failed login attempt
       if (user.Attempts > 0) {
-        let attempt = (user.Attempts -= 1);
-        await userModel.updateAttempts(user.UserEmail, attempt);
+        const newAttempts = user.Attempts - 1;
+        await userModel.updateAttempts(user.UserEmail, newAttempts);
       } else {
-        await userModel.updateStatus(
-          user.UserEmail,
-          "inactive",
-          0,
-          currentISTime()
-        );
-        return res
-          .status(423)
-          .json({ timeStamp: formatDate(user.LastAttempt) });
+        await userModel.updateStatus(user.UserEmail, "inactive", 0, new Date());
+        return res.status(202).json({ timestamp: formatDate(user.LastAttempt) });
       }
-      return res.status(401).json({ error: "Incorrect credentials" });
+      return res.status(202).json({ message: "Incorrect credentials" });
     }
   } catch (err) {
     console.error("Error occurred:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+
 
 async function dashboard(req, res, next) {
   if (!req.session && !req.session.username) {

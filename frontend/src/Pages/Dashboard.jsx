@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import MainDash from "../Components/MainDash/MainDash";
 import RightSide from "../Components/RigtSide/RightSide";
@@ -16,36 +15,36 @@ import Management from "../Components/Management/Management";
 function Dashboard() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0); //index value is used for sidebar navigation
-  //api call for backend authentication
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const accessToken = api.getAccessToken();
+  // //api call for backend authentication
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const accessToken = api.getAccessToken();
     
-        if (accessToken) {
-          api.setAuthHeader(accessToken);
-          const response = await api.axiosInstance.get("/dashboard");
+  //       if (accessToken) {
+  //         api.setAuthHeader(accessToken);
+  //         const response = await api.axiosInstance.get("/dashboard");
     
-          if (response.status === 200) {
-            // Dashboard data received successfully
-          } else {
-            // Handle unexpected status codes if needed
-            console.error("Unexpected status code:", response.status);
-          }
-        } else {
-          // Redirect to login page if accessToken is not available
-          navigate("/login", { replace: true });
-        }
-      } catch (error) {
-        // Handle error from API call
-        console.error("Error fetching dashboard data:", error);
-        // Redirect to login page if there's an error
-        navigate("/login", { replace: true });
-      }
-    };
+  //         if (response.status === 200) {
+  //           // Dashboard data received successfully
+  //         } else {
+  //           // Handle unexpected status codes if needed
+  //           console.error("Unexpected status code:", response.status);
+  //         }
+  //       } else {
+  //         // Redirect to login page if accessToken is not available
+  //         navigate("/login", { replace: true });
+  //       }
+  //     } catch (error) {
+  //       // Handle error from API call
+  //       console.error("Error fetching dashboard data:", error);
+  //       // Redirect to login page if there's an error
+  //       navigate("/login", { replace: true });
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
   // Get the info from JWT token and handle potential tampering
   const getTokenData = (token) => {
     try {
