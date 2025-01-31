@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Include credentials (like cookies) with requests
+  withCredentials: false, // Include credentials (like cookies) with requests
 });
 
 // removes session from other tabs 

@@ -86,14 +86,6 @@ function formatDate(isoDate) {
 
   return formattedDateTime;
 }
-// current time IST
-function currentISTime() {
-  const now = new Date();
-  // const offsetIST = 5.5 * 60;
-  const localTime = new Date(now.getTime());
-  return localTime;
-}
-
 async function saveImage(bas64Img, filename) {
   const base64Data = bas64Img.replace(/^data:image\/\w+;base64,/, "");
 
@@ -836,8 +828,8 @@ async function refreshToken(req, res) {
   });
 }
 
-async function logout(req, res) {
-  const userName = req.session.username;
+async function logout(req, res) {  
+  const userName = req.body.username;
   req.session.destroy((err) => {
     if (err) {
       res.status(500).json({ msg: "Error while logging out." });
@@ -1140,15 +1132,16 @@ async function updatePasswordController(req, res, next) {
         req.user.authNo
       );
       const remark = userExist[0].UserEmail + " Updated their password!";
+      const now = new Date();
+      const localTime = new Date(now.getTime());
       await userModel.updateStatus(
         userExist[0].UserEmail,
         "active",
         2,
-        currentISTime()
+        localTime
       );
       await userModel.logUserAction(
         userExist[0].UserEmail,
-        // new Date().toISOString().replace("T", " ").slice(0, 19),
         req.ip,
         "Password change",
         remark,

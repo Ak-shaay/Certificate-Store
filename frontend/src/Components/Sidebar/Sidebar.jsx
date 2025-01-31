@@ -69,13 +69,13 @@ const Sidebar = ({ onIndexChange, role }) => {
             const decodedToken = token
                 ? JSON.parse(atob(token.split(".")[1]))
                 : null;
-            const userID = decodedToken ? decodedToken.userId : [];
+            const username = decodedToken ? decodedToken.username : [];
             if (token) {
                 api.setAuthHeader(token);
             }
             // Make a request to the logout endpoint on the backend
             await api.axiosInstance.post("/logout", {
-                userID,
+                username,
                 latitude,
                 longitude,
             });

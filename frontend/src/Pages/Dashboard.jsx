@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import MainDash from "../Components/MainDash/MainDash";
 import RightSide from "../Components/RigtSide/RightSide";
@@ -12,39 +12,30 @@ import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 import api from "./axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Management from "../Components/Management/Management";
+
 function Dashboard() {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0); //index value is used for sidebar navigation
-  // //api call for backend authentication
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const accessToken = api.getAccessToken();
-    
-  //       if (accessToken) {
-  //         api.setAuthHeader(accessToken);
-  //         const response = await api.axiosInstance.get("/dashboard");
-    
-  //         if (response.status === 200) {
-  //           // Dashboard data received successfully
-  //         } else {
-  //           // Handle unexpected status codes if needed
-  //           console.error("Unexpected status code:", response.status);
-  //         }
-  //       } else {
-  //         // Redirect to login page if accessToken is not available
-  //         navigate("/login", { replace: true });
-  //       }
-  //     } catch (error) {
-  //       // Handle error from API call
-  //       console.error("Error fetching dashboard data:", error);
-  //       // Redirect to login page if there's an error
-  //       navigate("/login", { replace: true });
-  //     }
-  //   };
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = api.getAccessToken();
+        if (!token) {
+          navigate("/login", { replace: true });
+          return;
+        }
 
-  //   fetchData();
-  // }, []);
+        api.setAuthHeader(token);
+      } catch (error) {
+        // Handle error from API call
+        console.error("Error fetching dashboard data:", error);
+        navigate("/login", { replace: true });
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
   // Get the info from JWT token and handle potential tampering
   const getTokenData = (token) => {
     try {
@@ -54,13 +45,13 @@ function Dashboard() {
       return decodedToken;
     } catch (error) {
       console.error("Invalid token", error);
-      // Remove the token and navigate to login if there's an error
       localStorage.removeItem("token");
       navigate("/login", { replace: true });
       return null;
     }
   };
-  //get the info from JWT token
+
+  // Get the info from JWT token
   const token = api.getAccessToken();
   let decodedToken = null;
   if (token) {
@@ -68,7 +59,7 @@ function Dashboard() {
   }
 
   if (!decodedToken) {
-    // If the token is invalid, ensure the user is redirected to login
+    // If the token is invalid, redirect to login
     navigate("/login", { replace: true });
     return null;
   }
@@ -76,14 +67,15 @@ function Dashboard() {
   const username = decodedToken.name || "";
   const role = decodedToken.role || "";
 
-  //handle index change
+  // Handle index change for sidebar navigation
   const handleIndexChange = (newIndex) => {
     setIndex(newIndex);
   };
-  // Use a switch statement outside the JSX
+
+  // Use a switch statement outside the JSX to manage different views based on index
   switch (index) {
     case 0:
-      return(
+      return (
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <MainDash username={username} />
@@ -91,39 +83,35 @@ function Dashboard() {
         </div>
       );
     case 1:
-      return(
+      return (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <DataTable />
-          {/* <RightSide /> */}
         </div>
       );
     case 2:
-      return(
+      return (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <RevokedDataTable />
-          {/* <RightSide /> */}
         </div>
       );
     case 3:
-      return(
+      return (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UsageDataTable />
-          {/* <RightSide /> */}
         </div>
       );
     case 4:
-      return(
+      return (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UploadCertificate />
-          {/* <RightSide /> */}
         </div>
       );
     case 5:
-      return(
+      return (
         <div className="appglass">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <Account />
@@ -131,21 +119,21 @@ function Dashboard() {
         </div>
       );
     case 6:
-      return(
+      return (
         <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <LogsDataTable />
         </div>
       );
     case 7:
-      return(
+      return (
         <div className="appglass-other">
-          <Sidebar onIndexChange={handleIndexChange} role={role}/>
-          <Management/>
+          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Management />
         </div>
       );
     default:
-      return null
+      return null;
   }
 }
 
