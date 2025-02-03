@@ -556,12 +556,18 @@ export default function DataTable() {
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
                  <b>Issued Date: </b>{verifyData.issuedDate}
                 </Box>
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                 <b>Pre-Certificate Issued Date: </b> Not available
+                </Box>
+                <Box sx={{ fontWeight: "medium", m: 1 }}>
+                 <b>Pre-Certificate SCT: </b> Not available
+                </Box>
               </Typography>
               <Alert severity="success">Verification Successful</Alert>
             </>
           ) : (
             <Alert severity="warning">
-              Couldn't Find the requested certificate in blockchain
+              Couldn't find the requested certificate in blockchain
             </Alert>
           )}
         </DialogContent>
