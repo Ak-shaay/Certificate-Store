@@ -9,7 +9,10 @@ const RightSideAccount = () => {
   const [ipAddress, setIpAddress] = useState(null);
   const [lastLogin, setLastLogin] = useState(null);
 
+  const [imageError, setImageError] = useState(false);
+
   const imgURL = "http://" + domain + ":8080/images/" + authNo + ".png" || "";
+  const defaultImage = "http://" + domain + ":8080/images/null.png";   
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,13 +38,19 @@ const RightSideAccount = () => {
     };
     fetchData();
   }, []);
+
+  const handleImageError = () => {
+    setImageError(true); 
+  };
   return (
     <div className="MainAccountz">
       <div className="RightMain">
         <h3> </h3>
         <div className="ProfileContainer">
           <div className="Profile">
-            <img src={imgURL} alt="profile image" />
+            <img  src={imageError ? defaultImage : imgURL}
+            alt="profile image"
+            onError={handleImageError}  />
             <div className="ProfileData">
               <h3 className="ProfileName">{username}</h3>
               <strong>Last Login Details</strong>
