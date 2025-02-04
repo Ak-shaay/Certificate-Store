@@ -1,0 +1,4 @@
+{
+    "ignore": ["tokens.json"], 
+    "exec": "node src/server.js"
+  }
