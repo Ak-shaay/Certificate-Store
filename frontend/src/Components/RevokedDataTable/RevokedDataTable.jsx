@@ -18,7 +18,6 @@ export default function RevokedDataTable() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("serialNo");
-  const [authNumber, setAuthNumber] = useState("");
   const [revocationData, setRevocationData] = useState([]);
   const [revocationReasons, setRevocationReasons] = useState([]);
   const reasonsRef = useRef();
@@ -47,12 +46,6 @@ export default function RevokedDataTable() {
         endDate: endDate,
       };
       const accessToken = api.getAccessToken();
-      const decodedToken = accessToken
-        ? JSON.parse(atob(accessToken.split(".")[1]))
-        : null;
-      const authNo = decodedToken ? decodedToken.authNo : [];
-      setAuthNumber(authNo);
-
       if (accessToken) {
         api.setAuthHeader(accessToken);
         setLoading(true);

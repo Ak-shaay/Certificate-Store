@@ -1,16 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import "../Css/Login.css";
-import useAuth from "../Hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "./axiosInstance";
+import { Alert } from "@mui/material";
 
 const Login = () => {
-  const { setAuth } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
 
-  const userRef = useRef();
   const errRef = useRef();
   const timeoutRef = useRef(null);
   const [username, setUsername] = useState("");
@@ -142,13 +140,10 @@ const Login = () => {
             <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
-            <p
-              ref={errRef}
-              className={errMsg ? "errmsg" : "offscreen"}
-              aria-live="assertive"
-            >
-              {errMsg}
-            </p>
+            {
+              errMsg ? <Alert sx={{mt:1}}severity="error">{errMsg}</Alert>:<></>
+            }
+            
           </form>
         </div>
         <div className="overlay-container">

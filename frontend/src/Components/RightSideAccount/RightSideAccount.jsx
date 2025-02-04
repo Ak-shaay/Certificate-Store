@@ -49,7 +49,7 @@ const RightSideAccount = () => {
         <div className="ProfileContainer">
           <div className="Profile">
             <img  src={imageError ? defaultImage : imgURL}
-            alt="profile image"
+            alt="profile"
             onError={handleImageError}  />
             <div className="ProfileData">
               <h3 className="ProfileName">{username}</h3>
