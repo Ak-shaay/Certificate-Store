@@ -47,7 +47,7 @@ export default function DataTable() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [validity, setValidity] = useState("");
+  const [validity, setValidity] = useState(0);
   const subTypeRef = useRef();
   const regionRef = useRef();
   const stateRef = useRef();
@@ -341,8 +341,8 @@ export default function DataTable() {
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
   };
-  const handleValidity = (e) => {
-    setValidity(e.target.value);
+  const handleValidity = (e) => {    
+    setValidity(e.target.value);    
   };
 
   const handleClearAll = () => {
@@ -353,7 +353,7 @@ export default function DataTable() {
     setSelectedDate("");
     setStartDate("");
     setEndDate("");
-    setValidity("");
+    setValidity(0);    
   };
   const applyFilter = (e) => {
     e.preventDefault();
@@ -507,6 +507,7 @@ export default function DataTable() {
             step="1"
             min="0"
             max="10"
+            value={validity}
             onChange={handleValidity}
           />
           <label className="validityLabel">Year(s)</label>
