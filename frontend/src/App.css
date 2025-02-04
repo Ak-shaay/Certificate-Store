@@ -133,6 +133,15 @@
   position: fixed;
   padding: 2rem;
   border-radius: 10px;
+  color: black;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  align-content: space-evenly;
+  align-items: center;
 }
 
 /* download component */
@@ -287,6 +296,15 @@
 
 .cancel:hover {
   background: linear-gradient(rgb(255, 101, 101) 0%, rgb(255, 0, 0) 100%);
+}
+.clear {
+  color: black;
+  background: linear-gradient(#ee7752, #f3b6a3 100%);
+}
+
+.clear:hover {
+  color: white;
+  background: linear-gradient(rgb(255, 132, 101) 0%, rgb(255, 187, 0) 100%);
 }
 
 /* sctroll bar */

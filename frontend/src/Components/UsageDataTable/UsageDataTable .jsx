@@ -11,6 +11,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import api from "../../Pages/axiosInstance";
 import { usageOptions } from "../../Data";
+import { Backdrop } from "@mui/material";
 
 const UsageDataTable = () => {
   const [page, setPage] = useState(0);
@@ -22,6 +23,7 @@ const UsageDataTable = () => {
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [open, setOpen] = useState(false);
   const [selectedUsage, setSelectedUsage] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -31,11 +33,13 @@ const UsageDataTable = () => {
   }
 
   const handleFilters = (e) => {
+    setOpen(true);
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
   };
 
   const handleFilterClose = (e) => {
+    setOpen(false);
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
@@ -104,7 +108,7 @@ const UsageDataTable = () => {
           "/usageData",
           JSON.stringify(filterData)
         );
-        if (response.data) {          
+        if (response.data) {
           setUsageData(response.data);
         }
         setLoading(false);
@@ -182,54 +186,63 @@ const UsageDataTable = () => {
   return (
     <div className="TableContainer">
       <h3>Certificate Usage</h3>
-      <div className="filterWindow" id="filter">
-        <span className="close" onClick={handleFilterClose}>
-          X
-        </span>
-        <h2 className="filter-head">Filter</h2>
-        <hr className="filter-line" />
-        <div className="multi-select-row">
-          <MultiSelect
-            options={usageOptions}
-            placeholder="Select Usage"
-            onChange={handleUsageFilter}
-            ref={usageRef}
-          />
-        </div>
-        <div className="col">
-          <div className="row date_picker">
-            <label className="dateLable">Start Date</label>
-            <input
-              type="date"
-              onChange={handleStartDateChange}
-              className="datepicker"
-              value={startDate}
-            />
-            <label className="dateLable">End Date</label>
-            <input
-              type="date"
-              onChange={handleEndDateChange}
-              className="datepicker"
-              value={endDate}
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={open}
+      >
+        <div className="filterWindow" id="filter">
+          <span className="close" onClick={handleFilterClose}>
+            X
+          </span>
+          <h2 className="filter-head">Filter</h2>
+          <hr className="filter-line" />
+          <div className="multi-select-row">
+            <MultiSelect
+              options={usageOptions}
+              placeholder="Select Usage"
+              onChange={handleUsageFilter}
+              ref={usageRef}
             />
           </div>
-          <br />
-          <div className="filter-row">
-            <button className="commonApply-btn clear" onClick={handleClearAll}>
-              Clear
-            </button>
-            <button
-              className="commonApply-btn cancel"
-              onClick={handleFilterClose}
-            >
-              Cancel
-            </button>
-            <button className="commonApply-btn" onClick={applyFilter}>
-              Apply
-            </button>
+          <div className="col">
+            <div className="row date_picker">
+              <label className="dateLable">Start Date</label>
+              <input
+                type="date"
+                onChange={handleStartDateChange}
+                className="datepicker"
+                value={startDate}
+              />
+              <label className="dateLable">End Date</label>
+              <input
+                type="date"
+                onChange={handleEndDateChange}
+                className="datepicker"
+                value={endDate}
+              />
+            </div>
+            <br />
+            <div className="filter-row">
+              <button
+                className="commonApply-btn clear"
+                onClick={handleClearAll}
+              >
+                Clear
+              </button>
+              <button
+                className="commonApply-btn cancel"
+                onClick={handleFilterClose}
+              >
+                Cancel
+              </button>
+              <button className="commonApply-btn" onClick={applyFilter}>
+                Apply
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
+        </div>{" "}
+      </Backdrop>
+
       <div className="table-header">
         <button className="filter-button" onClick={handleFilters}>
           Filters
@@ -278,7 +291,7 @@ const UsageDataTable = () => {
                   direction={orderBy === "name" ? order : "asc"}
                   onClick={(event) => handleRequestSort(event, "name")}
                 >
-                 Subject Name
+                  Subject Name
                 </TableSortLabel>
               </TableCell>
               <TableCell

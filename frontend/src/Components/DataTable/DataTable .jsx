@@ -10,12 +10,12 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Typography,
 } from "@mui/material";
@@ -56,6 +56,7 @@ export default function DataTable() {
   const [verifyData, setVerifyData] = useState("");
 
   const [open, setOpen] = useState(false);
+  const [backdrop, setBackdrop] = useState(false);
 
   const handleVerify = async (row) => {
     setVerifyData("");
@@ -310,18 +311,14 @@ export default function DataTable() {
 
   // filters
   const handleFilters = (e) => {
+    setBackdrop(true)
     const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("applyFilter");
-    // blurFilter.style.filter = "blur(3px)";
-    // blurFilter.style.pointerEvents = "none";
     filtersElement.style.display = "block";
   };
 
   const handleFilterClose = (e) => {
+    setBackdrop(false)
     const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("applyFilter");
-    // blurFilter.style.filter = "blur(0px)";
-    // blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
   const handleIssuerFilter = (selectedItems) => {
@@ -427,6 +424,10 @@ export default function DataTable() {
   return (
     <div className="TableContainer">
       <h3>Issued Certificates</h3>
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={backdrop}
+      >
       <div className="filterWindow" id="filter">
         <span className="close" onClick={handleFilterClose}>
           X
@@ -527,6 +528,7 @@ export default function DataTable() {
           </button>
         </div>
       </div>
+      </Backdrop>
       <Dialog
         open={open}
         onClose={handleClose}

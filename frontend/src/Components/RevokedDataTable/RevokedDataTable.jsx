@@ -11,8 +11,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
-
-// import "./DataTable.css";
+import { Backdrop } from "@mui/material";
 
 export default function RevokedDataTable() {
   const [page, setPage] = useState(0);
@@ -26,6 +25,7 @@ export default function RevokedDataTable() {
 
   const [loading, setLoading] = useState(true);
 
+  const [open, setOpen] = useState(false);
   const [selectedReasons, setSelectedReasons] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -129,18 +129,14 @@ export default function RevokedDataTable() {
 
   // filters
   const handleFilters = (e) => {
+    setOpen(true);
     const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("applyFilter");
-    // blurFilter.style.filter = "blur(3px)";
-    // blurFilter.style.pointerEvents = "none";
     filtersElement.style.display = "block";
   };
 
   const handleFilterClose = (e) => {
+    setOpen(false);
     const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("applyFilter");
-    // blurFilter.style.filter = "blur(0px)";
-    // blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
   const handleMultiSelectChange = (selectedItems) => {
@@ -206,53 +202,57 @@ export default function RevokedDataTable() {
   return (
     <div className="TableContainer">
       <h3>Revoked Certificate</h3>
-      <div className="filterWindow" id="filter">
-        <span className="close" onClick={handleFilterClose}>
-          X
-        </span>
-        <h2 className="filter-head">Filter</h2>
-        <hr className="filter-line" />
-        <div className="multi-select-row">
-          <MultiSelect
-            options={revocationReasons}
-            placeholder="Select Reason"
-            onChange={handleMultiSelectChange}
-            ref={reasonsRef}
-          />
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={open}
+      >
+        <div className="filterWindow" id="filter">
+          <span className="close" onClick={handleFilterClose}>
+            X
+          </span>
+          <h2 className="filter-head">Filter</h2>
+          <hr className="filter-line" />
+          <div className="multi-select-row">
+            <MultiSelect
+              options={revocationReasons}
+              placeholder="Select Reason"
+              onChange={handleMultiSelectChange}
+              ref={reasonsRef}
+            />
+          </div>
+          <div className="row date_picker">
+            <label className="dateLable">Start Date</label>
+            <input
+              type="date"
+              className="datepicker"
+              onChange={handleStartDateChange}
+              value={startDate}
+            />
+            <label className="dateLable">End Date</label>
+            <input
+              type="date"
+              className="datepicker"
+              onChange={handleEndDateChange}
+              value={endDate}
+            />
+          </div>
+          <hr />
+          <div className="filter-row">
+            <button className="commonApply-btn clear" onClick={handleClearAll}>
+              Clear
+            </button>
+            <button
+              className="commonApply-btn cancel"
+              onClick={handleFilterClose}
+            >
+              Cancel
+            </button>
+            <button className="commonApply-btn" onClick={applyFilter}>
+              Apply
+            </button>
+          </div>
         </div>
-        <div className="row date_picker">
-          <label className="dateLable">Start Date</label>
-          <input
-            type="date"
-            className="datepicker"
-            onChange={handleStartDateChange}
-            value={startDate}
-          />
-          <label className="dateLable">End Date</label>
-          <input
-            type="date"
-            className="datepicker"
-            onChange={handleEndDateChange}
-            value={endDate}
-          />
-        </div>
-        <hr />
-        <div className="filter-row">
-          <button className="commonApply-btn clear" onClick={handleClearAll}>
-            Clear
-          </button>
-          <button
-            className="commonApply-btn cancel"
-            onClick={handleFilterClose}
-          >
-            Cancel
-          </button>
-          <button className="commonApply-btn" onClick={applyFilter}>
-            Apply
-          </button>
-        </div>
-      </div>
-
+      </Backdrop>
       <div className="table-header">
         <button className="filter-button" onClick={handleFilters}>
           Filters
