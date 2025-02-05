@@ -453,12 +453,6 @@ async function login(req, res) {
       user = updatedUserList[0]; // Update user object
 
       // console.log("Updated user status:", user.LoginStatus); // Debug log
-
-      if (user.LoginStatus !== "active") {
-        console.error("Login failed: Status is still not 'active' after update.");
-        return res.status(202).json({ message: "Account is still inactive. Try again later." });
-      }
-
       // Generate tokens and start session
       const accessToken = generateAccessToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
       const refreshToken = generateRefreshToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
