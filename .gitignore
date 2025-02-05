@@ -131,3 +131,6 @@ dist
 
 # backend env variable removed
 backend/.env
+
+#reports
+backend/reports/*.pdf
