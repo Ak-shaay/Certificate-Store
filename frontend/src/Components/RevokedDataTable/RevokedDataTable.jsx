@@ -11,7 +11,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
-import { Backdrop } from "@mui/material";
+import { Backdrop, Button } from "@mui/material";
 
 export default function RevokedDataTable() {
   const [page, setPage] = useState(0);
@@ -374,12 +374,15 @@ export default function RevokedDataTable() {
 
         <div className="table-footer">
           <div className="downloadContainer">
-            <button
-              className="download-btn"
+          <Button
+              component="label"
+              variant="outlined"
+              tabIndex={-1}
+              style={{ textTransform: "none" }}
               onClick={() => handleDownloadReport(revocationData)}
             >
               Download Report
-            </button>
+            </Button>
           </div>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

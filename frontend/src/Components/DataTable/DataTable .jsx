@@ -311,13 +311,13 @@ export default function DataTable() {
 
   // filters
   const handleFilters = (e) => {
-    setBackdrop(true)
+    setBackdrop(true);
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "block";
   };
 
   const handleFilterClose = (e) => {
-    setBackdrop(false)
+    setBackdrop(false);
     const filtersElement = document.getElementById("filter");
     filtersElement.style.display = "none";
   };
@@ -341,8 +341,8 @@ export default function DataTable() {
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
   };
-  const handleValidity = (e) => {    
-    setValidity(e.target.value);    
+  const handleValidity = (e) => {
+    setValidity(e.target.value);
   };
 
   const handleClearAll = () => {
@@ -353,7 +353,7 @@ export default function DataTable() {
     setSelectedDate("");
     setStartDate("");
     setEndDate("");
-    setValidity(0);    
+    setValidity(0);
   };
   const applyFilter = (e) => {
     e.preventDefault();
@@ -425,110 +425,110 @@ export default function DataTable() {
     <div className="TableContainer">
       <h3>Issued Certificates</h3>
       <Backdrop
-        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={backdrop}
       >
-      <div className="filterWindow" id="filter">
-        <span className="close" onClick={handleFilterClose}>
-          X
-        </span>
-        <h2 className="filter-head">Filter</h2>
-        <hr className="filter-line" />
-        <div className="multi-select-row">
-          {authNumber == 1 || authNumber == null ? (
+        <div className="filterWindow" id="filter">
+          <span className="close" onClick={handleFilterClose}>
+            X
+          </span>
+          <h2 className="filter-head">Filter</h2>
+          <hr className="filter-line" />
+          <div className="multi-select-row">
+            {authNumber == 1 || authNumber == null ? (
+              <MultiSelect
+                options={authorities}
+                placeholder="Select Issuer"
+                onChange={handleIssuerFilter}
+                value={issuer}
+                ref={issuerRef}
+              />
+            ) : (
+              <></>
+            )}
             <MultiSelect
-              options={authorities}
-              placeholder="Select Issuer"
-              onChange={handleIssuerFilter}
-              value={issuer}
-              ref={issuerRef}
+              options={subType}
+              onChange={handleSubTypeFilter}
+              placeholder="Subject Type"
+              ref={subTypeRef}
             />
-          ) : (
-            <></>
-          )}
-          <MultiSelect
-            options={subType}
-            onChange={handleSubTypeFilter}
-            placeholder="Subject Type"
-            ref={subTypeRef}
-          />
-          <MultiSelect
-            options={regions}
-            onChange={handleRegionFilter}
-            placeholder="Select Region"
-            ref={regionRef}
-          />
-          <MultiSelect
-            options={stateByRegion}
-            onChange={handleStateFilter}
-            placeholder="Select State"
-            ref={stateRef}
-          />
-        </div>
-        <div className="row dateFilter">
-          <select
-            className="datepicker"
-            name="date"
-            id="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-          >
-            <option value="" disabled>
-              Select your option
-            </option>
-            <option value="issued">Issued Date</option>
-            <option value="expiry">Expiry Date</option>
-          </select>
-          <div className="dateGroup">
-            <label className="dateLabel">from</label>
-            <input
-              type="date"
-              className="datepicker"
-              onChange={handleStartDateChange}
-              value={startDate}
+            <MultiSelect
+              options={regions}
+              onChange={handleRegionFilter}
+              placeholder="Select Region"
+              ref={regionRef}
+            />
+            <MultiSelect
+              options={stateByRegion}
+              onChange={handleStateFilter}
+              placeholder="Select State"
+              ref={stateRef}
             />
           </div>
-          <div className="dateGroup">
-            <label className="dateLabel">to</label>
-            <input
-              type="date"
+          <div className="row dateFilter">
+            <select
               className="datepicker"
-              disabled={startDate === ""}
-              onChange={handleEndDateChange}
-              value={endDate}
+              name="date"
+              id="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+            >
+              <option value="" disabled>
+                Select your option
+              </option>
+              <option value="issued">Issued Date</option>
+              <option value="expiry">Expiry Date</option>
+            </select>
+            <div className="dateGroup">
+              <label className="dateLabel">from</label>
+              <input
+                type="date"
+                className="datepicker"
+                onChange={handleStartDateChange}
+                value={startDate}
+              />
+            </div>
+            <div className="dateGroup">
+              <label className="dateLabel">to</label>
+              <input
+                type="date"
+                className="datepicker"
+                disabled={startDate === ""}
+                onChange={handleEndDateChange}
+                value={endDate}
+              />
+            </div>
+          </div>
+          <div className="row validity">
+            <label className="validityLabel">Validity </label>
+            <input
+              type="number"
+              className="datepicker"
+              step="1"
+              min="0"
+              max="10"
+              value={validity}
+              onChange={handleValidity}
             />
+            <label className="validityLabel">Year(s)</label>
+          </div>
+          <br />
+          <hr />
+          <div className="filter-row">
+            <button className="commonApply-btn clear" onClick={handleClearAll}>
+              Clear
+            </button>
+            <button
+              className="commonApply-btn cancel"
+              onClick={handleFilterClose}
+            >
+              Cancel
+            </button>
+            <button className="commonApply-btn" onClick={applyFilter}>
+              Apply
+            </button>
           </div>
         </div>
-        <div className="row validity">
-          <label className="validityLabel">Validity </label>
-          <input
-            type="number"
-            className="datepicker"
-            step="1"
-            min="0"
-            max="10"
-            value={validity}
-            onChange={handleValidity}
-          />
-          <label className="validityLabel">Year(s)</label>
-        </div>
-        <br />
-        <hr />
-        <div className="filter-row">
-          <button className="commonApply-btn clear" onClick={handleClearAll}>
-            Clear
-          </button>
-          <button
-            className="commonApply-btn cancel"
-            onClick={handleFilterClose}
-          >
-            Cancel
-          </button>
-          <button className="commonApply-btn" onClick={applyFilter}>
-            Apply
-          </button>
-        </div>
-      </div>
       </Backdrop>
       <Dialog
         open={open}
@@ -548,22 +548,26 @@ export default function DataTable() {
             <>
               <Typography component="div">
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Serial No: </b>{verifyData.serialNumber}{" "}
+                  <b>Serial No: </b>
+                  {verifyData.serialNumber}{" "}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Subject Name: </b>{verifyData.subjectName}{" "}
+                  <b>Subject Name: </b>
+                  {verifyData.subjectName}{" "}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                  <b>Issuer Serial No: </b>{verifyData.issuerSerialNo}
+                  <b>Issuer Serial No: </b>
+                  {verifyData.issuerSerialNo}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Issued Date: </b>{verifyData.issuedDate}
+                  <b>Issued Date: </b>
+                  {verifyData.issuedDate}
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Pre-Certificate Issued Date: </b> Not available
+                  <b>Pre-Certificate Issued Date: </b> Not available
                 </Box>
                 <Box sx={{ fontWeight: "medium", m: 1 }}>
-                 <b>Pre-Certificate SCT: </b> Not available
+                  <b>Pre-Certificate SCT: </b> Not available
                 </Box>
               </Typography>
               <Alert severity="success">Verification Successful</Alert>
@@ -819,12 +823,15 @@ export default function DataTable() {
 
         <div className="table-footer">
           <div className="downloadContainer">
-            <button
-              className="download-btn"
+            <Button
+              component="label"
+              variant="outlined"
+              tabIndex={-1}
+              style={{ textTransform: "none" }}
               onClick={() => handleDownloadReport(issuerData)}
             >
               Download Report
-            </button>
+            </Button>
           </div>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

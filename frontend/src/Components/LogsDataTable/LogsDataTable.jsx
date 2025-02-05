@@ -10,7 +10,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { Backdrop } from "@mui/material";
+import { Backdrop, Button } from "@mui/material";
 
 export default function LogsDataTable() {
   const [page, setPage] = useState(0);
@@ -524,12 +524,15 @@ export default function LogsDataTable() {
 
         <div className="table-footer">
           <div className="downloadContainer">
-            <button
-              className="download-btn"
+          <Button
+              component="label"
+              variant="outlined"
+              tabIndex={-1}
+              style={{ textTransform: "none" }}
               onClick={() => handleDownloadReport(logData)}
             >
               Download Report
-            </button>
+            </Button>
           </div>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

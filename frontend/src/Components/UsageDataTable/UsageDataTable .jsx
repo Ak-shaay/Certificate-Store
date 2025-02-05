@@ -11,7 +11,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import api from "../../Pages/axiosInstance";
 import { usageOptions } from "../../Data";
-import { Backdrop } from "@mui/material";
+import { Backdrop, Button } from "@mui/material";
 
 const UsageDataTable = () => {
   const [page, setPage] = useState(0);
@@ -384,12 +384,15 @@ const UsageDataTable = () => {
 
         <div className="table-footer">
           <div className="downloadContainer">
-            <button
-              className="download-btn"
+            <Button
+              component="label"
+              variant="outlined"
+              tabIndex={-1}
+              style={{ textTransform: "none" }}
               onClick={() => handleDownloadReport(usageData)}
             >
               Download Report
-            </button>
+            </Button>
           </div>
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}

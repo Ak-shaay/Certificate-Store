@@ -48,15 +48,6 @@ const Users = ({ onBack }) => {
         if (response.status == 200) {
           alert(`Successfully updated status of ${userId}`);
           fetchData();
-          // const updatedData = gridRef.current.config.data.map((row) => {
-          //   if (row[0] === userId) {
-          //     row[4] = action === "enable" ? "active" : "blocked";
-          //   }
-          //   return row;
-          // });
-          // // Update grid with modified data
-          // gridRef.current.updateConfig({ data: updatedData });
-          // gridRef.current.forceRender();
         } else {
           alert("Failed to perform the action.");
         }
