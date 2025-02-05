@@ -763,7 +763,7 @@ export default function DataTable() {
               sortedRows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
-                  <TableRow key={row.serialNo}>
+                  <TableRow key={row.serialNo + row.issuer}>
                     <TableCell sx={{ padding: "16px" }}>
                       {row.serialNo}
                     </TableCell>

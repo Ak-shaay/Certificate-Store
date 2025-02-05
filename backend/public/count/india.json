@@ -1,0 +1,173 @@
+[
+  {
+    "state": "Bihar",
+    "color": "#16a085",
+    "IDRBT Sub CA": 1
+  },
+  {
+    "state": "Delhi",
+    "color": "#ffa600",
+    "CCA": 1
+  },
+  {
+    "state": "Goa",
+    "color": "#f95d6a",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "Haryana",
+    "color": "#ffa600",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "Jammu and Kashmir",
+    "color": "#ffa600",
+    "IDRBT Sub CA": 1
+  },
+  {
+    "state": "Jharkhand",
+    "color": "#16a085",
+    "IDRBT Sub CA": 1
+  },
+  {
+    "state": "Karnataka",
+    "color": "#665191",
+    "CCA": 1
+  },
+  {
+    "state": "Karnataka",
+    "color": "#665191",
+    "CDAC": 1
+  },
+  {
+    "state": "Kerala",
+    "color": "#665191",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "Maharashtra",
+    "color": "#f95d6a",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "Punjab",
+    "color": "#ffa600",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "Telangana",
+    "color": "#665191",
+    "CCA": 1
+  },
+  {
+    "state": "Telangana",
+    "color": "#665191",
+    "IDRBT": 1
+  },
+  {
+    "state": "Uttarakhand",
+    "color": "#ffa600",
+    "CDAC Sub CA": 1
+  },
+  {
+    "state": "West Bengal",
+    "color": "#16a085",
+    "IDRBT Sub CA": 1
+  },
+  {
+    "state": "Andhra Pradesh",
+    "color": "#665191"
+  },
+  {
+    "state": "Arunachal Pradesh",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Assam",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Chhattisgarh",
+    "color": "#d45087"
+  },
+  {
+    "state": "Gujarat",
+    "color": "#f95d6a"
+  },
+  {
+    "state": "Himachal Pradesh",
+    "color": "#ffa600"
+  },
+  {
+    "state": "Madhya Pradesh",
+    "color": "#d45087"
+  },
+  {
+    "state": "Manipur",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Meghalaya",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Mizoram",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Nagaland",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Odisha",
+    "color": "#16a085"
+  },
+  {
+    "state": "Rajasthan",
+    "color": "#f95d6a"
+  },
+  {
+    "state": "Sikkim",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Tamil Nadu",
+    "color": "#665191"
+  },
+  {
+    "state": "Tripura",
+    "color": "#2f4b7c"
+  },
+  {
+    "state": "Uttar Pradesh",
+    "color": "#ffa600"
+  },
+  {
+    "state": "Andaman and Nicobar Islands",
+    "color": "#665191"
+  },
+  {
+    "state": "Chandigarh",
+    "color": "#ffa600"
+  },
+  {
+    "state": "Daman and Diu",
+    "color": "#f95d6a"
+  },
+  {
+    "state": "Dadra and Nagar Haveli",
+    "color": "#f95d6a"
+  },
+  {
+    "state": "Ladakh",
+    "color": "#ffa600"
+  },
+  {
+    "state": "Lakshadweep",
+    "color": "#665191"
+  },
+  {
+    "state": "Puducherry",
+    "color": "#665191"
+  }
+]
