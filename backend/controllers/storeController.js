@@ -1898,9 +1898,9 @@ async function reportGenerator(req, res) {
 
 async function statusCheck(req, res) {
   try {
-    const userName = req.session.username;
+    const userName = req.session.username;    
     const status = await userModel.getProfileStatus(userName);
-    if (status == "tempLogin") {
+    if (status == "temporary") {
       return res.status(200).json({ login: "Temporary" });
     } else {
       return res.status(200).json({ login: "Normal" });
