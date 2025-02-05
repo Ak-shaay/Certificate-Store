@@ -4,6 +4,7 @@ import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import refreshIcon from "../../Images/Icons/refresh.png";
 import {
+  Backdrop,
   FormControl,
   InputAdornment,
   OutlinedInput,
@@ -23,6 +24,7 @@ const Organization = ({ onBack }) => {
   const [roles, setRoles] = useState([]);
   const [updateMsg, setUpdateMsg] = useState("");
   const [imageKey, setImageKey] = useState(Date.now()); // Initialize with a timestamp to avoid caching
+  const [open, setOpen] = useState(false);
 
   // Trigger image reloading by changing the imageKey state
   const handleEvent = () => {
@@ -30,6 +32,7 @@ const Organization = ({ onBack }) => {
   };
 
   const handlePopup = (auth) => {
+    setOpen(true);
     setUpdateMsg("");
     const filtersElement = document.getElementById("filter");
     if (filtersElement) {
@@ -42,6 +45,7 @@ const Organization = ({ onBack }) => {
   };
 
   const handlePopupClose = () => {
+    setOpen(false);
     const filtersElement = document.getElementById("filter");
     if (filtersElement) {
       filtersElement.style.display = "none";
@@ -157,8 +161,8 @@ const Organization = ({ onBack }) => {
         setImgURL(imageUrl); // Update image preview
 
         // Proceed with resizing if needed
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
         const maxSize = 100; // Limit height and width to 100px
 
         // Set canvas dimensions
@@ -195,7 +199,7 @@ const Organization = ({ onBack }) => {
 
           const result = await response.json();
           handleEvent(); // Trigger image re-render
-        }, 'image/png');
+        }, "image/png");
       };
     } catch (error) {
       console.log("Error processing file upload", error);
@@ -215,92 +219,98 @@ const Organization = ({ onBack }) => {
           </button>
         </div>
         <h2>Manage Organizations</h2>
-        <div className="filterWindow filterWidth" id="filter">
-          <div className="popup-head">
-            <img src={imgURL} className="image" alt="logo" />
-          </div>
-          {isEditing && (
-            <div className="editBtnContainer managementMsg">
-              <label id="smallBtn">
-                <input
-                  type="file"
-                  name="image"
-                  id="imgUpload"
-                  hidden
-                  onChange={(e) => handleImage(e, authNo)}
-                />
-                <Tooltip  title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px" placement="top">
-                Edit &#128397;</Tooltip>
-              </label>
+        <Backdrop
+          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+          open={open}
+        >
+          <div className="filterWindow filterWidth" id="filter">
+            <div className="popup-head">
+              <img src={imgURL} className="image" alt="logo" />
             </div>
-          )}
-          <span className="close" onClick={handlePopupClose}>
-            X
-          </span>
-          <div className="managementMsg">
-            <span id="respMessage">{updateMsg}</span>
-          </div>
-          <FormControl variant="outlined" sx={{ gap: '1rem' }}>
-            <TextField
-              className="managementInput"
-              id="authority"
-              variant="outlined"
-              value={authName}
-              placeholder="Authority Name"
-              disabled={!isEditing}
-              onChange={(e) => setAuthName(e.target.value)}
-            />
-            <OutlinedInput
-              className="managementInput"
-              id="authcode"
-              name="authCode"
-              value={authCode}
-              placeholder="AuthCode"
-              disabled={!isEditing}
-              onChange={(e) => setAuthCode(e.target.value)}
-              endAdornment={
-                isEditing ? (
-                  <InputAdornment position="end">
-                    <button
-                      type="button"
-                      id="smallBtn"
-                      onClick={handleGenAuth}
-                    >
-                      <img src={refreshIcon} alt="regenerate" />
-                    </button>
-                  </InputAdornment>
-                ) : null
-              }
-            />
-          </FormControl>
-          <div className="managementBtn">
-            {!isEditing ? (
-              <button
-                id="editBtn"
-                type="button"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit
-              </button>
-            ) : (
-              <button
-                type="button"
-                id="editBtn"
-                className="submitForm"
-                onClick={() => handleSave(authName, authCode, authNo)}
-              >
-                Save
-              </button>
+            {isEditing && (
+              <div className="editBtnContainer managementMsg">
+                <label id="smallBtn">
+                  <input
+                    type="file"
+                    name="image"
+                    id="imgUpload"
+                    hidden
+                    onChange={(e) => handleImage(e, authNo)}
+                  />
+                  <Tooltip
+                    title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px"
+                    placement="top"
+                  >
+                    Edit &#128397;
+                  </Tooltip>
+                </label>
+              </div>
             )}
+            <span className="close" onClick={handlePopupClose}>
+              X
+            </span>
+            <div className="managementMsg">
+              <span id="respMessage">{updateMsg}</span>
+            </div>
+            <FormControl variant="outlined" sx={{ gap: "1rem" }}>
+              <TextField
+                className="managementInput"
+                id="authority"
+                variant="outlined"
+                value={authName}
+                placeholder="Authority Name"
+                disabled={!isEditing}
+                onChange={(e) => setAuthName(e.target.value)}
+              />
+              <OutlinedInput
+                className="managementInput"
+                id="authcode"
+                name="authCode"
+                value={authCode}
+                placeholder="AuthCode"
+                disabled={!isEditing}
+                onChange={(e) => setAuthCode(e.target.value)}
+                endAdornment={
+                  isEditing ? (
+                    <InputAdornment position="end">
+                      <button
+                        type="button"
+                        id="smallBtn"
+                        onClick={handleGenAuth}
+                      >
+                        <img src={refreshIcon} alt="regenerate" />
+                      </button>
+                    </InputAdornment>
+                  ) : null
+                }
+              />
+            </FormControl>
+            <div className="managementBtn">
+              {!isEditing ? (
+                <button
+                  id="editBtn"
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  id="editBtn"
+                  className="submitForm"
+                  onClick={() => handleSave(authName, authCode, authNo)}
+                >
+                  Save
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        </Backdrop>
         <div className="orgcontainer">
           {authData.map((auth, index) => (
             <div key={index}>
-              <article
-                className="orgCard"
-                onClick={() => handlePopup(auth)}
-              >
+              <article className="orgCard" onClick={() => handlePopup(auth)}>
                 <div>
                   <img
                     className="orgImg"

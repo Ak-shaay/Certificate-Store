@@ -5,11 +5,13 @@ import { domain } from "../../Context/config";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
+import { Backdrop } from "@mui/material";
 
 const Account = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,17 +41,19 @@ const Account = () => {
     fetchData();
   }, []);
   const handlePasswordChange = () => {
+    setOpen(true);
     const filtersElement = document.getElementById("filter");
-    const blurFilter = document.getElementById("accountContainer");
-    blurFilter.style.filter = "blur(3px)";
-    blurFilter.style.pointerEvents = "none";
+    // const blurFilter = document.getElementById("accountContainer");
+    // blurFilter.style.filter = "blur(3px)";
+    // blurFilter.style.pointerEvents = "none";
     filtersElement.style.display = "block";
   };
   const handleFilterClose = (e) => {
+    setOpen(false);
     const filtersElement = document.getElementById("filter");
-    const blurFilter = document.getElementById("accountContainer");
-    blurFilter.style.filter = "blur(0px)";
-    blurFilter.style.pointerEvents = "auto";
+    // const blurFilter = document.getElementById("accountContainer");
+    // blurFilter.style.filter = "blur(0px)";
+    // blurFilter.style.pointerEvents = "auto";
     filtersElement.style.display = "none";
   };
   //update password api call
@@ -128,19 +132,14 @@ const Account = () => {
   return (
     <div className="MainAccount">
       <h3>Account</h3>
+      <Backdrop  sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+  open={open}>
       <div className="filterWindow" id="filter">
         <span className="close" onClick={handleFilterClose}>
           X
         </span>
         <h2 className="filter-head">Change Password</h2>
         <hr className="filter-line" />
-        {/* <input
-          id="oldPassword"
-          type="password"
-          name="oldPassword"
-          placeholder="Old Password"
-          required
-        /> */}
         <FormControl fullWidth sx={{ m: 1 }}>
           <InputLabel htmlFor="oldPassword">Current Password</InputLabel>
           <OutlinedInput
@@ -189,6 +188,7 @@ const Account = () => {
           </button>
         </div>
       </div>
+      </Backdrop>
       <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
         <hr className="" />
