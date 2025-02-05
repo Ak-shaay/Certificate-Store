@@ -132,5 +132,8 @@ dist
 # backend env variable removed
 backend/.env
 
+# token
+backend/tokens.json
+
 #reports
-backend/reports/*.pdf
+backend/public/reports/*
