@@ -27,10 +27,15 @@ import verify from "../../Images/check-mark.png";
 import "./DataTable.css";
 
 export default function DataTable() {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serialNo");
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: 10,
+  });
+
+  const [count, setCount] = useState(0);
+
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("IssueDate");
   const [authNumber, setAuthNumber] = useState("");
   const [issuerData, setIssuerData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -131,6 +136,10 @@ export default function DataTable() {
         startDate: startDate,
         endDate: endDate,
         validity: validity,
+        page: controller.page + 1,
+        rowsPerPage: controller.rowsPerPage,
+        order,
+        orderBy
       };
       const accessToken = api.getAccessToken();
       const decodedToken = accessToken
@@ -147,7 +156,13 @@ export default function DataTable() {
           JSON.stringify(filterData)
         );
         if (response.data) {
-          setIssuerData(response.data);
+          setCount(response.data.count);
+          setIssuerData((prevData) =>
+             response.data.result 
+          );
+
+          console.log(response.data.result);
+          
         }
         setLoading(false);
       }
@@ -159,7 +174,10 @@ export default function DataTable() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    console.log(controller.page * controller.rowsPerPage,
+      controller.page * controller.rowsPerPage +
+        controller.rowsPerPage);
+  }, [controller,order,orderBy]);
 
   // get all the authorities
   useEffect(() => {
@@ -260,12 +278,17 @@ export default function DataTable() {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setController((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
-
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setController({
+      ...controller,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0,
+    });
   };
 
   const sortedRows = useMemo(() => {
@@ -295,18 +318,7 @@ export default function DataTable() {
         rawCertificate
       );
     });
-
-    const comparator = (a, b) => {
-      if (a[orderBy] < b[orderBy]) {
-        return order === "asc" ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    };
-
-    return rows.slice().sort(comparator);
+    return rows
   }, [issuerData, order, orderBy]);
 
   // filters
@@ -609,12 +621,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "serialNo" ? order : false}
+                sortDirection={orderBy === "SerialNumber" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "serialNo"}
-                  direction={orderBy === "serialNo" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "serialNo")}
+                  active={orderBy === "SerialNumber"}
+                  direction={orderBy === "SerialNumber" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SerialNumber")}
                 >
                   Serial No
                 </TableSortLabel>
@@ -626,12 +638,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "name" ? order : false}
+                sortDirection={orderBy === "SubjectName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "name"}
-                  direction={orderBy === "name" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "name")}
+                  active={orderBy === "SubjectName"}
+                  direction={orderBy === "SubjectName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SubjectName")}
                 >
                   Name
                 </TableSortLabel>
@@ -643,12 +655,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "issuer" ? order : false}
+                sortDirection={orderBy === "IssuerName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "issuer"}
-                  direction={orderBy === "issuer" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "issuer")}
+                  active={orderBy === "IssuerName"}
+                  direction={orderBy === "IssuerName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "IssuerName")}
                 >
                   Issuer
                 </TableSortLabel>
@@ -660,12 +672,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "issuedDate" ? order : false}
+                sortDirection={orderBy === "IssueDate" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "issuedDate"}
-                  direction={orderBy === "issuedDate" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "issuedDate")}
+                  active={orderBy === "IssueDate"}
+                  direction={orderBy === "IssueDate" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "IssueDate")}
                 >
                   Issued Date
                 </TableSortLabel>
@@ -677,12 +689,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "state" ? order : false}
+                sortDirection={orderBy === "State" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "state"}
-                  direction={orderBy === "state" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "state")}
+                  active={orderBy === "State"}
+                  direction={orderBy === "State" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "State")}
                 >
                   State
                 </TableSortLabel>
@@ -694,15 +706,8 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "region" ? order : false}
               >
-                <TableSortLabel
-                  active={orderBy === "region"}
-                  direction={orderBy === "region" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "region")}
-                >
                   Region
-                </TableSortLabel>
               </TableCell>
               <TableCell
                 align="left"
@@ -711,12 +716,12 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "expiryDate" ? order : false}
+                sortDirection={orderBy === "ExpiryDate" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "expiryDate"}
-                  direction={orderBy === "expiryDate" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "expiryDate")}
+                  active={orderBy === "ExpiryDate"}
+                  direction={orderBy === "ExpiryDate" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "ExpiryDate")}
                 >
                   Expiry Date
                 </TableSortLabel>
@@ -728,11 +733,13 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
+              sortDirection={orderBy === "SubjectType" ? order : false}
               >
+
                 <TableSortLabel
-                  active={orderBy === "subjectType"}
-                  direction={orderBy === "subjectType" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "subjectType")}
+                  active={orderBy === "SubjectType"}
+                  direction={orderBy === "SubjectType" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SubjectType")}
                 >
                   Subject Type
                 </TableSortLabel>
@@ -765,7 +772,6 @@ export default function DataTable() {
               </TableRow>
             ) : (
               sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <TableRow key={row.serialNo + row.issuer}>
                     <TableCell sx={{ padding: "16px" }}>
@@ -834,11 +840,11 @@ export default function DataTable() {
             </Button>
           </div>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 20, 50]}
             component="div"
-            count={sortedRows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={count} // Use totalRecords instead of filtered data length
+            rowsPerPage={controller.rowsPerPage}
+            page={controller.page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

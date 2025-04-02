@@ -32,7 +32,7 @@ function regionMap(...regionsToFetch) {
     // Convert the array of state values into a comma-separated string with quotes
     const statesString = selectedStates.map((state) => `'${state}'`).join(", ");
 
-    console.log("Selected States by Region:", statesString); // Log for debugging
+    // console.log("Selected States by Region:", statesString); // Log for debugging
 
     return statesString;
   } catch (e) {

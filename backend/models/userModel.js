@@ -189,62 +189,8 @@ async function logUserAction(
     console.log("Error while logging: ", err);
   }
 }
-// async function getCertData(filterCriteria, authNo) {
-//   try {
-//     let query = "";
-//     if (authNo == 1 || authNo == null) {
-//       query =
-//         "SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE 1=1";
-//     } else {
-//       query =
-//         "WITH RECURSIVE CERTLIST AS ( SELECT SerialNumber,SubjectName,State,IssuerSlNo,IssuerName,IssueDate, ExpiryDate,SubjectType,RawCertificate FROM cert WHERE IssuerSlNo IN (Select SerialNumber from auth_cert where AuthNo = ? )union ALL SELECT c.SerialNumber,c.SubjectName,c.State,c.IssuerSlNo,c.IssuerName,c.IssueDate,c.ExpiryDate,c.SubjectType,c.RawCertificate FROM cert c JOIN CERTLIST cl on c.IssuerSlNo = cl.SerialNumber) select * from CERTLIST WHERE 1=1 ";
-//     }
-//     if (filterCriteria) {
-//       if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
-//         const issuers = filterCriteria.issuers
-//           .map((issuer) => `'${issuer}'`)
-//           .join(",");
-//         query += ` AND IssuerName IN (WITH RECURSIVE hierarchy AS ( SELECT c.SubjectName FROM cert c WHERE c.IssuerName in (${issuers}) or c.SubjectName in (${issuers}) UNION ALL SELECT e.SubjectName FROM cert e INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName ) SELECT * FROM hierarchy)`;
-//       }
-//       if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
-//         const subjectTypes = filterCriteria.subjectType
-//           .map((state) => `'${state}'`)
-//           .join(",");
-//         query += ` AND SubjectType IN (${subjectTypes})`;
-//       }
-//       if (filterCriteria.states && filterCriteria.states.length > 0) {
-//         const states = filterCriteria.states
-//           .map((state) => `'${state}'`)
-//           .join(",");
-//         query += ` AND State IN (${states})`;
-//       }
-//       if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-//         query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
-//       }
-//       if(filterCriteria.selectedDate&&filterCriteria.selectedDate=='issued'){
-//         if (filterCriteria.startDate && filterCriteria.endDate) {
-//           query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
-//         }
-//       }
-//       else if (filterCriteria.selectedDate&&filterCriteria.selectedDate=='expiry'){
-//         query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
-//       }
-//       else{
-//         null;
-//       }
-//       if (filterCriteria.validity && filterCriteria.validity != 0) {
-//         query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
-//       }
-//     }
-//     query += " ORDER BY IssueDate DESC";
-//     const result = await db.executeQuery(query, authNo);
-//     return result;
-//   } catch (e) {
-//     console.log("Error while fetching certificate details: ", e);
-//   }
-// }
 
-async function getCertData(filterCriteria, authNo) {
+async function getCertData(filterCriteria, authNo, rows, page, orderBy, order) {
   try {
     let query = constructBaseQuery(authNo);
     
@@ -252,10 +198,32 @@ async function getCertData(filterCriteria, authNo) {
       query = applyFilters(query, filterCriteria);
     }
 
-    query += " ORDER BY IssueDate DESC";
+    const validColumns = ["SerialNumber", "SubjectName", "State", "IssuerName", "IssueDate", "ExpiryDate", "SubjectType"];
+    const sortColumn = validColumns.includes(orderBy) ? orderBy : "IssueDate";
+    const sortOrder = order === "desc" ? "desc" : "asc"; 
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`; 
+
+    // console.log("orderBy: ", orderBy, order);
     
-    const result = await db.executeQuery(query, authNo);
-    return result;
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    // Add pagination with LIMIT and OFFSET
+    if (rows && page) {      
+      const offset = (page - 1) * rows;
+      query += ` LIMIT ${rows} OFFSET  ${offset}`;
+    }
+    const count = await db.executeQuery(countQuery, authNo);
+    
+    
+    const result = await db.executeQuery(query, authNo);   
+        
+    // result.map((item) =>{
+    //   console.log(item.SubjectName);
+      
+    // })
+    return {result,
+      count:count[0].total
+    };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -309,19 +277,6 @@ function applyFilters(query, filterCriteria) {
 function applyIssuerFilter(issuers) {
   
   const issuerList = issuers.map(issuer => `'${issuer}'`).join(",");
-  
-  // return ` AND IssuerName IN (
-  //   WITH RECURSIVE hierarchy AS (
-  //     SELECT c.SubjectName
-  //     FROM cert c
-  //     WHERE c.IssuerName IN (${issuerList}) OR c.SubjectName IN (${issuerList})
-  //     UNION ALL
-  //     SELECT e.SubjectName
-  //     FROM cert e
-  //     INNER JOIN hierarchy eh ON e.IssuerName = eh.SubjectName
-  //   )
-  //   SELECT * FROM hierarchy
-  // )`;
   return ` AND CAname IN (${issuerList})`;
 }
 

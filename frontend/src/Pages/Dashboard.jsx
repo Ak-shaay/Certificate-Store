@@ -76,10 +76,10 @@ function Dashboard() {
   switch (index) {
     case 0:
       return (
-        <div className="appglass">
+        <div className="appglass-other">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <MainDash username={username} />
-          <RightSide />
+          {/* <RightSide /> */}
         </div>
       );
     case 1:

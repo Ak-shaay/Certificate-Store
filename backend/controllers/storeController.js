@@ -859,8 +859,11 @@ async function fetchData(req, res) {
           startDate,
           endDate,
           validity,
-        } = req.body;
-
+          page,
+          rowsPerPage,
+          orderBy, 
+        order
+        } = req.body;        
         const filterCriteria = {};
 
         // Constructing filterCriteria based on request body values
@@ -894,16 +897,21 @@ async function fetchData(req, res) {
           filterCriteria.validity = validity;
         }
 
-        const certDetails = await userModel.getCertData(
+        const {result,count} = await userModel.getCertData(
           filterCriteria,
-          user.authNo
+          user.authNo,
+          rowsPerPage,
+          page,
+          orderBy,
+        order
         );
-        for (i in certDetails) {
-          certDetails[i].Region = await getIndianRegion(certDetails[i].State);
-          certDetails[i].IssueDate = formatDate(certDetails[i].IssueDate);
-          certDetails[i].ExpiryDate = formatDate(certDetails[i].ExpiryDate);
+        for (i in result) {
+          result[i].Region = await getIndianRegion(result[i].State);
+          result[i].IssueDate = formatDate(result[i].IssueDate);
+          result[i].ExpiryDate = formatDate(result[i].ExpiryDate);
         }
-        res.json(certDetails);
+        
+        res.json({result,count});
       }
     });
   } catch (error) {
@@ -1854,6 +1862,8 @@ async function reportGenerator(req, res) {
     }
     const result = await pdfGeneration(data, title, headers, filePath);
     if (result) {
+      console.log("email",email, "\ncc mail : " + ccEmail);
+      
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",
         port: 587,
@@ -1865,7 +1875,8 @@ async function reportGenerator(req, res) {
         timeout: 60000,
       });
       var mailOptions = {
-        from: Sender,
+        // from: Sender,
+        from: 'CertStore Admin <certstore-admin@cdac.in>',
         to: email,
         cc: ccEmail,
         subject: "Report generated",

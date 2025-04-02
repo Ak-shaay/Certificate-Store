@@ -34,13 +34,14 @@ const sessionStore = new MySQLStore(
   },
   pool
 );
-// pdf deletion cron
-cron.schedule("0 */6 * * *", () => {
+// pdf deletion cron every hour hh:00:00
+cron.schedule("0 */1 * * *", () => {
   try {
     const result = findRemoveSync(".\\public\\reports", {
       age: { seconds: 86400 },
       extensions: [".pdf"]
     });
+    console.log("removal");
     
   } catch (error) {
     console.error("Error removing files: ", error);
