@@ -159,15 +159,12 @@ export default function DataTable() {
           setCount(response.data.count);
           setIssuerData((prevData) =>
              response.data.result 
-          );
-
-          console.log(response.data.result);
-          
+          );          
         }
         setLoading(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setLoading(false);
     }
   }

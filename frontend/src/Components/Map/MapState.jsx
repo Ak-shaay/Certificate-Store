@@ -81,9 +81,9 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
   const { data: geojsonData, error: geojsonError } = useSWR(
     stateName
       ? (() => {
-          console.log(stateName);
+          // console.log(stateName);
           const url = `http://${domain}:8080/states/${stateName}.json`;
-          console.log("Fetching GeoJSON data from:", url);
+          // console.log("Fetching GeoJSON data from:", url);
           return url;
         })()
       : null,
@@ -93,9 +93,9 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
   const { data: mapdataData, error: mapdataError } = useSWR(
     stateName
       ? (() => {
-          console.log(stateName);
+          // console.log(stateName);
           const url = `http://${domain}:8080/count/${stateName}.json`;
-          console.log("Fetching GeoJSON data from:", url);
+          // console.log("Fetching GeoJSON data from:", url);
           return url;
         })()
       : null,
