@@ -14,10 +14,13 @@ import { usageOptions } from "../../Data";
 import { Backdrop, Button } from "@mui/material";
 
 const UsageDataTable = () => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serialNo");
+    const [controller, setController] = useState({
+      page: 0,
+      rowsPerPage: 10,
+    });
+    const [count, setCount] = useState(0);
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("UsageDate");
 
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,6 +95,10 @@ const UsageDataTable = () => {
         usage: selectedUsage,
         startDate: startDate,
         endDate: endDate,
+        page: controller.page + 1,
+        rowsPerPage: controller.rowsPerPage,
+        order,
+        orderBy
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -102,7 +109,8 @@ const UsageDataTable = () => {
           JSON.stringify(filterData)
         );
         if (response.data) {
-          setUsageData(response.data);
+          setCount(response.data.count);
+          setUsageData((prevData) => response.data.result);
         }
         setLoading(false);
       }
@@ -114,7 +122,7 @@ const UsageDataTable = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [controller,order,orderBy]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -123,12 +131,18 @@ const UsageDataTable = () => {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setController((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setController({
+      ...controller,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0,
+    });
   };
 
   const sortedRows = useMemo(() => {
@@ -143,17 +157,7 @@ const UsageDataTable = () => {
       return createData(serialNo, name, issuer, usageDate, remark);
     });
 
-    const comparator = (a, b) => {
-      if (a[orderBy] < b[orderBy]) {
-        return order === "asc" ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    };
-
-    return rows.sort(comparator);
+    return rows
   }, [usageData, order, orderBy]);
 
   const usageRef = useRef();
@@ -260,12 +264,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "serialNo" ? order : false}
+                sortDirection={orderBy === "SubjectName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "serialNo"}
-                  direction={orderBy === "serialNo" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "serialNo")}
+                  active={orderBy === "SubjectName"}
+                  direction={orderBy === "SubjectName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SubjectName")}
                 >
                   Serial No
                 </TableSortLabel>
@@ -277,12 +281,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "issuerSlNo" ? order : false}
+                sortDirection={orderBy === "SubjectName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "name"}
-                  direction={orderBy === "name" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "name")}
+                  active={orderBy === "SubjectName"}
+                  direction={orderBy === "SubjectName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SubjectName")}
                 >
                   Subject Name
                 </TableSortLabel>
@@ -294,12 +298,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "issuer" ? order : false}
+                sortDirection={orderBy === "IssuerName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "issuer"}
-                  direction={orderBy === "issuer" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "issuer")}
+                  active={orderBy === "IssuerName"}
+                  direction={orderBy === "IssuerName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "IssuerName")}
                 >
                   Issuer Name
                 </TableSortLabel>
@@ -311,12 +315,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "usageDate" ? order : false}
+                sortDirection={orderBy === "UsageDate" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "usageDate"}
-                  direction={orderBy === "usageDate" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "usageDate")}
+                  active={orderBy === "UsageDate"}
+                  direction={orderBy === "UsageDate" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "UsageDate")}
                 >
                   Usage Time
                 </TableSortLabel>
@@ -328,12 +332,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "remark" ? order : false}
+                sortDirection={orderBy === "Remark" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "remark"}
-                  direction={orderBy === "remark" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "remark")}
+                  active={orderBy === "Remark"}
+                  direction={orderBy === "Remark" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "Remark")}
                 >
                   Remark
                 </TableSortLabel>
@@ -356,7 +360,7 @@ const UsageDataTable = () => {
               </TableRow>
             ) : (
               sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow
                     key={`${row.serialNo}-${row.name}-${row.usageDate}`}
@@ -395,11 +399,11 @@ const UsageDataTable = () => {
             </Button>
           </div>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 20, 50]}
             component="div"
-            count={sortedRows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={count} // Use totalRecords instead of filtered data length
+            rowsPerPage={controller.rowsPerPage}
+            page={controller.page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

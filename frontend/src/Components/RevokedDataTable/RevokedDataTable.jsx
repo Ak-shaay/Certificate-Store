@@ -53,7 +53,7 @@ export default function RevokedDataTable() {
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
-        orderBy,
+        orderBy
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -65,10 +65,8 @@ export default function RevokedDataTable() {
         );
         if (response.data) {
           setCount(response.data.count);
-          setRevocationData(response.data);
+          // setRevocationData(response.data);
           setRevocationData((prevData) => response.data.result);
-
-          console.log(response.data.result);
         }
         setLoading(false);
       }
@@ -111,7 +109,7 @@ export default function RevokedDataTable() {
   const handleChangeRowsPerPage = (event) => {
     setController({
       ...controller,
-      rowsPerPage: parseInt(event.target.value, 0),
+      rowsPerPage: parseInt(event.target.value, 10),
       page: 0,
     });
   };

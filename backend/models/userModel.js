@@ -50,15 +50,15 @@ function findUserByUsername(email) {
 async function findEmailByAuth(auth) {
   const query = "SELECT Email FROM authorities WHERE AuthNo = ?";
   try {
-    const result = await db.executeQuery(query, [auth]);    
+    const result = await db.executeQuery(query, [auth]);
     if (result.length > 0) {
       return result[0].Email;
     } else {
       return null;
     }
   } catch (error) {
-    console.error('Error executing query:', error);
-    return null;  // Return null in case of an error
+    console.error("Error executing query:", error);
+    return null; // Return null in case of an error
   }
 }
 function findOrgByCN(commonName) {
@@ -68,7 +68,8 @@ function findOrgByCN(commonName) {
 
 // changed for account section
 function findUserData(email) {
-  const query = "SELECT L.UserEmail, L.Name,L.AuthNo, A.AuthName,A.Organization, A.Address, A.State, A.PostalCode FROM `login` AS L LEFT JOIN `authorities` AS A ON L.AuthNo = A.AuthNo WHERE L.UserEmail = ?;";
+  const query =
+    "SELECT L.UserEmail, L.Name,L.AuthNo, A.AuthName,A.Organization, A.Address, A.State, A.PostalCode FROM `login` AS L LEFT JOIN `authorities` AS A ON L.AuthNo = A.AuthNo WHERE L.UserEmail = ?;";
   return db.executeQuery(query, [email]);
 }
 function findUserByAuthNo(authNo) {
@@ -84,21 +85,20 @@ async function createUser(username, password) {
 }
 // check for issuer certificate
 async function checkCertificateInDatabase(certificate) {
-  const {issuerSlNo,issuerName} = certificate;
-  try{
-  const query = `
+  const { issuerSlNo, issuerName } = certificate;
+  try {
+    const query = `
       SELECT * FROM cert
       WHERE IssuerSlNo = ?
         AND IssuerName = ?
     `;
-    const result = await db.executeQuery(query, [issuerSlNo,issuerName ]);
-      return result.length > 0; 
-  }catch(error){
-    console.error("error : ",error);
+    const result = await db.executeQuery(query, [issuerSlNo, issuerName]);
+    return result.length > 0;
+  } catch (error) {
+    console.error("error : ", error);
     return false;
   }
 }
-
 
 async function insertCertificate(certificate) {
   const {
@@ -117,7 +117,7 @@ async function insertCertificate(certificate) {
     subjectType,
     fp,
     x509Cert,
-    validityPeriod
+    validityPeriod,
   } = certificate;
 
   // Validate the certificate object (you can add more validation here)
@@ -134,33 +134,33 @@ async function insertCertificate(certificate) {
   `;
 
   const values = [
-    certSerialNumber,       // SerialNumber
-    validFrom,              // IssueDate
-    validTo,                // ExpiryDate
-    certType,               // CertType
+    certSerialNumber, // SerialNumber
+    validFrom, // IssueDate
+    validTo, // ExpiryDate
+    certType, // CertType
     issuerSlNo,
     issuerName,
     country,
     organization,
     state,
-    commonName,            // SubjectName
-    email,                  // Email
+    commonName, // SubjectName
+    email, // Email
     city,
-    subjectType,           // SubjectType
-    fp,                     // Fp_512 (using hash)
+    subjectType, // SubjectType
+    fp, // Fp_512 (using hash)
     x509Cert,
-    organization,           // CAname
-    validityPeriod          // ValidityPeriod
+    organization, // CAname
+    validityPeriod, // ValidityPeriod
   ];
-  
+
   try {
-    const result = await db.executeQuery(query, values);    
+    const result = await db.executeQuery(query, values);
     return result && result.affectedRows > 0; // can directly return the result
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (err.code === "ER_DUP_ENTRY") {
       throw new Error("Certificate already exists");
     }
-    console.error('Error inserting certificate:', err);
+    console.error("Error inserting certificate:", err);
     throw new Error("Error inserting certificate");
   }
 }
@@ -193,37 +193,42 @@ async function logUserAction(
 async function getCertData(filterCriteria, authNo, rows, page, orderBy, order) {
   try {
     let query = constructBaseQuery(authNo);
-    
+
     if (filterCriteria) {
       query = applyFilters(query, filterCriteria);
     }
 
-    const validColumns = ["SerialNumber", "SubjectName", "State", "IssuerName", "IssueDate", "ExpiryDate", "SubjectType"];
+    const validColumns = [
+      "SerialNumber",
+      "SubjectName",
+      "State",
+      "IssuerName",
+      "IssueDate",
+      "ExpiryDate",
+      "SubjectType",
+    ];
     const sortColumn = validColumns.includes(orderBy) ? orderBy : "IssueDate";
-    const sortOrder = order === "desc" ? "desc" : "asc"; 
+    const sortOrder = order === "desc" ? "desc" : "asc";
 
-    query += ` ORDER BY ${sortColumn} ${sortOrder}`; 
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;
 
     // console.log("orderBy: ", orderBy, order);
-    
+
     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
     // Add pagination with LIMIT and OFFSET
-    if (rows && page) {      
+    if (rows && page) {
       const offset = (page - 1) * rows;
       query += ` LIMIT ${rows} OFFSET  ${offset}`;
     }
     const count = await db.executeQuery(countQuery, authNo);
-    
-    
-    const result = await db.executeQuery(query, authNo);   
-        
+
+    const result = await db.executeQuery(query, authNo);
+
     // result.map((item) =>{
     //   console.log(item.SubjectName);
-      
+
     // })
-    return {result,
-      count:count[0].total
-    };
+    return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -253,18 +258,30 @@ function applyFilters(query, filterCriteria) {
     query += applyIssuerFilter(filterCriteria.issuers);
   }
   if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
-    query += ` AND SubjectType IN (${filterCriteria.subjectType.map(state => `'${state}'`).join(",")})`;
+    query += ` AND SubjectType IN (${filterCriteria.subjectType
+      .map((state) => `'${state}'`)
+      .join(",")})`;
   }
   if (filterCriteria.states && filterCriteria.states.length > 0) {
-    query += ` AND State IN (${filterCriteria.states.map(state => `'${state}'`).join(",")})`;
+    query += ` AND State IN (${filterCriteria.states
+      .map((state) => `'${state}'`)
+      .join(",")})`;
   }
   if (filterCriteria.regions && filterCriteria.regions.length > 0) {
     query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
   }
-  if (filterCriteria.selectedDate === 'issued' && filterCriteria.startDate && filterCriteria.endDate) {
+  if (
+    filterCriteria.selectedDate === "issued" &&
+    filterCriteria.startDate &&
+    filterCriteria.endDate
+  ) {
     query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
   }
-  if (filterCriteria.selectedDate === 'expiry' && filterCriteria.startDate && filterCriteria.endDate) {
+  if (
+    filterCriteria.selectedDate === "expiry" &&
+    filterCriteria.startDate &&
+    filterCriteria.endDate
+  ) {
     query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
   }
   if (filterCriteria.validity && filterCriteria.validity !== 0) {
@@ -275,12 +292,18 @@ function applyFilters(query, filterCriteria) {
 }
 
 function applyIssuerFilter(issuers) {
-  
-  const issuerList = issuers.map(issuer => `'${issuer}'`).join(",");
+  const issuerList = issuers.map((issuer) => `'${issuer}'`).join(",");
   return ` AND CAname IN (${issuerList})`;
 }
 
-async function getRevokedCertData(  filterCriteria,  authNo, page, rows, order, orderBy) {
+async function getRevokedCertData(
+  filterCriteria,
+  authNo,
+  page,
+  rows,
+  order,
+  orderBy
+) {
   try {
     let query = "";
     if (authNo == 1 || authNo == null) {
@@ -322,8 +345,7 @@ async function getRevokedCertData(  filterCriteria,  authNo, page, rows, order, 
       const offset = (page - 1) * rows;
       query += ` LIMIT ${rows} OFFSET ${offset}`;
     }
-    console.log(query);
-    
+
     const result = await db.executeQuery(query, authNo);
     return { result, count: count[0].total };
   } catch (e) {
@@ -331,7 +353,14 @@ async function getRevokedCertData(  filterCriteria,  authNo, page, rows, order, 
     throw e;
   }
 }
-async function getCertUsageData(filterCriteria, authNo) {
+async function getCertUsageData(
+  filterCriteria,
+  authNo,
+  page,
+  rows,
+  order,
+  orderBy
+) {
   try {
     let query = "";
     if (authNo == 1 || authNo == null) {
@@ -352,9 +381,31 @@ async function getCertUsageData(filterCriteria, authNo) {
         query += ` AND UsageDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-    query += " ORDER BY CU.UsageDate DESC";
+    const validColumns = [
+      "SerialNumber",
+      "SubjectName",
+      "IssuerName",
+      "UsageDate",
+      "Remark",
+    ];
+    const sortColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "UsageDate";
+    const sortOrder = order === "desc" ? "desc" : "asc";
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    const count = await db.executeQuery(countQuery, authNo);
+
+    // Add pagination with LIMIT and OFFSET
+    if (rows && page) {
+      const offset = (page - 1) * rows;
+      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    }
+
+
     const result = await db.executeQuery(query, authNo);
-    return result;
+    return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }
@@ -397,12 +448,12 @@ async function getLogsData(filterCriteria, authNo) {
   }
 }
 
-async function updateStatus(email, status, attempts,last) {
+async function updateStatus(email, status, attempts, last) {
   try {
     const query =
       "UPDATE Login SET LoginStatus = ? , Attempts = ? ,LastAttempt = ? WHERE UserEmail = ?";
     // "UPDATE Login SET LoginStatus = ? , Attempts = ?,LastAttempt = ? WHERE UserName = ?";
-    return db.executeQuery(query, [status, attempts,last, email]);
+    return db.executeQuery(query, [status, attempts, last, email]);
   } catch (e) {
     console.log("Error while fetching user: ", e);
   }
@@ -418,24 +469,25 @@ async function updateAttempts(email, attempts) {
 // Toggle the login action (enable/disable)
 async function toggleLoginAction(email, status) {
   try {
-    let query = '';
-    if(status === 'active'){
-      query = "UPDATE Login SET LoginStatus = ?, Attempts= 2 WHERE UserEmail = ?";
-    }else{
-
-      query = "UPDATE Login SET LoginStatus = ?,Attempts= 0 WHERE UserEmail = ?";
+    let query = "";
+    if (status === "active") {
+      query =
+        "UPDATE Login SET LoginStatus = ?, Attempts= 2 WHERE UserEmail = ?";
+    } else {
+      query =
+        "UPDATE Login SET LoginStatus = ?,Attempts= 0 WHERE UserEmail = ?";
     }
     const result = await db.executeQuery(query, [status, email]);
-    
+
     if (result && result.affectedRows > 0) {
-      return true; 
+      return true;
     } else {
       // console.log(`No changes made for ${email}: LoginStatus might already be '${status}' or user does not exist.`);
-      return false; 
+      return false;
     }
   } catch (e) {
     console.error("Error while changing the Login Status:", e);
-    return false; 
+    return false;
   }
 }
 
@@ -738,7 +790,7 @@ async function signup(params) {
     organization,
     address,
     state,
-    postalCode
+    postalCode,
   } = params;
   const query1 =
     "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, PostalCode) VALUES (?, ?, ?,?,?, ?, ?,?)";
@@ -769,11 +821,7 @@ async function signup(params) {
                   ],
                   connection
                 );
-                await db.executeQuery(
-                  query2,
-                  [authNo, serialNo],
-                  connection
-                );
+                await db.executeQuery(query2, [authNo, serialNo], connection);
 
                 // Commit transaction
                 connection.commit((err) => {
@@ -962,12 +1010,12 @@ SET Password = ?,
     LoginStatus = 'temporary', 
     Attempts = 1 
 WHERE UserEmail = ?`;
-//   const query = `
-//    UPDATE login 
-// SET Password = ?, 
-//     LoginStatus = 'temporary', 
-//     Attempts = 1 
-// WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
+  //   const query = `
+  //    UPDATE login
+  // SET Password = ?,
+  //     LoginStatus = 'temporary',
+  //     Attempts = 1
+  // WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.executeQuery(query, [hashedPassword, email]);

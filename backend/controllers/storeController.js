@@ -938,7 +938,7 @@ async function fetchRevokedData(req, res) {
           filterCriteria.endDate = endDate;
         }
 
-        const revokedCertDetails = await userModel.getRevokedCertData(
+        const {result,count} = await userModel.getRevokedCertData(
           filterCriteria,
           user.authNo,
           page, 
@@ -946,12 +946,12 @@ async function fetchRevokedData(req, res) {
           order,
           orderBy
         );
-        for (i in revokedCertDetails) {
-          revokedCertDetails[i].RevokeDateTime = formatDate(
-            revokedCertDetails[i].RevokeDateTime
+        for (i in result) {
+          result[i].RevokeDateTime = formatDate(
+            result[i].RevokeDateTime
           );
         }
-        res.json(revokedCertDetails);
+        res.json({result,count});
       }
     });
   } catch (error) {
@@ -968,7 +968,7 @@ async function fetchUsageData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { usage, startDate, endDate } = req.body;
+        const { usage, startDate, endDate,page, rowsPerPage, orderBy,order } = req.body;
         const filterCriteria = {};
         if (usage && usage.length > 0) {
           filterCriteria.usage = usage;
@@ -977,10 +977,16 @@ async function fetchUsageData(req, res) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
         }
+        
         const usageDetails = await userModel.getCertUsageData(
           filterCriteria,
-          user.authNo
+          user.authNo,
+          page, 
+          rowsPerPage,
+          order,
+          orderBy
         );
+        
         for (i in usageDetails) {
           usageDetails[i].UsageDate = formatDate(usageDetails[i].UsageDate);
         }
