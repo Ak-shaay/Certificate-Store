@@ -978,7 +978,7 @@ async function fetchUsageData(req, res) {
           filterCriteria.endDate = endDate;
         }
         
-        const usageDetails = await userModel.getCertUsageData(
+        const {result,count} = await userModel.getCertUsageData(
           filterCriteria,
           user.authNo,
           page, 
@@ -987,10 +987,10 @@ async function fetchUsageData(req, res) {
           orderBy
         );
         
-        for (i in usageDetails) {
-          usageDetails[i].UsageDate = formatDate(usageDetails[i].UsageDate);
+        for (i in result) {
+          result[i].UsageDate = formatDate(result[i].UsageDate);
         }
-        res.json(usageDetails);
+        res.json({result,count});
       }
     });
   } catch (error) {

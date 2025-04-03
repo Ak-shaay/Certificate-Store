@@ -264,12 +264,12 @@ const UsageDataTable = () => {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "SubjectName" ? order : false}
+                sortDirection={orderBy === "SerialNumber" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "SubjectName"}
-                  direction={orderBy === "SubjectName" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "SubjectName")}
+                  active={orderBy === "SerialNumber"}
+                  direction={orderBy === "SerialNumber" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SerialNumber")}
                 >
                   Serial No
                 </TableSortLabel>
@@ -360,7 +360,6 @@ const UsageDataTable = () => {
               </TableRow>
             ) : (
               sortedRows
-                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow
                     key={`${row.serialNo}-${row.name}-${row.usageDate}`}
