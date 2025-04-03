@@ -1,0 +1,149 @@
+[
+  {
+    "state": "Gondia"
+  },
+  {
+    "state": "Bhandara"
+  },
+  {
+    "state": "Jalgaon"
+  },
+  {
+    "state": "Wardha"
+  },
+  {
+    "state": "Buldhana"
+  },
+  {
+    "state": "Akola"
+  },
+  {
+    "state": "Nashik"
+  },
+  {
+    "state": "Gadchiroli"
+  },
+  {
+    "state": "Washim"
+  },
+  {
+    "state": "Chandrapur"
+  },
+  {
+    "state": "Yavatmal"
+  },
+  {
+    "state": "Jalna"
+  },
+  {
+    "state": "Ahmednagar"
+  },
+  {
+    "state": "Hingoli"
+  },
+  {
+    "state": "Nanded"
+  },
+  {
+    "state": "Parbhani"
+  },
+  {
+    "state": "Pune",
+    "C-DAC CA 2022": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "CCA India 2022": [
+      2,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "state": "Beed"
+  },
+  {
+    "state": "Mumbai"
+  },
+  {
+    "state": "Latur"
+  },
+  {
+    "state": "Osmanabad"
+  },
+  {
+    "state": "Solapur"
+  },
+  {
+    "state": "Satara"
+  },
+  {
+    "state": "Ratnagiri"
+  },
+  {
+    "state": "Sangli"
+  },
+  {
+    "state": "Kolhapur"
+  },
+  {
+    "state": "Sindhudurg"
+  },
+  {
+    "state": "Thane"
+  },
+  {
+    "state": "Palghar"
+  },
+  {
+    "state": "Nandurbar"
+  },
+  {
+    "state": "Amravati"
+  },
+  {
+    "state": "Dhule"
+  },
+  {
+    "state": "Nagpur"
+  },
+  {
+    "state": "Aurangabad"
+  },
+  {
+    "state": "Raigad"
+  },
+  {
+    "state": "Mumbai Suburban",
+    "CCA India 2022": [
+      5,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "state": "Others",
+    "CDAC BLR subca2": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "CDAC subca1": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "Safescrypt SubCA3": [
+      2,
+      0,
+      0,
+      0
+    ]
+  }
+]

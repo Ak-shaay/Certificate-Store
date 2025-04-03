@@ -90,7 +90,7 @@
 
 
 /* Tablets */
-@media screen and (max-width: 1200px) {
+/* @media screen and (max-width: 1200px) {
   .menuItem>span {
     display: none;
   }
@@ -101,7 +101,7 @@
   .logo>span>span {
     display: none;
   }
-}
+} */
 
 /* @media screen and (min-width: 767px) {
   .sidebar {

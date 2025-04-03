@@ -1,0 +1,47 @@
+[
+  {
+    "state": "North Delhi"
+  },
+  {
+    "state": "North East Delhi"
+  },
+  {
+    "state": "West Delhi"
+  },
+  {
+    "state": "East Delhi"
+  },
+  {
+    "state": "South West Delhi"
+  },
+  {
+    "state": "Central Delhi"
+  },
+  {
+    "state": "New Delhi"
+  },
+  {
+    "state": "South Delhi"
+  },
+  {
+    "state": "Shahdara",
+    "CCA India 2022": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "state": "South East Delhi",
+    "CCA India 2022": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "state": "North West Delhi"
+  }
+]

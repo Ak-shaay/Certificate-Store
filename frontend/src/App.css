@@ -41,7 +41,8 @@
 
 @media screen and (max-width: 1200px) {
   .appglass {
-    grid-template-columns: 10% 50% auto;
+    /* grid-template-columns: 10% 50% auto; */
+    grid-template-columns: 20% 40% auto;
     overflow-y: scroll;
   }
 
@@ -50,6 +51,30 @@
     overflow-y: scroll;
   }
 }
+@media only screen and (max-width: 1200px) {
+  .appglass-other {
+    gap: 0.1rem;
+    /* grid-template-columns: 4rem auto; */
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .appglass-other {
+    grid-template-columns: 100%;
+    height: 100dvh;
+  }
+
+  .sidebar-icons {
+    width: 20px;
+    height: 20px;
+  }
+
+  .icons {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 
 @media screen and (max-width: 768px) {
   .appglass {
@@ -98,29 +123,6 @@
   filter: invert(100%);
 }
 
-@media only screen and (max-width: 1200px) {
-  .appglass-other {
-    gap: 0.1rem;
-    grid-template-columns: 4rem auto;
-  }
-}
-
-@media only screen and (max-width: 768px) {
-  .appglass-other {
-    grid-template-columns: 100%;
-    height: 100dvh;
-  }
-
-  .sidebar-icons {
-    width: 20px;
-    height: 20px;
-  }
-
-  .icons {
-    width: 18px;
-    height: 18px;
-  }
-}
 
 /* filter button and component */
 #filter {

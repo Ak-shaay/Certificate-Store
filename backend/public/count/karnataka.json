@@ -1,0 +1,110 @@
+[
+  {
+    "state": "Bidar"
+  },
+  {
+    "state": "Kalaburagi"
+  },
+  {
+    "state": "Belagavi"
+  },
+  {
+    "state": "Yadgir"
+  },
+  {
+    "state": "Bagalkote"
+  },
+  {
+    "state": "Raichur"
+  },
+  {
+    "state": "Koppal"
+  },
+  {
+    "state": "Gadag"
+  },
+  {
+    "state": "Ballari"
+  },
+  {
+    "state": "Dharwad"
+  },
+  {
+    "state": "Uttara Kannada"
+  },
+  {
+    "state": "Haveri"
+  },
+  {
+    "state": "Chitradurga"
+  },
+  {
+    "state": "Davanagere"
+  },
+  {
+    "state": "Shivamogga"
+  },
+  {
+    "state": "Udupi"
+  },
+  {
+    "state": "Chikkamagaluru"
+  },
+  {
+    "state": "Chikkaballapura"
+  },
+  {
+    "state": "Hassan"
+  },
+  {
+    "state": "Kolar"
+  },
+  {
+    "state": "Bengaluru Rural"
+  },
+  {
+    "state": "Dakshina Kannada"
+  },
+  {
+    "state": "Bengaluru Urban",
+    "C-DAC CA 2022": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "CCA India 2022": [
+      2,
+      0,
+      0,
+      0
+    ],
+    "CCA India 2025": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "state": "Kodagu"
+  },
+  {
+    "state": "Chamarajanagara"
+  },
+  {
+    "state": "Tumakuru"
+  },
+  {
+    "state": "Ramanagara"
+  },
+  {
+    "state": "Mandya"
+  },
+  {
+    "state": "Mysuru"
+  },
+  {
+    "state": "Vijayapura"
+  }
+]

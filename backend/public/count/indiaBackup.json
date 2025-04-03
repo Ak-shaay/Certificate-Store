@@ -5,8 +5,7 @@
   },
   {
     "state": "Delhi",
-    "color": "#ffa600",
-    "CCA India 2022": [2, 0, 0, 0]
+    "color": "#ffa600"
   },
   {
     "state": "Goa",
@@ -18,19 +17,14 @@
   },
   {
     "state": "Jammu and Kashmir",
-    "color": "#ffa600",
-    "CCA India 2022": [1, 0, 0, 0]
+    "color": "#ffa600"
   },
   {
     "state": "Jharkhand",
     "color": "#16a085"
   },
   {
-    "state": "Karnataka",
-    "color": "#665191",
-    "C-DAC CA 2022": [1, 0, 0, 0],
-    "CCA India 2022": [2, 0, 0, 0],
-    "CCA India 2025": [1, 1, 1, 1]
+    "state": "Karnataka"
   },
   {
     "state": "Kerala",
@@ -38,12 +32,7 @@
   },
   {
     "state": "Maharashtra",
-    "color": "#f95d6a",
-    "C-DAC CA 2022": [1, 0, 0, 0],
-    "CCA India 2022": [7, 1, 1, 1],
-    "CDAC BLR subca2": [1, 0, 0, 0],
-    "CDAC subca1": [1, 0, 0, 0],
-    "Safescrypt SubCA3": [2, 0, 0, 0]
+    "color": "#f95d6a"
   },
   {
     "state": "Punjab",
@@ -51,8 +40,7 @@
   },
   {
     "state": "Telangana",
-    "color": "#665191",
-    "CCA India 2022": [2, 0, 0, 0]
+    "color": "#665191"
   },
   {
     "state": "Uttarakhand",
@@ -80,8 +68,7 @@
   },
   {
     "state": "Gujarat",
-    "color": "#f95d6a",
-    "CCA India 2022": [1, 0, 0, 0]
+    "color": "#f95d6a"
   },
   {
     "state": "Himachal Pradesh",
@@ -89,8 +76,7 @@
   },
   {
     "state": "Madhya Pradesh",
-    "color": "#d45087",
-    "CCA India 2022": [1, 0, 0, 0]
+    "color": "#d45087"
   },
   {
     "state": "Manipur",
@@ -114,8 +100,7 @@
   },
   {
     "state": "Rajasthan",
-    "color": "#f95d6a",
-    "CCA India 2022": [1, 0, 0, 0]
+    "color": "#f95d6a"
   },
   {
     "state": "Sikkim",
@@ -123,11 +108,7 @@
   },
   {
     "state": "Tamil Nadu",
-    "color": "#665191",
-    "CCA India 2022": [2, 0, 0, 0],
-    "JPSL": [1, 0, 0, 0],
-    "SafeScrypt CA 2022": [3, 0, 0, 0],
-    "SUBCA": [1, 0, 0, 0]
+    "color": "#665191"
   },
   {
     "state": "Tripura",
@@ -135,8 +116,7 @@
   },
   {
     "state": "Uttar Pradesh",
-    "color": "#ffa600",
-    "CCA India 2022": [1, 1, 1, 1]
+    "color": "#ffa600"
   },
   {
     "state": "Andaman and Nicobar Islands",
@@ -165,9 +145,5 @@
   {
     "state": "Puducherry",
     "color": "#665191"
-  },
-  {
-    "state": "",
-    "CCA India 2022": [1, 1, 1, 0]
   }
 ]

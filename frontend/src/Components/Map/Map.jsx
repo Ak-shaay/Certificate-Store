@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from "react";
-import useSWR from "swr";
+import React, { useState } from "react";
+import MapState from "./MapState"; // Import MapState component
 import Highmaps from "highcharts/highmaps";
 import Highcharts from "highcharts";
-import { domain } from "../../Context/config";
-
+import {
+  Box,
+  useMediaQuery,
+  useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import {
   HighchartsMapChart,
   HighmapsProvider,
@@ -12,8 +19,10 @@ import {
   MapSeries,
   MapNavigation,
   Credits,
+  Chart,
 } from "react-jsx-highmaps";
-import { Pane, Chart } from "react-jsx-highcharts";
+import useSWR from "swr";
+import { domain } from "../../Context/config";
 
 const caColorMap = {
   "CCA India 2022": "#ff7c43", // Based on CA1
@@ -42,10 +51,25 @@ const caColorMap = {
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
 
+// Time period options
+const TIME_PERIODS = {
+  ALL: 0,
+  LAST_6_MONTHS: 1,
+  LAST_3_MONTHS: 2,
+  LAST_1_MONTH: 3,
+};
+
 const Map = () => {
   const [geojson, setGeojson] = useState(null);
   const [mapdata, setMapdata] = useState(null);
-  const [pieData, setPieData] = useState(null);
+  const [filteredMapData, setFilteredMapData] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState(
+    TIME_PERIODS.ALL
+  );
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  let clickTimer = null;
 
   const fetcher = async (url) => {
     const res = await fetch(url);
@@ -56,44 +80,89 @@ const Map = () => {
   };
 
   const { data: geojsonData, error: geojsonError } = useSWR(
-    "http://"+domain+":8080/states/india.json",
-    fetcher
-  );
-  const { data: mapdataData, error: mapdataError } = useSWR(
-    "http://"+domain+":8080/count/india.json",
+    `http://${domain}:8080/states/india.json`,
     fetcher
   );
 
-  useEffect(() => {
+  const { data: mapdataData, error: mapdataError } = useSWR(
+    `http://${domain}:8080/count/india.json`,
+    fetcher
+  );
+
+  // Process the map data based on the selected time period
+  const processMapData = (data, timePeriod) => {
+    if (!data) return null;
+
+    return data.map((stateData) => {
+      // Create a copy of the state data
+      const processedStateData = { ...stateData };
+
+      // For each CA, update the value based on the selected time period
+      Object.keys(stateData).forEach((key) => {
+        // Skip non-CA properties
+        if (key === "state" || key === "color") return;
+
+        // Check if the CA data is an array
+        if (Array.isArray(stateData[key])) {
+          // Update value based on selected time period
+          processedStateData[key] = stateData[key][timePeriod];
+        }
+      });
+
+      return processedStateData;
+    });
+  };
+
+  React.useEffect(() => {
     if (geojsonData) setGeojson(geojsonData);
-    if (mapdataData) setMapdata(mapdataData);
+    if (mapdataData) {
+      setMapdata(mapdataData);
+      setFilteredMapData(processMapData(mapdataData, selectedTimePeriod));
+    }
   }, [geojsonData, mapdataData]);
 
-  if (geojsonError || mapdataError) return <div>Error loading map data.</div>;
-  if (!geojson || !mapdata) return <div>Loading...</div>;
+  // Update filtered data when time period changes
+  React.useEffect(() => {
+    if (mapdata) {
+      setFilteredMapData(processMapData(mapdata, selectedTimePeriod));
+    }
+  }, [selectedTimePeriod, mapdata]);
 
-  const totalCount = mapdata.reduce((sum, item) => {
+  const handleTimePeriodChange = (event) => {
+    setSelectedTimePeriod(parseInt(event.target.value));
+  };
+
+  if (geojsonError || mapdataError) return <div>Error loading map data.</div>;
+  if (!geojson || !filteredMapData) return <div>Loading...</div>;
+
+  const totalCount = filteredMapData.reduce((sum, item) => {
     return (
       sum +
-      Object.values(item)
-        .filter((val) => typeof val === "number")
-        .reduce((acc, val) => acc + val, 0)
+      Object.keys(item)
+        .filter(
+          (key) =>
+            key !== "state" && key !== "color" && typeof item[key] === "number"
+        )
+        .reduce((acc, key) => acc + (item[key] || 0), 0)
     );
   }, 0);
-  const seriesData = mapdata.map((item) => {
-    const totalValue = Object.keys(item)
-      .filter((key) => key !== "state" && key !== "color") // Exclude the "color" field
-      .reduce((sum, key) => sum + (item[key] || 0), 0);
 
-    return {
-      st_nm: item.state,
-      value: totalValue,
-      color: item.color, // Add color from JSON data
-    };
-  });
-  const joinBy = "st_nm"; // Add this definition near your plotOptions and colorAxis variables
+  const seriesData = filteredMapData.map((item) => ({
+    st_nm: item.state,
+    value: Object.keys(item)
+      .filter((key) => key !== "state" && key !== "color")
+      .reduce(
+        (sum, key) => sum + (typeof item[key] === "number" ? item[key] : 0),
+        0
+      ),
+    color: item.color,
+  }));
 
+  const joinBy = "st_nm";
   const plotOptions = {
+    pie: {
+      size: isSmallScreen ? "80%" : "100%",
+    },
     map: {
       allAreas: true,
       joinBy: joinBy,
@@ -103,6 +172,7 @@ const Map = () => {
       },
     },
   };
+
   const colorAxis = {
     min: 0,
     max: totalCount / 10,
@@ -117,156 +187,240 @@ const Map = () => {
       [1, "#003f5c"],
     ],
   };
+
   const handleStateClick = (stateName) => {
-    const stateData = mapdata.find((item) => item.state === stateName);
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+      handleStateDoubleClick(stateName);
+    } else {
+      clickTimer = setTimeout(() => {
+        displayPieChart(stateName);
+        clickTimer = null;
+      }, 250);
+    }
+  };
+
+  const handleStateDoubleClick = (stateName) => {
+    setSelectedState(stateName.toLowerCase().replace(/\s/g, ""));
+  };
+
+  const displayPieChart = (stateName) => {
+    const stateData = filteredMapData.find((item) => item.state === stateName);
+    if (!stateData) return;
 
     const pieChartData = Object.keys(stateData)
-      .filter((key) => key !== "state")
+      .filter(
+        (key) =>
+          key !== "state" &&
+          key !== "color" &&
+          typeof stateData[key] === "number" &&
+          stateData[key] > 0
+      )
       .map((ca) => ({
         name: ca,
         y: stateData[ca],
-        color: caColorMap[ca] || "#ccc",
+        color: caColorMap[ca] || stateData.color || "#ccc",
       }));
 
-    setPieData({ stateName, pieChartData });
-    displayPieChart(stateName, pieChartData);
-  };
-  const displayPieChart = (stateName, pieChartData) => {
+    if (pieChartData.length === 0) return; // Avoid rendering an empty pie chart
+
     let pieContainer = document.getElementById("popup-pie-container");
     if (!pieContainer) {
       pieContainer = document.createElement("div");
       pieContainer.id = "popup-pie-container";
-      pieContainer.style.position = "fixed";
-      pieContainer.style.top = "50%";
-      pieContainer.style.left = "50%";
-      pieContainer.style.transform = "translate(-50%, -50%)";
-      pieContainer.style.backgroundColor = "white";
-      pieContainer.style.padding = "20px";
-      pieContainer.style.borderRadius = "10px";
-      pieContainer.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.25)";
-      pieContainer.style.zIndex = "1000";
-      pieContainer.style.border = "1px solid #ddd";
-      pieContainer.style.width = "90%";
-      pieContainer.style.maxWidth = "500px";
-      pieContainer.style.overflow = "hidden";
-      pieContainer.style.textAlign = "center";
       document.body.appendChild(pieContainer);
+    } else {
+      pieContainer.innerHTML = "";
     }
 
+    // Use MUI's Box for responsive styling
     pieContainer.innerHTML = `
-      <button id="close-pie" style="
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #f44336;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 5px 10px;
-        cursor: pointer;
-        font-size: 12px;
-      ">✖</button>
-      <div id="popup-pie" style="margin-top: 20px;"></div>
+      <div id="popup-pie-container-inner" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+        overflow: auto;
+        padding: 20px;
+      ">
+        <button id="close-pie" style="
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: #f44336;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          padding: 5px 10px;
+          cursor: pointer;
+          font-size: 12px;
+        ">✖</button>
+        <div id="popup-pie" style="margin-top: 20px;"></div>
+      </div>
     `;
 
-    const stateData = mapdata.find((item) => item.state === stateName);
-
-    // Ensure colors are taken from the caColorMap or state color
-    const pieChartDataWithColor = Object.keys(stateData)
-      .filter((key) => key !== "state" && key !== "color") // Exclude state and color
-      .map((ca) => ({
-        name: ca,
-        y: stateData[ca],
-        color: caColorMap[ca] || stateData.color || "#ccc", // Use state color or caColorMap if available
-      }));
+    const isSmallScreen = window.innerWidth < 600;
 
     Highcharts.chart("popup-pie", {
-      chart: {
-        type: "pie",
-      },
+      chart: { type: "pie" },
       title: {
-        text: `CA Distribution in ${stateName}`,
+        text: `CA Distribution in ${stateName} ${getTimeText(
+          selectedTimePeriod
+        )}`,
+        style: { fontSize: isSmallScreen ? "16px" : "18px" },
       },
-      credits: {
-        enabled: false,
-      },
-      tooltip: {
-        pointFormat: "{series.name}: <b>{point.y}</b>",
-      },
-      accessibility: {
-        point: {
-          valueSuffix: "",
-        },
-      },
+      credits: { enabled: false },
+      tooltip: { pointFormat: "{series.name}: <b>{point.y}</b>" },
       series: [
         {
           name: "Certificates Issued",
-          data: pieChartDataWithColor, // Use the updated pie chart data with colors
+          data: pieChartData,
         },
       ],
-      plotOptions: {
-        pie: {
-          allowPointSelect: true,
-          cursor: "pointer",
-          dataLabels: {
-            enabled: true,
-            format:
-              '<span style="font-size: 1.2em"><b>{point.name}</b></span><br>' +
-              '<span style="opacity: 0.6">{point.y}</span>',
-            connectorColor: "rgba(128,128,128,0.5)",
+      responsive: {
+        rules: [
+          {
+            condition: { maxWidth: 600 },
+            chartOptions: {
+              legend: {
+                align: "center",
+                verticalAlign: "bottom",
+                layout: "horizontal",
+              },
+              title: {
+                style: { fontSize: isSmallScreen ? "14px" : "16px" },
+              },
+            },
           },
-        },
+        ],
       },
     });
 
-    const closeButton = document.getElementById("close-pie");
-    closeButton.onmouseover = () => (closeButton.style.background = "#d32f2f");
-    closeButton.onmouseout = () => (closeButton.style.background = "#f44336");
-    closeButton.onclick = () => {
+    // Attach close button event listener correctly
+    document.getElementById("close-pie").addEventListener("click", () => {
       pieContainer.remove();
-    };
+    });
   };
 
-  const totalCountString = 'India Map - Certificates Issued: '+totalCount
+  const getTimeText = (timePeriod) => {
+    switch (timePeriod) {
+      case TIME_PERIODS.LAST_6_MONTHS:
+        return "(Last 6 Months)";
+      case TIME_PERIODS.LAST_3_MONTHS:
+        return "(Last 3 Months)";
+      case TIME_PERIODS.LAST_1_MONTH:
+        return "(Last Month)";
+      default:
+        return "(All)";
+    }
+  };
+
   return (
     <div>
-      <HighmapsProvider Highcharts={Highmaps}>
-        <HighchartsMapChart map={geojson}>
-          <Chart height={600} backgroundColor="transparent" />
-          <Title>{totalCountString}</Title>
+      {!selectedState ? (
+        <Box sx={{ width: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+              flexDirection: isSmallScreen ? "column" : "row",
+              gap: isSmallScreen ? 2 : 0,
+            }}
+          >
+            <Box sx={{ flex: 1 }}>
+              <FormControl fullWidth size="small" variant="outlined">
+                <InputLabel id="time-period-label">Time Period</InputLabel>
+                <Select
+                  labelId="time-period-label"
+                  id="time-period-select"
+                  value={selectedTimePeriod}
+                  onChange={handleTimePeriodChange}
+                  label="Time Period"
+                >
+                  <MenuItem value={TIME_PERIODS.ALL}>All</MenuItem>
+                  <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
+                    Last 6 Months
+                  </MenuItem>
+                  <MenuItem value={TIME_PERIODS.LAST_3_MONTHS}>
+                    Last 3 Months
+                  </MenuItem>
+                  <MenuItem value={TIME_PERIODS.LAST_1_MONTH}>
+                    Last Month
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ flex: 1, textAlign: isSmallScreen ? "left" : "right" }}>
+              <h3 style={{ margin: 0 }}>
+                Total Certificates Issued: {totalCount.toLocaleString()}
+              </h3>
+            </Box>
+          </Box>
 
-          <Pane background={{ backgroundColor: "#ffecd1" }} />
-          <Tooltip pointFormat="{point.st_nm}: {point.value}" />
-          <Credits enabled={false} />
-          <MapNavigation>
-            <MapNavigation.ZoomIn />
-            <MapNavigation.ZoomOut />
-          </MapNavigation>
-          <MapSeries
-            name="Certificates Issued"
-            data={seriesData}
-            colorAxis={colorAxis}
-            joinBy="st_nm"
-            states={{
-              hover: {
-                color: "#ffecd1",
-              },
-            }}
-            point={{
-              events: {
-                click: function () {
-                  handleStateClick(this.st_nm);
-                },
-              },
-            }}
-            dataLabels={{
-              enabled: false,
-              format: "{point.st_nm}: {point.value}",
-            }}
-            colorByPoint={true} // Ensure each point uses its own color from the data
-          />
-        </HighchartsMapChart>
-      </HighmapsProvider>
+          <HighmapsProvider Highcharts={Highmaps}>
+            <HighchartsMapChart
+              map={geojson}
+              sx={{
+                width: "100%",
+                height: isSmallScreen ? 400 : 600,
+              }}
+            >
+              <Chart
+                height={isSmallScreen ? 400 : 600}
+                backgroundColor="white"
+                sx={{
+                  width: "100%",
+                  maxWidth: "100%",
+                }}
+              />
+              <Title>{`India Map - Certificates Issued ${getTimeText(
+                selectedTimePeriod
+              )}`}</Title>
+
+              <Tooltip pointFormat="{point.st_nm}: {point.value}" />
+              <Credits enabled={false} />
+              <MapNavigation>
+                <MapNavigation.ZoomIn />
+                <MapNavigation.ZoomOut />
+              </MapNavigation>
+              <MapSeries
+                name="Certificates Issued"
+                data={seriesData}
+                colorAxis={colorAxis}
+                joinBy="st_nm"
+                states={{ hover: { color: "#ffecd1" } }}
+                point={{
+                  events: {
+                    click: function () {
+                      handleStateClick(this.st_nm);
+                    },
+                  },
+                }}
+                dataLabels={{
+                  enabled: false,
+                  format: "{point.st_nm}: {point.value}",
+                }}
+                colorByPoint={true}
+              />
+            </HighchartsMapChart>
+          </HighmapsProvider>
+        </Box>
+      ) : (
+        <MapState
+          stateName={selectedState}
+          selectedTimePeriod={selectedTimePeriod}
+        />
+      )}
     </div>
   );
 };
