@@ -411,7 +411,7 @@ async function getCertUsageData(
   }
 }
 //logs data based on logins
-async function getLogsData(filterCriteria, authNo) {
+async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy) {
   try {
     let query = "";
     if (authNo == null) {
@@ -440,9 +440,34 @@ async function getLogsData(filterCriteria, authNo) {
         query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
-    query += " ORDER BY TimeStamp DESC";
+    const validColumns = [
+      "LogsSrNo",
+      "UserEmail",
+      "TimeStamp",
+      "IpAddress",
+      "ActionType",
+      "Remark",
+      "Lattitude",
+      "Longitude"
+    ];
+    const sortColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "TimeStamp";
+    const sortOrder = order === "desc" ? "desc" : "asc";
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    const count = await db.executeQuery(countQuery, authNo);
+
+    // Add pagination with LIMIT and OFFSET
+    if (rows && page) {
+      const offset = (page - 1) * rows;
+      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    }
+
+
     const result = await db.executeQuery(query, authNo);
-    return result;
+    return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
   }

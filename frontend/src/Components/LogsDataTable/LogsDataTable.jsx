@@ -13,10 +13,13 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import { Backdrop, Button } from "@mui/material";
 
 export default function LogsDataTable() {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serialNo");
+     const [controller, setController] = useState({
+       page: 0,
+       rowsPerPage: 10,
+     });
+     const [count, setCount] = useState(0);
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("TimeStamp");
   const [logData, setLogData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authorities, setAuthorities] = useState();
@@ -64,6 +67,10 @@ export default function LogsDataTable() {
         action: selectedAction,
         startDate: startDate,
         endDate: endDate,
+        page: controller.page + 1,
+        rowsPerPage: controller.rowsPerPage,
+        order,
+        orderBy
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -74,7 +81,8 @@ export default function LogsDataTable() {
           JSON.stringify(filterData)
         );
         if (response.data) {
-          setLogData(response.data);
+          setCount(response.data.count);
+          setLogData((prevData) => response.data.result);
         }
         setLoading(false);
       }
@@ -86,7 +94,7 @@ export default function LogsDataTable() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [controller,order,orderBy]);
 
   // get all users
   useEffect(() => {
@@ -123,12 +131,18 @@ export default function LogsDataTable() {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setController((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setController({
+      ...controller,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0,
+    });
   };
 
   const sortedRows = useMemo(() => {
@@ -155,17 +169,7 @@ export default function LogsDataTable() {
       );
     });
 
-    const comparator = (a, b) => {
-      if (a[orderBy] < b[orderBy]) {
-        return order === "asc" ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    };
-
-    return rows.slice().sort(comparator);
+    return rows
   }, [logData, order, orderBy]);
 
   // filters
@@ -349,12 +353,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "logID" ? order : false}
+                sortDirection={orderBy === "LogsSrNo" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "logID"}
-                  direction={orderBy === "logID" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "logID")}
+                  active={orderBy === "LogsSrNo"}
+                  direction={orderBy === "LogsSrNo" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "LogsSrNo")}
                 >
                   Log ID
                 </TableSortLabel>
@@ -365,12 +369,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "userId" ? order : false}
+                sortDirection={orderBy === "UserEmail" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "userId"}
-                  direction={orderBy === "userId" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "userId")}
+                  active={orderBy === "UserEmail"}
+                  direction={orderBy === "UserEmail" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "UserEmail")}
                 >
                   User Name
                 </TableSortLabel>
@@ -381,12 +385,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "action" ? order : false}
+                sortDirection={orderBy === "ActionType" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "action"}
-                  direction={orderBy === "action" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "action")}
+                  active={orderBy === "ActionType"}
+                  direction={orderBy === "ActionType" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "ActionType")}
                 >
                   Action
                 </TableSortLabel>
@@ -397,12 +401,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "remark" ? order : false}
+                sortDirection={orderBy === "Remark" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "remark"}
-                  direction={orderBy === "remark" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "remark")}
+                  active={orderBy === "Remark"}
+                  direction={orderBy === "Remark" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "Remark")}
                 >
                   Remark
                 </TableSortLabel>
@@ -414,12 +418,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "ipAddress" ? order : false}
+                sortDirection={orderBy === "IpAddress" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "ipAddress"}
-                  direction={orderBy === "ipAddress" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "ipAddress")}
+                  active={orderBy === "IpAddress"}
+                  direction={orderBy === "IpAddress" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "IpAddress")}
                 >
                   IP Address
                 </TableSortLabel>
@@ -431,12 +435,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "timestamp" ? order : false}
+                sortDirection={orderBy === "TimeStamp" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "timestamp"}
-                  direction={orderBy === "timestamp" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "timestamp")}
+                  active={orderBy === "TimeStamp"}
+                  direction={orderBy === "TimeStamp" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "TimeStamp")}
                 >
                   Timestamp
                 </TableSortLabel>
@@ -448,12 +452,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "latitude" ? order : false}
+                sortDirection={orderBy === "Lattitude" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "latitude"}
-                  direction={orderBy === "latitude" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "latitude")}
+                  active={orderBy === "Lattitude"}
+                  direction={orderBy === "Lattitude" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "Lattitude")}
                 >
                   Latitude
                 </TableSortLabel>
@@ -465,12 +469,12 @@ export default function LogsDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "longitude" ? order : false}
+                sortDirection={orderBy === "Longitude" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "longitude"}
-                  direction={orderBy === "longitude" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "longitude")}
+                  active={orderBy === "Longitude"}
+                  direction={orderBy === "Longitude" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "Longitude")}
                 >
                   Longitude
                 </TableSortLabel>
@@ -493,7 +497,6 @@ export default function LogsDataTable() {
               </TableRow>
             ) : (
               sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <TableRow key={row.logID}>
                     <TableCell sx={{ padding: "16px" }}>{row.logID}</TableCell>
@@ -535,11 +538,11 @@ export default function LogsDataTable() {
             </Button>
           </div>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 20, 50]}
             component="div"
-            count={sortedRows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={count} // Use totalRecords instead of filtered data length
+            rowsPerPage={controller.rowsPerPage}
+            page={controller.page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

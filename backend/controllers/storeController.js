@@ -1010,7 +1010,7 @@ async function fetchLogsData(req, res) {
       async (err, userToken) => {
         if (err) return res.sendStatus(403);
         else {
-          const { user, action, startDate, endDate } = req.body;
+          const { user, action, startDate, endDate,page, rowsPerPage, orderBy,order  } = req.body;
           const filterCriteria = {};
           if (user && user.length > 0) {
             filterCriteria.users = user;
@@ -1022,14 +1022,18 @@ async function fetchLogsData(req, res) {
             filterCriteria.startDate = startDate;
             filterCriteria.endDate = endDate;
           }
-          const logsDetails = await userModel.getLogsData(
+          const {result,count}  = await userModel.getLogsData(
             filterCriteria,
-            userToken.authNo
+            userToken.authNo,
+            page, 
+          rowsPerPage,
+          order,
+          orderBy
           );
-          for (i in logsDetails) {
-            logsDetails[i].TimeStamp = formatDate(logsDetails[i].TimeStamp);
+          for (i in result) {
+            result[i].TimeStamp = formatDate(result[i].TimeStamp);
           }
-          res.json(logsDetails);
+          res.json({result,count});
         }
       }
     );
