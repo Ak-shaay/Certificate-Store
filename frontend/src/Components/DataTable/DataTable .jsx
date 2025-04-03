@@ -174,9 +174,6 @@ export default function DataTable() {
 
   useEffect(() => {
     fetchData();
-    console.log(controller.page * controller.rowsPerPage,
-      controller.page * controller.rowsPerPage +
-        controller.rowsPerPage);
   }, [controller,order,orderBy]);
 
   // get all the authorities

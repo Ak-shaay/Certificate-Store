@@ -14,10 +14,16 @@ import { domain } from "../../Context/config";
 import { Backdrop, Button } from "@mui/material";
 
 export default function RevokedDataTable() {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serialNo");
+
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: 10,
+  });
+  const [count, setCount] = useState(0);
+
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("RevokeDateTime");
+
   const [revocationData, setRevocationData] = useState([]);
   const [revocationReasons, setRevocationReasons] = useState([]);
   const reasonsRef = useRef();
@@ -44,6 +50,10 @@ export default function RevokedDataTable() {
         reasons: selectedReasons,
         startDate: startDate,
         endDate: endDate,
+        page: controller.page + 1,
+        rowsPerPage: controller.rowsPerPage,
+        order,
+        orderBy,
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -54,7 +64,11 @@ export default function RevokedDataTable() {
           JSON.stringify(filterData)
         );
         if (response.data) {
+          setCount(response.data.count);
           setRevocationData(response.data);
+          setRevocationData((prevData) => response.data.result);
+
+          console.log(response.data.result);
         }
         setLoading(false);
       }
@@ -66,7 +80,7 @@ export default function RevokedDataTable() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [controller,order,orderBy]);
 
   // get all revocation reasons
   useEffect(() => {
@@ -88,12 +102,18 @@ export default function RevokedDataTable() {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setController((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setController({
+      ...controller,
+      rowsPerPage: parseInt(event.target.value, 0),
+      page: 0,
+    });
   };
 
   const sortedRows = useMemo(() => {
@@ -107,17 +127,7 @@ export default function RevokedDataTable() {
       return createData(serialNo, issuer, revocationDate, reason);
     });
 
-    const comparator = (a, b) => {
-      if (a[orderBy] < b[orderBy]) {
-        return order === "asc" ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    };
-
-    return rows.slice().sort(comparator);
+    return rows
   }, [revocationData, order, orderBy]);
 
   // filters
@@ -270,12 +280,12 @@ export default function RevokedDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "serialNo" ? order : false}
+                sortDirection={orderBy === "SerialNumber" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "serialNo"}
-                  direction={orderBy === "serialNo" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "serialNo")}
+                  active={orderBy === "SerialNumber"}
+                  direction={orderBy === "SerialNumber" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "SerialNumber")}
                 >
                   Serial No
                 </TableSortLabel>
@@ -287,12 +297,12 @@ export default function RevokedDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "issuer" ? order : false}
+                sortDirection={orderBy === "IssuerName" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "issuer"}
-                  direction={orderBy === "issuer" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "issuer")}
+                  active={orderBy === "IssuerName"}
+                  direction={orderBy === "IssuerName" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "IssuerName")}
                 >
                   Issuer Name
                 </TableSortLabel>
@@ -304,13 +314,13 @@ export default function RevokedDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "revocationDate" ? order : false}
+                sortDirection={orderBy === "RevokeDateTime" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "revocationDate"}
-                  direction={orderBy === "revocationDate" ? order : "asc"}
+                  active={orderBy === "RevokeDateTime"}
+                  direction={orderBy === "RevokeDateTime" ? order : "asc"}
                   onClick={(event) =>
-                    handleRequestSort(event, "revocationDate")
+                    handleRequestSort(event, "RevokeDateTime")
                   }
                 >
                   Revocation Date
@@ -323,12 +333,12 @@ export default function RevokedDataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                 }}
-                sortDirection={orderBy === "reason" ? order : false}
+                sortDirection={orderBy === "Reason" ? order : false}
               >
                 <TableSortLabel
-                  active={orderBy === "reason"}
-                  direction={orderBy === "reason" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "reason")}
+                  active={orderBy === "Reason"}
+                  direction={orderBy === "Reason" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "Reason")}
                 >
                   Revocation Reason
                 </TableSortLabel>
@@ -351,9 +361,9 @@ export default function RevokedDataTable() {
               </TableRow>
             ) : (
               sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
-                  <TableRow key={row.serialNo}>
+                  <TableRow key={row.serialNo + row.issuer}>
                     <TableCell sx={{ padding: "16px" }}>
                       {row.serialNo}
                     </TableCell>
@@ -374,7 +384,7 @@ export default function RevokedDataTable() {
 
         <div className="table-footer">
           <div className="downloadContainer">
-          <Button
+            <Button
               component="label"
               variant="outlined"
               tabIndex={-1}
@@ -385,11 +395,11 @@ export default function RevokedDataTable() {
             </Button>
           </div>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 20, 50]}
             component="div"
-            count={sortedRows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={count} // Use totalRecords instead of filtered data length
+            rowsPerPage={controller.rowsPerPage}
+            page={controller.page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />

@@ -928,7 +928,7 @@ async function fetchRevokedData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { reasons, startDate, endDate } = req.body;
+        const { reasons, startDate, endDate,page, rowsPerPage, orderBy,order } = req.body;
         const filterCriteria = {};
         if (reasons && reasons.length > 0) {
           filterCriteria.reason = reasons;
@@ -940,7 +940,11 @@ async function fetchRevokedData(req, res) {
 
         const revokedCertDetails = await userModel.getRevokedCertData(
           filterCriteria,
-          user.authNo
+          user.authNo,
+          page, 
+          rowsPerPage,
+          order,
+          orderBy
         );
         for (i in revokedCertDetails) {
           revokedCertDetails[i].RevokeDateTime = formatDate(
@@ -1862,7 +1866,7 @@ async function reportGenerator(req, res) {
     }
     const result = await pdfGeneration(data, title, headers, filePath);
     if (result) {
-      console.log("email",email, "\ncc mail : " + ccEmail);
+      console.log("email",email,"\ncc mail : " + ccEmail);
       
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",

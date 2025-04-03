@@ -40,9 +40,7 @@ cron.schedule("0 */1 * * *", () => {
     const result = findRemoveSync(".\\public\\reports", {
       age: { seconds: 86400 },
       extensions: [".pdf"]
-    });
-    console.log("removal");
-    
+    });    
   } catch (error) {
     console.error("Error removing files: ", error);
   }

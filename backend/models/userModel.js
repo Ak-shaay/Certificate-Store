@@ -280,7 +280,7 @@ function applyIssuerFilter(issuers) {
   return ` AND CAname IN (${issuerList})`;
 }
 
-async function getRevokedCertData(filterCriteria, authNo) {
+async function getRevokedCertData(  filterCriteria,  authNo, page, rows, order, orderBy) {
   try {
     let query = "";
     if (authNo == 1 || authNo == null) {
@@ -301,8 +301,31 @@ async function getRevokedCertData(filterCriteria, authNo) {
         query += ` AND RevokeDateTime BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
       }
     }
+    const validColumns = [
+      "SerialNumber",
+      "IssuerName",
+      "RevokeDateTime",
+      "Reason",
+    ];
+    const sortColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "RevokeDateTime";
+    const sortOrder = order === "desc" ? "desc" : "asc";
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;
+
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    const count = await db.executeQuery(countQuery, authNo);
+
+    // Add pagination with LIMIT and OFFSET
+    if (rows && page) {
+      const offset = (page - 1) * rows;
+      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    }
+    console.log(query);
+    
     const result = await db.executeQuery(query, authNo);
-    return result;
+    return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
     throw e;
