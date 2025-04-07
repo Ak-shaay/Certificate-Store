@@ -190,10 +190,19 @@ async function logUserAction(
   }
 }
 
-async function getCertData(filterCriteria, authNo, rows, page, orderBy, order) {
+async function getCertData(
+  filterCriteria, 
+  authNo, 
+  rows, 
+  page, 
+  orderBy, 
+  order, 
+  noPagination = false
+) {
   try {
     let query = constructBaseQuery(authNo);
 
+    // Apply filters if they exist
     if (filterCriteria) {
       query = applyFilters(query, filterCriteria);
     }
@@ -207,30 +216,33 @@ async function getCertData(filterCriteria, authNo, rows, page, orderBy, order) {
       "ExpiryDate",
       "SubjectType",
     ];
+
+    // Determine valid sorting column and order
     const sortColumn = validColumns.includes(orderBy) ? orderBy : "IssueDate";
     const sortOrder = order === "desc" ? "desc" : "asc";
 
+    // Add ORDER BY clause to the query
     query += ` ORDER BY ${sortColumn} ${sortOrder}`;
 
-    // console.log("orderBy: ", orderBy, order);
-
+    // Get the total count of records (for pagination purposes)
     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
-    // Add pagination with LIMIT and OFFSET
-    if (rows && page) {
-      const offset = (page - 1) * rows;
-      query += ` LIMIT ${rows} OFFSET  ${offset}`;
-    }
     const count = await db.executeQuery(countQuery, authNo);
 
+    // If noPagination is true, bypass pagination (LIMIT and OFFSET)
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
+    }
+
+    // Execute the final query and get the results
     const result = await db.executeQuery(query, authNo);
 
-    // result.map((item) =>{
-    //   console.log(item.SubjectName);
-
-    // })
     return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
+    throw new Error("Error fetching data from the database");
   }
 }
 
@@ -302,7 +314,8 @@ async function getRevokedCertData(
   page,
   rows,
   order,
-  orderBy
+  orderBy,
+  noPagination =false
 ) {
   try {
     let query = "";
@@ -341,9 +354,11 @@ async function getRevokedCertData(
     const count = await db.executeQuery(countQuery, authNo);
 
     // Add pagination with LIMIT and OFFSET
-    if (rows && page) {
-      const offset = (page - 1) * rows;
-      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
     }
 
     const result = await db.executeQuery(query, authNo);
@@ -359,7 +374,8 @@ async function getCertUsageData(
   page,
   rows,
   order,
-  orderBy
+  orderBy,
+  noPagination=false
 ) {
   try {
     let query = "";
@@ -398,9 +414,11 @@ async function getCertUsageData(
     const count = await db.executeQuery(countQuery, authNo);
 
     // Add pagination with LIMIT and OFFSET
-    if (rows && page) {
-      const offset = (page - 1) * rows;
-      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
     }
 
 
@@ -411,7 +429,7 @@ async function getCertUsageData(
   }
 }
 //logs data based on logins
-async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy) {
+async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy,noPagination = false) {
   try {
     let query = "";
     if (authNo == null) {
@@ -460,9 +478,11 @@ async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy) 
     const count = await db.executeQuery(countQuery, authNo);
 
     // Add pagination with LIMIT and OFFSET
-    if (rows && page) {
-      const offset = (page - 1) * rows;
-      query += ` LIMIT ${rows} OFFSET ${offset}`;
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
     }
 
 

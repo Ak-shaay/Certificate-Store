@@ -403,7 +403,12 @@ async function loginAttempt(userExist) {
 
     if (timeDifferenceHours >= 24) {
       // Ensure the database update is successful
-      const updateResult = await userModel.updateStatus(userExist.UserEmail, "active", 2, now);
+      const updateResult = await userModel.updateStatus(
+        userExist.UserEmail,
+        "active",
+        2,
+        now
+      );
 
       if (updateResult.affectedRows > 0) {
         // console.log("User successfully reactivated.");
@@ -420,7 +425,6 @@ async function loginAttempt(userExist) {
   return true;
 }
 
-
 async function login(req, res) {
   const { username, password, latitude, longitude } = req.body;
 
@@ -433,7 +437,12 @@ async function login(req, res) {
     let user = userExist[0];
 
     if (user.LoginStatus === "blocked") {
-      return res.status(202).json({ message: "Your account has been blocked. Please contact the administrator." });
+      return res
+        .status(202)
+        .json({
+          message:
+            "Your account has been blocked. Please contact the administrator.",
+        });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.Password);
@@ -443,26 +452,47 @@ async function login(req, res) {
 
       if (!canLogin) {
         // console.log("Login not allowed. User still inactive.");
-        return res.status(202).json({ timestamp: formatDate(user.LastAttempt) });
+        return res
+          .status(202)
+          .json({ timestamp: formatDate(user.LastAttempt) });
       }
       const updatedUserList = await userModel.findUserByUsername(username);
       if (!updatedUserList.length) {
         console.error("Error: User not found after update!");
-        return res.status(500).json({ error: "User data could not be refreshed" });
+        return res
+          .status(500)
+          .json({ error: "User data could not be refreshed" });
       }
       user = updatedUserList[0]; // Update user object
 
       // console.log("Updated user status:", user.LoginStatus); // Debug log
       // Generate tokens and start session
-      const accessToken = generateAccessToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
-      const refreshToken = generateRefreshToken(user.UserEmail, user.Name, user.Role, user.AuthNo);
+      const accessToken = generateAccessToken(
+        user.UserEmail,
+        user.Name,
+        user.Role,
+        user.AuthNo
+      );
+      const refreshToken = generateRefreshToken(
+        user.UserEmail,
+        user.Name,
+        user.Role,
+        user.AuthNo
+      );
 
       req.session.username = user.UserEmail;
       req.session.name = user.Name;
       req.session.userid = user.AuthNo;
       req.session.userRole = user.Role;
 
-      await userModel.logUserAction(user.UserEmail, req.ip, "Login", "Logged In", latitude, longitude);
+      await userModel.logUserAction(
+        user.UserEmail,
+        req.ip,
+        "Login",
+        "Logged In",
+        latitude,
+        longitude
+      );
       await userModel.updateAttempts(user.UserEmail, 2);
 
       return res.json({ accessToken, refreshToken });
@@ -472,7 +502,9 @@ async function login(req, res) {
         await userModel.updateAttempts(user.UserEmail, newAttempts);
       } else {
         await userModel.updateStatus(user.UserEmail, "inactive", 0, new Date());
-        return res.status(202).json({ timestamp: formatDate(user.LastAttempt) });
+        return res
+          .status(202)
+          .json({ timestamp: formatDate(user.LastAttempt) });
       }
       return res.status(202).json({ message: "Incorrect credentials" });
     }
@@ -481,7 +513,6 @@ async function login(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
-
 
 async function dashboard(req, res, next) {
   if (!req.session && !req.session.username) {
@@ -822,7 +853,7 @@ async function refreshToken(req, res) {
   });
 }
 
-async function logout(req, res) {  
+async function logout(req, res) {
   const userName = req.body.username;
   req.session.destroy((err) => {
     if (err) {
@@ -861,9 +892,10 @@ async function fetchData(req, res) {
           validity,
           page,
           rowsPerPage,
-          orderBy, 
-        order
-        } = req.body;        
+          orderBy,
+          order,
+          noPagination
+        } = req.body;
         const filterCriteria = {};
 
         // Constructing filterCriteria based on request body values
@@ -897,21 +929,22 @@ async function fetchData(req, res) {
           filterCriteria.validity = validity;
         }
 
-        const {result,count} = await userModel.getCertData(
+        const { result, count } = await userModel.getCertData(
           filterCriteria,
           user.authNo,
           rowsPerPage,
           page,
           orderBy,
-        order
+          order,
+          noPagination
         );
         for (i in result) {
           result[i].Region = await getIndianRegion(result[i].State);
           result[i].IssueDate = formatDate(result[i].IssueDate);
           result[i].ExpiryDate = formatDate(result[i].ExpiryDate);
         }
-        
-        res.json({result,count});
+
+        res.json({ result, count });
       }
     });
   } catch (error) {
@@ -928,7 +961,15 @@ async function fetchRevokedData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { reasons, startDate, endDate,page, rowsPerPage, orderBy,order } = req.body;
+        const {
+          reasons,
+          startDate,
+          endDate,
+          page,
+          rowsPerPage,
+          orderBy,
+          order,
+        } = req.body;
         const filterCriteria = {};
         if (reasons && reasons.length > 0) {
           filterCriteria.reason = reasons;
@@ -938,20 +979,18 @@ async function fetchRevokedData(req, res) {
           filterCriteria.endDate = endDate;
         }
 
-        const {result,count} = await userModel.getRevokedCertData(
+        const { result, count } = await userModel.getRevokedCertData(
           filterCriteria,
           user.authNo,
-          page, 
+          page,
           rowsPerPage,
           order,
           orderBy
         );
         for (i in result) {
-          result[i].RevokeDateTime = formatDate(
-            result[i].RevokeDateTime
-          );
+          result[i].RevokeDateTime = formatDate(result[i].RevokeDateTime);
         }
-        res.json({result,count});
+        res.json({ result, count });
       }
     });
   } catch (error) {
@@ -968,7 +1007,8 @@ async function fetchUsageData(req, res) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
       else {
-        const { usage, startDate, endDate,page, rowsPerPage, orderBy,order } = req.body;
+        const { usage, startDate, endDate, page, rowsPerPage, orderBy, order } =
+          req.body;
         const filterCriteria = {};
         if (usage && usage.length > 0) {
           filterCriteria.usage = usage;
@@ -977,20 +1017,20 @@ async function fetchUsageData(req, res) {
           filterCriteria.startDate = startDate;
           filterCriteria.endDate = endDate;
         }
-        
-        const {result,count} = await userModel.getCertUsageData(
+
+        const { result, count } = await userModel.getCertUsageData(
           filterCriteria,
           user.authNo,
-          page, 
+          page,
           rowsPerPage,
           order,
           orderBy
         );
-        
+
         for (i in result) {
           result[i].UsageDate = formatDate(result[i].UsageDate);
         }
-        res.json({result,count});
+        res.json({ result, count });
       }
     });
   } catch (error) {
@@ -1010,7 +1050,16 @@ async function fetchLogsData(req, res) {
       async (err, userToken) => {
         if (err) return res.sendStatus(403);
         else {
-          const { user, action, startDate, endDate,page, rowsPerPage, orderBy,order  } = req.body;
+          const {
+            user,
+            action,
+            startDate,
+            endDate,
+            page,
+            rowsPerPage,
+            orderBy,
+            order,
+          } = req.body;
           const filterCriteria = {};
           if (user && user.length > 0) {
             filterCriteria.users = user;
@@ -1022,18 +1071,18 @@ async function fetchLogsData(req, res) {
             filterCriteria.startDate = startDate;
             filterCriteria.endDate = endDate;
           }
-          const {result,count}  = await userModel.getLogsData(
+          const { result, count } = await userModel.getLogsData(
             filterCriteria,
             userToken.authNo,
-            page, 
-          rowsPerPage,
-          order,
-          orderBy
+            page,
+            rowsPerPage,
+            order,
+            orderBy
           );
           for (i in result) {
             result[i].TimeStamp = formatDate(result[i].TimeStamp);
           }
-          res.json({result,count});
+          res.json({ result, count });
         }
       }
     );
@@ -1128,12 +1177,10 @@ async function updatePasswordController(req, res, next) {
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
     if (!passwordPattern.test(newPassword)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "A minimum 8 characters password contains a combination of uppercase and lowercase letter and number are required",
-        });
+      return res.status(400).json({
+        message:
+          "A minimum 8 characters password contains a combination of uppercase and lowercase letter and number are required",
+      });
     } else if (!passwordMatch) {
       return res.status(400).json({ message: "Old password is not correct!" });
     } else if (!oldPassword || !newPassword) {
@@ -1856,74 +1903,242 @@ async function pdfGeneration(data, title, headers, filePath) {
   }
 }
 
+async function getReportData(title, data, auth) {
+  if (title === "Issued Certificates") {
+    // Destructure the filter data
+    const {
+      issuer,
+      subjectType,
+      state,
+      region,
+      selectedDate,
+      startDate,
+      endDate,
+      validity,
+      orderBy,
+      order,
+      noPagination,
+    } = data;
+
+    // Construct filter criteria for getCertData
+    const filterCriteria = {};
+
+    if (issuer && Array.isArray(issuer) && issuer.length > 0) {
+      filterCriteria.issuers = issuer;
+    }
+
+    if (subjectType && Array.isArray(subjectType) && subjectType.length > 0) {
+      filterCriteria.subjectType = subjectType;
+    }
+
+    if (state && Array.isArray(state) && state.length > 0) {
+      filterCriteria.states = state;
+    }
+
+    if (region && Array.isArray(region) && region.length > 0) {
+      filterCriteria.regions = region;
+    }
+
+    if (selectedDate && startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+      filterCriteria.selectedDate = selectedDate;
+    }
+
+    if (validity && validity !== 0) {
+      filterCriteria.validity = validity;
+    }
+
+    // Fetch data from getCertData (either with pagination or without)
+    const { result } = await userModel.getCertData(
+      filterCriteria,
+      auth,
+      null, // No pagination when fetching all data
+      null, // No page number when fetching all data
+      orderBy,
+      order,
+      noPagination
+    );
+
+    // Enhance the result data (e.g., formatting dates or adding regions)
+    for (let i = 0; i < result.length; i++) {
+      result[i].Region = await getIndianRegion(result[i].State); // If needed
+      result[i].IssueDate = formatDate(result[i].IssueDate);
+      result[i].ExpiryDate = formatDate(result[i].ExpiryDate);
+    }
+
+    return result;
+  } else if(title === "Logs") {
+    console.log("auth", auth, "title", title);
+    const {
+      user,
+      action,
+      startDate,
+      endDate,
+      orderBy,
+      order,
+      noPagination
+    } = data;
+    const filterCriteria = {};
+    if (user && user.length > 0) {
+      filterCriteria.users = user;
+    }
+    if (action && action.length > 0) {
+      filterCriteria.actions = action;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    const { result } =  await userModel.getLogsData(
+      filterCriteria,
+      auth,
+      null,
+      null,
+      order,
+      orderBy,
+      noPagination
+    );
+    for (i in result) {
+      result[i].TimeStamp = formatDate(result[i].TimeStamp);
+    }
+    return result;
+  }else if(title === "Usage of Certificates"){
+
+    const { usage, startDate, endDate, orderBy, order,noPagination } =
+          data;
+        const filterCriteria = {};
+        if (usage && usage.length > 0) {
+          filterCriteria.usage = usage;
+        }
+        if (startDate && endDate) {
+          filterCriteria.startDate = startDate;
+          filterCriteria.endDate = endDate;
+        }
+    const { result } =  await userModel.getCertUsageData(
+      filterCriteria,
+          auth,
+          null,
+          null,
+          order,
+          orderBy,
+          noPagination
+    );
+    return result
+  }else if(title === "Revoked Certificates"){
+
+    const {
+      reasons,
+      startDate,
+      endDate,
+      orderBy,
+      order,
+      noPagination
+    } = data;
+    const filterCriteria = {};
+    if (reasons && reasons.length > 0) {
+      filterCriteria.reason = reasons;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+
+    const { result } =  await userModel.getRevokedCertData(
+      filterCriteria,
+          auth,
+          null,
+          null,
+          order,
+          orderBy,
+          noPagination
+    );
+    return result
+  }
+  return null;
+}
+
 async function reportGenerator(req, res) {
   const { data, title, headers } = req.body;
+
   const Sender = process.env.ID || "";
   const Secret = process.env.SECRET || "";
 
   const uuid = uuidv4();
-  const filePath = "./public/reports/" + uuid + ".pdf";
-  const link = "http://10.182.3.123:8080/reports/" + uuid + ".pdf";
+  const filePath = `./public/reports/${uuid}.pdf`;
+  const link = `http://10.182.3.123:8080/reports/${uuid}.pdf`;
+
   try {
     let email = "";
     const userName = req.session.username;
     const auth = req.session.userid;
     const ccEmail = (await userModel.findEmailByAuth(auth)) || "";
-    if (userName == "admin") {
+
+    if (userName === "admin") {
       email = process.env.ADMIN || "";
     } else {
       email = userName;
     }
-    const result = await pdfGeneration(data, title, headers, filePath);
+
+    // Fetch the report data
+    const tableData = await getReportData(title, data, auth); // Fetch data from getReportData
+    if (!tableData) {
+      return res.status(400).json({ error: "Failed to retrieve data for report." });
+    }
+
+    // Generate the PDF report
+    const result = await pdfGeneration(tableData, title, headers, filePath);
     if (result) {
-      console.log("email",email,"\ncc mail : " + ccEmail);
-      
+      // console.log("email", email, "\ncc mail:", ccEmail);
+
+      // Set up the email transporter
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",
         port: 587,
-        // secure: true,
         auth: {
           user: Sender,
           pass: Secret,
         },
         timeout: 60000,
       });
+
+      // Prepare email options
       var mailOptions = {
-        // from: Sender,
-        from: 'CertStore Admin <certstore-admin@cdac.in>',
+        from: "CertStore Admin <certstore-admin@cdac.in>",
         to: email,
         cc: ccEmail,
         subject: "Report generated",
-        text: `Dear Sir/Ma'am
-        We have received a ${title} report generation request from your account. Please download the report using the link ${link}.
-        The link will be available for the next 24 hours.
-        Thanks and Regards, 
-        Admin 
-        Certstore`,
+        text: `Dear Sir/Ma'am,
+
+We have received a ${title} report generation request from your account. Please download the report using the link: ${link}.
+The link will be available for the next 24 hours.
+
+Thanks and Regards,
+Admin
+Certstore`,
       };
 
+      // Send the email
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
-          // console.log(error);
-          return res.status(400).json({ error: "Failed to Send" });
+          console.error("Error sending email:", error);
+          return res.status(400).json({ error: "Failed to send email" });
         } else {
           return res.status(200).json("Email Sent Successfully");
         }
       });
     } else {
-      return res
-        .status(200)
-        .json("Incorrect Email Address. Please check again");
+      return res.status(400).json({ error: "Error generating report" });
     }
   } catch (error) {
-    console.error("Error Sending Email:", error.message);
-    res.status(500).json({ error: "Error Sending Email" });
+    console.error("Error generating report:", error.message);
+    return res.status(500).json({ error: "Error sending email" });
   }
 }
 
 async function statusCheck(req, res) {
   try {
-    const userName = req.session.username;    
+    const userName = req.session.username;
     const status = await userModel.getProfileStatus(userName);
     if (status == "temporary") {
       return res.status(200).json({ login: "Temporary" });

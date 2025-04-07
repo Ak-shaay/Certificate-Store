@@ -56,13 +56,16 @@ const UsageDataTable = () => {
       ["Serial No", "Subject Name", "Issuer Name", "Used On", "Remark"],
     ];
 
-    const data = usageData.map((entry) => ({
-      serialNo: entry.SerialNumber,
-      name: entry.SubjectName,
-      issuer: entry.IssuerName,
-      usageDate: entry.UsageDate,
-      remark: entry.Remark,
-    }));
+    const data = {
+      usage: selectedUsage,
+      startDate: startDate,
+      endDate: endDate,
+      page: controller.page + 1,
+      rowsPerPage: controller.rowsPerPage,
+      order,
+      orderBy,
+      noPagination: true
+    };
 
     try {
       const accessToken = api.getAccessToken();

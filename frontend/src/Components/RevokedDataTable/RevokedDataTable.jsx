@@ -172,12 +172,16 @@ export default function RevokedDataTable() {
     const title = "Revoked Certificates";
     const headers = [["Serial No", "Issuer", "Revokation Date", "Reason"]];
 
-    const data = revocationData.map((entry) => ({
-      serialNo: entry.SerialNumber,
-      issuer: entry.IssuerName,
-      revocationDate: entry.RevokeDateTime,
-      reason: entry.Reason,
-    }));
+    const data = {
+      reasons: selectedReasons,
+      startDate: startDate,
+      endDate: endDate,
+      page: controller.page + 1,
+      rowsPerPage: controller.rowsPerPage,
+      order,
+      orderBy,
+      noPagination:true
+    };
 
     try {
       const accessToken = api.getAccessToken();

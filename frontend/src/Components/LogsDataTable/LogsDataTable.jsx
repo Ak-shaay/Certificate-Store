@@ -231,17 +231,14 @@ export default function LogsDataTable() {
       ],
     ];
 
-    const data = logData.map((entry) => ({
-      logID: entry.LogsSrNo,
-      userId: entry.UserEmail,
-      action: entry.ActionType,
-      remark: entry.Remark,
-      ipAddress: entry.IpAddress,
-      timestamp: entry.TimeStamp,
-      latitude: entry.Latitude,
-      longitude: entry.Longitude,
-    }));
-
+    const data = {
+      user: selectedUser,
+      action: selectedAction,
+      startDate: startDate,
+      endDate: endDate,
+      order,
+      orderBy
+    };
     try {
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);

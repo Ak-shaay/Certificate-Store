@@ -381,6 +381,7 @@ export default function DataTable() {
       return;
     }
 
+    
     const title = "Issued Certificates";
     const headers = [
       [
@@ -395,17 +396,19 @@ export default function DataTable() {
       ],
     ];
 
-    const data = issuedData.map((entry) => ({
-      serialNo: entry.SerialNumber,
-      name: entry.SubjectName,
-      issuer: entry.IssuerName,
-      issued: entry.IssueDate,
-      state: entry.State,
-      region: entry.Region,
-      expiry: entry.ExpiryDate,
-      subjectType: entry.SubjectType,
-    }));
-
+    const data = {
+      issuer: issuer,
+      subjectType: subjectType,
+      state: state,
+      region: region,
+      selectedDate: selectedDate,
+      startDate: startDate,
+      endDate: endDate,
+      validity: validity,
+      order,
+      orderBy,
+      noPagination: true
+    };
     try {
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);

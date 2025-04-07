@@ -312,21 +312,6 @@ html {
   border-radius: 5px;
 }
 
-/* gridjs properties override */
-/* th.gridjs-th-sort {
-  min-width: 180px !important;
-} */
-td.gridjs-td {
-  text-overflow: ellipsis !important;
-  overflow: hidden !important;
-}
-
-/* button.gridjs-sort {
-  display: none !important;
-} */
-.gridjs-search-input {
-  width: 75% !important;
-}
 
 /* chrome Specific fix for filter button */
 /* needs proper solution */
@@ -346,38 +331,13 @@ td.gridjs-td {
   font-weight: bold !important;
 }
 
-.Table td,
-th {
-  border: none !important;
-}
-
-.Table:first-child {
-  border-radius: 0.7rem !important;
-}
-
-@media screen and (max-width: 1200px) {
-  .Table {
-    width: 100%;
-    /* Changed from 170% to 100% to avoid overflow */
-    margin: 3rem 0 1rem 0;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .Table {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90vw;
-  }
-}
 
 .TableContainer {
   margin-top: 3rem;
   display: flex;
   flex-direction: column;
-  padding: 0 5rem;
+  padding: 0 0 0 2rem;
+  width: 75vw;
   align-items: center;
 }
 
