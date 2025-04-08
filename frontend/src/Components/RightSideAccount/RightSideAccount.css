@@ -1,10 +1,8 @@
 .RightMain {
     display: flex;
     flex-direction: column;
-    padding-top: 1rem;
-    margin-top: 15rem;
-    width: 95%;
-    justify-content: flex-start;
+    margin: 0 0 0 1rem;
+    justify-content: center;
 }
 .ProfileContainer {
     width: 85%;
@@ -31,8 +29,8 @@
 }
 .Profile img {
     transform: translateY(-65%); 
-    width: 9rem;
-    height: 9rem;
+    width: 7rem;
+    height: 7rem;
 }
 .ProfileData {
     display: flex;
@@ -47,18 +45,18 @@
 }
 
 @media screen and (max-width: 1200px) {
-    .RightMain {
+    /* .RightMain {
         justify-content: flex-start;
         margin-top: 11rem;
-    }
+    } */
 }
 
 @media screen and (max-width: 768px) {
-    .RightMain {
+    /* .RightMain {
         width: 100%;
         margin-top: 0;
         order: 1;
-    }
+    } */
     .ProfileContainer {
         margin-top: 2rem;
     }

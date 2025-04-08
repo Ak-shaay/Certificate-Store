@@ -1,16 +1,4 @@
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  /* position: relative;  signout button goes out of position */
-  padding-top: 3rem;
-  transition: all 300ms ease;
-}
-
-/* logo */
-.bars {
-  display: none;
-}
-
+/* 
 .logo {
   display: flex;
   height: 5rem;
@@ -34,7 +22,6 @@
 }
 
 
-/* menu */
 .menu {
   margin-top: 4rem;
   display: flex;
@@ -82,39 +69,18 @@
   width: 8px;
   height: 100%;
   background: rgb(252, 146, 157);
-  /* margin-right: calc(1rem - 8px); */
 }
 .active>.sidebar-icons{
   filter: invert(100%);
 }
 
 
-/* Tablets */
-/* @media screen and (max-width: 1200px) {
-  .menuItem>span {
-    display: none;
-  }
-
-  .logo {
-    display: block;
-  }
-  .logo>span>span {
-    display: none;
-  }
-} */
-
-/* @media screen and (min-width: 767px) {
-  .sidebar {
-    left: 0 !important;
-  }
-} */
 
 @media screen and (max-width: 768px) {
   .sidebar {
     position: fixed;
     z-index: 99;
     background: #ffe0e0;
-    /* width: 40%; */
     width: 55%;
     padding-right: 1rem;
     height: 100%;
@@ -153,4 +119,26 @@
     z-index: 100;
     transition: all 400ms ease;
   }
+}
+
+
+.bars{
+  background: #ffe0e0;
+      z-index: 100;
+    transition: all 400ms ease;
+} */
+
+
+.sidebar-list-item:hover{
+  transform: translateX(-10px);
+  transition: all 400ms ease;
+}
+.active{
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  box-shadow: rgb(130, 243, 255) 0px 10px 20px 0px;
+  color: azure;
+}
+
+.active> div > img{
+  filter: invert(1);
 }

@@ -1,185 +1,199 @@
-import React, { useState, useEffect,useRef } from "react";
-import "./Sidebar.css";
-import Logo from "../../Images/cdac.png";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Box,
+  Divider,
+  useMediaQuery,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import { SidebarData } from "../../Data";
-import menuIcon from "../../Images/Icons/menu.png";
-import closeIcon from "../../Images/Icons/cross.png";
-import { motion } from "framer-motion";
 import { domain } from "../../Context/config";
 import api from "../../Pages/axiosInstance";
+import Logo from "../../Images/cdac.png";
+import "./Sidebar.css";
+
+const drawerWidth = 300;
 
 const Sidebar = ({ onIndexChange, role }) => {
-    const [selected, setSelected] = useState(0);
-    const [expanded, setExpanded] = useState(true);
-    const [latitude, setLatitude] = useState(null);
-    const [longitude, setLongitude] = useState(null);
-    const hasCalledFunction = useRef(false);
+  const [selected, setSelected] = useState(0);
+  const [open, setOpen] = useState(true);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const hasCalledFunction = useRef(false);
+  const [temp, setTemp] = useState(false);
+  
+  const isMobile = useMediaQuery("(max-width:768px)");
+  useEffect(() => {
+    setOpen(!isMobile);
+  }, [isMobile]);
 
-    const [temp, setTemp] = useState(false);
-    useEffect(() => {
-        geolocation();
-    }, []);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLatitude(pos.coords.latitude);
+          setLongitude(pos.coords.longitude);
+        },
+        (err) => console.log(err)
+      );
+    }
+  }, []);
 
-
-    useEffect(() => {
-      if (!hasCalledFunction.current) {
-        async function loginStatus() {
-            try{
-            const accessToken = api.getAccessToken();
+  useEffect(() => {
+    if (!hasCalledFunction.current) {
+      const checkLoginStatus = async () => {
+        try {
+          const accessToken = api.getAccessToken();
           api.setAuthHeader(accessToken);
           const response = await api.axiosInstance.post("/statusCheck");
-          if(response.data.login == 'Temporary'){
-           alert(`You have used temporary Password for logging in! Please Change Your Password`);
-           setTemp(true); 
-        }}
-          catch (error) {
-          console.error(error);
-        }
-        }
-  
-        loginStatus();
-        hasCalledFunction.current = true; 
-      }
-    }, []);
-    function geolocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setLatitude(position.coords.latitude);
-                    setLongitude(position.coords.longitude);
-                },
-                (error) => {
-                    console.log(error);
-                }
+          if (response.data.login === "Temporary") {
+            alert(
+              "You have used a temporary password for logging in! Please change your password."
             );
-        } else {
-            alert("Geolocation is not supported by this browser.");
+            setTemp(true);
+          }
+        } catch (err) {
+          console.error(err);
         }
+      };
+      checkLoginStatus();
+      hasCalledFunction.current = true;
     }
-    
+  }, []);
 
-    const handleLogout = async () => {
-        // if (latitude === null || longitude === null) {
-        //   alert("Please enable location services to proceed.");
-        //   return;
-        // }
-        try {
-            // Clear token cookie
-            const token = api.getAccessToken();
-            const decodedToken = token
-                ? JSON.parse(atob(token.split(".")[1]))
-                : null;
-            const username = decodedToken ? decodedToken.username : [];
-            if (token) {
-                api.setAuthHeader(token);
-            }
-            // Make a request to the logout endpoint on the backend
-            await api.axiosInstance.post("/logout", {
-                username,
-                latitude,
-                longitude,
-            });
-            api.removeTokens();
-            document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            // Redirect to the login page or perform any other necessary actions
-            window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
-            // console.log("logged out");
-        } catch (error) {
-            console.error("Logout failed:", error);
-            // Handle error if logout fails (e.g., display error message)
-        }
-    };
+  const handleLogout = async () => {
+    try {
+      const token = api.getAccessToken();
+      const decodedToken = token ? JSON.parse(atob(token.split(".")[1])) : null;
+      const username = decodedToken ? decodedToken.username : null;
+      api.setAuthHeader(token);
+      await api.axiosInstance.post("/logout", {
+        username,
+        latitude,
+        longitude,
+      });
+      api.removeTokens();
+      document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      window.location.href = `http://${domain}:3000`;
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
-    const handleMenuItemClick = (index) => {
-        if (index === 8) {
-            handleLogout();
-        } else {
-            setSelected(index);
-            onIndexChange(index);
-        }
-    };
+  const handleMenuItemClick = (index) => {
+    if (index === 8) {
+      handleLogout();
+    } else {
+      setSelected(index);
+      onIndexChange(index);
+      if (isMobile) setOpen(false); // close drawer after selection on mobile
+    }
+  };
 
-    const sidebarVariants = {
-        true: {
-            left: "0",
-        },
-        false: {
-            left: "-60%",
-        },
-    };
-    return (
-        <>
-            <div
-                className="bars"
-                style={expanded ? { left: "45%" } : { left: "2%" }}
-                onClick={() => setExpanded(!expanded)}
+  const filteredSidebarData = SidebarData.filter((item, index) => {
+    if (temp && index === 5) {
+      onIndexChange(5);
+      setTemp(false);
+      return false;
+    }
+    if (role !== "Admin" && index === 7) return false;
+    if (role !== "Admin" && index === 4) return false;
+    return true;
+  });
+
+  return (
+    <>
+      {/* Toggle button for mobile */}
+      {isMobile && (
+        <IconButton
+          onClick={() => setOpen(!open)}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            zIndex: 2000,
+            backgroundColor: "#ffe0e0",
+            borderRadius: "50%",
+            boxShadow: 2,
+          }}
+        >
+          {open ? <CloseIcon /> : <MenuIcon />}
+        </IconButton>
+      )}
+
+      <Drawer
+        variant={isMobile ? "temporary" : "persistent"}
+        anchor="left"
+        open={open}
+        onClose={() => setOpen(false)}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            backgroundColor: "#ffe0e0",
+            ...(isMobile
+              ? {}
+              : {
+                  backgroundImage:
+                    "linear-gradient(86deg, #ffffff 0%, #b4e8ff 54%)",
+                }),
+          },
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center" p={2}>
+          <img
+            src={Logo}
+            alt="CDAC Logo"
+            style={{ width: "5rem", height: "auto" }}
+          />
+          <Box fontWeight="bold" mt={1}>
+            Certificate Repository
+          </Box>
+        </Box>
+        <Divider />
+        <List>
+          {filteredSidebarData.map((item, index) => (
+            <ListItem
+              key={index}
+              disablePadding
+              onClick={() => handleMenuItemClick(index)}
+              className={`sidebar-list-item ${
+                selected === index ? "active" : ""
+              }`}
+              sx={{
+                marginBottom: "1rem",
+                borderRadius: "0.5rem",
+                padding: "0.5rem 1rem",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "#ffe0e0",
+                },
+              }}
             >
-                {expanded ? (
-                    <img className="icons" src={closeIcon} alt="" />
-                ) : (
-                    <img className="icons" src={menuIcon} alt="" />
-                )}
-            </div>
-            <motion.div
-                className="sidebar"
-                variants={sidebarVariants}
-                animate={window.innerWidth <= 768 ? `${expanded}` : false}
-            >
-                <div className="logo">
-                    <img src={Logo} alt="logo" />
-                    <span>
-                        <span>Certificate Repository</span>
-                    </span>
-                </div>
-
-                <div className="menu">
-                    {SidebarData.map((item, index) => {
-                        try {
-                            if (temp) {
-                                handleMenuItemClick(5); 
-                                setTemp(false)
-                                return null; 
-                            }
-                            if (
-                                role != "Admin" &&
-                                // (index === 6 || index === 7)
-                                (index === 7)
-                            ) {
-                                return null;
-                            }
-                            // if(index === 4){ //remove upload cert for admin
-                            if(role !== "Admin" && index === 4) {
-                            return null;
-                            }
-
-                            return (
-                                <div
-                                    className={
-                                        selected === index
-                                            ? "menuItem active"
-                                            : "menuItem"
-                                    }
-                                    key={index}
-                                    onClick={() => handleMenuItemClick(index)}
-                                >
-                                    <img
-                                        className="sidebar-icons"
-                                        src={item.icon}
-                                        alt=""
-                                    />
-                                    <span>{item.heading}</span>
-                                </div>
-                            );
-                        } catch (error) {
-                            console.error("Error rendering menu item:", error);
-                            return null;
-                        }
-                        // Skip index 6 if the user's role is admin
-                    })}
-                </div>
-            </motion.div>
-        </>
-    );
+              <ListItemIcon>
+                <img
+                  src={item.icon}
+                  alt=""
+                  className="sidebar-icons"
+                  width={24}
+                  height={24}
+                />
+              </ListItemIcon>
+              <ListItemText primary={item.heading} sx={{fontWeight:"900"}}/>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+    </>
+  );
 };
 
 export default Sidebar;

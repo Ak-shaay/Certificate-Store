@@ -76,43 +76,43 @@ function Dashboard() {
   switch (index) {
     case 0:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
-          <MainDash username={username} />
+          <MainDash username={username}/>
           {/* <RightSide /> */}
         </div>
       );
     case 1:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <DataTable />
         </div>
       );
     case 2:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <RevokedDataTable />
         </div>
       );
     case 3:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UsageDataTable />
         </div>
       );
     case 4:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <UploadCertificate />
         </div>
       );
     case 5:
       return (
-        <div className="appglass">
+        <div className="responsive-container container_two">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <Account />
           <RightSideAccount />
@@ -120,14 +120,14 @@ function Dashboard() {
       );
     case 6:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <LogsDataTable />
         </div>
       );
     case 7:
       return (
-        <div className="appglass-other">
+        <div className="responsive-container">
           <Sidebar onIndexChange={handleIndexChange} role={role} />
           <Management />
         </div>

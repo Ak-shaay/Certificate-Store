@@ -1,6 +1,5 @@
 import React from "react";
 import Cards from "../Cards/Cards";
-import Table from "../Table/Table";
 import Map from "../Map/Map";
 import "./MainDash.css";
 // import Cookies from "js-cookie";

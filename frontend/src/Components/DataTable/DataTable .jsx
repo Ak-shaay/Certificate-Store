@@ -600,16 +600,19 @@ export default function DataTable() {
         </button>
       </div>
       <TableContainer
-        component={Paper}
-        style={{
-          borderRadius: "8px",
-        }}
-      >
-        <Table
-          sx={{ minWidth: 650 }}
-          aria-label="simple table"
-          style={{ borderCollapse: "collapse" }}
-        >
+  component={Paper}
+  style={{
+    borderRadius: "8px",
+    maxHeight: "80vh", // required for stickyHeader
+    overflow: "auto",   // enable scroll to make sticky work
+  }}
+>
+<Table
+  stickyHeader
+  sx={{ minWidth: 650 }}
+  aria-label="simple table"
+  style={{ borderCollapse: "collapse" }}
+>
           <TableHead>
             <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
               <TableCell
@@ -617,6 +620,10 @@ export default function DataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254, 0.83)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "SerialNumber" ? order : false}
               >
@@ -630,11 +637,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
                 sortDirection={orderBy === "SubjectName" ? order : false}
               >
                 <TableSortLabel
@@ -647,11 +658,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
                 sortDirection={orderBy === "IssuerName" ? order : false}
               >
                 <TableSortLabel
@@ -664,11 +679,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
                 sortDirection={orderBy === "IssueDate" ? order : false}
               >
                 <TableSortLabel
@@ -681,11 +700,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
                 sortDirection={orderBy === "State" ? order : false}
               >
                 <TableSortLabel
@@ -698,21 +721,29 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
               >
                   Region
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
                 sortDirection={orderBy === "ExpiryDate" ? order : false}
               >
                 <TableSortLabel
@@ -725,11 +756,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                }}
+ sx={{
+    padding: "16px",
+    border: "1px solid #ddd",
+    color: "white",
+    backgroundColor: "rgba(136,163,254, 0.83)",
+    top: 0, // make it sticky at top
+    position: "sticky", // fallback in case stickyHeader fails
+    zIndex: 1, // prevent it from being hidden behind other elements
+  }}
               sortDirection={orderBy === "SubjectType" ? order : false}
               >
 
@@ -747,6 +782,10 @@ export default function DataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254, 0.83)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
               >
                 Actions
