@@ -14,7 +14,6 @@ import { domain } from "../../Context/config";
 import { Backdrop, Button } from "@mui/material";
 
 export default function RevokedDataTable() {
-
   const [controller, setController] = useState({
     page: 0,
     rowsPerPage: 10,
@@ -53,7 +52,7 @@ export default function RevokedDataTable() {
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
-        orderBy
+        orderBy,
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -78,7 +77,7 @@ export default function RevokedDataTable() {
 
   useEffect(() => {
     fetchData();
-  }, [controller,order,orderBy]);
+  }, [controller, order, orderBy]);
 
   // get all revocation reasons
   useEffect(() => {
@@ -125,7 +124,7 @@ export default function RevokedDataTable() {
       return createData(serialNo, issuer, revocationDate, reason);
     });
 
-    return rows
+    return rows;
   }, [revocationData, order, orderBy]);
 
   // filters
@@ -180,7 +179,7 @@ export default function RevokedDataTable() {
       rowsPerPage: controller.rowsPerPage,
       order,
       orderBy,
-      noPagination:true
+      noPagination: true,
     };
 
     try {
@@ -267,6 +266,8 @@ export default function RevokedDataTable() {
         component={Paper}
         style={{
           borderRadius: "8px",
+          maxHeight: "80vh", // required for stickyHeader
+          overflow: "auto", // enable scroll to make sticky work
         }}
       >
         <Table
@@ -281,6 +282,10 @@ export default function RevokedDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "SerialNumber" ? order : false}
               >
@@ -298,6 +303,10 @@ export default function RevokedDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "IssuerName" ? order : false}
               >
@@ -315,6 +324,10 @@ export default function RevokedDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "RevokeDateTime" ? order : false}
               >
@@ -334,6 +347,10 @@ export default function RevokedDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "Reason" ? order : false}
               >

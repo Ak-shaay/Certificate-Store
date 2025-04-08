@@ -139,7 +139,7 @@ export default function DataTable() {
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
-        orderBy
+        orderBy,
       };
       const accessToken = api.getAccessToken();
       const decodedToken = accessToken
@@ -157,9 +157,7 @@ export default function DataTable() {
         );
         if (response.data) {
           setCount(response.data.count);
-          setIssuerData((prevData) =>
-             response.data.result 
-          );          
+          setIssuerData((prevData) => response.data.result);
         }
         setLoading(false);
       }
@@ -171,7 +169,7 @@ export default function DataTable() {
 
   useEffect(() => {
     fetchData();
-  }, [controller,order,orderBy]);
+  }, [controller, order, orderBy]);
 
   // get all the authorities
   useEffect(() => {
@@ -312,7 +310,7 @@ export default function DataTable() {
         rawCertificate
       );
     });
-    return rows
+    return rows;
   }, [issuerData, order, orderBy]);
 
   // filters
@@ -381,7 +379,6 @@ export default function DataTable() {
       return;
     }
 
-    
     const title = "Issued Certificates";
     const headers = [
       [
@@ -407,7 +404,7 @@ export default function DataTable() {
       validity: validity,
       order,
       orderBy,
-      noPagination: true
+      noPagination: true,
     };
     try {
       const accessToken = api.getAccessToken();
@@ -600,27 +597,27 @@ export default function DataTable() {
         </button>
       </div>
       <TableContainer
-  component={Paper}
-  style={{
-    borderRadius: "8px",
-    maxHeight: "80vh", // required for stickyHeader
-    overflow: "auto",   // enable scroll to make sticky work
-  }}
->
-<Table
-  stickyHeader
-  sx={{ minWidth: 650 }}
-  aria-label="simple table"
-  style={{ borderCollapse: "collapse" }}
->
+        component={Paper}
+        style={{
+          borderRadius: "8px",
+          maxHeight: "80vh", // required for stickyHeader
+          overflow: "auto", // enable scroll to make sticky work
+        }}
+      >
+        <Table
+          stickyHeader
+          sx={{ minWidth: 650 }}
+          aria-label="simple table"
+          style={{ borderCollapse: "collapse" }}
+        >
           <TableHead>
-            <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
+            <TableRow>
               <TableCell
                 sx={{
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
-                  backgroundColor: "rgba(136,163,254, 0.83)",
+                  backgroundColor: "rgba(136,163,254)",
                   top: 0, // make it sticky at top
                   position: "sticky", // fallback in case stickyHeader fails
                   zIndex: 1, // prevent it from being hidden behind other elements
@@ -637,15 +634,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "SubjectName" ? order : false}
               >
                 <TableSortLabel
@@ -658,15 +655,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "IssuerName" ? order : false}
               >
                 <TableSortLabel
@@ -679,15 +676,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "IssueDate" ? order : false}
               >
                 <TableSortLabel
@@ -700,15 +697,15 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "State" ? order : false}
               >
                 <TableSortLabel
@@ -721,29 +718,29 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
               >
-                  Region
+                Region
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "ExpiryDate" ? order : false}
               >
                 <TableSortLabel
@@ -756,18 +753,17 @@ export default function DataTable() {
               </TableCell>
               <TableCell
                 align="left"
- sx={{
-    padding: "16px",
-    border: "1px solid #ddd",
-    color: "white",
-    backgroundColor: "rgba(136,163,254, 0.83)",
-    top: 0, // make it sticky at top
-    position: "sticky", // fallback in case stickyHeader fails
-    zIndex: 1, // prevent it from being hidden behind other elements
-  }}
-              sortDirection={orderBy === "SubjectType" ? order : false}
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                sortDirection={orderBy === "SubjectType" ? order : false}
               >
-
                 <TableSortLabel
                   active={orderBy === "SubjectType"}
                   direction={orderBy === "SubjectType" ? order : "asc"}
@@ -782,7 +778,7 @@ export default function DataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
-                  backgroundColor: "rgba(136,163,254, 0.83)",
+                  backgroundColor: "rgba(136,163,254)",
                   top: 0, // make it sticky at top
                   position: "sticky", // fallback in case stickyHeader fails
                   zIndex: 1, // prevent it from being hidden behind other elements
@@ -807,58 +803,55 @@ export default function DataTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              sortedRows
-                .map((row) => (
-                  <TableRow key={row.serialNo + row.issuer}>
-                    <TableCell sx={{ padding: "16px" }}>
-                      {row.serialNo}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.issuer}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.issuedDate}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.state}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.region}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.expiryDate}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.subjectType}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      <div className="action-row">
-                        <img
-                          src={download}
-                          alt="download"
-                          className="action-img"
-                          title="Download"
-                          onClick={() =>
-                            handleDownload(
-                              row.rawCertificate,
-                              row.serialNo + "_" + row.issuer
-                            )
-                          }
-                        />
-                        <img
-                          src={verify}
-                          alt="verify"
-                          className="action-img"
-                          title="Verify"
-                          onClick={() => handleVerify(row)}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+              sortedRows.map((row) => (
+                <TableRow key={row.serialNo + row.issuer}>
+                  <TableCell sx={{ padding: "16px" }}>{row.serialNo}</TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.name}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.issuer}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.issuedDate}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.state}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.region}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.expiryDate}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.subjectType}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    <div className="action-row">
+                      <img
+                        src={download}
+                        alt="download"
+                        className="action-img"
+                        title="Download"
+                        onClick={() =>
+                          handleDownload(
+                            row.rawCertificate,
+                            row.serialNo + "_" + row.issuer
+                          )
+                        }
+                      />
+                      <img
+                        src={verify}
+                        alt="verify"
+                        className="action-img"
+                        title="Verify"
+                        onClick={() => handleVerify(row)}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
