@@ -337,7 +337,7 @@ const Map = () => {
               gap: isSmallScreen ? 2 : 0,
             }}
           >
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1 , marginTop:'1rem'}}>
               <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel id="time-period-label">Time Period</InputLabel>
                 <Select

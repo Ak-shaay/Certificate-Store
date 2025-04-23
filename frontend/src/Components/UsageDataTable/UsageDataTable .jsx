@@ -14,11 +14,11 @@ import { usageOptions } from "../../Data";
 import { Backdrop, Button } from "@mui/material";
 
 const UsageDataTable = () => {
-    const [controller, setController] = useState({
-      page: 0,
-      rowsPerPage: 10,
-    });
-    const [count, setCount] = useState(0);
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: 10,
+  });
+  const [count, setCount] = useState(0);
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("UsageDate");
 
@@ -64,7 +64,7 @@ const UsageDataTable = () => {
       rowsPerPage: controller.rowsPerPage,
       order,
       orderBy,
-      noPagination: true
+      noPagination: true,
     };
 
     try {
@@ -101,7 +101,7 @@ const UsageDataTable = () => {
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
-        orderBy
+        orderBy,
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -125,7 +125,7 @@ const UsageDataTable = () => {
 
   useEffect(() => {
     fetchData();
-  }, [controller,order,orderBy]);
+  }, [controller, order, orderBy]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -160,7 +160,7 @@ const UsageDataTable = () => {
       return createData(serialNo, name, issuer, usageDate, remark);
     });
 
-    return rows
+    return rows;
   }, [usageData, order, orderBy]);
 
   const usageRef = useRef();
@@ -252,6 +252,8 @@ const UsageDataTable = () => {
         component={Paper}
         style={{
           borderRadius: "8px",
+          maxHeight: "80vh", // required for stickyHeader
+          overflow: "auto", // enable scroll to make sticky work
         }}
       >
         <Table
@@ -266,6 +268,10 @@ const UsageDataTable = () => {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "SerialNumber" ? order : false}
               >
@@ -283,6 +289,10 @@ const UsageDataTable = () => {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "SubjectName" ? order : false}
               >
@@ -300,6 +310,10 @@ const UsageDataTable = () => {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "IssuerName" ? order : false}
               >
@@ -317,6 +331,10 @@ const UsageDataTable = () => {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "UsageDate" ? order : false}
               >
@@ -334,6 +352,10 @@ const UsageDataTable = () => {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "Remark" ? order : false}
               >
@@ -362,28 +384,23 @@ const UsageDataTable = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              sortedRows
-                .map((row, index) => (
-                  <TableRow
-                    key={`${row.serialNo}-${row.name}-${row.usageDate}`}
-                  >
-                    <TableCell sx={{ padding: "16px" }}>
-                      {row.serialNo}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.issuer}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.usageDate}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.remark}
-                    </TableCell>
-                  </TableRow>
-                ))
+              sortedRows.map((row, index) => (
+                <TableRow key={`${row.serialNo}-${row.name}-${row.usageDate}`}>
+                  <TableCell sx={{ padding: "16px" }}>{row.serialNo}</TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.name}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.issuer}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.usageDate}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.remark}
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>

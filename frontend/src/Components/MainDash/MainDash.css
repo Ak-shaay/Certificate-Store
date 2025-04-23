@@ -6,6 +6,7 @@
     justify-content: space-evenly;
 }
 .cursive{
+    margin-top: 2rem;
     font-family: 'Dancing Script', cursive;
     color: rgb(60 87 153);
 }

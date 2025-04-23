@@ -43,9 +43,7 @@ const RightSideAccount = () => {
     setImageError(true); 
   };
   return (
-    <div className="MainAccountz">
       <div className="RightMain">
-        <h3> </h3>
         <div className="ProfileContainer">
           <div className="Profile">
             <img  src={imageError ? defaultImage : imgURL}
@@ -62,7 +60,6 @@ const RightSideAccount = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

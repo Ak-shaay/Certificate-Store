@@ -13,11 +13,11 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import { Backdrop, Button } from "@mui/material";
 
 export default function LogsDataTable() {
-     const [controller, setController] = useState({
-       page: 0,
-       rowsPerPage: 10,
-     });
-     const [count, setCount] = useState(0);
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: 10,
+  });
+  const [count, setCount] = useState(0);
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("TimeStamp");
   const [logData, setLogData] = useState([]);
@@ -70,7 +70,7 @@ export default function LogsDataTable() {
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
-        orderBy
+        orderBy,
       };
       const accessToken = api.getAccessToken();
       if (accessToken) {
@@ -94,7 +94,7 @@ export default function LogsDataTable() {
 
   useEffect(() => {
     fetchData();
-  }, [controller,order,orderBy]);
+  }, [controller, order, orderBy]);
 
   // get all users
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function LogsDataTable() {
       );
     });
 
-    return rows
+    return rows;
   }, [logData, order, orderBy]);
 
   // filters
@@ -237,7 +237,7 @@ export default function LogsDataTable() {
       startDate: startDate,
       endDate: endDate,
       order,
-      orderBy
+      orderBy,
     };
     try {
       const accessToken = api.getAccessToken();
@@ -335,6 +335,8 @@ export default function LogsDataTable() {
         component={Paper}
         style={{
           borderRadius: "8px",
+          maxHeight: "80vh", // required for stickyHeader
+          overflow: "auto", // enable scroll to make sticky work
         }}
       >
         <Table
@@ -343,12 +345,16 @@ export default function LogsDataTable() {
           style={{ borderCollapse: "collapse" }}
         >
           <TableHead>
-            <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
+            <TableRow style={{ backgroundColor: "rgba(136,163,254)" }}>
               <TableCell
                 sx={{
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "LogsSrNo" ? order : false}
               >
@@ -365,6 +371,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "UserEmail" ? order : false}
               >
@@ -381,6 +391,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "ActionType" ? order : false}
               >
@@ -397,6 +411,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "Remark" ? order : false}
               >
@@ -414,6 +432,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "IpAddress" ? order : false}
               >
@@ -431,6 +453,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "TimeStamp" ? order : false}
               >
@@ -448,6 +474,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "Lattitude" ? order : false}
               >
@@ -465,6 +495,10 @@ export default function LogsDataTable() {
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
                 }}
                 sortDirection={orderBy === "Longitude" ? order : false}
               >
@@ -493,38 +527,37 @@ export default function LogsDataTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              sortedRows
-                .map((row) => (
-                  <TableRow key={row.logID}>
-                    <TableCell sx={{ padding: "16px" }}>{row.logID}</TableCell>
-                    <TableCell sx={{ padding: "16px" }}>{row.userId}</TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.action}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.remark}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.ipAddress}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.timestamp}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.latitude}
-                    </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
-                      {row.longitude}
-                    </TableCell>
-                  </TableRow>
-                ))
+              sortedRows.map((row) => (
+                <TableRow key={row.logID}>
+                  <TableCell sx={{ padding: "16px" }}>{row.logID}</TableCell>
+                  <TableCell sx={{ padding: "16px" }}>{row.userId}</TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.action}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.remark}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.ipAddress}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.timestamp}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.latitude}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.longitude}
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
 
         <div className="table-footer">
           <div className="downloadContainer">
-          <Button
+            <Button
               component="label"
               variant="outlined"
               tabIndex={-1}
