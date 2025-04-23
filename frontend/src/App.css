@@ -170,6 +170,7 @@
   height: 2rem;
   width: 6rem;
   cursor: pointer;
+  color: whitesmoke;
   border-radius: 5px;
   border: 0;
   z-index: 10;
@@ -257,7 +258,7 @@
   background: linear-gradient(rgb(255, 101, 101) 0%, rgb(255, 0, 0) 100%);
 }
 .clear {
-  color: black;
+  /* color: whitesmoke; */
   background: linear-gradient(#ee7752, #f3b6a3 100%);
 }
 
