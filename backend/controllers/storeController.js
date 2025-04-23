@@ -1712,6 +1712,20 @@ async function getAllRevocationReasons(req, res) {
     res.sendStatus(500);
   }
 }
+async function getAllActions(req, res) {
+  try {
+    const distinctActions = await userModel.getLogActions();
+
+    const result = distinctActions.map((item) => ({
+      label: item.ActionType,
+      value: item.ActionType,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.sendStatus(500);
+  }
+}
 
 function generateRandomString(length) {
   const characters =
@@ -2216,6 +2230,7 @@ module.exports = {
   removeRegion,
   getSubType,
   getAllRevocationReasons,
+  getAllActions,
   generateAuthCode,
   generatePass,
   certInfo,

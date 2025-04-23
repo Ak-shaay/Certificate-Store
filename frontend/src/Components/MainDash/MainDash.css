@@ -5,8 +5,8 @@
     flex-direction: column;
     justify-content: space-evenly;
 }
-.cursive{
-    margin-top: 2rem;
+.cursive {
+    margin: 2rem 0 1rem 0;
     font-family: 'Dancing Script', cursive;
     color: rgb(60 87 153);
 }

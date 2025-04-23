@@ -798,6 +798,15 @@ async function getRevocationReasons() {
     console.log("error fetching data", e);
   }
 }
+async function getLogActions() {
+  const queryDistinctActions = `SELECT DISTINCT ActionType FROM logs`;
+  try {
+    const distinctActionsResults = await db.executeQuery(queryDistinctActions);
+    return distinctActionsResults;
+  } catch (e) {
+    console.log("error fetching data", e);
+  }
+}
 
 async function getCertSerialNumber(serialNumber, issuerName) {
   const query = `Select * FROM cert WHERE SerialNumber = ? AND IssuerName = ?`;
@@ -1136,6 +1145,7 @@ module.exports = {
   updateAuthsData,
   getSubjectTypes,
   getRevocationReasons,
+  getLogActions,
   getCertSerialNumber,
   getNextSerial,
   signup,
