@@ -33,13 +33,6 @@ export default function LogsDataTable() {
   const authRef = useRef();
   const actionRef = useRef();
 
-  // remomve and add to backend
-  // const options = [
-  //   { label: "Login", value: "Login" },
-  //   { label: "Logout", value: "Logout" },
-  //   { label: "Other", value: "Other" },
-  // ];
-
   function createData(
     logID,
     userId,

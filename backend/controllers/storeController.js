@@ -1276,11 +1276,35 @@ async function getAllAuths(req, res) {
 }
 async function getAllUsers(req, res) {
   try {
-    const users = await userModel.getAllUsersData();
-    res.json(users);
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, userToken) => {
+        if (err) return res.sendStatus(403);
+        else {
+          const {
+            page,
+            rowsPerPage,
+            orderBy,
+            order,
+          } = req.body;
+          const { result, count } = await userModel.getAllUsersData(
+            page,
+            rowsPerPage,
+            order,
+            orderBy
+          );
+          res.json({ result, count });
+        }
+      }
+    );
   } catch (error) {
-    console.error("Error fetching authorities & role data:", error);
-    res.sendStatus(500);
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
   }
 }
 

@@ -12,10 +12,13 @@ import api from "../../Pages/axiosInstance";
 import "./Users.css";
 
 const Users = ({ onBack }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [controller, setController] = useState({
+      page: 0,
+      rowsPerPage: 10,
+    });
+  const [count, setCount] = useState(0);
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serialNo");
+  const [orderBy, setOrderBy] = useState("authName");
   const [authNumber, setAuthNumber] = useState("");
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +63,12 @@ const Users = ({ onBack }) => {
 
   async function fetchData() {
     try {
+      const filterData = {
+        page: controller.page + 1,
+        rowsPerPage: controller.rowsPerPage,
+        order,
+        orderBy,
+      };
       const accessToken = api.getAccessToken();
       const decodedToken = accessToken
         ? JSON.parse(atob(accessToken.split(".")[1]))
@@ -70,9 +79,10 @@ const Users = ({ onBack }) => {
       if (accessToken) {
         api.setAuthHeader(accessToken);
         setLoading(true);
-        const response = await api.axiosInstance.post("/getAllUsers");
+        const response = await api.axiosInstance.post("/getAllUsers", JSON.stringify(filterData));
         if (response.data) {
-          setUserData(response.data);
+          setCount(response.data.count);
+          setUserData((prevData) => response.data.result);
         }
         setLoading(false);
       }
@@ -84,7 +94,7 @@ const Users = ({ onBack }) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [controller, order, orderBy]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -93,12 +103,18 @@ const Users = ({ onBack }) => {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setController((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setController({
+      ...controller,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0,
+    });
   };
 
   const sortedRows = useMemo(() => {
@@ -113,17 +129,7 @@ const Users = ({ onBack }) => {
       return createData(userEmail, name, authName, role, loginStatus);
     });
 
-    const comparator = (a, b) => {
-      if (a[orderBy] < b[orderBy]) {
-        return order === "asc" ? -1 : 1;
-      }
-      if (a[orderBy] > b[orderBy]) {
-        return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    };
-
-    return rows.slice().sort(comparator);
+    return rows
   }, [userData, order, orderBy]);
 
   return (
@@ -136,109 +142,136 @@ const Users = ({ onBack }) => {
         </div>
         <h2>Users</h2>
         <TableContainer
-          component={Paper}
-          style={{
-            borderRadius: "8px",
-          }}
+        component={Paper}
+        style={{
+          borderRadius: "8px",
+          maxHeight: "80vh", // required for stickyHeader
+          overflow: "auto", // enable scroll to make sticky work
+        }}
+      >
+        <Table
+          stickyHeader
+          sx={{ minWidth: 650 }}
+          aria-label="simple table"
+          style={{ borderCollapse: "collapse" }}
         >
-          <Table
-            sx={{ minWidth: 650 }}
-            aria-label="simple table"
-            style={{ borderCollapse: "collapse" }}
-          >
             <TableHead>
               <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
                 <TableCell
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
-                  sortDirection={orderBy === "userEmail" ? order : false}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                  sortDirection={orderBy === "UserEmail" ? order : false}
                 >
                   <TableSortLabel
-                    active={orderBy === "userEmail"}
-                    direction={orderBy === "userEmail" ? order : "asc"}
-                    onClick={(event) => handleRequestSort(event, "userEmail")}
+                    active={orderBy === "UserEmail"}
+                    direction={orderBy === "UserEmail" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "UserEmail")}
                   >
                     User Email
                   </TableSortLabel>
                 </TableCell>
                 <TableCell
                   align="left"
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
-                  sortDirection={orderBy === "name" ? order : false}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                  sortDirection={orderBy === "Name" ? order : false}
                 >
                   <TableSortLabel
-                    active={orderBy === "name"}
-                    direction={orderBy === "name" ? order : "asc"}
-                    onClick={(event) => handleRequestSort(event, "name")}
+                    active={orderBy === "Name"}
+                    direction={orderBy === "Name" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "Name")}
                   >
                     Name
                   </TableSortLabel>
                 </TableCell>
                 <TableCell
                   align="left"
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
-                  sortDirection={orderBy === "authName" ? order : false}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                  sortDirection={orderBy === "AuthName" ? order : false}
                 >
                   <TableSortLabel
-                    active={orderBy === "authName"}
-                    direction={orderBy === "authName" ? order : "asc"}
-                    onClick={(event) => handleRequestSort(event, "authName")}
+                    active={orderBy === "AuthName"}
+                    direction={orderBy === "AuthName" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "AuthName")}
                   >
                     AuthName
                   </TableSortLabel>
                 </TableCell>
                 <TableCell
                   align="left"
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
-                  sortDirection={orderBy === "role" ? order : false}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                  sortDirection={orderBy === "Role" ? order : false}
                 >
                   <TableSortLabel
-                    active={orderBy === "role"}
-                    direction={orderBy === "role" ? order : "asc"}
-                    onClick={(event) => handleRequestSort(event, "role")}
+                    active={orderBy === "Role"}
+                    direction={orderBy === "Role" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "Role")}
                   >
                     Role
                   </TableSortLabel>
                 </TableCell>
                 <TableCell
                   align="left"
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
-                  sortDirection={orderBy === "loginStatus" ? order : false}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+                  sortDirection={orderBy === "LoginStatus" ? order : false}
                 >
                   <TableSortLabel
-                    active={orderBy === "loginStatus"}
-                    direction={orderBy === "loginStatus" ? order : "asc"}
-                    onClick={(event) => handleRequestSort(event, "loginStatus")}
+                    active={orderBy === "LoginStatus"}
+                    direction={orderBy === "LoginStatus" ? order : "asc"}
+                    onClick={(event) => handleRequestSort(event, "LoginStatus")}
                   >
                     Login Status
                   </TableSortLabel>
                 </TableCell>
                 <TableCell
                   align="left"
-                  sx={{
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    color: "white",
-                  }}
+                   sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 >
                   Actions
                 </TableCell>
@@ -260,7 +293,6 @@ const Users = ({ onBack }) => {
                 </TableRow>
               ) : (
                 sortedRows
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <TableRow key={row.userEmail}>
                       <TableCell sx={{ padding: "16px" }}>
@@ -310,18 +342,19 @@ const Users = ({ onBack }) => {
               )}
             </TableBody>
           </Table>
-
           <div className="table-footer">
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 20]}
-              component="div"
-              count={sortedRows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+          <div className="downloadContainer">
           </div>
+          <TablePagination
+           rowsPerPageOptions={[10, 20, 50]}
+           component="div"
+           count={count} // Use totalRecords instead of filtered data length
+           rowsPerPage={controller.rowsPerPage}
+           page={controller.page}
+           onPageChange={handleChangePage}
+           onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </div>
         </TableContainer>
       </div>
     </div>

@@ -855,7 +855,6 @@ export default function DataTable() {
             )}
           </TableBody>
         </Table>
-
         <div className="table-footer">
           <div className="downloadContainer">
             <Button

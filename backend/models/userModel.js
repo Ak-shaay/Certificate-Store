@@ -752,14 +752,37 @@ async function getAllAuthsData() {
     console.log("error fetching data", e);
   }
 }
-async function getAllUsersData() {
-  const query = `SELECT l.*,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
+async function getAllUsersData( page,  rows,  order,  orderBy,noPagination = false) {
+  let query = `SELECT l.UserEmail,l.Name,l.Role,l.LoginStatus,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
 
   try {
-    const users = await db.executeQuery(query);
-    return users;
+    const validColumns = [
+      "UserEmail",
+      "Name",
+      "Role",
+      "LoginStatus",
+      "AuthName",
+    ];
+    const sortColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "AuthName";
+    const sortOrder = order === "desc" ? "desc" : "asc";
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;        
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    const count = await db.executeQuery(countQuery);
+
+    // Add pagination with LIMIT and OFFSET
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
+    }
+    const result = await db.executeQuery(query);
+    return { result, count: count[0].total };
   } catch (e) {
-    console.log("error fetching user data", e);
+    console.log("Error while fetching certificate details: ", e);
   }
 }
 
