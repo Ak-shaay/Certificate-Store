@@ -12,10 +12,10 @@ import api from "../../Pages/axiosInstance";
 import "./Users.css";
 
 const Users = ({ onBack }) => {
-    const [controller, setController] = useState({
-      page: 0,
-      rowsPerPage: 10,
-    });
+  const [controller, setController] = useState({
+    page: 0,
+    rowsPerPage: 10,
+  });
   const [count, setCount] = useState(0);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("authName");
@@ -79,7 +79,10 @@ const Users = ({ onBack }) => {
       if (accessToken) {
         api.setAuthHeader(accessToken);
         setLoading(true);
-        const response = await api.axiosInstance.post("/getAllUsers", JSON.stringify(filterData));
+        const response = await api.axiosInstance.post(
+          "/getAllUsers",
+          JSON.stringify(filterData)
+        );
         if (response.data) {
           setCount(response.data.count);
           setUserData((prevData) => response.data.result);
@@ -129,44 +132,56 @@ const Users = ({ onBack }) => {
       return createData(userEmail, name, authName, role, loginStatus);
     });
 
-    return rows
+    return rows;
   }, [userData, order, orderBy]);
 
   return (
     <div className="usersBody">
       <div className="usersMain">
-        <div className="backClass">
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Users</h2>
+          <div style={{ position: "absolute", right: 10 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
+          </div>
         </div>
-        <h2>Users</h2>
         <TableContainer
-        component={Paper}
-        style={{
-          borderRadius: "8px",
-          maxHeight: "80vh", // required for stickyHeader
-          overflow: "auto", // enable scroll to make sticky work
-        }}
-      >
-        <Table
-          stickyHeader
-          sx={{ minWidth: 650 }}
-          aria-label="simple table"
-          style={{ borderCollapse: "collapse" }}
+          component={Paper}
+          style={{
+            borderRadius: "8px",
+            maxHeight: "80vh", // required for stickyHeader
+            overflow: "auto", // enable scroll to make sticky work
+          }}
         >
+          <Table
+            stickyHeader
+            sx={{ minWidth: 650 }}
+            aria-label="simple table"
+            style={{ borderCollapse: "collapse" }}
+          >
             <TableHead>
               <TableRow style={{ backgroundColor: "rgba(136,163,254, 0.83)" }}>
                 <TableCell
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                   sortDirection={orderBy === "UserEmail" ? order : false}
                 >
                   <TableSortLabel
@@ -179,15 +194,15 @@ const Users = ({ onBack }) => {
                 </TableCell>
                 <TableCell
                   align="left"
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                   sortDirection={orderBy === "Name" ? order : false}
                 >
                   <TableSortLabel
@@ -200,15 +215,15 @@ const Users = ({ onBack }) => {
                 </TableCell>
                 <TableCell
                   align="left"
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                   sortDirection={orderBy === "AuthName" ? order : false}
                 >
                   <TableSortLabel
@@ -221,15 +236,15 @@ const Users = ({ onBack }) => {
                 </TableCell>
                 <TableCell
                   align="left"
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                   sortDirection={orderBy === "Role" ? order : false}
                 >
                   <TableSortLabel
@@ -242,15 +257,15 @@ const Users = ({ onBack }) => {
                 </TableCell>
                 <TableCell
                   align="left"
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                   sortDirection={orderBy === "LoginStatus" ? order : false}
                 >
                   <TableSortLabel
@@ -263,15 +278,15 @@ const Users = ({ onBack }) => {
                 </TableCell>
                 <TableCell
                   align="left"
-                   sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
+                  sx={{
+                    padding: "16px",
+                    border: "1px solid #ddd",
+                    color: "white",
+                    backgroundColor: "rgba(136,163,254)",
+                    top: 0, // make it sticky at top
+                    position: "sticky", // fallback in case stickyHeader fails
+                    zIndex: 1, // prevent it from being hidden behind other elements
+                  }}
                 >
                   Actions
                 </TableCell>
@@ -292,69 +307,67 @@ const Users = ({ onBack }) => {
                   </TableCell>
                 </TableRow>
               ) : (
-                sortedRows
-                  .map((row) => (
-                    <TableRow key={row.userEmail}>
-                      <TableCell sx={{ padding: "16px" }}>
-                        {row.userEmail}
-                      </TableCell>
-                      <TableCell align="left" sx={{ padding: "16px" }}>
-                        {row.name}
-                      </TableCell>
-                      <TableCell align="left" sx={{ padding: "16px" }}>
-                        {row.authName}
-                      </TableCell>
-                      <TableCell align="left" sx={{ padding: "16px" }}>
-                        {row.role}
-                      </TableCell>
-                      <TableCell align="left" sx={{ padding: "16px" }}>
-                        {row.loginStatus}
-                      </TableCell>
-                      <TableCell align="left" sx={{ padding: "16px" }}>
-                        <div className="action-row">
-                          {row.loginStatus !== "active" ? (
-                            <>
-                              <button
-                                className="actionButton1"
-                                onClick={() =>
-                                  handleAction("enable", row.userEmail)
-                                }
-                              >
-                                enable
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                className="actionButton2"
-                                onClick={() =>
-                                  handleAction("disable", row.userEmail)
-                                }
-                              >
-                                disable
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                sortedRows.map((row) => (
+                  <TableRow key={row.userEmail}>
+                    <TableCell sx={{ padding: "16px" }}>
+                      {row.userEmail}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.authName}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.role}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      {row.loginStatus}
+                    </TableCell>
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      <div className="action-row">
+                        {row.loginStatus !== "active" ? (
+                          <>
+                            <button
+                              className="actionButton1"
+                              onClick={() =>
+                                handleAction("enable", row.userEmail)
+                              }
+                            >
+                              enable
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="actionButton2"
+                              onClick={() =>
+                                handleAction("disable", row.userEmail)
+                              }
+                            >
+                              disable
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
           <div className="table-footer">
-          <div className="downloadContainer">
+            <div className="downloadContainer"></div>
+            <TablePagination
+              rowsPerPageOptions={[10, 20, 50]}
+              component="div"
+              count={count} // Use totalRecords instead of filtered data length
+              rowsPerPage={controller.rowsPerPage}
+              page={controller.page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </div>
-          <TablePagination
-           rowsPerPageOptions={[10, 20, 50]}
-           component="div"
-           count={count} // Use totalRecords instead of filtered data length
-           rowsPerPage={controller.rowsPerPage}
-           page={controller.page}
-           onPageChange={handleChangePage}
-           onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </div>
         </TableContainer>
       </div>
     </div>

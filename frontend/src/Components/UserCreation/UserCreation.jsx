@@ -190,12 +190,24 @@ const UserCreation = ({ onBack }) => {
   return (
     <div className="userCreation">
       <div className="userCreationBody">
-        <div className="backClass">
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Create User</h2>
+          <div style={{ position: "absolute", right: 10 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
+          </div>
         </div>
-        <h2>Create User</h2>
         <div className="accountCreation">
           <TextField
             required

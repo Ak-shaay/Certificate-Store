@@ -213,12 +213,24 @@ const Organization = ({ onBack }) => {
   return (
     <div className="orgBody">
       <div className="mainOrg">
-        <div className="backClass">
+         <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Manage Organizations</h2>
+          <div style={{ position: "absolute", right: 10 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
+          </div>
         </div>
-        <h2>Manage Organizations</h2>
         <Backdrop
           sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
           open={open}

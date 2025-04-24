@@ -60,6 +60,7 @@
     margin: 0 1rem;
     left: 0
   }
+
 }
 
 .App-header {
@@ -361,8 +362,8 @@ html {
 }
 
 .backButton {
-  left: 10%;
-  position: absolute;
+  /* left: 10%;
+  position: absolute; */
   padding: 8px 10px !important;
   margin-bottom: 1rem;
   border-radius: 8px;
