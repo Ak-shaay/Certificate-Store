@@ -20,38 +20,47 @@ export const SidebarData = [
   {
     icon: homeIcon,
     heading: "Dashboard",
+    viewName: "home",  // added viewName
   },
   {
     icon: certIcon,
     heading: "Issued Certificates",
+    viewName: "issuedCertificates",  // added viewName
   },
   {
     icon: removeIcon,
     heading: "Revoked Certificates",
+    viewName: "revokedCertificates",  // added viewName
   },
   {
     icon: signIcon,
     heading: "DSC Usages",
+    viewName: "dscUsages",  // added viewName
   },
   {
     icon: uploadIcon,
     heading: "Add Certificate",
+    viewName: "addCertificate",  // added viewName
   },
   {
     icon: userIcon,
     heading: "Account",
+    viewName: "account",  // added viewName
   },
   {
     icon: logIcon,
     heading: "Logs",
+    viewName: "logs",  // added viewName
   },
   {
     icon: userManagementIcon,
-    heading: 'Portal Managment',
+    heading: 'Portal Management',
+    viewName: 'portalManagement',  // added viewName
   },
   {
     icon: signoutIcon,
     heading: 'Signout',
+    viewName: 'signout',  // added viewName
   },
 ];
 

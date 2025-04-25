@@ -9,6 +9,11 @@ import {
   Box,
   Divider,
   useMediaQuery,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Button,
+  DialogActions,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,13 +26,13 @@ import "./Sidebar.css";
 const drawerWidth = 300;
 
 const Sidebar = ({ onIndexChange, role }) => {
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState("home");
   const [open, setOpen] = useState(true);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
   const hasCalledFunction = useRef(false);
   const [temp, setTemp] = useState(false);
-  
+  const [openDialog, setOpenDialog] = useState(false);
   const isMobile = useMediaQuery("(max-width:768px)");
   useEffect(() => {
     setOpen(!isMobile);
@@ -53,10 +58,9 @@ const Sidebar = ({ onIndexChange, role }) => {
           api.setAuthHeader(accessToken);
           const response = await api.axiosInstance.post("/statusCheck");
           if (response.data.login === "Temporary") {
-            alert(
-              "You have used a temporary password for logging in! Please change your password."
-            );
-            setTemp(true);
+            setSelected("account");   
+            setOpenDialog(true);
+            setTemp(true);  
           }
         } catch (err) {
           console.error(err);
@@ -66,7 +70,6 @@ const Sidebar = ({ onIndexChange, role }) => {
       hasCalledFunction.current = true;
     }
   }, []);
-
   const handleLogout = async () => {
     try {
       const token = api.getAccessToken();
@@ -86,25 +89,34 @@ const Sidebar = ({ onIndexChange, role }) => {
     }
   };
 
-  const handleMenuItemClick = (index) => {
-    if (index === 8) {
+  const handleMenuItemClick = (viewName) => {
+    if (viewName === "signout") {
       handleLogout();
     } else {
-      setSelected(index);
-      onIndexChange(index);
+      setSelected(viewName);
+      onIndexChange(viewName); // update the view name
       if (isMobile) setOpen(false); // close drawer after selection on mobile
     }
   };
 
   const filteredSidebarData = SidebarData.filter((item, index) => {
-    if (temp && index === 5) {
-      onIndexChange(5);
+    // Handle temp-based logic (using viewName or index)
+    if (temp && item.viewName === "account") {
+      onIndexChange("account");
       setTemp(false);
-      return false;
+      return false; // Do not show this item
     }
-    if (role !== "Admin" && index === 7) return false;
-    if (role !== "Admin" && index === 4) return false;
-    return true;
+
+    // Role-based filtering for non-admin users
+    if (role !== "Admin" && item.viewName === "portalManagement") {
+      return false; // Hide "Portal Management" for non-admin users
+    }
+
+    if (role !== "Admin" && item.viewName === "addCertificate") {
+      return false; 
+    }
+
+    return true; // Show this item by default
   });
 
   return (
@@ -162,11 +174,11 @@ const Sidebar = ({ onIndexChange, role }) => {
         <List>
           {filteredSidebarData.map((item, index) => (
             <ListItem
-              key={index}
+              key={item.viewName}
               disablePadding
-              onClick={() => handleMenuItemClick(index)}
+              onClick={() => handleMenuItemClick(item.viewName)}
               className={`sidebar-list-item ${
-                selected === index ? "active" : ""
+                selected === item.viewName ? "active" : ""
               }`}
               sx={{
                 marginBottom: "1rem",
@@ -187,11 +199,39 @@ const Sidebar = ({ onIndexChange, role }) => {
                   height={24}
                 />
               </ListItemIcon>
-              <ListItemText primary={item.heading} sx={{fontWeight:"900"}}/>
+              <ListItemText primary={item.heading} sx={{ fontWeight: "900" }} />
             </ListItem>
           ))}
         </List>
       </Drawer>
+      {/* Dialog for password change */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="temporary-password-dialog-title"
+        aria-describedby="temporary-password-dialog-description"
+        role="alertdialog"
+      >
+        <DialogTitle
+          id="temporary-password-dialog-title"
+          style={{ color: "red" }}
+        >
+          ⚠️ Temporary Password Alert
+        </DialogTitle>
+        <DialogContent id="temporary-password-dialog-description">
+          You have used a temporary password for logging in! Please change your
+          password immediately.
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenDialog(false)}
+            color="primary"
+            autoFocus
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
