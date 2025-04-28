@@ -202,7 +202,7 @@ const UserCreation = ({ onBack }) => {
           }}
         >
           <h2 style={{ margin:0 }}>Create User</h2>
-          <div style={{ position: "absolute", right: 10 }}>
+          <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>

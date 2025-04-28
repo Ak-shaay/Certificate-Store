@@ -244,7 +244,7 @@ const SystemParameters = ({ onBack }) => {
           }}
         >
           <h2 style={{ margin:0 }}>Manage System Parameters</h2>
-          <div style={{ position: "absolute", right: 10 }}>
+          <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
