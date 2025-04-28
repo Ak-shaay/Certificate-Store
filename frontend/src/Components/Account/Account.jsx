@@ -131,7 +131,7 @@ const Account = () => {
   if (error) return <div>Error: {error.message}</div>;
   return (
     <div className="MainAccount">
-      <h3>Account</h3>
+      <h3 className="cursive">Account</h3>
       <Backdrop  sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
   open={open}>
       <div className="filterWindow" id="filter">
