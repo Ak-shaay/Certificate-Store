@@ -7,8 +7,10 @@
 .menu-title {
   font-size: 1.875rem; 
   font-weight: bold; 
-  color: #1f2937; 
+  /* color: #1f2937;  */
   margin: 3rem 0; 
+  font-family: 'Dancing Script', cursive;
+  color: rgb(60 87 153);
 }
 
 .menu-grid {
@@ -40,8 +42,10 @@
 .item-title {
   font-size: 1.125rem; 
   font-weight: bold; 
-  color: #1f2937; 
+  /* color: #1f2937;  */
   margin-bottom: 0.5rem;
+  font-family: 'Dancing Script', cursive;
+  color: rgb(60 87 153);
 }
 
 .item-description {
