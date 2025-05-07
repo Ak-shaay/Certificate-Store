@@ -245,6 +245,7 @@ const Organization = ({ onBack }) => {
                   <input
                     type="file"
                     name="image"
+                    accept=".png"
                     id="imgUpload"
                     hidden
                     onChange={(e) => handleImage(e, authNo)}

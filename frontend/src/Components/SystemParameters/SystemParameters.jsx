@@ -115,6 +115,10 @@ const SystemParameters = ({ onBack }) => {
 
   async function addStateToRegion() {
     try {
+      if (!selectedState) {
+        alert("Please select a state to add!");
+        return;
+      }
       const accessToken = api.getAccessToken();
       if (accessToken) {
         api.setAuthHeader(accessToken);

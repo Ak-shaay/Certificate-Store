@@ -1548,7 +1548,7 @@ async function updateStatesOfRegion(req, res) {
         if (index !== -1) {
           data[region].splice(index, 1);
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-          return res.json({
+          return res.status(200).json({
             message: "State deleted successfully from unassigned",
           });
         } else {
@@ -1558,7 +1558,7 @@ async function updateStatesOfRegion(req, res) {
         // If state is not provided, handle addition of new state
         data[region].push({ label: newLabel, value: newValue });
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-        return res.json({ message: "State added successfully" });
+        return res.status(200).json({ message: "State added successfully" });
       }
     } else {
       // Handle other regions (adding or updating states)
@@ -1567,7 +1567,7 @@ async function updateStatesOfRegion(req, res) {
           // Add new state to the region
           data[region].push({ label: newLabel, value: newValue });
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-          return res.json({ message: "Added successfully" });
+          return res.status(200).json({ message: "Added successfully" });
         } else {
           // Update existing state
           const index = data[region].findIndex(
@@ -1576,7 +1576,7 @@ async function updateStatesOfRegion(req, res) {
           if (index !== -1) {
             data[region][index] = { label: newLabel, value: newValue };
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-            return res.json({ message: "Updated successfully" });
+            return res.status(200).json({ message: "Updated successfully" });
           } else {
             return res.status(404).send("Entry not found");
           }
@@ -1593,89 +1593,58 @@ async function updateStatesOfRegion(req, res) {
 }
 
 async function moveStatesOfRegion(req, res) {
-  const filePath = "backend/" + statesByRegionPath;
+  const filePath = path.join("backend", statesByRegionPath);
 
   try {
-    const allRegions = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(allRegions);
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(fileContent);
 
     const { region, state, action, newRegion } = req.body;
 
-    if (action !== "add" && action !== "remove") {
-      return res.status(400).send("Invalid action");
-    }
-
-    if (!data[newRegion]) {
-      return res.status(404).send("New region not found");
+    if (!["add", "remove"].includes(action)) {
+      return res.status(400).json({ error: "Invalid action. Use 'add' or 'remove'." });
     }
 
     if (!data[region]) {
-      return res.status(404).send("Current region not found");
+      return res.status(404).json({ error: "Current region not found" });
     }
 
-    const index = data[region].findIndex((item) => item.value === state);
-
-    if (index === -1) {
-      return res.status(404).send("State not found in the current region");
+    const stateIndex = data[region].findIndex((item) => item.value === state);
+    if (stateIndex === -1) {
+      return res.status(404).json({ error: "State not found in the current region" });
     }
 
-    //hello
+    const [stateItem] = data[region].splice(stateIndex, 1);
+
     if (action === "remove") {
-      if (!data[region]) {
-        return res.status(404).send("Region not found");
-      }
-
-      const index = data[region].findIndex((item) => item.value === state);
-
-      if (index === -1) {
-        return res.status(404).send("State not found in the current region");
-      }
-
-      // Remove the state from the current region
-      const [removedState] = data[region].splice(index, 1);
-
-      // Add the removed state to the 'unassigned' region
-      if (!data["unassigned"]) {
-        data["unassigned"] = [];
-      }
-      data["unassigned"].push(removedState);
-
-      // Write the updated data back to the file
+      // Move to 'unassigned' region
+      data["unassigned"] = data["unassigned"] || [];
+      data["unassigned"].push(stateItem);
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 
-      return res.json({
-        message: "State moved to unassigned region successfully",
+      return res.status(200).json({
+        message: "State moved to 'unassigned' region successfully",
       });
     }
-    //hello end
 
-    const [movedItem] = data[region].splice(index, 1);
-
-    const index2 = data[newRegion].findIndex((item) => item.value === state);
-
-    if (index2 !== -1) {
-      // console.log("State already exists in the new region");
-      return res
-        .status(400)
-        .json({ error: "State already exists in the new region" });
+    // Action is 'add'
+    if (!data[newRegion]) {
+      return res.status(404).json({ error: "New region not found" });
     }
 
-    // Add the state to the new region whether action is 'add' or 'move'
-    data[newRegion].push(movedItem);
-
-    try {
-      const updatedData = JSON.stringify(data, null, 2);
-      fs.writeFileSync(filePath, updatedData, "utf8");
-      res.json({ message: "Updated successfully" });
-    } catch (error) {
-      console.error("Error writing to file:", error);
-      res.status(500).json({ error: "Failed to write to file" });
+    const duplicateInNewRegion = data[newRegion].some((item) => item.value === state);
+    if (duplicateInNewRegion) {
+      return res.status(400).json({ error: "State already exists in the new region" });
     }
+
+    data[newRegion].push(stateItem);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+
+    return res.status(200).json({ message: "State moved successfully" });
+
   } catch (err) {
-    console.error("Error", err);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
+    console.error("Error processing request:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 async function removeRegion(req, res) {

@@ -21,12 +21,9 @@
 }
 
 .menu-item {
-  background-color: white; 
-  border-radius: 0.5rem; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-  padding: 1rem; 
-  padding: 1rem;
   background-color: rgba(255, 255, 255, 0.274);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  padding: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.222);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
