@@ -23,7 +23,7 @@ import api from "../../Pages/axiosInstance";
 import Logo from "../../Images/cdac.png";
 import "./Sidebar.css";
 
-const drawerWidth = 300;
+const drawerWidth = 270;
 
 const Sidebar = ({ onIndexChange, role }) => {
   const [selected, setSelected] = useState("home");
