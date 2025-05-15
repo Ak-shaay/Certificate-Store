@@ -7,7 +7,7 @@
 }
 .cursive {
     margin: 2rem 0 1rem 0;
-    font-family: 'Dancing Script', cursive;
+    /* font-family: 'Dancing Script', cursive; */
     color: rgb(60 87 153);
 }
 @media screen and (max-width: 1200px) {

@@ -139,71 +139,91 @@ const Sidebar = ({ onIndexChange, role }) => {
         </IconButton>
       )}
 
-      <Drawer
-        variant={isMobile ? "temporary" : "persistent"}
-        anchor="left"
-        open={open}
-        onClose={() => setOpen(false)}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            backgroundColor: "#ffe0e0",
-            ...(isMobile
-              ? {}
-              : {
-                  backgroundImage:
-                    "linear-gradient(86deg, #ffffff 0%, #b4e8ff 54%)",
-                }),
-          },
-        }}
-      >
-        <Box display="flex" flexDirection="column" alignItems="center" p={2}>
-          <img
-            src={Logo}
-            alt="CDAC Logo"
-            style={{ width: "5rem", height: "auto" }}
-          />
-          <Box fontWeight="bold" mt={1}>
-            Certificate Repository
-          </Box>
-        </Box>
-        <Divider />
-        <List>
-          {filteredSidebarData.map((item, index) => (
-            <ListItem
-              key={item.viewName}
-              disablePadding
-              onClick={() => handleMenuItemClick(item.viewName)}
-              className={`sidebar-list-item ${
-                selected === item.viewName ? "active" : ""
-              }`}
-              sx={{
-                marginBottom: "1rem",
-                borderRadius: "0.5rem",
-                padding: "0.5rem 1rem",
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "#ffe0e0",
-                },
-              }}
-            >
-              <ListItemIcon>
-                <img
-                  src={item.icon}
-                  alt=""
-                  className="sidebar-icons"
-                  width={24}
-                  height={24}
-                />
-              </ListItemIcon>
-              <ListItemText primary={item.heading} sx={{ fontWeight: "900" }} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
+<Drawer
+  variant={isMobile ? "temporary" : "persistent"}
+  anchor="left"
+  open={open}
+  onClose={() => setOpen(false)}
+  sx={{
+    width: drawerWidth,
+    flexShrink: 0,
+    "& .MuiDrawer-paper": {
+      width: drawerWidth,
+      boxSizing: "border-box",
+      backgroundColor: "#ffe0e0",
+      ...(isMobile
+        ? {}
+        : {
+            backgroundImage:
+              "linear-gradient(86deg, #ffffff 0%, #b4e8ff 54%)",
+          }),
+    },
+  }}
+>
+  <Box
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    p={2}
+    sx={{
+      position: "sticky", // Makes it sticky
+      top: 0, 
+      // backgroundColor: "#ffe0e0",
+      zIndex: 1000, 
+      paddingBottom: "1rem", 
+    }}
+  >
+    <img
+      src={Logo}
+      alt="CDAC Logo"
+      style={{ width: "5rem", height: "auto" }}
+    />
+    <Box fontWeight="bold" mt={1}>
+      Certificate Repository
+    </Box>
+  </Box>
+  
+  <Divider />
+  
+  <Box
+    sx={{
+      height: `calc(100vh - 160px)`,  
+      overflowY: "auto",
+    }}
+  >
+    <List>
+      {filteredSidebarData.map((item, index) => (
+        <ListItem
+          key={item.viewName}
+          disablePadding
+          onClick={() => handleMenuItemClick(item.viewName)}
+          className={`sidebar-list-item ${selected === item.viewName ? "active" : ""}`}
+          sx={{
+            marginBottom: "1rem",
+            borderRadius: "0.5rem",
+            padding: "0.5rem 1rem",
+            cursor: "pointer",
+            "&:hover": {
+              backgroundColor: "#ffe0e0",
+            },
+          }}
+        >
+          <ListItemIcon>
+            <img
+              src={item.icon}
+              alt=""
+              className="sidebar-icons"
+              width={24}
+              height={24}
+            />
+          </ListItemIcon>
+          <ListItemText primary={item.heading} sx={{ fontWeight: "900" }} />
+        </ListItem>
+      ))}
+    </List>
+  </Box>
+</Drawer>
+
       {/* Dialog for password change */}
       <Dialog
         open={openDialog}
