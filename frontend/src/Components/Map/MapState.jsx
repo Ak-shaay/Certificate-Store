@@ -52,6 +52,109 @@ const caColorMap = {
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
 
+// Updated HoverInfoPanel component for the district view
+const HoverInfoPanel = ({ districtData }) => {
+  if (!districtData) {
+    return (
+      <Box
+        sx={{
+          p: 2,
+          border: "1px solid #fff",
+          borderRadius: 1,
+          backgroundColor: "#fff",
+          height: "100%",
+          minHeight: "150px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ color: "#757575" }}>Hover over a district to see details</p>
+      </Box>
+    );
+  }
+
+  // Filter out state and color properties and non-numeric values
+  const caData = Object.entries(districtData)
+    .filter(
+      ([key, value]) =>
+        key !== "state" &&
+        key !== "color" &&
+        typeof value === "number" &&
+        value > 0
+    )
+    .sort((a, b) => b[1] - a[1]); // Sort by value in descending order
+
+  const totalCertificates = caData.reduce((sum, [_, value]) => sum + value, 0);
+
+  return (
+    <Box
+      sx={{
+        p: 2,
+        border: "1px solid #fff",
+        borderRadius: 1,
+        backgroundColor: "#fff",
+        height: "100%",
+        minHeight: "150px",
+        overflowY: "auto",
+      }}
+    >
+      <h3 style={{ margin: "0 0 8px 0", color: "#f95d6a" }}>
+        {districtData.state}
+      </h3>
+      <p style={{ margin: "0 0 12px 0", fontWeight: "bold" }}>
+        Total Certificates: {totalCertificates.toLocaleString()}
+      </p>
+
+      {caData.length > 0 ? (
+        <Box sx={{ mt: 1 }}>
+          <p style={{ margin: "0 0 8px 0", fontWeight: "bold" }}>
+            CA Distribution:
+          </p>
+          {caData.map(([ca, value]) => (
+            <Box
+              key={ca}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 0.5,
+                fontSize: "0.9rem",
+              }}
+            >
+              <span>{ca}:</span>
+              <span>{value.toLocaleString()}</span>
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <p>No certificates issued in this district.</p>
+      )}
+    </Box>
+  );
+};
+
+// Updated InstructionsPanel component
+const InstructionsPanel = () => {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        border: "1px solid #fff",
+        borderRadius: 1,
+        backgroundColor: "#fff",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <h3 style={{ margin: "0 0 16px 0" }}>Map Instructions</h3>
+      <p>
+        <strong>Single click</strong> on a district to display the CA distribution.
+      </p>
+    </Box>
+  );
+};
 // Time period options
 const TIME_PERIODS = {
   ALL: 0,
@@ -65,8 +168,10 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
   const [mapdata, setMapdata] = useState(null);
   const [filteredMapData, setFilteredMapData] = useState(null);
   const [pieData, setPieData] = useState(null);
+  const [hoveredStateData, setHoveredStateData] = useState(null);
   const [showIndiaMap, setShowIndiaMap] = useState(false);
   const [localTimePeriod, setLocalTimePeriod] = useState(selectedTimePeriod);
+
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -437,68 +542,102 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
         </Box>
       </Box>
 
-      <HighmapsProvider Highcharts={Highmaps}>
-        <HighchartsMapChart
-          map={geojson}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: isSmallScreen ? "column" : "row",
+          gap: 2,
+        }}
+      >
+        {/* Map container */}
+        <Box sx={{ flex: isSmallScreen ? 1 : 3 }}>
+          <HighmapsProvider Highcharts={Highmaps}>
+            <HighchartsMapChart
+              map={geojson}
+              sx={{
+                width: "100%",
+                height: isSmallScreen ? 400 : 600,
+              }}
+            >
+              <Chart
+                height={isSmallScreen ? 400 : 600}
+                backgroundColor="white"
+                sx={{
+                  width: "100%",
+                  maxWidth: "100%",
+                }}
+              />
+              <Title>{totalCountString}</Title>
+
+              <Pane background={{ backgroundColor: "#ffecd1" }} />
+              <Tooltip pointFormat="{point.district}: {point.value}" />
+              <Credits enabled={false} />
+              <MapNavigation>
+                <MapNavigation.ZoomIn />
+                <MapNavigation.ZoomOut />
+              </MapNavigation>
+              <ColorAxis
+                min={Math.min(...seriesData.map((item) => item.value))}
+                max={Math.max(...seriesData.map((item) => item.value))}
+                stops={[
+                  [0, "#ffa600"],
+                  [0.2, "#ff7c43"],
+                  [0.4, "#f95d6a"],
+                  [0.6, "#d45087"],
+                  [0.8, "#a05195"],
+                  [1, "#003f5c"],
+                ]}
+              />
+              <MapSeries
+                name="Certificates Issued"
+                data={seriesData}
+                colorAxis={0}
+                joinBy="district"
+                states={{
+                  hover: {
+                    color: "#ffecd1",
+                  },
+                }}
+                point={{
+                  events: {
+                    click: function () {
+                      handleStateClick(this.district);
+                    },
+                    mouseOver: function () {
+                      const districtName = this.district;
+                      const districtData = filteredMapData.find(
+                        (item) => item.state === districtName
+                      );
+                      setHoveredStateData(districtData);
+                    },
+                  },
+                }}
+                dataLabels={{
+                  enabled: false,
+                  format: "{point.district}: {point.value}",
+                }}
+                colorByPoint={false}
+              />
+            </HighchartsMapChart>
+          </HighmapsProvider>
+        </Box>
+
+        {/* Right sidebar with district info and instructions */}
+        <Box
           sx={{
-            width: "100%",
-            height: isSmallScreen ? 400 : 600,
+            flex: isSmallScreen ? 1 : 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
           }}
         >
-          <Chart
-            height={isSmallScreen ? 400 : 600}
-            backgroundColor="white"
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
-            }}
-          />
-          <Title>{totalCountString}</Title>
+          {/* Hover information panel */}
+          <HoverInfoPanel districtData={hoveredStateData} />
 
-          <Pane background={{ backgroundColor: "#ffecd1" }} />
-          <Tooltip pointFormat="{point.district}: {point.value}" />
-          <Credits enabled={false} />
-          <MapNavigation>
-            <MapNavigation.ZoomIn />
-            <MapNavigation.ZoomOut />
-          </MapNavigation>
-          <ColorAxis
-            min={Math.min(...seriesData.map((item) => item.value))}
-            max={Math.max(...seriesData.map((item) => item.value))}
-            stops={[
-              [0, "#ffa600"],
-              [0.2, "#ff7c43"],
-              [0.4, "#f95d6a"],
-              [0.6, "#d45087"],
-              [0.8, "#a05195"],
-              [1, "#003f5c"],
-            ]}
-          />
-          <MapSeries
-            name="Certificates Issued"
-            data={seriesData}
-            colorAxis={0} // Reference to the colorAxis by index
-            joinBy="district"
-            states={{
-              hover: {
-                color: "#ffecd1",
-              },
-            }}
-            point={{
-              events: {
-                click: function () {
-                  handleStateClick(this.district);
-                },
-              },
-            }}
-            dataLabels={{
-              enabled: false,
-              format: "{point.district}: {point.value}",
-            }}
-            colorByPoint={false} // Set to false when using colorAxis
-          />
-        </HighchartsMapChart>
-      </HighmapsProvider>
+          {/* Instructions panel */}
+          <InstructionsPanel />
+        </Box>
+      </Box>
     </div>
   );
 };

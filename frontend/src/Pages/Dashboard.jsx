@@ -129,6 +129,7 @@ function Dashboard() {
           <Sidebar onIndexChange={handleViewChange} role={role} />
           <Management />
         </div>
+        
       );
     case "signout":
       return null; // Handle signout logic separately (perhaps redirect or display a message)

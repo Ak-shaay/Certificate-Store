@@ -50,7 +50,110 @@ const caColorMap = {
   IGCAR: "#d45087", // Repeat CA3
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
+// Add this component to display instructions
+const InstructionsPanel = () => {
+  return (
+    <Box
+      sx={{
+        p: 2,
+        border: "1px solid #fff",
+        borderRadius: 1,
+        backgroundColor: "#fff",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <h3 style={{ margin: "0 0 16px 0" }}>Map Instructions</h3>
+      <p>
+        <strong>Single click</strong> on a state to display CA distribution.
+      </p>
+      <p>
+        <strong>Double click</strong> on a state to view the district wise state map.
+      </p>
+    </Box>
+  );
+};
+const HoverInfoPanel = ({ stateData }) => {
+  if (!stateData) {
+    return (
+      <Box
+        sx={{
+          p: 2,
+          border: "1px solid #fff",
+          borderRadius: 1,
+          backgroundColor: "#fff",
+          height: "100%",
+          minHeight: "150px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ color: "#757575" }}>Hover over a state to see details</p>
+      </Box>
+    );
+  }
 
+  // Filter out state and color properties and non-numeric values
+  const caData = Object.entries(stateData)
+    .filter(
+      ([key, value]) =>
+        key !== "state" &&
+        key !== "color" &&
+        typeof value === "number" &&
+        value > 0
+    )
+    .sort((a, b) => b[1] - a[1]); // Sort by value in descending order
+
+  const totalCertificates = caData.reduce((sum, [_, value]) => sum + value, 0);
+
+  return (
+    <Box
+      sx={{
+        p: 2,
+        border: "1px solid #fff",
+        borderRadius: 1,
+        backgroundColor: "#fff",
+        height: "100%",
+        minHeight: "150px",
+        overflowY: "auto",
+      }}
+    >
+      <h3 style={{ margin: "0 0 8px 0", color: "#f95d6a" }}>
+        {stateData.state}
+      </h3>
+      <p style={{ margin: "0 0 12px 0", fontWeight: "bold" }}>
+        Total Certificates: {totalCertificates.toLocaleString()}
+      </p>
+
+      {caData.length > 0 ? (
+        <Box sx={{ mt: 1 }}>
+          <p style={{ margin: "0 0 8px 0", fontWeight: "bold" }}>
+            CA Distribution:
+          </p>
+          {caData.map(([ca, value]) => (
+            <Box
+              key={ca}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 0.5,
+                fontSize: "0.9rem",
+              }}
+            >
+              <span>{ca}:</span>
+              <span>{value.toLocaleString()}</span>
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        <p>No certificates issued in this state.</p>
+      )}
+    </Box>
+  );
+};
 // Time period options
 const TIME_PERIODS = {
   ALL: 0,
@@ -64,6 +167,7 @@ const Map = () => {
   const [mapdata, setMapdata] = useState(null);
   const [filteredMapData, setFilteredMapData] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
+  const [hoveredStateData, setHoveredStateData] = useState(null);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState(
     TIME_PERIODS.ALL
   );
@@ -337,7 +441,8 @@ const Map = () => {
               gap: isSmallScreen ? 2 : 0,
             }}
           >
-            <Box sx={{ flex: 1 , marginTop:'1rem'}}>
+            {/* Time period selection and total count - unchanged */}
+            <Box sx={{ flex: 1, marginTop: "1rem" }}>
               <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel id="time-period-label">Time Period</InputLabel>
                 <Select
@@ -367,53 +472,89 @@ const Map = () => {
             </Box>
           </Box>
 
-          <HighmapsProvider Highcharts={Highmaps}>
-            <HighchartsMapChart
-              map={geojson}
+          {/* Main content area with map and side panels */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: isSmallScreen ? "column" : "row",
+              gap: 2,
+            }}
+          >
+            {/* Map container */}
+            <Box sx={{ flex: isSmallScreen ? 1 : 3 }}>
+              <HighmapsProvider Highcharts={Highmaps}>
+                <HighchartsMapChart
+                  map={geojson}
+                  sx={{
+                    width: "100%",
+                    height: isSmallScreen ? 400 : 600,
+                  }}
+                >
+                  {/* Map components - updated with mouseOver event */}
+                  <Chart
+                    height={isSmallScreen ? 400 : 600}
+                    backgroundColor="white"
+                    sx={{
+                      width: "100%",
+                      maxWidth: "100%",
+                    }}
+                  />
+                  <Title>{`India Map - Certificates Issued ${getTimeText(
+                    selectedTimePeriod
+                  )}`}</Title>
+
+                  <Tooltip pointFormat="{point.st_nm}: {point.value}" />
+                  <Credits enabled={false} />
+                  <MapNavigation>
+                    <MapNavigation.ZoomIn />
+                    <MapNavigation.ZoomOut />
+                  </MapNavigation>
+                  <MapSeries
+                    name="Certificates Issued"
+                    data={seriesData}
+                    colorAxis={colorAxis}
+                    joinBy="st_nm"
+                    states={{ hover: { color: "#ffecd1" } }}
+                    point={{
+                      events: {
+                        click: function () {
+                          handleStateClick(this.st_nm);
+                        },
+                        mouseOver: function () {
+                          const stateName = this.st_nm;
+                          const stateData = filteredMapData.find(
+                            (item) => item.state === stateName
+                          );
+                          setHoveredStateData(stateData);
+                        },
+                      },
+                    }}
+                    dataLabels={{
+                      enabled: false,
+                      format: "{point.st_nm}: {point.value}",
+                    }}
+                    colorByPoint={true}
+                  />
+                </HighchartsMapChart>
+              </HighmapsProvider>
+            </Box>
+
+            {/* Right sidebar with state info and instructions */}
+            <Box
               sx={{
-                width: "100%",
-                height: isSmallScreen ? 400 : 600,
+                flex: isSmallScreen ? 1 : 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
               }}
             >
-              <Chart
-                height={isSmallScreen ? 400 : 600}
-                backgroundColor="white"
-                sx={{
-                  width: "100%",
-                  maxWidth: "100%",
-                }}
-              />
-              <Title>{`India Map - Certificates Issued ${getTimeText(
-                selectedTimePeriod
-              )}`}</Title>
+              {/* Hover information panel */}
+              <HoverInfoPanel stateData={hoveredStateData} />
 
-              <Tooltip pointFormat="{point.st_nm}: {point.value}" />
-              <Credits enabled={false} />
-              <MapNavigation>
-                <MapNavigation.ZoomIn />
-                <MapNavigation.ZoomOut />
-              </MapNavigation>
-              <MapSeries
-                name="Certificates Issued"
-                data={seriesData}
-                colorAxis={colorAxis}
-                joinBy="st_nm"
-                states={{ hover: { color: "#ffecd1" } }}
-                point={{
-                  events: {
-                    click: function () {
-                      handleStateClick(this.st_nm);
-                    },
-                  },
-                }}
-                dataLabels={{
-                  enabled: false,
-                  format: "{point.st_nm}: {point.value}",
-                }}
-                colorByPoint={true}
-              />
-            </HighchartsMapChart>
-          </HighmapsProvider>
+              {/* Instructions panel */}
+              <InstructionsPanel />
+            </Box>
+          </Box>
         </Box>
       ) : (
         <MapState
