@@ -25,8 +25,8 @@ import "./Sidebar.css";
 
 const drawerWidth = 270;
 
-const Sidebar = ({ onIndexChange, role }) => {
-  const [selected, setSelected] = useState("home");
+const Sidebar = ({ onIndexChange, role , selectedView }) => {  
+  const [selected, setSelected] = useState(selectedView||"home");
   const [open, setOpen] = useState(true);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);

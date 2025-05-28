@@ -68,9 +68,18 @@ function Dashboard() {
   const role = decodedToken.role || "";
 
   // handleViewChange will update the current view when a menu item is clicked
+  // const handleViewChange = (newView) => {
+  //   setView(newView);
+  // };
   const handleViewChange = (newView) => {
-    setView(newView);
-  };
+  setView((prev) => {
+    if (prev === newView && newView === "portalManagement") {
+      setTimeout(() => setView("portalManagement"), 0); // trigger re-mount
+      return "";
+    }
+    return newView;
+  });
+};
 
   switch (view) {
     case "home":
@@ -83,7 +92,7 @@ function Dashboard() {
     case "issuedCertificates":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleViewChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role}/>
           <DataTable />
         </div>
       );
@@ -126,8 +135,8 @@ function Dashboard() {
     case "portalManagement":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleViewChange} role={role} />
-          <Management />
+          <Sidebar onIndexChange={handleViewChange} role={role} selectedView={view}/>
+<Management selectedView={view} />
         </div>
         
       );
