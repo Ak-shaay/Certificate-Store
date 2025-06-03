@@ -11,6 +11,8 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import Typography from "@mui/material/Typography";
+
 import {
   HighchartsMapChart,
   HighmapsProvider,
@@ -55,24 +57,60 @@ const InstructionsPanel = () => {
   return (
     <Box
       sx={{
-        p: 2,
-        border: "1px solid #fff",
-        borderRadius: 1,
-        backgroundColor: "#fff",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
+        p: 1.5,
+        border: "1px solid #e2e8f0",
+        borderRadius: 2,
+        background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+        height: "fit-content",
+        minHeight: "100px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       }}
     >
-      <h3 style={{ margin: "0 0 16px 0" }}>Map Instructions</h3>
-      <p>
-        <strong>Click</strong> on a state to display CA distribution.
-      </p>
-      <p>
-        <strong>Double click</strong> on a state to view the district wise state
-        map.
-      </p>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "12px",
+          }}
+        >
+          ℹ️
+        </Box>
+        <Typography
+          variant="h6"
+          sx={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}
+        >
+          Instructions
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
+        >
+          <strong style={{ color: "#374151" }}>Click:</strong> View CA
+          distribution
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
+        >
+          <strong style={{ color: "#374151" }}>Double-click:</strong>{" "}
+          District-wise map
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
+        >
+          <strong style={{ color: "#374151" }}>Hover:</strong> State details
+        </Typography>
+      </Box>
     </Box>
   );
 };
@@ -81,12 +119,12 @@ const HoverInfoPanel = ({ stateData }) => {
     return (
       <Box
         sx={{
-          p: 3,
+          p: { xs: 1.5, sm: 2.5, md: 3 },
           border: "1px solid #e0e7ff",
-          borderRadius: 3,
+          borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          height: "100%",
-          minHeight: "200px",
+          height: { xs: "160px", sm: "200px", md: "100%" },
+          minHeight: { xs: "140px", sm: "180px", md: "200px" },
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -101,7 +139,7 @@ const HoverInfoPanel = ({ stateData }) => {
             bottom: 0,
             background: "rgba(255, 255, 255, 0.1)",
             backdropFilter: "blur(10px)",
-            borderRadius: 3,
+            borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
           },
         }}
       >
@@ -110,19 +148,25 @@ const HoverInfoPanel = ({ stateData }) => {
             textAlign: "center",
             zIndex: 1,
             color: "white",
+            px: 1,
           }}
         >
           <Box
             sx={{
-              width: 60,
-              height: 60,
+              width: { xs: 40, sm: 55, md: 60 },
+              height: { xs: 40, sm: 55, md: 60 },
               borderRadius: "50%",
               background: "rgba(255, 255, 255, 0.2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 16px",
+              margin: {
+                xs: "0 auto 8px",
+                sm: "0 auto 14px",
+                md: "0 auto 16px",
+              },
               animation: "pulse 2s infinite",
+              fontSize: { xs: "16px", sm: "22px", md: "24px" },
               "@keyframes pulse": {
                 "0%": { transform: "scale(1)", opacity: 0.7 },
                 "50%": { transform: "scale(1.05)", opacity: 1 },
@@ -135,9 +179,11 @@ const HoverInfoPanel = ({ stateData }) => {
           <p
             style={{
               margin: 0,
-              fontSize: "16px",
+              fontSize: "clamp(12px, 3.5vw, 16px)",
               fontWeight: "500",
               textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+              padding: "0 8px",
+              lineHeight: 1.3,
             }}
           >
             Hover over a state to explore certificate distribution
@@ -166,19 +212,37 @@ const HoverInfoPanel = ({ stateData }) => {
       sx={{
         p: 0,
         border: "1px solid #e0e7ff",
-        borderRadius: 3,
+        borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
         background:
           "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
-        height: "450px", // Fixed height instead of 100%
+        height: {
+          xs: "auto",
+          sm: "400px",
+          md: "450px",
+        },
+        maxHeight: { xs: "75vh", sm: "400px", md: "450px" },
+        minHeight: { xs: "300px", sm: "350px", md: "400px" },
         width: "100%",
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.05)",
+        boxShadow: {
+          xs: "0 2px 8px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03)",
+          sm: "0 6px 16px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.045)",
+          md: "0 10px 25px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.05)",
+        },
         transition: "all 0.3s ease",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 15px 35px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1)",
+          transform: {
+            xs: "none",
+            sm: "translateY(-1px)",
+            md: "translateY(-2px)",
+          },
+          boxShadow: {
+            xs: "0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)",
+            sm: "0 8px 20px rgba(0,0,0,0.13), 0 5px 10px rgba(0,0,0,0.08)",
+            md: "0 15px 35px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1)",
+          },
         },
       }}
     >
@@ -186,54 +250,63 @@ const HoverInfoPanel = ({ stateData }) => {
       <Box
         sx={{
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          p: 2.5,
+          p: { xs: 1.25, sm: 2, md: 2.5 },
           color: "white",
           position: "relative",
-          flexShrink: 0, // Prevents header from shrinking
+          flexShrink: 0,
           "&::after": {
             content: '""',
             position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
-            height: "4px",
+            height: { xs: "2px", sm: "3.5px", md: "4px" },
             background:
               "linear-gradient(90deg, #ff7c43, #f95d6a, #d45087, #a05195)",
           },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0.75, sm: 1.25, md: 1.5 },
+          }}
+        >
           <Box
             sx={{
-              width: 40,
-              height: 40,
+              width: { xs: 28, sm: 36, md: 40 },
+              height: { xs: 28, sm: 36, md: 40 },
               borderRadius: "50%",
               background: "rgba(255, 255, 255, 0.2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "18px",
+              fontSize: { xs: "12px", sm: "16px", md: "18px" },
             }}
           >
             📍
           </Box>
-          <Box>
+          <Box sx={{ minWidth: 0, flex: 1 }}>
             <h3
               style={{
                 margin: 0,
-                fontSize: "20px",
+                fontSize: "clamp(14px, 4vw, 20px)",
                 fontWeight: "600",
                 textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                lineHeight: 1.2,
+                wordBreak: "break-word",
               }}
             >
               {stateData.state}
             </h3>
             <p
               style={{
-                margin: "4px 0 0 0",
-                fontSize: "14px",
+                margin: "2px 0 0 0",
+                fontSize: "clamp(10px, 2.8vw, 14px)",
                 opacity: 0.9,
                 fontWeight: "400",
+                lineHeight: 1.2,
               }}
             >
               Certificate Distribution
@@ -243,12 +316,18 @@ const HoverInfoPanel = ({ stateData }) => {
       </Box>
 
       {/* Total Count Section */}
-      <Box sx={{ p: 2.5, pb: 1.5, flexShrink: 0 }}>
+      <Box
+        sx={{
+          p: { xs: 1.25, sm: 2, md: 2.5 },
+          pb: { xs: 0.75, sm: 1.25, md: 1.5 },
+          flexShrink: 0,
+        }}
+      >
         <Box
           sx={{
             background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-            borderRadius: 2,
-            p: 2,
+            borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
+            p: { xs: 1.25, sm: 1.75, md: 2 },
             color: "white",
             textAlign: "center",
             position: "relative",
@@ -273,12 +352,13 @@ const HoverInfoPanel = ({ stateData }) => {
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <p
               style={{
-                margin: "0 0 8px 0",
-                fontSize: "14px",
+                margin: "0 0 4px 0",
+                fontSize: "clamp(9px, 2.5vw, 14px)",
                 opacity: 0.9,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 fontWeight: "500",
+                lineHeight: 1.2,
               }}
             >
               Total Certificates
@@ -286,9 +366,10 @@ const HoverInfoPanel = ({ stateData }) => {
             <p
               style={{
                 margin: 0,
-                fontSize: "28px",
+                fontSize: "clamp(18px, 5vw, 28px)",
                 fontWeight: "700",
                 textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                lineHeight: 1.1,
               }}
             >
               {totalCertificates.toLocaleString()}
@@ -305,32 +386,41 @@ const HoverInfoPanel = ({ stateData }) => {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            minHeight: 0, // Important for flex child with overflow
           }}
         >
-          <Box sx={{ px: 2.5, pb: 1, flexShrink: 0 }}>
+          <Box
+            sx={{
+              px: { xs: 1.25, sm: 2, md: 2.5 },
+              pb: { xs: 0.5, sm: 0.75, md: 1 },
+              flexShrink: 0,
+            }}
+          >
             <h4
               style={{
                 margin: 0,
-                fontSize: "16px",
+                fontSize: "clamp(12px, 3vw, 16px)",
                 fontWeight: "600",
                 color: "#374151",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "4px",
+                lineHeight: 1.3,
               }}
             >
-              📊 CA Distribution
+              📈 CA Distribution
             </h4>
           </Box>
 
           <Box
             sx={{
-              px: 2.5,
-              pb: 2.5,
+              px: { xs: 1.25, sm: 2, md: 2.5 },
+              pb: { xs: 1.25, sm: 2, md: 2.5 },
               flex: 1,
               overflowY: "auto",
+              minHeight: 0, // Important for proper scrolling
               "&::-webkit-scrollbar": {
-                width: "6px",
+                width: { xs: "3px", sm: "5px", md: "6px" },
               },
               "&::-webkit-scrollbar-track": {
                 background: "#f1f1f1",
@@ -346,7 +436,13 @@ const HoverInfoPanel = ({ stateData }) => {
               },
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: { xs: 0.75, sm: 1.25, md: 1.5 },
+              }}
+            >
               {caData.map(([ca, value], index) => {
                 const percentage = ((value / maxValue) * 100).toFixed(1);
                 const colors = [
@@ -362,13 +458,17 @@ const HoverInfoPanel = ({ stateData }) => {
                     key={ca}
                     sx={{
                       background: "white",
-                      borderRadius: 2,
-                      p: 2,
+                      borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
+                      p: { xs: 1, sm: 1.5, md: 2 },
                       boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                       border: "1px solid #f3f4f6",
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        transform: "translateX(4px)",
+                        transform: {
+                          xs: "none",
+                          sm: "translateX(2px)",
+                          md: "translateX(4px)",
+                        },
                         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                       },
                     }}
@@ -377,48 +477,67 @@ const HoverInfoPanel = ({ stateData }) => {
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 1,
+                        alignItems: "flex-start",
+                        mb: { xs: 0.5, sm: 0.875, md: 1 },
+                        gap: { xs: 0.5, sm: 1, md: 1 },
                       }}
                     >
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: { xs: 0.5, sm: 0.875, md: 1 },
+                          flex: 1,
+                          minWidth: 0, // Allow text to shrink
+                        }}
                       >
                         <Box
                           sx={{
-                            width: 12,
-                            height: 12,
+                            width: { xs: 8, sm: 11, md: 12 },
+                            height: { xs: 8, sm: 11, md: 12 },
                             borderRadius: "50%",
                             background: colors[index % colors.length],
                             flexShrink: 0,
+                            mt: { xs: 0.125, sm: 0.25, md: 0.25 }, // Align with text
                           }}
                         />
                         <span
                           style={{
-                            fontSize: "14px",
+                            fontSize: "clamp(10px, 2.8vw, 14px)",
                             fontWeight: "500",
                             color: "#374151",
-                            lineHeight: "1.2",
+                            lineHeight: "1.3",
+                            wordBreak: "break-word",
+                            flex: 1,
+                            minWidth: 0,
                           }}
                         >
                           {ca}
                         </span>
                       </Box>
-                      <Box sx={{ textAlign: "right" }}>
+                      <Box
+                        sx={{
+                          textAlign: "right",
+                          flexShrink: 0,
+                          minWidth: "fit-content",
+                        }}
+                      >
                         <div
                           style={{
-                            fontSize: "16px",
+                            fontSize: "clamp(12px, 3vw, 16px)",
                             fontWeight: "600",
                             color: "#1f2937",
+                            lineHeight: 1.2,
                           }}
                         >
                           {value.toLocaleString()}
                         </div>
                         <div
                           style={{
-                            fontSize: "12px",
+                            fontSize: "clamp(8px, 2.2vw, 12px)",
                             color: "#6b7280",
                             fontWeight: "500",
+                            lineHeight: 1.2,
                           }}
                         >
                           {percentage}%
@@ -430,9 +549,9 @@ const HoverInfoPanel = ({ stateData }) => {
                     <Box
                       sx={{
                         width: "100%",
-                        height: 6,
+                        height: { xs: 3, sm: 5, md: 6 },
                         backgroundColor: "#f3f4f6",
-                        borderRadius: 3,
+                        borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
                         overflow: "hidden",
                       }}
                     >
@@ -441,7 +560,7 @@ const HoverInfoPanel = ({ stateData }) => {
                           width: `${percentage}%`,
                           height: "100%",
                           background: colors[index % colors.length],
-                          borderRadius: 3,
+                          borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
                           transition: "width 0.8s ease-out",
                           animation: `growWidth 1s ease-out ${
                             index * 0.1
@@ -462,7 +581,7 @@ const HoverInfoPanel = ({ stateData }) => {
       ) : (
         <Box
           sx={{
-            p: 2.5,
+            p: { xs: 1.25, sm: 2, md: 2.5 },
             textAlign: "center",
             flex: 1,
             display: "flex",
@@ -473,17 +592,27 @@ const HoverInfoPanel = ({ stateData }) => {
           <Box
             sx={{
               background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-              borderRadius: 2,
-              p: 3,
+              borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
+              p: { xs: 1.5, sm: 2.5, md: 3 },
               border: "1px solid #f59e0b",
+              maxWidth: "100%",
             }}
           >
-            <Box sx={{ fontSize: "24px", mb: 1 }}>⚠️</Box>
+            <Box
+              sx={{
+                fontSize: { xs: "16px", sm: "22px", md: "24px" },
+                mb: { xs: 0.5, sm: 0.75, md: 1 },
+              }}
+            >
+              ⚠️
+            </Box>
             <p
               style={{
                 margin: 0,
                 color: "#92400e",
                 fontWeight: "500",
+                fontSize: "clamp(10px, 2.8vw, 14px)",
+                lineHeight: 1.3,
               }}
             >
               No certificates issued in this state
