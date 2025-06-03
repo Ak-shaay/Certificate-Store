@@ -53,14 +53,14 @@ const Login = () => {
     //   return;
     // }
 
-    // if(!nameRegex.test(username)){
-    //   setErrMsg("Please enter a valid username");
-    //   return;
-    // }
-    // if(!passRegex.test(password)){
-    //   setErrMsg("Please enter a valid password");
-    //   return;
-    // }
+    if(!nameRegex.test(username)){
+      setErrMsg("Please enter a valid username");
+      return;
+    }
+    if(!passRegex.test(password)){
+      setErrMsg("Please enter a valid password");
+      return;
+    }
 
     try {
       setLoading(true);

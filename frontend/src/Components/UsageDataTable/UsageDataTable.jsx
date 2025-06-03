@@ -185,7 +185,7 @@ const UsageDataTable = () => {
 
   return (
     <div className="TableContainer">
-      <h3 className="cursive">Certificate Usage</h3>
+      <h2 className="cursive">Certificate Usage</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

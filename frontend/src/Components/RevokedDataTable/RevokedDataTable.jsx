@@ -205,7 +205,7 @@ export default function RevokedDataTable() {
 
   return (
     <div className="TableContainer">
-      <h3 className="cursive">Revoked Certificate</h3>
+      <h2 className="cursive">Revoked Certificate</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

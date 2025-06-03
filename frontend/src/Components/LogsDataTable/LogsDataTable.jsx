@@ -268,7 +268,7 @@ export default function LogsDataTable() {
 
   return (
     <div className="TableContainer">
-      <h3 className="cursive">Activity Logs</h3>
+      <h2 className="cursive">Activity Logs</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

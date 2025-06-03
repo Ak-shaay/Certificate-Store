@@ -429,7 +429,7 @@ export default function DataTable() {
 
   return (
     <div className="TableContainer">
-      <h3 className="cursive">Issued Certificates</h3>
+      <h2 className="cursive">Issued Certificates</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={backdrop}

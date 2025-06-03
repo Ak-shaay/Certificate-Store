@@ -58,7 +58,7 @@ function clearAll(){
       } catch (error) {
         setError(true);
         setSuccess(false); // Hide success block if there's an error
-        clearAll()
+        clearAll();
         // Check if the error response is available
         if (error.response) {
           setMsg(error.response.data || "Unknown error");
