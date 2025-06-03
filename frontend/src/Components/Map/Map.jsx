@@ -67,10 +67,11 @@ const InstructionsPanel = () => {
     >
       <h3 style={{ margin: "0 0 16px 0" }}>Map Instructions</h3>
       <p>
-        <strong>Single click</strong> on a state to display CA distribution.
+        <strong>Click</strong> on a state to display CA distribution.
       </p>
       <p>
-        <strong>Double click</strong> on a state to view the district wise state map.
+        <strong>Double click</strong> on a state to view the district wise state
+        map.
       </p>
     </Box>
   );
@@ -80,18 +81,68 @@ const HoverInfoPanel = ({ stateData }) => {
     return (
       <Box
         sx={{
-          p: 2,
-          border: "1px solid #fff",
-          borderRadius: 1,
-          backgroundColor: "#fff",
+          p: 3,
+          border: "1px solid #e0e7ff",
+          borderRadius: 3,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           height: "100%",
-          minHeight: "150px",
+          minHeight: "200px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
+            borderRadius: 3,
+          },
         }}
       >
-        <p style={{ color: "#757575" }}>Hover over a state to see details</p>
+        <Box
+          sx={{
+            textAlign: "center",
+            zIndex: 1,
+            color: "white",
+          }}
+        >
+          <Box
+            sx={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              animation: "pulse 2s infinite",
+              "@keyframes pulse": {
+                "0%": { transform: "scale(1)", opacity: 0.7 },
+                "50%": { transform: "scale(1.05)", opacity: 1 },
+                "100%": { transform: "scale(1)", opacity: 0.7 },
+              },
+            }}
+          >
+            🗺️
+          </Box>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "16px",
+              fontWeight: "500",
+              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            }}
+          >
+            Hover over a state to explore certificate distribution
+          </p>
+        </Box>
       </Box>
     );
   }
@@ -108,48 +159,337 @@ const HoverInfoPanel = ({ stateData }) => {
     .sort((a, b) => b[1] - a[1]); // Sort by value in descending order
 
   const totalCertificates = caData.reduce((sum, [_, value]) => sum + value, 0);
+  const maxValue = caData.length > 0 ? caData[0][1] : 0;
 
   return (
     <Box
       sx={{
-        p: 2,
-        border: "1px solid #fff",
-        borderRadius: 1,
-        backgroundColor: "#fff",
-        height: "100%",
-        minHeight: "150px",
-        overflowY: "auto",
+        p: 0,
+        border: "1px solid #e0e7ff",
+        borderRadius: 3,
+        background:
+          "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
+        height: "450px", // Fixed height instead of 100%
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.05)",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: "0 15px 35px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1)",
+        },
       }}
     >
-      <h3 style={{ margin: "0 0 8px 0", color: "#f95d6a" }}>
-        {stateData.state}
-      </h3>
-      <p style={{ margin: "0 0 12px 0", fontWeight: "bold" }}>
-        Total Certificates: {totalCertificates.toLocaleString()}
-      </p>
-
-      {caData.length > 0 ? (
-        <Box sx={{ mt: 1 }}>
-          <p style={{ margin: "0 0 8px 0", fontWeight: "bold" }}>
-            CA Distribution:
-          </p>
-          {caData.map(([ca, value]) => (
-            <Box
-              key={ca}
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mb: 0.5,
-                fontSize: "0.9rem",
+      {/* Header Section */}
+      <Box
+        sx={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          p: 2.5,
+          color: "white",
+          position: "relative",
+          flexShrink: 0, // Prevents header from shrinking
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "4px",
+            background:
+              "linear-gradient(90deg, #ff7c43, #f95d6a, #d45087, #a05195)",
+          },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "18px",
+            }}
+          >
+            📍
+          </Box>
+          <Box>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "20px",
+                fontWeight: "600",
+                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
               }}
             >
-              <span>{ca}:</span>
-              <span>{value.toLocaleString()}</span>
+              {stateData.state}
+            </h3>
+            <p
+              style={{
+                margin: "4px 0 0 0",
+                fontSize: "14px",
+                opacity: 0.9,
+                fontWeight: "400",
+              }}
+            >
+              Certificate Distribution
+            </p>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Total Count Section */}
+      <Box sx={{ p: 2.5, pb: 1.5, flexShrink: 0 }}>
+        <Box
+          sx={{
+            background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+            borderRadius: 2,
+            p: 2,
+            color: "white",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: "-50%",
+              left: "-50%",
+              width: "200%",
+              height: "200%",
+              background:
+                "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
+              animation: "shimmer 3s linear infinite",
+              "@keyframes shimmer": {
+                "0%": { transform: "rotate(0deg)" },
+                "100%": { transform: "rotate(360deg)" },
+              },
+            },
+          }}
+        >
+          <Box sx={{ position: "relative", zIndex: 1 }}>
+            <p
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: "14px",
+                opacity: 0.9,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                fontWeight: "500",
+              }}
+            >
+              Total Certificates
+            </p>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "28px",
+                fontWeight: "700",
+                textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              }}
+            >
+              {totalCertificates.toLocaleString()}
+            </p>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* CA Distribution Section */}
+      {caData.length > 0 ? (
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ px: 2.5, pb: 1, flexShrink: 0 }}>
+            <h4
+              style={{
+                margin: 0,
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#374151",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              📊 CA Distribution
+            </h4>
+          </Box>
+
+          <Box
+            sx={{
+              px: 2.5,
+              pb: 2.5,
+              flex: 1,
+              overflowY: "auto",
+              "&::-webkit-scrollbar": {
+                width: "6px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "#f1f1f1",
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                borderRadius: "10px",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #5a67d8 0%, #6b5b95 100%)",
+                },
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {caData.map(([ca, value], index) => {
+                const percentage = ((value / maxValue) * 100).toFixed(1);
+                const colors = [
+                  "linear-gradient(135deg, #ff7c43 0%, #ff9a56 100%)",
+                  "linear-gradient(135deg, #f95d6a 0%, #ff7a8a 100%)",
+                  "linear-gradient(135deg, #d45087 0%, #e879a6 100%)",
+                  "linear-gradient(135deg, #a05195 0%, #c971b4 100%)",
+                  "linear-gradient(135deg, #a1ff33 0%, #b8ff5c 100%)",
+                ];
+
+                return (
+                  <Box
+                    key={ca}
+                    sx={{
+                      background: "white",
+                      borderRadius: 2,
+                      p: 2,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                      border: "1px solid #f3f4f6",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        transform: "translateX(4px)",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: "50%",
+                            background: colors[index % colors.length],
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            color: "#374151",
+                            lineHeight: "1.2",
+                          }}
+                        >
+                          {ca}
+                        </span>
+                      </Box>
+                      <Box sx={{ textAlign: "right" }}>
+                        <div
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {value.toLocaleString()}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "#6b7280",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {percentage}%
+                        </div>
+                      </Box>
+                    </Box>
+
+                    {/* Progress bar */}
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: 6,
+                        backgroundColor: "#f3f4f6",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: `${percentage}%`,
+                          height: "100%",
+                          background: colors[index % colors.length],
+                          borderRadius: 3,
+                          transition: "width 0.8s ease-out",
+                          animation: `growWidth 1s ease-out ${
+                            index * 0.1
+                          }s both`,
+                          "@keyframes growWidth": {
+                            "0%": { width: "0%" },
+                            "100%": { width: `${percentage}%` },
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                );
+              })}
             </Box>
-          ))}
+          </Box>
         </Box>
       ) : (
-        <p>No certificates issued in this state.</p>
+        <Box
+          sx={{
+            p: 2.5,
+            textAlign: "center",
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            sx={{
+              background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+              borderRadius: 2,
+              p: 3,
+              border: "1px solid #f59e0b",
+            }}
+          >
+            <Box sx={{ fontSize: "24px", mb: 1 }}>⚠️</Box>
+            <p
+              style={{
+                margin: 0,
+                color: "#92400e",
+                fontWeight: "500",
+              }}
+            >
+              No certificates issued in this state
+            </p>
+          </Box>
+        </Box>
       )}
     </Box>
   );
