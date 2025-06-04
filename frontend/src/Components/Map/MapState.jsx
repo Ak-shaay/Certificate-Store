@@ -59,12 +59,70 @@ const InstructionsPanel = () => {
     <Box
       sx={{
         p: 1.5,
-        border: "1px solid #e2e8f0",
+        border: "1px solid rgba(99, 102, 241, 0.2)",
         borderRadius: 2,
-        background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
+        background:
+          "linear-gradient(135deg,rgb(0, 0, 0) 0%, #f7f7f7 20%, #f1f5f9 100%)",
+        position: "relative",
+        overflow: "hidden",
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        backdropFilter: "blur(10px)",
         height: "fit-content",
         minHeight: "100px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        width: "95%",
+        maxWidth: "400px",
+        "@media (hover: hover)": {
+          "&:hover": {
+            transform: "translateY(-2px) scale(1.01)",
+            boxShadow:
+              "0 12px 24px rgba(99, 102, 241, 0.12), 0 0 30px rgba(139, 92, 246, 0.08)",
+            border: "1px solid rgba(99, 102, 241, 0.4)",
+            background:
+              "linear-gradient(135deg, #fefefe 0%, #f8fafc 20%, #f1f5f9 100%)",
+          },
+        },
+        boxShadow:
+          "0 4px 12px rgba(99, 102, 241, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: "-100%",
+          width: "100%",
+          height: "100%",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent)",
+          transition: "left 0.8s ease-in-out",
+        },
+        "@media (hover: hover)": {
+          "&:hover::before": {
+            left: "100%",
+          },
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          top: "8px",
+          right: "12px",
+          width: "6px",
+          height: "6px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, #8b5cf6 0%, #06b6d4 100%)",
+          animation: "gentlePulse 3s ease-in-out infinite",
+          boxShadow: "0 0 12px rgba(139, 92, 246, 0.5)",
+        },
+        "@keyframes gentlePulse": {
+          "0%, 100%": {
+            opacity: 0.6,
+            transform: "scale(1)",
+            boxShadow: "0 0 12px rgba(139, 92, 246, 0.3)",
+          },
+          "50%": {
+            opacity: 1,
+            transform: "scale(1.2)",
+            boxShadow: "0 0 18px rgba(139, 92, 246, 0.6)",
+          },
+        },
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
@@ -73,18 +131,63 @@ const InstructionsPanel = () => {
             width: 24,
             height: 24,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background:
+              "linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #10b981 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "12px",
+            position: "relative",
+            boxShadow:
+              "0 3px 10px rgba(139, 92, 246, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4)",
+            animation: "iconFloat 4s ease-in-out infinite",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              width: "120%",
+              height: "120%",
+              borderRadius: "50%",
+              background:
+                "conic-gradient(from 0deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15), rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.15))",
+              animation: "rotate 6s linear infinite",
+              zIndex: -1,
+            },
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              borderRadius: "50%",
+              background:
+                "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, transparent 70%)",
+            },
+            "@keyframes iconFloat": {
+              "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
+              "25%": { transform: "translateY(-1px) rotate(0.5deg)" },
+              "50%": { transform: "translateY(0px) rotate(0deg)" },
+              "75%": { transform: "translateY(-0.5px) rotate(-0.5deg)" },
+            },
+            "@keyframes rotate": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(360deg)" },
+            },
           }}
         >
-          ℹ️
+          💡
         </Box>
         <Typography
           variant="h6"
-          sx={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}
+          sx={{
+            fontSize: "14px",
+            fontWeight: "700",
+            background:
+              "linear-gradient(135deg, #4c1d95 0%, #1e40af 50%, #0891b2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.08)",
+            letterSpacing: "0.3px",
+          }}
         >
           Instructions
         </Typography>
@@ -98,13 +201,7 @@ const InstructionsPanel = () => {
           <strong style={{ color: "#374151" }}>Click:</strong> View CA
           distribution
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-        >
-          <strong style={{ color: "#374151" }}>Double-click:</strong>{" "}
-          District-wise map
-        </Typography>
+
         <Typography
           variant="body2"
           sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
@@ -121,9 +218,10 @@ const HoverInfoPanel = ({ districtData }) => {
       <Box
         sx={{
           p: { xs: 1.5, sm: 2.5, md: 3 },
-          border: "1px solid #e0e7ff",
-          borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          border: "2px solid rgba(180, 232, 255, 0.3)",
+          borderRadius: { xs: 2, sm: 3, md: 4 },
+          background:
+            "linear-gradient(135deg, #4691C3 0%, #8D9CFD 50%, #B4E8FF 100%)",
           height: { xs: "160px", sm: "200px", md: "100%" },
           minHeight: { xs: "140px", sm: "180px", md: "200px" },
           display: "flex",
@@ -131,6 +229,15 @@ const HoverInfoPanel = ({ districtData }) => {
           justifyContent: "center",
           position: "relative",
           overflow: "hidden",
+          boxShadow:
+            "0 8px 32px rgba(70, 145, 195, 0.2), 0 4px 16px rgba(141, 156, 253, 0.15)",
+          transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          "&:hover": {
+            transform: "translateY(-3px) scale(1.01)",
+            boxShadow:
+              "0 16px 48px rgba(70, 145, 195, 0.3), 0 8px 24px rgba(141, 156, 253, 0.25)",
+            border: "2px solid rgba(180, 232, 255, 0.5)",
+          },
           "&::before": {
             content: '""',
             position: "absolute",
@@ -138,40 +245,59 @@ const HoverInfoPanel = ({ districtData }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(255, 255, 255, 0.1)",
-            backdropFilter: "blur(10px)",
-            borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
+            background:
+              "linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)",
+            backdropFilter: "blur(15px)",
+            borderRadius: { xs: 2, sm: 3, md: 4 },
+          },
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            top: "-50%",
+            left: "-50%",
+            width: "200%",
+            height: "200%",
+            background:
+              "conic-gradient(from 0deg, transparent, rgba(255, 202, 113, 0.1), transparent)",
+            animation: "rotate 8s linear infinite",
+            "@keyframes rotate": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(360deg)" },
+            },
           },
         }}
       >
         <Box
           sx={{
             textAlign: "center",
-            zIndex: 1,
+            zIndex: 2,
             color: "white",
             px: 1,
           }}
         >
           <Box
             sx={{
-              width: { xs: 40, sm: 55, md: 60 },
-              height: { xs: 40, sm: 55, md: 60 },
+              width: { xs: 50, sm: 65, md: 70 },
+              height: { xs: 50, sm: 65, md: 70 },
               borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
+              background:
+                "linear-gradient(135deg, rgba(255, 202, 113, 0.3) 0%, rgba(253, 146, 157, 0.3) 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: {
-                xs: "0 auto 8px",
-                sm: "0 auto 14px",
-                md: "0 auto 16px",
+                xs: "0 auto 12px",
+                sm: "0 auto 16px",
+                md: "0 auto 20px",
               },
-              animation: "pulse 2s infinite",
-              fontSize: { xs: "16px", sm: "22px", md: "24px" },
-              "@keyframes pulse": {
-                "0%": { transform: "scale(1)", opacity: 0.7 },
-                "50%": { transform: "scale(1.05)", opacity: 1 },
-                "100%": { transform: "scale(1)", opacity: 0.7 },
+              animation: "float 3s ease-in-out infinite",
+              fontSize: { xs: "20px", sm: "26px", md: "30px" },
+              border: "2px solid rgba(255, 255, 255, 0.2)",
+              boxShadow:
+                "0 8px 24px rgba(0, 0, 0, 0.1), inset 0 2px 8px rgba(255, 255, 255, 0.2)",
+              "@keyframes float": {
+                "0%, 100%": { transform: "translateY(0px) scale(1)" },
+                "50%": { transform: "translateY(-8px) scale(1.05)" },
               },
             }}
           >
@@ -180,11 +306,13 @@ const HoverInfoPanel = ({ districtData }) => {
           <p
             style={{
               margin: 0,
-              fontSize: "clamp(12px, 3.5vw, 16px)",
-              fontWeight: "500",
-              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-              padding: "0 8px",
-              lineHeight: 1.3,
+              fontSize: "clamp(13px, 3.8vw, 18px)",
+              fontWeight: "600",
+              textShadow:
+                "0 3px 6px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.2)",
+              padding: "0 12px",
+              lineHeight: 1.4,
+              letterSpacing: "0.3px",
             }}
           >
             Hover over a state to explore certificate distribution
@@ -206,16 +334,15 @@ const HoverInfoPanel = ({ districtData }) => {
     .sort((a, b) => b[1] - a[1]); // Sort by value in descending order
 
   const totalCertificates = caData.reduce((sum, [_, value]) => sum + value, 0);
-  const maxValue = caData.length > 0 ? caData[0][1] : 0;
 
   return (
     <Box
       sx={{
         p: 0,
-        border: "1px solid #e0e7ff",
-        borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
+        border: "2px solid rgba(180, 232, 255, 0.2)",
+        borderRadius: { xs: 2, sm: 3, md: 4 },
         background:
-          "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
+          "linear-gradient(135deg, #ffffff 0%, #f8fbff 50%, #f0f8ff 100%)",
         height: {
           xs: "auto",
           sm: "400px",
@@ -227,43 +354,73 @@ const HoverInfoPanel = ({ districtData }) => {
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        boxShadow: {
-          xs: "0 2px 8px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03)",
-          sm: "0 6px 16px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.045)",
-          md: "0 10px 25px rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.05)",
-        },
-        transition: "all 0.3s ease",
+        boxShadow:
+          "0 12px 40px rgba(70, 145, 195, 0.15), 0 6px 16px rgba(141, 156, 253, 0.1)",
+        transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        overflow: "hidden",
         "&:hover": {
           transform: {
-            xs: "none",
-            sm: "translateY(-1px)",
-            md: "translateY(-2px)",
+            xs: "translateY(-2px)",
+            sm: "translateY(-4px)",
+            md: "translateY(-6px)",
           },
-          boxShadow: {
-            xs: "0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)",
-            sm: "0 8px 20px rgba(0,0,0,0.13), 0 5px 10px rgba(0,0,0,0.08)",
-            md: "0 15px 35px rgba(0,0,0,0.15), 0 8px 15px rgba(0,0,0,0.1)",
-          },
+          boxShadow:
+            "0 20px 60px rgba(70, 145, 195, 0.25), 0 10px 24px rgba(141, 156, 253, 0.2)",
+          border: "2px solid rgba(180, 232, 255, 0.4)",
+        },
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background:
+            "linear-gradient(45deg, rgba(255, 202, 113, 0.02) 0%, rgba(253, 146, 157, 0.02) 100%)",
+          pointerEvents: "none",
+          zIndex: 0,
         },
       }}
     >
       {/* Header Section */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          p: { xs: 1.25, sm: 2, md: 2.5 },
+          background:
+            "linear-gradient(135deg, #4691C3 0%, #8D9CFD 50%, #FD929D 100%)",
+          p: { xs: 1.5, sm: 2.5, md: 3 },
           color: "white",
           position: "relative",
           flexShrink: 0,
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: "-100%",
+            width: "100%",
+            height: "100%",
+            background:
+              "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)",
+            animation: "shimmer 3s ease-in-out infinite",
+            "@keyframes shimmer": {
+              "0%": { left: "-100%" },
+              "100%": { left: "100%" },
+            },
+          },
           "&::after": {
             content: '""',
             position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
-            height: { xs: "2px", sm: "3.5px", md: "4px" },
+            height: { xs: "3px", sm: "4px", md: "5px" },
             background:
-              "linear-gradient(90deg, #ff7c43, #f95d6a, #d45087, #a05195)",
+              "linear-gradient(90deg, #FFCA71 0%, #FD929D 25%, #4691C3 50%, #B4E8FF 75%, #8D9CFD 100%)",
+            animation: "colorShift 4s ease-in-out infinite",
+            "@keyframes colorShift": {
+              "0%, 100%": { opacity: 0.8 },
+              "50%": { opacity: 1 },
+            },
           },
         }}
       >
@@ -271,19 +428,30 @@ const HoverInfoPanel = ({ districtData }) => {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: { xs: 0.75, sm: 1.25, md: 1.5 },
+            gap: { xs: 1, sm: 1.5, md: 2 },
+            position: "relative",
+            zIndex: 1,
           }}
         >
           <Box
             sx={{
-              width: { xs: 28, sm: 36, md: 40 },
-              height: { xs: 28, sm: 36, md: 40 },
+              width: { xs: 32, sm: 42, md: 48 },
+              height: { xs: 32, sm: 42, md: 48 },
               borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
+              background:
+                "linear-gradient(135deg, rgba(255, 202, 113, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: { xs: "12px", sm: "16px", md: "18px" },
+              fontSize: { xs: "14px", sm: "18px", md: "22px" },
+              border: "2px solid rgba(255, 255, 255, 0.3)",
+              boxShadow:
+                "0 4px 12px rgba(0, 0, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.2)",
+              animation: "bounce 2s ease-in-out infinite",
+              "@keyframes bounce": {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-3px)" },
+              },
             }}
           >
             📍
@@ -292,22 +460,25 @@ const HoverInfoPanel = ({ districtData }) => {
             <h3
               style={{
                 margin: 0,
-                fontSize: "clamp(14px, 4vw, 20px)",
-                fontWeight: "600",
-                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                fontSize: "clamp(16px, 4.5vw, 24px)",
+                fontWeight: "700",
+                textShadow:
+                  "0 3px 6px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
                 lineHeight: 1.2,
                 wordBreak: "break-word",
+                letterSpacing: "0.5px",
               }}
             >
               {districtData.state}
             </h3>
             <p
               style={{
-                margin: "2px 0 0 0",
-                fontSize: "clamp(10px, 2.8vw, 14px)",
-                opacity: 0.9,
-                fontWeight: "400",
-                lineHeight: 1.2,
+                margin: "4px 0 0 0",
+                fontSize: "clamp(11px, 3vw, 16px)",
+                opacity: 0.95,
+                fontWeight: "500",
+                lineHeight: 1.3,
+                letterSpacing: "0.2px",
               }}
             >
               Certificate Distribution
@@ -319,47 +490,73 @@ const HoverInfoPanel = ({ districtData }) => {
       {/* Total Count Section */}
       <Box
         sx={{
-          p: { xs: 1.25, sm: 2, md: 2.5 },
-          pb: { xs: 0.75, sm: 1.25, md: 1.5 },
+          p: { xs: 1.5, sm: 2.5, md: 3 },
+          pb: { xs: 1, sm: 1.5, md: 2 },
           flexShrink: 0,
         }}
       >
         <Box
           sx={{
-            background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-            borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
-            p: { xs: 1.25, sm: 1.75, md: 2 },
+            background:
+              "linear-gradient(135deg, #FFCA71 0%, #FD929D 50%, #B4E8FF 100%)",
+            borderRadius: { xs: 2, sm: 2.5, md: 3 },
+            p: { xs: 1.5, sm: 2, md: 2.5 },
             color: "white",
             textAlign: "center",
             position: "relative",
             overflow: "hidden",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            boxShadow:
+              "0 8px 24px rgba(70, 145, 195, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.3)",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px) scale(1.02)",
+              boxShadow:
+                "0 12px 32px rgba(70, 145, 195, 0.3), inset 0 1px 3px rgba(255, 255, 255, 0.4)",
+            },
             "&::before": {
               content: '""',
               position: "absolute",
-              top: "-50%",
-              left: "-50%",
-              width: "200%",
-              height: "200%",
+              top: "-2px",
+              left: "-2px",
+              right: "-2px",
+              bottom: "-2px",
               background:
-                "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
-              animation: "shimmer 3s linear infinite",
-              "@keyframes shimmer": {
-                "0%": { transform: "rotate(0deg)" },
-                "100%": { transform: "rotate(360deg)" },
+                "linear-gradient(45deg, #FFCA71, #FD929D, #4691C3, #B4E8FF, #8D9CFD)",
+              borderRadius: { xs: 2, sm: 2.5, md: 3 },
+              zIndex: -2,
+              animation: "borderGlow 3s linear infinite",
+              "@keyframes borderGlow": {
+                "0%": { opacity: 0.5 },
+                "50%": { opacity: 0.8 },
+                "100%": { opacity: 0.5 },
               },
+            },
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "linear-gradient(135deg, #FFCA71 0%, #FD929D 50%, #B4E8FF 100%)",
+              borderRadius: { xs: 2, sm: 2.5, md: 3 },
+              zIndex: -1,
             },
           }}
         >
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <p
               style={{
-                margin: "0 0 4px 0",
-                fontSize: "clamp(9px, 2.5vw, 14px)",
+                margin: "0 0 6px 0",
+                fontSize: "clamp(10px, 2.8vw, 16px)",
                 opacity: 0.9,
                 textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                fontWeight: "500",
+                letterSpacing: "1px",
+                fontWeight: "600",
                 lineHeight: 1.2,
+                textShadow: "0 2px 4px rgba(0,0,0,0.2)",
               }}
             >
               Total Certificates
@@ -367,10 +564,12 @@ const HoverInfoPanel = ({ districtData }) => {
             <p
               style={{
                 margin: 0,
-                fontSize: "clamp(18px, 5vw, 28px)",
-                fontWeight: "700",
-                textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                fontSize: "clamp(20px, 5.5vw, 32px)",
+                fontWeight: "800",
+                textShadow:
+                  "0 3px 6px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
                 lineHeight: 1.1,
+                letterSpacing: "0.5px",
               }}
             >
               {totalCertificates.toLocaleString()}
@@ -387,26 +586,27 @@ const HoverInfoPanel = ({ districtData }) => {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            minHeight: 0, // Important for flex child with overflow
+            minHeight: 0,
           }}
         >
           <Box
             sx={{
-              px: { xs: 1.25, sm: 2, md: 2.5 },
-              pb: { xs: 0.5, sm: 0.75, md: 1 },
+              px: { xs: 1.5, sm: 2.5, md: 3 },
+              pb: { xs: 0.75, sm: 1, md: 1.25 },
               flexShrink: 0,
             }}
           >
             <h4
               style={{
                 margin: 0,
-                fontSize: "clamp(12px, 3vw, 16px)",
-                fontWeight: "600",
-                color: "#374151",
+                fontSize: "clamp(13px, 3.2vw, 18px)",
+                fontWeight: "700",
+                color: "#2d3748",
                 display: "flex",
                 alignItems: "center",
-                gap: "4px",
+                gap: "6px",
                 lineHeight: 1.3,
+                letterSpacing: "0.3px",
               }}
             >
               📈 CA Distribution
@@ -415,24 +615,25 @@ const HoverInfoPanel = ({ districtData }) => {
 
           <Box
             sx={{
-              px: { xs: 1.25, sm: 2, md: 2.5 },
-              pb: { xs: 1.25, sm: 2, md: 2.5 },
+              px: { xs: 1.5, sm: 2.5, md: 3 },
+              pb: { xs: 1.5, sm: 2.5, md: 3 },
               flex: 1,
               overflowY: "auto",
-              minHeight: 0, // Important for proper scrolling
+              minHeight: 0,
               "&::-webkit-scrollbar": {
-                width: { xs: "3px", sm: "5px", md: "6px" },
+                width: { xs: "4px", sm: "6px", md: "8px" },
               },
               "&::-webkit-scrollbar-track": {
-                background: "#f1f1f1",
+                background: "rgba(180, 232, 255, 0.1)",
                 borderRadius: "10px",
               },
               "&::-webkit-scrollbar-thumb": {
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, #4691C3 0%, #8D9CFD 100%)",
                 borderRadius: "10px",
+                transition: "all 0.3s ease",
                 "&:hover": {
                   background:
-                    "linear-gradient(135deg, #5a67d8 0%, #6b5b95 100%)",
+                    "linear-gradient(135deg, #3a7ba8 0%, #7a8ae8 100%)",
                 },
               },
             }}
@@ -441,36 +642,72 @@ const HoverInfoPanel = ({ districtData }) => {
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: { xs: 0.75, sm: 1.25, md: 1.5 },
+                gap: { xs: 1, sm: 1.5, md: 2 },
               }}
             >
               {caData.map(([ca, value], index) => {
-                const percentage = ((value / maxValue) * 100).toFixed(1);
+                // Calculate percentage based on total certificates, not max value
+                const percentage =
+                  totalCertificates > 0
+                    ? ((value / totalCertificates) * 100).toFixed(1)
+                    : 0;
                 const colors = [
-                  "linear-gradient(135deg, #ff7c43 0%, #ff9a56 100%)",
-                  "linear-gradient(135deg, #f95d6a 0%, #ff7a8a 100%)",
-                  "linear-gradient(135deg, #d45087 0%, #e879a6 100%)",
-                  "linear-gradient(135deg, #a05195 0%, #c971b4 100%)",
-                  "linear-gradient(135deg, #a1ff33 0%, #b8ff5c 100%)",
+                  "linear-gradient(135deg, #FFCA71 0%, #ff9a56 100%)",
+                  "linear-gradient(135deg, #FD929D 0%, #ff7a8a 100%)",
+                  "linear-gradient(135deg, #4691C3 0%, #357abd 100%)",
+                  "linear-gradient(135deg, #B4E8FF 0%, #87ceeb 100%)",
+                  "linear-gradient(135deg, #8D9CFD 0%, #7b8cfc 100%)",
                 ];
 
                 return (
                   <Box
                     key={ca}
                     sx={{
-                      background: "white",
-                      borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
-                      p: { xs: 1, sm: 1.5, md: 2 },
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                      border: "1px solid #f3f4f6",
-                      transition: "all 0.2s ease",
+                      background:
+                        "linear-gradient(135deg, #ffffff 0%, #fafbff 100%)",
+                      borderRadius: { xs: 1.5, sm: 2, md: 2.5 },
+                      p: { xs: 1.25, sm: 1.75, md: 2.25 },
+                      boxShadow:
+                        "0 4px 12px rgba(70, 145, 195, 0.08), 0 2px 4px rgba(141, 156, 253, 0.05)",
+                      border: "1px solid rgba(180, 232, 255, 0.2)",
+                      transition:
+                        "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                      position: "relative",
+                      overflow: "hidden",
+                      animation: `slideIn 0.6s ease-out ${index * 0.1}s both`,
+                      "@keyframes slideIn": {
+                        "0%": {
+                          transform: "translateX(-30px)",
+                          opacity: 0,
+                        },
+                        "100%": {
+                          transform: "translateX(0)",
+                          opacity: 1,
+                        },
+                      },
                       "&:hover": {
                         transform: {
-                          xs: "none",
-                          sm: "translateX(2px)",
-                          md: "translateX(4px)",
+                          xs: "translateY(-2px)",
+                          sm: "translateY(-3px) translateX(4px)",
+                          md: "translateY(-4px) translateX(6px)",
                         },
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        boxShadow:
+                          "0 8px 24px rgba(70, 145, 195, 0.15), 0 4px 8px rgba(141, 156, 253, 0.1)",
+                        border: "1px solid rgba(180, 232, 255, 0.4)",
+                      },
+                      "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: colors[index % colors.length],
+                        opacity: 0.03,
+                        transition: "opacity 0.3s ease",
+                      },
+                      "&:hover::before": {
+                        opacity: 0.06,
                       },
                     }}
                   >
@@ -479,38 +716,49 @@ const HoverInfoPanel = ({ districtData }) => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
-                        mb: { xs: 0.5, sm: 0.875, md: 1 },
-                        gap: { xs: 0.5, sm: 1, md: 1 },
+                        mb: { xs: 0.75, sm: 1, md: 1.25 },
+                        gap: { xs: 0.75, sm: 1, md: 1.25 },
+                        position: "relative",
+                        zIndex: 1,
                       }}
                     >
                       <Box
                         sx={{
                           display: "flex",
                           alignItems: "flex-start",
-                          gap: { xs: 0.5, sm: 0.875, md: 1 },
+                          gap: { xs: 0.75, sm: 1, md: 1.25 },
                           flex: 1,
-                          minWidth: 0, // Allow text to shrink
+                          minWidth: 0,
                         }}
                       >
                         <Box
                           sx={{
-                            width: { xs: 8, sm: 11, md: 12 },
-                            height: { xs: 8, sm: 11, md: 12 },
+                            width: { xs: 10, sm: 13, md: 16 },
+                            height: { xs: 10, sm: 13, md: 16 },
                             borderRadius: "50%",
                             background: colors[index % colors.length],
                             flexShrink: 0,
-                            mt: { xs: 0.125, sm: 0.25, md: 0.25 }, // Align with text
+                            mt: { xs: 0.2, sm: 0.3, md: 0.3 },
+                            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+                            animation: `pulse 2s ease-in-out infinite ${
+                              index * 0.2
+                            }s`,
+                            "@keyframes pulse": {
+                              "0%, 100%": { transform: "scale(1)" },
+                              "50%": { transform: "scale(1.1)" },
+                            },
                           }}
                         />
                         <span
                           style={{
-                            fontSize: "clamp(10px, 2.8vw, 14px)",
-                            fontWeight: "500",
-                            color: "#374151",
-                            lineHeight: "1.3",
+                            fontSize: "clamp(11px, 3vw, 16px)",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            lineHeight: "1.4",
                             wordBreak: "break-word",
                             flex: 1,
                             minWidth: 0,
+                            letterSpacing: "0.2px",
                           }}
                         >
                           {ca}
@@ -525,20 +773,22 @@ const HoverInfoPanel = ({ districtData }) => {
                       >
                         <div
                           style={{
-                            fontSize: "clamp(12px, 3vw, 16px)",
-                            fontWeight: "600",
-                            color: "#1f2937",
+                            fontSize: "clamp(13px, 3.2vw, 18px)",
+                            fontWeight: "700",
+                            color: "#1a202c",
                             lineHeight: 1.2,
+                            letterSpacing: "0.3px",
                           }}
                         >
                           {value.toLocaleString()}
                         </div>
                         <div
                           style={{
-                            fontSize: "clamp(8px, 2.2vw, 12px)",
-                            color: "#6b7280",
-                            fontWeight: "500",
+                            fontSize: "clamp(9px, 2.4vw, 14px)",
+                            color: "#4a5568",
+                            fontWeight: "600",
                             lineHeight: 1.2,
+                            letterSpacing: "0.2px",
                           }}
                         >
                           {percentage}%
@@ -546,14 +796,16 @@ const HoverInfoPanel = ({ districtData }) => {
                       </Box>
                     </Box>
 
-                    {/* Progress bar */}
+                    {/* Fixed Progress bar */}
                     <Box
                       sx={{
                         width: "100%",
-                        height: { xs: 3, sm: 5, md: 6 },
-                        backgroundColor: "#f3f4f6",
-                        borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
+                        height: { xs: 4, sm: 6, md: 8 },
+                        backgroundColor: "rgba(180, 232, 255, 0.15)",
+                        borderRadius: { xs: 2, sm: 3, md: 4 },
                         overflow: "hidden",
+                        position: "relative",
+                        boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)",
                       }}
                     >
                       <Box
@@ -561,14 +813,24 @@ const HoverInfoPanel = ({ districtData }) => {
                           width: `${percentage}%`,
                           height: "100%",
                           background: colors[index % colors.length],
-                          borderRadius: { xs: 1.5, sm: 2.5, md: 3 },
-                          transition: "width 0.8s ease-out",
-                          animation: `growWidth 1s ease-out ${
-                            index * 0.1
-                          }s both`,
-                          "@keyframes growWidth": {
-                            "0%": { width: "0%" },
-                            "100%": { width: `${percentage}%` },
+                          borderRadius: { xs: 2, sm: 3, md: 4 },
+                          position: "relative",
+                          transition:
+                            "width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                          "&::after": {
+                            content: '""',
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background:
+                              "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+                            animation: "shine 2s ease-in-out infinite",
+                            "@keyframes shine": {
+                              "0%": { transform: "translateX(-100%)" },
+                              "100%": { transform: "translateX(100%)" },
+                            },
                           },
                         }}
                       />
@@ -582,7 +844,7 @@ const HoverInfoPanel = ({ districtData }) => {
       ) : (
         <Box
           sx={{
-            p: { xs: 1.25, sm: 2, md: 2.5 },
+            p: { xs: 1.5, sm: 2.5, md: 3 },
             textAlign: "center",
             flex: 1,
             display: "flex",
@@ -592,17 +854,29 @@ const HoverInfoPanel = ({ districtData }) => {
         >
           <Box
             sx={{
-              background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-              borderRadius: { xs: 1.25, sm: 1.75, md: 2 },
-              p: { xs: 1.5, sm: 2.5, md: 3 },
-              border: "1px solid #f59e0b",
+              background:
+                "linear-gradient(135deg, #FFCA71 0%, rgba(255, 202, 113, 0.1) 100%)",
+              borderRadius: { xs: 2, sm: 2.5, md: 3 },
+              p: { xs: 2, sm: 3, md: 4 },
+              border: "2px solid rgba(255, 202, 113, 0.3)",
               maxWidth: "100%",
+              boxShadow: "0 8px 24px rgba(255, 202, 113, 0.2)",
+              animation: "gentle-bounce 3s ease-in-out infinite",
+              "@keyframes gentle-bounce": {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-5px)" },
+              },
             }}
           >
             <Box
               sx={{
-                fontSize: { xs: "16px", sm: "22px", md: "24px" },
-                mb: { xs: 0.5, sm: 0.75, md: 1 },
+                fontSize: { xs: "20px", sm: "26px", md: "30px" },
+                mb: { xs: 0.75, sm: 1, md: 1.25 },
+                animation: "rotate 4s linear infinite",
+                "@keyframes rotate": {
+                  "0%": { transform: "rotate(0deg)" },
+                  "100%": { transform: "rotate(360deg)" },
+                },
               }}
             >
               ⚠️
@@ -610,13 +884,14 @@ const HoverInfoPanel = ({ districtData }) => {
             <p
               style={{
                 margin: 0,
-                color: "#92400e",
-                fontWeight: "500",
-                fontSize: "clamp(10px, 2.8vw, 14px)",
-                lineHeight: 1.3,
+                color: "#8b5a00",
+                fontWeight: "600",
+                fontSize: "clamp(12px, 3vw, 16px)",
+                lineHeight: 1.4,
+                letterSpacing: "0.3px",
               }}
             >
-              No certificates issued in this state
+              No certificates issued in this district
             </p>
           </Box>
         </Box>
