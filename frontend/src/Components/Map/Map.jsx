@@ -1181,18 +1181,17 @@ const Map = () => {
     <div>
       {!selectedState ? (
         <Box sx={{ width: "100%" }}>
+          {/* Centered Time period selection with proper spacing */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "left",
               alignItems: "center",
-              mb: 2,
-              flexDirection: isSmallScreen ? "column" : "row",
-              gap: isSmallScreen ? 2 : 0,
+              mb: 4, // Increased bottom margin for better spacing
+              mt: 2, // Added top margin
             }}
           >
-            {/* Time period selection and total count - unchanged */}
-            <Box sx={{ flex: 1, marginTop: "1rem" }}>
+            <Box sx={{ width: isSmallScreen ? "100%" : "300px" }}>
               <FormControl fullWidth size="small" variant="outlined">
                 <InputLabel id="time-period-label">Time Period</InputLabel>
                 <Select
@@ -1214,11 +1213,6 @@ const Map = () => {
                   </MenuItem>
                 </Select>
               </FormControl>
-            </Box>
-            <Box sx={{ flex: 1, textAlign: isSmallScreen ? "left" : "right" }}>
-              <h3 style={{ margin: 0 }}>
-                Total Certificates Issued: {totalCount.toLocaleString()}
-              </h3>
             </Box>
           </Box>
 
@@ -1249,7 +1243,7 @@ const Map = () => {
                       maxWidth: "100%",
                     }}
                   />
-                  <Title>{`India Map - Certificates Issued ${getTimeText(
+                  <Title>{`India Map - Certificates Issued: ${totalCount.toLocaleString()} ${getTimeText(
                     selectedTimePeriod
                   )}`}</Title>
 

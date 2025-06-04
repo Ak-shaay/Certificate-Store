@@ -1251,38 +1251,49 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
         }}
       >
         <Box sx={{ flex: 1 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleIndiaMapToggle}
-            style={{ marginRight: "1rem" }}
-          >
-            Back to India Map
-          </Button>
-
-          <FormControl
-            size="small"
-            variant="outlined"
-            style={{ minWidth: 150 }}
-          >
-            <InputLabel id="state-time-period-label">Time Period</InputLabel>
-            <Select
-              labelId="state-time-period-label"
-              id="state-time-period-select"
-              value={localTimePeriod}
-              onChange={handleTimePeriodChange}
-              label="Time Period"
+          <Box sx={{ flex: 1 }}>
+            <Button
+              variant="contained"
+              onClick={handleIndiaMapToggle}
+              sx={{
+                backgroundColor: "#8D9DFE",
+                color: "white",
+                marginRight: isSmallScreen ? 0 : "1rem",
+                marginBottom: isSmallScreen ? "1rem" : 0,
+                "&:hover": {
+                  backgroundColor: "#7A8BFD",
+                },
+              }}
             >
-              <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
-                Last 6 Months
-              </MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_3_MONTHS}>
-                Last 3 Months
-              </MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_1_MONTH}>Last Month</MenuItem>
-            </Select>
-          </FormControl>
+              Back to India Map
+            </Button>
+
+            <FormControl
+              size="small"
+              variant="outlined"
+              style={{ minWidth: 150 }}
+            >
+              <InputLabel id="state-time-period-label">Time Period</InputLabel>
+              <Select
+                labelId="state-time-period-label"
+                id="state-time-period-select"
+                value={localTimePeriod}
+                onChange={handleTimePeriodChange}
+                label="Time Period"
+              >
+                <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
+                  Last 6 Months
+                </MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_3_MONTHS}>
+                  Last 3 Months
+                </MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_1_MONTH}>
+                  Last Month
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
       </Box>
 
