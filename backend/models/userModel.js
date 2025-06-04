@@ -545,10 +545,9 @@ async function getLastLogin(authNo) {
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
     } else {
-      query = `SELECT l.*
-FROM logs l
+      query = `SELECT l.* FROM logs l
 JOIN login lg ON l.UserEmail = lg.UserEmail
-WHERE lg.UserEmail = 'admin' AND l.ActionType = 'login'
+WHERE lg.role = 'Admin' AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
     }
