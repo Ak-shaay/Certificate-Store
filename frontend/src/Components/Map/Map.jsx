@@ -105,8 +105,9 @@ const InstructionsPanel = () => {
           right: "12px",
           width: "6px",
           height: "6px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, #8b5cf6 0%, #06b6d4 100%)",
+          borderRadius: "75%",
+          background:
+            "radial-gradient(circle,rgb(255, 0, 0) 0%,rgb(255, 0, 0) 100%)",
           animation: "gentlePulse 3s ease-in-out infinite",
           boxShadow: "0 0 12px rgba(139, 92, 246, 0.5)",
         },
