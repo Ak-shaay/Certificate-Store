@@ -1143,8 +1143,9 @@ async function profile(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
     if (err) return res.sendStatus(403);
 
-    try {
+    try {     
       const result = await userModel.getLastLogin(user.authNo);
+      
       var data = {
         ip: "---",
         lastLogin: "---",

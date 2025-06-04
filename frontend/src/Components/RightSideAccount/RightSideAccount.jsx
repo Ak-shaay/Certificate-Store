@@ -23,7 +23,7 @@ const RightSideAccount = () => {
         const response = await api.axiosInstance.get("/profile");
         if (response.status !== 200) {
           throw new Error("Network response was not ok");
-        } else {
+        } else {          
           const base64Url = accessToken.split(".")[1];
           const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
           const decodedToken = JSON.parse(atob(base64));
