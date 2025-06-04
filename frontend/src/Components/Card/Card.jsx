@@ -120,7 +120,7 @@ function ExpandedCard({ param, setExpanded }) {
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
         {/* <img className="card-close" src={closeIcon} onClick={setExpanded} alt="" /> */}
-        <CloseIcon onClick={setExpanded}/>
+        <CloseIcon onClick={setExpanded} style={{ cursor: 'pointer' }}/>
       </div>
         <span>{param.title}</span>
       <div className="chartContainer">
