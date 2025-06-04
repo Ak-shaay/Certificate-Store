@@ -1,83 +1,105 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./UploadCertificate.css";
 import api from "../../Pages/axiosInstance";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 const UploadCertificate = () => {
-  const [file, setFile] = useState({});
+  const [file, setFile] = useState(null); // Use null instead of {}
   const [msg, setMsg] = useState(""); // Message to display
-  const [error, setError] = useState(false); // To control the error block visibility
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false); // Show error block
+  const [success, setSuccess] = useState(false); // Show success block
+  const fileInputRef = useRef(null);
 
-  const handleFileChange = async (e) => {
+  // Handle file input change, update state
+  const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    setFile(selectedFile);
+    setFile(selectedFile || null);
+  };
 
-    if (selectedFile) {
-      document.querySelector(".file-info").style.display = "flex";
-    } else {
-      document.querySelector(".file-info").style.display = "none";
+  // Clear all state and reset file input
+  const clearAll = () => {
+    setFile(null);
+    setMsg("");
+    setError(false);
+    setSuccess(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-function clearAll(){
-  document.querySelector(".file-info").style.display = "none";
-  setFile({})
-}
-
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
+  // Convert file to base64 string
+  const convertFileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        resolve(reader.result.split(",")[1]); // Remove the Data URL prefix (e.g., 'data:cert/pem;base64,')
-      };
+      reader.onloadend = () => resolve(reader.result.split(",")[1]);
       reader.onerror = reject;
     });
-  };
 
-  const handleFileUpload = async () => {
-    if (file && file.size > 0) {
-      const data = new FormData();
-      data.append("certificate", file);
+  // Handle upload button click
+ const handleFileUpload = async () => {
+  if (!file || file.size === 0) {
+    setError(true);
+    setSuccess(false);
+    setMsg("No file selected or the file is empty.");
+    return;
+  }
 
-      try {
-        const base64Cert = await convertFileToBase64(file);
-        const accessToken = api.getAccessToken();
-        api.setAuthHeader(accessToken);
+  try {
+    const base64Cert = await convertFileToBase64(file);
+    const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);
 
-        const response = await api.axiosInstance.post("/certificateUpload", {
-          base64Cert,
-        });
+    const response = await api.axiosInstance.post("/certificateUpload", {
+      base64Cert,
+    });
 
-        if (response.status === 200) {
-          setSuccess(true);
-          setMsg("Uploaded certificate successfully");
-          clearAll()
-          setError(false); // Hide error block if upload is successful
-        }
-      } catch (error) {
-        setError(true);
-        setSuccess(false); // Hide success block if there's an error
-        clearAll();
-        // Check if the error response is available
-        if (error.response) {
-          setMsg(error.response.data || "Unknown error");
-        } else {
-          setMsg("Network or other error: " + error.message);
-        }
+    if (response.status === 200) {
+      setSuccess(true);
+      setError(false);
+      setMsg("Uploaded certificate successfully");
+      // Clear only the file, keep message and success state so the success block shows
+      setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     } else {
       setError(true);
-      setSuccess(false); // Hide success block if no file is selected
-      setMsg("No file selected or the file is empty.");
+      setSuccess(false);
+      setMsg("Upload failed with status " + response.status);
     }
-  };
-  setTimeout(() => {
-    setMsg("");
-  }, 3000);
-  setTimeout(() => {
-    setError("");
-  }, 3000);
+  } catch (err) {
+  setSuccess(false);
+  setError(true);
+  
+  const errorMessage =
+    err.response?.data ||
+    "Server returned an error";
+
+  if (err.response) {
+    setMsg(errorMessage);
+  } else if (err.request) {
+    setMsg("No response from server. Please try again.");
+  } else {
+    setMsg("Unexpected error: " + err.message);
+  }
+}
+};
+
+  // Automatically clear messages and success/error flags after 3 seconds
+  useEffect(() => {
+    if (msg) {
+      const timer = setTimeout(() => {
+        setMsg("");
+        setError(false);
+        setSuccess(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [msg]);
 
   return (
     <div className="Maindash">
@@ -89,6 +111,7 @@ function clearAll(){
               <input
                 type="file"
                 className="default-file-input"
+                ref={fileInputRef}
                 onChange={handleFileChange}
               />
               <span className="browse-files-text">browse file </span>
@@ -96,29 +119,36 @@ function clearAll(){
             </span>
           </label>
         </div>
-        <div className="file-info" id="file-info" style={{ display: "none" }}>
-          <span className="file-name">File Name : {file?.name || null}</span> |
-          <span className="file-size">
-            Size : {(file?.size / 1024).toFixed(1) || null} KB
-          </span>
-        </div>
-        <div
-          className="error-block"
-          style={{ display: error ? "flex" : "none" }}
-        >
-          <span className="error">
-            {msg}
-          </span>
-        </div>
 
-        <div
-          className="success-block"
-          style={{ display: success ? "flex" : "none" }}
-        >
-          <span className="success">
-            {msg}
-          </span>
-        </div>
+        {/* Show file info only if file is selected */}
+        {file && (
+          <div className="file-info" id="file-info" style={{ display: "flex" }}>
+            <span className="file-name">File Name: {file.name}</span> |
+            <span className="file-size">
+              Size: {(file.size / 1024).toFixed(1)} KB
+            </span>
+            <Tooltip title="Remove">
+              <IconButton onClick={clearAll}>
+                <DeleteIcon className="deleteIcon" />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="error-block" style={{ display: "flex" }}>
+            <span className="error">{msg}</span>
+          </div>
+        )}
+
+        {/* Success message */}
+        {success && (
+          <div className="success-block" style={{ display: "flex" }}>
+            <span className="success">{msg}</span>
+          </div>
+        )}
+
         <button
           type="button"
           id="uploadCertificate"
@@ -127,7 +157,6 @@ function clearAll(){
         >
           Upload
         </button>
-
       </div>
     </div>
   );

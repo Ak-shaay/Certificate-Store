@@ -3,7 +3,8 @@ import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { motion, LayoutGroup } from "framer-motion";
-import closeIcon from '../../Images/Icons/cross.png';
+import CloseIcon from "@mui/icons-material/Close";
+
 import Chart from "react-apexcharts";
 
 // get the last 6 hours from the current date time
@@ -118,7 +119,8 @@ function ExpandedCard({ param, setExpanded }) {
       layoutId={param.layoutId}
     >
       <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
-        <img className="card-close" src={closeIcon} onClick={setExpanded} alt="" />
+        {/* <img className="card-close" src={closeIcon} onClick={setExpanded} alt="" /> */}
+        <CloseIcon onClick={setExpanded} style={{ cursor: 'pointer' }}/>
       </div>
         <span>{param.title}</span>
       <div className="chartContainer">
