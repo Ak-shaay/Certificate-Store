@@ -3,7 +3,6 @@ import "./Card.css";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { motion, LayoutGroup } from "framer-motion";
-import closeIcon from '../../Images/Icons/cross.png';
 import CloseIcon from "@mui/icons-material/Close";
 
 import Chart from "react-apexcharts";

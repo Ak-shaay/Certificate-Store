@@ -216,6 +216,13 @@ justify-content: flex-start;
     right: 15px;
   }
 
+  .deleteIcon{
+    color: #f53636;
+  }
+  .deleteIcon:hover{
+    cursor: pointer;
+  }
+
 @media (max-width: 768px) {
     .upload-files-container {
         width: 80%;
