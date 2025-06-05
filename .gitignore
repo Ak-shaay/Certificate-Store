@@ -139,4 +139,4 @@ backend/tokens.json
 backend/public/reports/*
 
 # frontend env variable removed
-# frontend/.env
+frontend/.env
