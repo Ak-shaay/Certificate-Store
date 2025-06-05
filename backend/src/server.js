@@ -14,7 +14,7 @@ const cron = require("node-cron");
 const findRemoveSync = require("find-remove");
 
 const corsOptions = {
-  origin: "http://10.182.2.109:3000",
+  origin: "http://10.182.3.123:3000",
   credentials: true,
 };
 app.use(cors(corsOptions));
