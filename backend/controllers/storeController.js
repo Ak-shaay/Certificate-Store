@@ -1913,8 +1913,6 @@ async function reportGenerator(req, res) {
   const uuid = uuidv4();
   const filePath = `./public/reports/${uuid}.pdf`;
   const link = `http://`+domain+`/reports/${uuid}.pdf`;
-console.log("link",link);
-
   try {
     let email = "";
     const userName = req.session.username;
