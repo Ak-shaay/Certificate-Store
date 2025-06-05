@@ -1,4 +1,5 @@
 // Sidebar imports
+import homeIcon from "./Images/Icons/home.png";
 import checkIcon from "./Images/Icons/check.png";
 import certIcon from "./Images/Icons/certificate.png";
 import removeIcon from "./Images/Icons/remove.png";
@@ -18,7 +19,7 @@ import img3 from "./Images/IDSign.png";
 // Sidebar Data
 export const SidebarData = [
   {
-    icon: checkIcon,
+    icon: homeIcon,
     heading: "Dashboard",
     viewName: "home",  // added viewName
   },
@@ -110,7 +111,7 @@ export const cardsData = [
     },
     // barValue: 60,
     // value: "4,270",
-    png: expiredtIcon,
+    png: signIcon,
     // series: [
     //   {
     //     name: "Transactions",
