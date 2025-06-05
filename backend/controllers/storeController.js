@@ -437,12 +437,10 @@ async function login(req, res) {
     let user = userExist[0];
 
     if (user.LoginStatus === "blocked") {
-      return res
-        .status(202)
-        .json({
-          message:
-            "Your account has been blocked. Please contact the administrator.",
-        });
+      return res.status(202).json({
+        message:
+          "Your account has been blocked. Please contact the administrator.",
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.Password);
@@ -894,7 +892,7 @@ async function fetchData(req, res) {
           rowsPerPage,
           orderBy,
           order,
-          noPagination
+          noPagination,
         } = req.body;
         const filterCriteria = {};
 
@@ -1287,12 +1285,7 @@ async function getAllUsers(req, res) {
       async (err, userToken) => {
         if (err) return res.sendStatus(403);
         else {
-          const {
-            page,
-            rowsPerPage,
-            orderBy,
-            order,
-          } = req.body;
+          const { page, rowsPerPage, orderBy, order } = req.body;
           const { result, count } = await userModel.getAllUsersData(
             page,
             rowsPerPage,
@@ -1603,7 +1596,9 @@ async function moveStatesOfRegion(req, res) {
     const { region, state, action, newRegion } = req.body;
 
     if (!["add", "remove"].includes(action)) {
-      return res.status(400).json({ error: "Invalid action. Use 'add' or 'remove'." });
+      return res
+        .status(400)
+        .json({ error: "Invalid action. Use 'add' or 'remove'." });
     }
 
     if (!data[region]) {
@@ -1612,7 +1607,9 @@ async function moveStatesOfRegion(req, res) {
 
     const stateIndex = data[region].findIndex((item) => item.value === state);
     if (stateIndex === -1) {
-      return res.status(404).json({ error: "State not found in the current region" });
+      return res
+        .status(404)
+        .json({ error: "State not found in the current region" });
     }
 
     const [stateItem] = data[region].splice(stateIndex, 1);
@@ -1633,16 +1630,19 @@ async function moveStatesOfRegion(req, res) {
       return res.status(404).json({ error: "New region not found" });
     }
 
-    const duplicateInNewRegion = data[newRegion].some((item) => item.value === state);
+    const duplicateInNewRegion = data[newRegion].some(
+      (item) => item.value === state
+    );
     if (duplicateInNewRegion) {
-      return res.status(400).json({ error: "State already exists in the new region" });
+      return res
+        .status(400)
+        .json({ error: "State already exists in the new region" });
     }
 
     data[newRegion].push(stateItem);
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 
     return res.status(200).json({ message: "State moved successfully" });
-
   } catch (err) {
     console.error("Error processing request:", err);
     return res.status(500).json({ error: "Internal server error" });
@@ -1976,17 +1976,10 @@ async function getReportData(title, data, auth) {
     }
 
     return result;
-  } else if(title === "Logs") {
+  } else if (title === "Logs") {
     console.log("auth", auth, "title", title);
-    const {
-      user,
-      action,
-      startDate,
-      endDate,
-      orderBy,
-      order,
-      noPagination
-    } = data;
+    const { user, action, startDate, endDate, orderBy, order, noPagination } =
+      data;
     const filterCriteria = {};
     if (user && user.length > 0) {
       filterCriteria.users = user;
@@ -1998,7 +1991,7 @@ async function getReportData(title, data, auth) {
       filterCriteria.startDate = startDate;
       filterCriteria.endDate = endDate;
     }
-    const { result } =  await userModel.getLogsData(
+    const { result } = await userModel.getLogsData(
       filterCriteria,
       auth,
       null,
@@ -2011,38 +2004,28 @@ async function getReportData(title, data, auth) {
       result[i].TimeStamp = formatDate(result[i].TimeStamp);
     }
     return result;
-  }else if(title === "Usage of Certificates"){
-
-    const { usage, startDate, endDate, orderBy, order,noPagination } =
-          data;
-        const filterCriteria = {};
-        if (usage && usage.length > 0) {
-          filterCriteria.usage = usage;
-        }
-        if (startDate && endDate) {
-          filterCriteria.startDate = startDate;
-          filterCriteria.endDate = endDate;
-        }
-    const { result } =  await userModel.getCertUsageData(
+  } else if (title === "Usage of Certificates") {
+    const { usage, startDate, endDate, orderBy, order, noPagination } = data;
+    const filterCriteria = {};
+    if (usage && usage.length > 0) {
+      filterCriteria.usage = usage;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    const { result } = await userModel.getCertUsageData(
       filterCriteria,
-          auth,
-          null,
-          null,
-          order,
-          orderBy,
-          noPagination
-    );
-    return result
-  }else if(title === "Revoked Certificates"){
-
-    const {
-      reasons,
-      startDate,
-      endDate,
-      orderBy,
+      auth,
+      null,
+      null,
       order,
+      orderBy,
       noPagination
-    } = data;
+    );
+    return result;
+  } else if (title === "Revoked Certificates") {
+    const { reasons, startDate, endDate, orderBy, order, noPagination } = data;
     const filterCriteria = {};
     if (reasons && reasons.length > 0) {
       filterCriteria.reason = reasons;
@@ -2052,16 +2035,16 @@ async function getReportData(title, data, auth) {
       filterCriteria.endDate = endDate;
     }
 
-    const { result } =  await userModel.getRevokedCertData(
+    const { result } = await userModel.getRevokedCertData(
       filterCriteria,
-          auth,
-          null,
-          null,
-          order,
-          orderBy,
-          noPagination
+      auth,
+      null,
+      null,
+      order,
+      orderBy,
+      noPagination
     );
-    return result
+    return result;
   }
   return null;
 }
@@ -2074,7 +2057,7 @@ async function reportGenerator(req, res) {
 
   const uuid = uuidv4();
   const filePath = `./public/reports/${uuid}.pdf`;
-  const link = `http://10.182.3.123:8080/reports/${uuid}.pdf`;
+  const link = `http://10.182.2.109:8080/reports/${uuid}.pdf`;
 
   try {
     let email = "";
@@ -2091,7 +2074,9 @@ async function reportGenerator(req, res) {
     // Fetch the report data
     const tableData = await getReportData(title, data, auth); // Fetch data from getReportData
     if (!tableData) {
-      return res.status(400).json({ error: "Failed to retrieve data for report." });
+      return res
+        .status(400)
+        .json({ error: "Failed to retrieve data for report." });
     }
 
     // Generate the PDF report
