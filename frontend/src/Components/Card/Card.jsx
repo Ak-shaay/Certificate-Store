@@ -5,6 +5,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { motion, LayoutGroup } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Chart from "react-apexcharts";
+import { Backdrop } from "@mui/material";
 
 // get the last 6 hours from the current date time
 function getPastDatetimeStringsIST() {
@@ -41,6 +42,7 @@ function CompactCard({ param, setExpanded }) {
       style={{
         background: param.color.backGround,
         boxShadow: param.color.boxShadow,
+        zIndex: 999,
       }}
       layoutId={param.layoutId}
       onClick={setExpanded}
@@ -166,23 +168,41 @@ function ExpandedCard({ param, setExpanded }) {
   };
 
   return (
-    <motion.div
-      className="ExpandedCard"
-      style={{
-        background: param.color.backGround,
-        boxShadow: param.color.boxShadow,
+    <Backdrop
+      open={true}
+      sx={{
+        zIndex: (theme) => theme.zIndex.drawer + 1,
+        color: "#fff",
+        backdropFilter: "blur(4px)",
+        backgroundColor: "rgba(0, 0, 0, 0.5)", 
       }}
-      layoutId={param.layoutId}
+      onClick={setExpanded} // Clicking outside closes the card
     >
-      <div style={{ alignSelf: "flex-end", cursor: "pointer", color: "white" }}>
-        <CloseIcon onClick={setExpanded} style={{ cursor: "pointer" }} />
-      </div>
-      <span>{param.title}</span>
-      <div className="chartContainer">
-        <Chart options={data.options} series={param.series} type="area" />
-      </div>
-      <span>Last 6 hours</span>
-    </motion.div>
+      <motion.div
+        className="ExpandedCard"
+        style={{
+          background: param.color.backGround,
+          boxShadow: param.color.boxShadow,
+        }}
+        layoutId={param.layoutId}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the card
+      >
+        <div
+          style={{
+            alignSelf: "flex-end",
+            cursor: "pointer",
+            color: "white",
+          }}
+        >
+          <CloseIcon onClick={setExpanded} style={{ cursor: "pointer" }} />
+        </div>
+        <span className="cardText">{param.title}</span>
+        <div className="chartContainer">
+          <Chart options={data.options} series={param.series} type="area" />
+        </div>
+        <span className="cardText">Last 6 hours</span>
+      </motion.div>
+    </Backdrop>
   );
 }
 

@@ -8,7 +8,6 @@ import userIcon from "./Images/Icons/user.png";
 import uploadIcon from "./Images/Icons/upload.png";
 import logIcon from "./Images/Icons/history.png";
 import signoutIcon from "./Images/Icons/signout.png";
-import expiredtIcon from "./Images/Icons/expired.png";
 import userManagementIcon from "./Images/Icons/usermanagment.png";
 
 // Recent Card Imports
