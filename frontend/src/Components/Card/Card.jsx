@@ -11,7 +11,7 @@ import { Backdrop } from "@mui/material";
 function getPastDatetimeStringsIST() {
   var istOffset = 5.5 * 60 * 60 * 1000;
   var pastDatetimeStrings = [];
-  for (var i = 5; i >= 0; i--) {
+  for (var i = 23; i >= 0; i--) {
     var pastDate = new Date(Date.now() - i * 3600000 + istOffset);
     var isoString = pastDate.toISOString();
     pastDatetimeStrings.push(isoString);
@@ -200,7 +200,7 @@ function ExpandedCard({ param, setExpanded }) {
         <div className="chartContainer">
           <Chart options={data.options} series={param.series} type="area" />
         </div>
-        <span className="cardText">Last 6 hours</span>
+        <span className="cardText">Last 24 hours</span>
       </motion.div>
     </Backdrop>
   );

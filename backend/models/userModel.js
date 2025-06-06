@@ -599,76 +599,76 @@ async function getCardsData() {
     let query = `
       WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    COALESCE(COUNT(c.IssueDate), 0) AS issued_records
-FROM 
-    hours h
-LEFT JOIN 
-    cert c
-ON 
-    DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND c.IssueDate <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        COALESCE(COUNT(c.IssueDate), 0) AS issued_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        cert c
+    ON 
+        DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND c.IssueDate <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;
     `;
     let query2 = `
     WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    COALESCE(COUNT(r.RevokeDateTime), 0) AS rev_records
-FROM 
-    hours h
-LEFT JOIN 
-    revocation_data r
-ON 
-    DATE_FORMAT(r.RevokeDateTime, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND r.RevokeDateTime >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND r.RevokeDateTime <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        COALESCE(COUNT(r.RevokeDateTime), 0) AS rev_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        revocation_data r
+    ON 
+        DATE_FORMAT(r.RevokeDateTime, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND r.RevokeDateTime >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND r.RevokeDateTime <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;`;
 
     let query3 = `WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    h.hour_start,
-    COALESCE(COUNT(cu.UsageDate), 0) AS used_records
-FROM 
-    hours h
-LEFT JOIN 
-    cert_usage cu
-ON 
-    DATE_FORMAT(cu.UsageDate, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND cu.UsageDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND cu.UsageDate <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        h.hour_start,
+        COALESCE(COUNT(cu.UsageDate), 0) AS used_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        cert_usage cu
+    ON 
+        DATE_FORMAT(cu.UsageDate, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND cu.UsageDate >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND cu.UsageDate <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;`;
 
     const issued = await db.executeQuery(query);
