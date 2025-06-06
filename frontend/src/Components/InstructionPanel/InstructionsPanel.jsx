@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
-const InstructionsPanel = () => {
+
+const InstructionsPanel = ({ instructions = [] }) => {
   return (
     <Box
       sx={{
@@ -140,26 +141,16 @@ const InstructionsPanel = () => {
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-        <Typography
-          variant="body2"
-          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-        >
-          <strong style={{ color: "#374151" }}>Click:</strong> View CA
-          distribution
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-        >
-          <strong style={{ color: "#374151" }}>Double-click:</strong>{" "}
-          District-wise State map
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-        >
-          <strong style={{ color: "#374151" }}>Hover:</strong> State details
-        </Typography>
+        {instructions.map((instruction, index) => (
+          <Typography
+            key={index}
+            variant="body2"
+            sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
+          >
+            <strong style={{ color: "#374151" }}>{instruction.action}:</strong>{" "}
+            {instruction.description}
+          </Typography>
+        ))}
       </Box>
     </Box>
   );
