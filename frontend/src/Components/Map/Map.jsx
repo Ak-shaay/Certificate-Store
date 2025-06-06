@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapState from "./MapState"; // Import MapState component
 import Highmaps from "highcharts/highmaps";
 import Highcharts from "highcharts";
@@ -25,6 +25,7 @@ import useSWR from "swr";
 import { domain } from "../../Context/config";
 import InstructionsPanel from "../InstructionPanel/InstructionsPanel";
 import HoverInfoPanel from "../HoverInfo/HoverInfo";
+
 const caColorMap = {
   "CCA India 2022": "#ff7c43", // Based on CA1
   Safescrypt: "#f95d6a", // Based on CA2
@@ -51,6 +52,7 @@ const caColorMap = {
   IGCAR: "#d45087", // Repeat CA3
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
+
 // Time period options
 const TIME_PERIODS = {
   ALL: 0,
@@ -58,6 +60,7 @@ const TIME_PERIODS = {
   LAST_3_MONTHS: 2,
   LAST_1_MONTH: 3,
 };
+
 // Define instruction sets
 const mapInstructions = [
   { action: "Click", description: "View CA distribution" },
@@ -74,6 +77,8 @@ const Map = () => {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState(
     TIME_PERIODS.ALL
   );
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   console.log("Map 😉");
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -87,15 +92,17 @@ const Map = () => {
     return res.json();
   };
 
-  const { data: geojsonData, error: geojsonError } = useSWR(
-    `http://${domain}:8080/states/india.json`,
-    fetcher
-  );
+  const {
+    data: geojsonData,
+    error: geojsonError,
+    isLoading: geojsonLoading,
+  } = useSWR(`http://${domain}:8080/states/india.json`, fetcher);
 
-  const { data: mapdataData, error: mapdataError } = useSWR(
-    `http://${domain}:8080/count/india.json`,
-    fetcher
-  );
+  const {
+    data: mapdataData,
+    error: mapdataError,
+    isLoading: mapdataLoading,
+  } = useSWR(`http://${domain}:8080/count/india.json`, fetcher);
 
   // Process the map data based on the selected time period
   const processMapData = (data, timePeriod) => {
@@ -121,27 +128,98 @@ const Map = () => {
     });
   };
 
-  React.useEffect(() => {
-    if (geojsonData) setGeojson(geojsonData);
-    if (mapdataData) {
-      setMapdata(mapdataData);
-      setFilteredMapData(processMapData(mapdataData, selectedTimePeriod));
+  // Reset hover state on component mount/reload
+  useEffect(() => {
+    setHoveredStateData(null);
+  }, []);
+
+  useEffect(() => {
+    let dataReady = false;
+
+    if (geojsonData && !geojsonError) {
+      setGeojson(geojsonData);
     }
-  }, [geojsonData, mapdataData]);
+
+    if (mapdataData && !mapdataError) {
+      setMapdata(mapdataData);
+      const processedData = processMapData(mapdataData, selectedTimePeriod);
+      setFilteredMapData(processedData);
+      dataReady = true;
+    }
+
+    // Set data loaded state only when both datasets are ready
+    if (geojsonData && mapdataData && dataReady) {
+      setIsDataLoaded(true);
+    }
+  }, [geojsonData, mapdataData, geojsonError, mapdataError]);
 
   // Update filtered data when time period changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (mapdata) {
-      setFilteredMapData(processMapData(mapdata, selectedTimePeriod));
+      const processedData = processMapData(mapdata, selectedTimePeriod);
+      setFilteredMapData(processedData);
     }
   }, [selectedTimePeriod, mapdata]);
 
   const handleTimePeriodChange = (event) => {
     setSelectedTimePeriod(parseInt(event.target.value));
+    // Reset hover state when time period changes
+    setHoveredStateData(null);
   };
 
-  if (geojsonError || mapdataError) return <div>Error loading map data.</div>;
-  if (!geojson || !filteredMapData) return <div>Loading...</div>;
+  // Show loading state
+  if (geojsonLoading || mapdataLoading || !isDataLoaded) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#666",
+        }}
+      >
+        Loading map data...
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (geojsonError || mapdataError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#d32f2f",
+        }}
+      >
+        Error loading map data. Please try again.
+      </Box>
+    );
+  }
+
+  // Don't render until all data is loaded
+  if (!geojson || !filteredMapData) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#666",
+        }}
+      >
+        Preparing map...
+      </Box>
+    );
+  }
 
   const totalCount = filteredMapData.reduce((sum, item) => {
     return (
@@ -331,6 +409,11 @@ const Map = () => {
     }
   };
 
+  const handleMouseOver = (stateName) => {
+    const stateData = filteredMapData.find((item) => item.state === stateName);
+    setHoveredStateData(stateData);
+  };
+
   return (
     <div>
       {!selectedState ? (
@@ -355,7 +438,7 @@ const Map = () => {
                   onChange={handleTimePeriodChange}
                   label="Time Period"
                 >
-                  <MenuItem value={TIME_PERIODS.ALL}>All</MenuItem>
+                  <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
                   <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
                     Last 6 Months
                   </MenuItem>
@@ -376,10 +459,16 @@ const Map = () => {
               display: "flex",
               flexDirection: isSmallScreen ? "column" : "row",
               gap: 2,
+              minHeight: isSmallScreen ? "auto" : "600px", // Prevent layout shift
             }}
           >
             {/* Map container */}
-            <Box sx={{ flex: isSmallScreen ? 1 : 3 }}>
+            <Box
+              sx={{
+                flex: isSmallScreen ? 1 : 3,
+                minHeight: isSmallScreen ? "400px" : "600px", // Prevent layout shift
+              }}
+            >
               <HighmapsProvider Highcharts={Highmaps}>
                 <HighchartsMapChart
                   map={geojson}
@@ -419,11 +508,7 @@ const Map = () => {
                           handleStateClick(this.st_nm);
                         },
                         mouseOver: function () {
-                          const stateName = this.st_nm;
-                          const stateData = filteredMapData.find(
-                            (item) => item.state === stateName
-                          );
-                          setHoveredStateData(stateData);
+                          handleMouseOver(this.st_nm);
                         },
                       },
                     }}
@@ -444,6 +529,7 @@ const Map = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
+                minHeight: isSmallScreen ? "auto" : "600px", // Prevent layout shift
               }}
             >
               {/* Hover information panel */}
