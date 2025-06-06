@@ -529,6 +529,7 @@ const Map = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
+                justifyContent: "space-around",
                 minHeight: isSmallScreen ? "auto" : "600px", // Prevent layout shift
               }}
             >

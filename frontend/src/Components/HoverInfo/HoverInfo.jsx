@@ -28,7 +28,7 @@ const HoverInfoPanel = ({
     background:
       "linear-gradient(135deg, #ffffff 0%, #f8fbff 50%, #f0f8ff 100%)",
     // Fixed height that doesn't change
-    height: { xs: "400px", sm: "450px", md: "500px" },
+    height: { xs: "400px", sm: "450px", md: "450px" },
     width: "100%",
     display: "flex",
     flexDirection: "column",
