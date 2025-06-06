@@ -1,6 +1,10 @@
 import { Box } from "@mui/material";
 
-const HoverInfoPanel = ({ stateData }) => {
+const HoverInfoPanel = ({
+  stateData,
+  noDataText = "state",
+  nameProperty = "state",
+}) => {
   if (!stateData) {
     return (
       <Box
@@ -109,6 +113,7 @@ const HoverInfoPanel = ({ stateData }) => {
       </Box>
     );
   }
+  console.log(stateData[nameProperty]);
 
   // Filter out state and color properties and non-numeric values
   const caData = Object.entries(stateData)
@@ -679,7 +684,7 @@ const HoverInfoPanel = ({ stateData }) => {
                 letterSpacing: "0.3px",
               }}
             >
-              No certificates issued in this state
+              No certificates issued in this {noDataText}
             </p>
           </Box>
         </Box>
