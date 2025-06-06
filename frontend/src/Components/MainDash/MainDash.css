@@ -1,9 +1,10 @@
 .MainDash{
     /* padding-top: 1rem; */
-    margin: 0 1rem;
+    margin:0 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    max-height: 100dvh;
 }
 .cursive {
     margin: 2rem 0 1rem 0;

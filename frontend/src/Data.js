@@ -1,4 +1,5 @@
 // Sidebar imports
+import homeIcon from "./Images/Icons/home.png";
 import checkIcon from "./Images/Icons/check.png";
 import certIcon from "./Images/Icons/certificate.png";
 import removeIcon from "./Images/Icons/remove.png";
@@ -7,7 +8,6 @@ import userIcon from "./Images/Icons/user.png";
 import uploadIcon from "./Images/Icons/upload.png";
 import logIcon from "./Images/Icons/history.png";
 import signoutIcon from "./Images/Icons/signout.png";
-import expiredtIcon from "./Images/Icons/expired.png";
 import userManagementIcon from "./Images/Icons/usermanagment.png";
 
 // Recent Card Imports
@@ -18,7 +18,7 @@ import img3 from "./Images/IDSign.png";
 // Sidebar Data
 export const SidebarData = [
   {
-    icon: checkIcon,
+    icon: homeIcon,
     heading: "Dashboard",
     viewName: "home",  // added viewName
   },
@@ -110,7 +110,7 @@ export const cardsData = [
     },
     // barValue: 60,
     // value: "4,270",
-    png: expiredtIcon,
+    png: signIcon,
     // series: [
     //   {
     //     name: "Transactions",

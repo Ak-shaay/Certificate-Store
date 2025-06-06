@@ -19,7 +19,9 @@ justify-content: flex-start;
     border-radius: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 10px 20px, rgba(0, 0, 0, 0.28) 0px 6px 6px;
 }
-
+.dynamic-message{
+  color: #84a8ff;
+}
 .file-area {
     border: 2px dashed #84a8ff;
     border-radius: 20px;
@@ -34,12 +36,12 @@ justify-content: flex-start;
 
 .file-area label .browse-files-text {
     color: #84a8ff;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: bolder;
     cursor: pointer;
 }
 .file-area label span {
-  font-size: 0.8rem;
+  font-size: 1rem;
   /* font-weight: bolder; */
   cursor: pointer;
 }
