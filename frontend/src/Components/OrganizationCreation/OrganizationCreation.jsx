@@ -272,7 +272,7 @@ const OrganizationCreation = ({ onBack }) => {
             </button>
           </div>
         </div>
-        <div className="accountCreation">
+        <div className="orgMain">
           <div className="fileContainer">
             <div
               className={`fileUpload ${dragOver ? "drag-over" : ""}`}

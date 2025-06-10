@@ -271,8 +271,10 @@ const UserCreation = ({ onBack }) => {
             }}
           />
           <div className="messageContainer">
-            <span id="messageText">{message}</span>
-          </div>
+  <span id="messageText">
+    {message ? message : <>&nbsp;</>}
+  </span>
+</div>
           <div className="btnContainer">
             <button type="submit" className="commonBtn" onClick={handleSubmit}>
               Create
