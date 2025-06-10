@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import MainDash from "../Components/MainDash/MainDash";
-import RightSide from "../Components/RigtSide/RightSide";
 import UploadCertificate from "../Components/UploadCertificate/UploadCertificate";
 import DataTable from "../Components/DataTable/DataTable";
 import Account from "../Components/Account/Account";

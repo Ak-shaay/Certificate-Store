@@ -10,11 +10,6 @@ import logIcon from "./Images/Icons/history.png";
 import signoutIcon from "./Images/Icons/signout.png";
 import userManagementIcon from "./Images/Icons/usermanagment.png";
 
-// Recent Card Imports
-import img1 from "./Images/cdac.png";
-import img2 from "./Images/NSDL-eGov.jpg";
-import img3 from "./Images/IDSign.png";
-
 // Sidebar Data
 export const SidebarData = [
   {
@@ -118,28 +113,6 @@ export const cardsData = [
     //   },
     // ],
     layoutId:"2",
-  },
-];
-
-// Recent Update Card Data
-export const UpdatesData = [
-  {
-    img: img1,
-    name: "CDAC",
-    noti: "is now a certified CA.",
-    time: "25 seconds ago",
-  },
-  {
-    img: img2,
-    name: "NSDL-eGov",
-    noti: "is now a certified CA.",
-    time: "30 minutes ago",
-  },
-  {
-    img: img3,
-    name: "ID-Sign",
-    noti: "is now a certified CA.",
-    time: "2 hours ago",
   },
 ];
 
