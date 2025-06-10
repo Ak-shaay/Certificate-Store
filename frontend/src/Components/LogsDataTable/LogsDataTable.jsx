@@ -10,7 +10,8 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { Backdrop, Button } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import Button from "@mui/material/Button";
 import { domain } from "../../Context/config";
 
 export default function LogsDataTable() {

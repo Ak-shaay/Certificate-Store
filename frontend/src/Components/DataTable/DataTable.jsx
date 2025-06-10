@@ -8,17 +8,15 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import {
-  Alert,
-  Backdrop,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from "@mui/material";
+import Alert from '@mui/material/Alert';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";

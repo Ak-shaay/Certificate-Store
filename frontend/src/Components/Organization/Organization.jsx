@@ -3,14 +3,12 @@ import "../Organization/Organization.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import refreshIcon from "../../Images/Icons/refresh.png";
-import {
-  Backdrop,
-  FormControl,
-  InputAdornment,
-  OutlinedInput,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import Backdrop from '@mui/material/Backdrop';
+import FormControl from '@mui/material/FormControl';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 
 const Organization = ({ onBack }) => {
   const [authData, setAuthData] = useState([]);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./OrganizationCreation.css";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
 import api from "../../Pages/axiosInstance";
 
 const OrganizationCreation = ({ onBack }) => {

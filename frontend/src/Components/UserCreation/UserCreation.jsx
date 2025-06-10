@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./UserCreation.css";
 import TextField from "@mui/material/TextField";
-import { InputAdornment, MenuItem } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import MenuItem from "@mui/material/MenuItem";
 import api from "../../Pages/axiosInstance";
 import refreshIcon from "../../Images/Icons/refresh.png";
 
