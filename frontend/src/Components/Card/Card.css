@@ -95,3 +95,12 @@
     width: 60%;
   }
 }
+
+/* Apex chart Tweaks */
+.apexcharts-menu.apexcharts-menu-open{
+color: black !important;
+}
+.apexcharts-tooltip {
+  background: #fff !important;
+  color: #000 !important;
+}

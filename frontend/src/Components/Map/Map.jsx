@@ -78,8 +78,6 @@ const Map = () => {
     TIME_PERIODS.ALL
   );
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-
-  console.log("Map 😉");
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   let clickTimer = null;
