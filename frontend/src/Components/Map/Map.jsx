@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapState from "./MapState"; // Import MapState component
 import Highmaps from "highcharts/highmaps";
 import Highcharts from "highcharts";
@@ -25,6 +25,7 @@ import useSWR from "swr";
 import { domain } from "../../Context/config";
 import InstructionsPanel from "../InstructionPanel/InstructionsPanel";
 import HoverInfoPanel from "../HoverInfo/HoverInfo";
+
 const caColorMap = {
   "CCA India 2022": "#ff7c43", // Based on CA1
   Safescrypt: "#f95d6a", // Based on CA2
@@ -51,172 +52,6 @@ const caColorMap = {
   IGCAR: "#d45087", // Repeat CA3
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
-// Add this component to display instructions
-// const InstructionsPanel = () => {
-//   return (
-//     <Box
-//       sx={{
-//         p: 1.5,
-//         border: "1px solid rgba(99, 102, 241, 0.2)",
-//         borderRadius: 2,
-//         background:
-//           "linear-gradient(135deg,rgb(255 246 246) 0%, #f7f7f7 20%, #f1f5f9 100%)",
-//         position: "relative",
-//         overflow: "hidden",
-//         transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-//         backdropFilter: "blur(10px)",
-//         height: "fit-content",
-//         minHeight: "100px",
-//         width: "95%",
-//         maxWidth: "400px",
-//         "@media (hover: hover)": {
-//           "&:hover": {
-//             transform: "translateY(-2px) scale(1.01)",
-//             boxShadow:
-//               "0 12px 24px rgba(99, 102, 241, 0.12), 0 0 30px rgba(139, 92, 246, 0.08)",
-//             border: "1px solid rgba(99, 102, 241, 0.4)",
-//             background:
-//               "linear-gradient(135deg, #fefefe 0%, #f8fafc 20%, #f1f5f9 100%)",
-//           },
-//         },
-//         boxShadow:
-//           "0 4px 12px rgba(99, 102, 241, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04)",
-//         "&::before": {
-//           content: '""',
-//           position: "absolute",
-//           top: 0,
-//           left: "-100%",
-//           width: "100%",
-//           height: "100%",
-//           background:
-//             "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent)",
-//           transition: "left 0.8s ease-in-out",
-//         },
-//         "@media (hover: hover)": {
-//           "&:hover::before": {
-//             left: "100%",
-//           },
-//         },
-//         "&::after": {
-//           content: '""',
-//           position: "absolute",
-//           top: "8px",
-//           right: "12px",
-//           width: "6px",
-//           height: "6px",
-//           borderRadius: "75%",
-//           background:
-//             "radial-gradient(circle,rgb(255, 0, 0) 0%,rgb(255, 0, 0) 100%)",
-//           animation: "gentlePulse 3s ease-in-out infinite",
-//           boxShadow: "0 0 12px rgba(139, 92, 246, 0.5)",
-//         },
-//         "@keyframes gentlePulse": {
-//           "0%, 100%": {
-//             opacity: 0.6,
-//             transform: "scale(1)",
-//             boxShadow: "0 0 12px rgba(139, 92, 246, 0.3)",
-//           },
-//           "50%": {
-//             opacity: 1,
-//             transform: "scale(1.2)",
-//             boxShadow: "0 0 18px rgba(139, 92, 246, 0.6)",
-//           },
-//         },
-//       }}
-//     >
-//       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-//         <Box
-//           sx={{
-//             width: 24,
-//             height: 24,
-//             borderRadius: "50%",
-//             background:
-//               "linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #10b981 100%)",
-//             display: "flex",
-//             alignItems: "center",
-//             justifyContent: "center",
-//             fontSize: "12px",
-//             position: "relative",
-//             boxShadow:
-//               "0 3px 10px rgba(139, 92, 246, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4)",
-//             animation: "iconFloat 4s ease-in-out infinite",
-//             "&::before": {
-//               content: '""',
-//               position: "absolute",
-//               width: "120%",
-//               height: "120%",
-//               borderRadius: "50%",
-//               background:
-//                 "conic-gradient(from 0deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15), rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.15))",
-//               animation: "rotate 6s linear infinite",
-//               zIndex: -1,
-//             },
-//             "&::after": {
-//               content: '""',
-//               position: "absolute",
-//               width: "100%",
-//               height: "100%",
-//               borderRadius: "50%",
-//               background:
-//                 "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.7) 0%, transparent 70%)",
-//             },
-//             "@keyframes iconFloat": {
-//               "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
-//               "25%": { transform: "translateY(-1px) rotate(0.5deg)" },
-//               "50%": { transform: "translateY(0px) rotate(0deg)" },
-//               "75%": { transform: "translateY(-0.5px) rotate(-0.5deg)" },
-//             },
-//             "@keyframes rotate": {
-//               "0%": { transform: "rotate(0deg)" },
-//               "100%": { transform: "rotate(360deg)" },
-//             },
-//           }}
-//         >
-//           💡
-//         </Box>
-//         <Typography
-//           variant="h6"
-//           sx={{
-//             fontSize: "14px",
-//             fontWeight: "700",
-//             background:
-//               "linear-gradient(135deg, #4c1d95 0%, #1e40af 50%, #0891b2 100%)",
-//             WebkitBackgroundClip: "text",
-//             WebkitTextFillColor: "transparent",
-//             backgroundClip: "text",
-//             textShadow: "0 1px 2px rgba(0, 0, 0, 0.08)",
-//             letterSpacing: "0.3px",
-//           }}
-//         >
-//           Instructions
-//         </Typography>
-//       </Box>
-
-//       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-//         <Typography
-//           variant="body2"
-//           sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-//         >
-//           <strong style={{ color: "#374151" }}>Click:</strong> View CA
-//           distribution
-//         </Typography>
-//         <Typography
-//           variant="body2"
-//           sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-//         >
-//           <strong style={{ color: "#374151" }}>Double-click:</strong>{" "}
-//           District-wise State map
-//         </Typography>
-//         <Typography
-//           variant="body2"
-//           sx={{ fontSize: "12px", color: "#6b7280", lineHeight: 1.4 }}
-//         >
-//           <strong style={{ color: "#374151" }}>Hover:</strong> State details
-//         </Typography>
-//       </Box>
-//     </Box>
-//   );
-// };
 
 // Time period options
 const TIME_PERIODS = {
@@ -225,6 +60,7 @@ const TIME_PERIODS = {
   LAST_3_MONTHS: 2,
   LAST_1_MONTH: 3,
 };
+
 // Define instruction sets
 const mapInstructions = [
   { action: "Click", description: "View CA distribution" },
@@ -241,6 +77,8 @@ const Map = () => {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState(
     TIME_PERIODS.ALL
   );
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   console.log("Map 😉");
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -254,15 +92,17 @@ const Map = () => {
     return res.json();
   };
 
-  const { data: geojsonData, error: geojsonError } = useSWR(
-    `http://${domain}:8080/states/india.json`,
-    fetcher
-  );
+  const {
+    data: geojsonData,
+    error: geojsonError,
+    isLoading: geojsonLoading,
+  } = useSWR(`http://${domain}:8080/states/india.json`, fetcher);
 
-  const { data: mapdataData, error: mapdataError } = useSWR(
-    `http://${domain}:8080/count/india.json`,
-    fetcher
-  );
+  const {
+    data: mapdataData,
+    error: mapdataError,
+    isLoading: mapdataLoading,
+  } = useSWR(`http://${domain}:8080/count/india.json`, fetcher);
 
   // Process the map data based on the selected time period
   const processMapData = (data, timePeriod) => {
@@ -288,27 +128,98 @@ const Map = () => {
     });
   };
 
-  React.useEffect(() => {
-    if (geojsonData) setGeojson(geojsonData);
-    if (mapdataData) {
-      setMapdata(mapdataData);
-      setFilteredMapData(processMapData(mapdataData, selectedTimePeriod));
+  // Reset hover state on component mount/reload
+  useEffect(() => {
+    setHoveredStateData(null);
+  }, []);
+
+  useEffect(() => {
+    let dataReady = false;
+
+    if (geojsonData && !geojsonError) {
+      setGeojson(geojsonData);
     }
-  }, [geojsonData, mapdataData]);
+
+    if (mapdataData && !mapdataError) {
+      setMapdata(mapdataData);
+      const processedData = processMapData(mapdataData, selectedTimePeriod);
+      setFilteredMapData(processedData);
+      dataReady = true;
+    }
+
+    // Set data loaded state only when both datasets are ready
+    if (geojsonData && mapdataData && dataReady) {
+      setIsDataLoaded(true);
+    }
+  }, [geojsonData, mapdataData, geojsonError, mapdataError]);
 
   // Update filtered data when time period changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (mapdata) {
-      setFilteredMapData(processMapData(mapdata, selectedTimePeriod));
+      const processedData = processMapData(mapdata, selectedTimePeriod);
+      setFilteredMapData(processedData);
     }
   }, [selectedTimePeriod, mapdata]);
 
   const handleTimePeriodChange = (event) => {
     setSelectedTimePeriod(parseInt(event.target.value));
+    // Reset hover state when time period changes
+    setHoveredStateData(null);
   };
 
-  if (geojsonError || mapdataError) return <div>Error loading map data.</div>;
-  if (!geojson || !filteredMapData) return <div>Loading...</div>;
+  // Show loading state
+  if (geojsonLoading || mapdataLoading || !isDataLoaded) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#666",
+        }}
+      >
+        Loading map data...
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (geojsonError || mapdataError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#d32f2f",
+        }}
+      >
+        Error loading map data. Please try again.
+      </Box>
+    );
+  }
+
+  // Don't render until all data is loaded
+  if (!geojson || !filteredMapData) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "400px",
+          fontSize: "18px",
+          color: "#666",
+        }}
+      >
+        Preparing map...
+      </Box>
+    );
+  }
 
   const totalCount = filteredMapData.reduce((sum, item) => {
     return (
@@ -498,6 +409,11 @@ const Map = () => {
     }
   };
 
+  const handleMouseOver = (stateName) => {
+    const stateData = filteredMapData.find((item) => item.state === stateName);
+    setHoveredStateData(stateData);
+  };
+
   return (
     <div>
       {!selectedState ? (
@@ -522,7 +438,7 @@ const Map = () => {
                   onChange={handleTimePeriodChange}
                   label="Time Period"
                 >
-                  <MenuItem value={TIME_PERIODS.ALL}>All</MenuItem>
+                  <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
                   <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
                     Last 6 Months
                   </MenuItem>
@@ -543,10 +459,16 @@ const Map = () => {
               display: "flex",
               flexDirection: isSmallScreen ? "column" : "row",
               gap: 2,
+              minHeight: isSmallScreen ? "auto" : "600px", // Prevent layout shift
             }}
           >
             {/* Map container */}
-            <Box sx={{ flex: isSmallScreen ? 1 : 3 }}>
+            <Box
+              sx={{
+                flex: isSmallScreen ? 1 : 3,
+                minHeight: isSmallScreen ? "400px" : "600px", // Prevent layout shift
+              }}
+            >
               <HighmapsProvider Highcharts={Highmaps}>
                 <HighchartsMapChart
                   map={geojson}
@@ -586,11 +508,7 @@ const Map = () => {
                           handleStateClick(this.st_nm);
                         },
                         mouseOver: function () {
-                          const stateName = this.st_nm;
-                          const stateData = filteredMapData.find(
-                            (item) => item.state === stateName
-                          );
-                          setHoveredStateData(stateData);
+                          handleMouseOver(this.st_nm);
                         },
                       },
                     }}
@@ -611,10 +529,16 @@ const Map = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
+                justifyContent: "space-around",
+                minHeight: isSmallScreen ? "auto" : "600px", // Prevent layout shift
               }}
             >
               {/* Hover information panel */}
-              <HoverInfoPanel stateData={hoveredStateData} />
+              <HoverInfoPanel
+                stateData={hoveredStateData}
+                noDataText="state"
+                nameProperty="state"
+              />
 
               {/* Instructions panel */}
               <InstructionsPanel instructions={mapInstructions} />

@@ -16,7 +16,7 @@ const InstructionsPanel = ({ instructions = [] }) => {
         height: "fit-content",
         minHeight: "100px",
         width: "95%",
-        maxWidth: "400px",
+        // maxWidth: "400px",
         "@media (hover: hover)": {
           "&:hover": {
             transform: "translateY(-2px) scale(1.01)",
