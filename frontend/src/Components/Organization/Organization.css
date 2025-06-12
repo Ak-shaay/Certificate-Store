@@ -9,7 +9,7 @@
 }
 .orgBody{
     height: auto;
-    min-height: 98vh;
+    max-height: 100vh;
     width: 98%;
     display: flex;
     border-radius: 2rem;
