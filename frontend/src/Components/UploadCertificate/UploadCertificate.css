@@ -13,7 +13,7 @@ justify-content: flex-start;
 .upload-files-container {
   margin-top: 2rem;
     background: linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%);;
-    width: 90%;
+    width: 80%;
     max-width: 600px;
     padding: 30px 30px 10px 30px;
     border-radius: 20px;

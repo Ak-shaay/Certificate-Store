@@ -1,8 +1,9 @@
 .RightMain {
     display: flex;
     flex-direction: column;
-    margin: 0 0 0 1rem;
-    justify-content: center;
+    /* margin: 0 0 0 1rem; */
+    /* justify-content: center; */
+    margin: 11rem 0 0 0;
 }
 .ProfileContainer {
     width: 85%;
@@ -18,7 +19,7 @@
     border-radius: 0.7rem;
     padding: 1rem;
     text-align: center;
-    height: 35vh;
+    /* height: 35vh; */
 }
 
 
@@ -52,13 +53,13 @@
 }
 
 @media screen and (max-width: 768px) {
-    /* .RightMain {
-        width: 100%;
-        margin-top: 0;
-        order: 1;
-    } */
+    .RightMain {
+        /* width: 100%; */
+        margin-top: 1rem;
+        /* order: 1; */
+    }
     .ProfileContainer {
-        margin-top: 2rem;
+        margin-top: 4rem;
     }
 }
 .status{
