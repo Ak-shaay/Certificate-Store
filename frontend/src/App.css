@@ -55,14 +55,6 @@
 }
 
 
-@media screen and (max-width: 499px) {
-  #filter {
-    margin: 0 1rem;
-    left: 0
-  }
-
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -110,6 +102,14 @@
   padding: 2rem;
   border-radius: 10px;
   color: black;
+    margin: 0 1rem;
+}
+@media screen and (max-width: 375px) {
+  #filter {
+   max-width: 70dvw;
+   max-height: 90vh;
+   overflow: scroll;
+  }
 }
 .row {
   display: flex;
