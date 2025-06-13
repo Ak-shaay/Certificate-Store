@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from "react";
 import "./RightSideAccount.css";
 import api from "../../Pages/axiosInstance";
-
 import { domain } from "../../Context/config";
 
 const RightSideAccount = () => {
+  const defaultImage = "http://" + domain + ":8080/images/null.png";
+
   const [username, setUsername] = useState(null);
-  const [authNo, setAuthNo] = useState("");
+  const [authNo, setAuthNo] = useState(null);
   const [ipAddress, setIpAddress] = useState(null);
   const [lastLogin, setLastLogin] = useState(null);
+  const [currentImgSrc, setCurrentImgSrc] = useState(defaultImage);
 
-  const [imageError, setImageError] = useState(false);
+  useEffect(() => {
+    // Update current image source whenever authNo changes
+    if (authNo) {
+      setCurrentImgSrc("http://" + domain + ":8080/images/" + authNo + ".png");
+    } else {
+      setCurrentImgSrc(defaultImage);
+    }
+  }, [authNo]);
 
-  const imgURL = authNo
-    ? "http://" + domain + ":8080/images/" + authNo + ".png"
-    : "";
-  const defaultImage = "http://" + domain + ":8080/images/null.png";
+  const handleImageError = (e) => {
+    e.target.onerror = null; // prevent infinite loop
+    setCurrentImgSrc(defaultImage); // fallback to default image
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,16 +52,12 @@ const RightSideAccount = () => {
     fetchData();
   }, []);
 
-  const handleImageError = () => {
-    setImageError(true);
-  };
-
   return (
     <div className="RightMain">
       <div className="ProfileContainer">
         <div className="Profile">
           <img
-            src={imageError ? defaultImage : imgURL}
+            src={currentImgSrc}
             alt="profile"
             onError={handleImageError}
           />
