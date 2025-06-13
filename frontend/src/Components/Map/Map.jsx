@@ -25,7 +25,6 @@ import useSWR from "swr";
 import { domain } from "../../Context/config";
 import InstructionsPanel from "../InstructionPanel/InstructionsPanel";
 import HoverInfoPanel from "../HoverInfo/HoverInfo";
-
 const caColorMap = {
   "CCA India 2022": "#ff7c43", // Based on CA1
   Safescrypt: "#f95d6a", // Based on CA2
