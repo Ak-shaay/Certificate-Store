@@ -530,7 +530,8 @@ const HoverInfoPanel = ({
                 background:
                   "linear-gradient(135deg, #FFCA71 0%, rgba(255, 202, 113, 0.1) 100%)",
                 borderRadius: { xs: 2, sm: 2.5, md: 3 },
-                p: { xs: 2, sm: 3, md: 4 },
+                // Change this line - reduce the padding values:
+                p: { xs: 1, sm: 1.5, md: 2 }, // CHANGED: was { xs: 2, sm: 3, md: 4 }
                 border: "2px solid rgba(255, 202, 113, 0.3)",
                 maxWidth: "100%",
                 boxShadow: "0 8px 24px rgba(255, 202, 113, 0.2)",
@@ -538,7 +539,7 @@ const HoverInfoPanel = ({
             >
               <Box
                 sx={{
-                  fontSize: { xs: "20px", sm: "24px", md: "28px" }, // Reduced size
+                  fontSize: { xs: "20px", sm: "24px", md: "28px" },
                   mb: { xs: 0.75, sm: 1, md: 1.25 },
                 }}
               >
@@ -549,7 +550,7 @@ const HoverInfoPanel = ({
                   margin: 0,
                   color: "#8b5a00",
                   fontWeight: "600",
-                  fontSize: "clamp(11px, 2.8vw, 14px)", // Reduced font size
+                  fontSize: "clamp(11px, 2.8vw, 14px)",
                   lineHeight: 1.4,
                   letterSpacing: "0.3px",
                 }}
