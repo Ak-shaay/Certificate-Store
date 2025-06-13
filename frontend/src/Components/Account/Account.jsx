@@ -66,6 +66,7 @@ const Account = () => {
   }, []);
 
   const handlePasswordChange = () => setOpen(true);
+  
   const handleClose = () => {
     setOpen(false);
     setOldPassword("");

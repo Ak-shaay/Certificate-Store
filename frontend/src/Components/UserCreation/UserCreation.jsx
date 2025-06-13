@@ -5,6 +5,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import MenuItem from "@mui/material/MenuItem";
 import api from "../../Pages/axiosInstance";
 import refreshIcon from "../../Images/Icons/refresh.png";
+import { Grid } from "@mui/material";
 
 const UserCreation = ({ onBack }) => {
   const [name, setName] = useState("");
@@ -53,7 +54,7 @@ const UserCreation = ({ onBack }) => {
         const response = await api.axiosInstance.get("/generatePassword");
 
         if (response.status === 200) {
-          setPassword(response.data.password);          
+          setPassword(response.data.password);
           msgSpan.style.color = "green";
           setMessage(response.data.message);
         }
@@ -64,7 +65,7 @@ const UserCreation = ({ onBack }) => {
     }
   };
   setTimeout(() => {
-    setMessage(""); 
+    setMessage("");
   }, 3000);
 
   const handleNameChange = (e) => {
@@ -198,84 +199,102 @@ const UserCreation = ({ onBack }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop:'1.5rem',
-            marginBottom:'1rem'
+            marginTop: "1.5rem",
+            marginBottom: "1rem",
           }}
         >
-          <h2 style={{ margin:0 }}>Create User</h2>
+          <h2 style={{ margin: 0 }}>Create User</h2>
           <div style={{ position: "absolute", left: 0 }}>
-          <button onClick={onBack} className="backButton">
-            Back
-          </button>
+            <button onClick={onBack} className="backButton">
+              Back
+            </button>
           </div>
         </div>
         <div className="accountCreation">
-          <TextField
-            required
-            id="name"
-            label="Name"
-            value={name}
-            onChange={handleNameChange}
-            error={!!errors.name}
-            helperText={errors.name}
-          />
-          <TextField
-            onChange={handleOrgChange}
-            id="organization"
-            select
-            label="Organization"
-            value={organisation}
-            helperText={
-              errors.organisation || "Please select your organization"
-            }
-            error={!!errors.organisation}
-          >
-            {authorities.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            required
-            id="email"
-            label="Email"
-            value={email}
-            onChange={handleEmailChange}
-            error={!!errors.email}
-            helperText={errors.email}
-          />
-          <TextField
-            required
-            id="password"
-            type="password"
-            label="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            error={!!errors.password}
-            helperText={errors.password}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <button
-                    type="button"
-                    id="smallBtn"
-                    onClick={handleGenPass}
-                  >
-                    <img
-                      src={refreshIcon}
-                      alt="regenerate"
-                    />
-                  </button>
-                </InputAdornment>
-              ),
-            }}
-          />
+          <Grid container spacing={2} sx={{justifyContent:"center"}}>
+            <Grid item xs={10} sm={6} md={4} lg={3}>
+              <TextField
+                fullWidth
+                required
+                variant="outlined"
+                id="name"
+                label="Name"
+                value={name}
+                onChange={handleNameChange}
+                error={!!errors.name}
+                helperText={errors.name}
+              />
+            </Grid>
+
+            <Grid item xs={10} sm={6} md={4} lg={3}>
+              <TextField
+                fullWidth
+                select
+                variant="outlined"
+                id="organization"
+                label="Organization"
+                value={organisation}
+                onChange={handleOrgChange}
+                error={!!errors.organisation}
+                helperText={
+                  errors.organisation || "Please select your organization"
+                }
+              >
+                {authorities.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={10} sm={6} md={4} lg={3}>
+              <TextField
+                fullWidth
+                required
+                variant="outlined"
+                id="email"
+                label="Email"
+                value={email}
+                onChange={handleEmailChange}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+            </Grid>
+
+            <Grid item xs={10} sm={6} md={4} lg={3}>
+              <TextField
+                fullWidth
+                required
+                variant="outlined"
+                id="password"
+                type="password"
+                label="Password"
+                value={password}
+                onChange={handlePasswordChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <button
+                        type="button"
+                        id="smallBtn"
+                        onClick={handleGenPass}
+                      >
+                        <img src={refreshIcon} alt="regenerate" />
+                      </button>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+
           <div className="messageContainer">
-  <span id="messageText">
-    {message ? message : <>&nbsp;</>}
-  </span>
-</div>
+            <span id="messageText">{message ? message : <>&nbsp;</>}</span>
+          </div>
+
           <div className="btnContainer">
             <button type="submit" className="commonBtn" onClick={handleSubmit}>
               Create
