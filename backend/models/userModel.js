@@ -545,10 +545,9 @@ async function getLastLogin(authNo) {
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
     } else {
-      query = `SELECT l.*
-FROM logs l
+      query = `SELECT l.* FROM logs l
 JOIN login lg ON l.UserEmail = lg.UserEmail
-WHERE lg.UserEmail = 'admin' AND l.ActionType = 'login'
+WHERE lg.role = 'Admin' AND l.ActionType = 'login'
 ORDER BY l.LogsSrNo DESC
 LIMIT 1`;
     }
@@ -600,76 +599,76 @@ async function getCardsData() {
     let query = `
       WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    COALESCE(COUNT(c.IssueDate), 0) AS issued_records
-FROM 
-    hours h
-LEFT JOIN 
-    cert c
-ON 
-    DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND c.IssueDate <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        COALESCE(COUNT(c.IssueDate), 0) AS issued_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        cert c
+    ON 
+        DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND c.IssueDate <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;
     `;
     let query2 = `
     WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    COALESCE(COUNT(r.RevokeDateTime), 0) AS rev_records
-FROM 
-    hours h
-LEFT JOIN 
-    revocation_data r
-ON 
-    DATE_FORMAT(r.RevokeDateTime, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND r.RevokeDateTime >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND r.RevokeDateTime <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        COALESCE(COUNT(r.RevokeDateTime), 0) AS rev_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        revocation_data r
+    ON 
+        DATE_FORMAT(r.RevokeDateTime, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND r.RevokeDateTime >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND r.RevokeDateTime <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;`;
 
     let query3 = `WITH RECURSIVE hours AS (
     SELECT
-        DATE_FORMAT(NOW() - INTERVAL 5 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
     UNION ALL
     SELECT
         DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
     FROM hours
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
-)
-SELECT 
-    h.hour_start,
-    COALESCE(COUNT(cu.UsageDate), 0) AS used_records
-FROM 
-    hours h
-LEFT JOIN 
-    cert_usage cu
-ON 
-    DATE_FORMAT(cu.UsageDate, '%Y-%m-%d %H:00:00') = h.hour_start
-    AND cu.UsageDate >= DATE_SUB(NOW(), INTERVAL 6 HOUR)
-    AND cu.UsageDate <= NOW()
-GROUP BY 
-    h.hour_start
-ORDER BY 
+    )
+    SELECT 
+        h.hour_start,
+        COALESCE(COUNT(cu.UsageDate), 0) AS used_records
+    FROM 
+        hours h
+    LEFT JOIN 
+        cert_usage cu
+    ON 
+        DATE_FORMAT(cu.UsageDate, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND cu.UsageDate >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND cu.UsageDate <= NOW()
+    GROUP BY 
+        h.hour_start
+    ORDER BY 
     h.hour_start;`;
 
     const issued = await db.executeQuery(query);
@@ -752,14 +751,37 @@ async function getAllAuthsData() {
     console.log("error fetching data", e);
   }
 }
-async function getAllUsersData() {
-  const query = `SELECT l.*,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
+async function getAllUsersData( page,  rows,  order,  orderBy,noPagination = false) {
+  let query = `SELECT l.UserEmail,l.Name,l.Role,l.LoginStatus,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
 
   try {
-    const users = await db.executeQuery(query);
-    return users;
+    const validColumns = [
+      "UserEmail",
+      "Name",
+      "Role",
+      "LoginStatus",
+      "AuthName",
+    ];
+    const sortColumn = validColumns.includes(orderBy)
+      ? orderBy
+      : "AuthName";
+    const sortOrder = order === "desc" ? "desc" : "asc";
+
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;        
+    const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    const count = await db.executeQuery(countQuery);
+
+    // Add pagination with LIMIT and OFFSET
+    if (!noPagination) {
+      if (rows && page) {
+        const offset = (page - 1) * rows;
+        query += ` LIMIT ${rows} OFFSET ${offset}`;
+      }
+    }
+    const result = await db.executeQuery(query);
+    return { result, count: count[0].total };
   } catch (e) {
-    console.log("error fetching user data", e);
+    console.log("Error while fetching certificate details: ", e);
   }
 }
 
@@ -794,6 +816,15 @@ async function getRevocationReasons() {
   try {
     const distinctReasonsResults = await db.executeQuery(queryDistinctReasons);
     return distinctReasonsResults;
+  } catch (e) {
+    console.log("error fetching data", e);
+  }
+}
+async function getLogActions() {
+  const queryDistinctActions = `SELECT DISTINCT ActionType FROM logs`;
+  try {
+    const distinctActionsResults = await db.executeQuery(queryDistinctActions);
+    return distinctActionsResults;
   } catch (e) {
     console.log("error fetching data", e);
   }
@@ -1136,6 +1167,7 @@ module.exports = {
   updateAuthsData,
   getSubjectTypes,
   getRevocationReasons,
+  getLogActions,
   getCertSerialNumber,
   getNextSerial,
   signup,

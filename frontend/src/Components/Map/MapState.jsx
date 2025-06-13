@@ -13,6 +13,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { Button } from "@mui/material";
+
 import {
   HighchartsMapChart,
   HighmapsProvider,
@@ -24,6 +25,8 @@ import {
   ColorAxis,
 } from "react-jsx-highmaps";
 import { Pane, Chart } from "react-jsx-highcharts";
+import InstructionsPanel from "../InstructionPanel/InstructionsPanel.jsx";
+import HoverInfoPanel from "../HoverInfo/HoverInfo.jsx";
 
 const caColorMap = {
   "CCA India 2022": "#ff7c43", // Based on CA1
@@ -51,6 +54,11 @@ const caColorMap = {
   IGCAR: "#d45087", // Repeat CA3
   "Speed Signa": "#a05195", // Repeat RADHERADHE
 };
+const mapStateInstructions = [
+  { action: "Click", description: "View CA distribution" },
+  { action: "Hover", description: "District details" },
+];
+// Updated HoverInfoPanel component for the district view
 
 // Time period options
 const TIME_PERIODS = {
@@ -65,8 +73,10 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
   const [mapdata, setMapdata] = useState(null);
   const [filteredMapData, setFilteredMapData] = useState(null);
   const [pieData, setPieData] = useState(null);
+  const [hoveredStateData, setHoveredStateData] = useState(null);
   const [showIndiaMap, setShowIndiaMap] = useState(false);
   const [localTimePeriod, setLocalTimePeriod] = useState(selectedTimePeriod);
+
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -402,103 +412,152 @@ const MapState = ({ stateName, selectedTimePeriod = TIME_PERIODS.ALL }) => {
         }}
       >
         <Box sx={{ flex: 1 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleIndiaMapToggle}
-            style={{ marginRight: "1rem" }}
-          >
-            Back to India Map
-          </Button>
-
-          <FormControl
-            size="small"
-            variant="outlined"
-            style={{ minWidth: 150 }}
-          >
-            <InputLabel id="state-time-period-label">Time Period</InputLabel>
-            <Select
-              labelId="state-time-period-label"
-              id="state-time-period-select"
-              value={localTimePeriod}
-              onChange={handleTimePeriodChange}
-              label="Time Period"
+          <Box sx={{ flex: 1 }}>
+            <Button
+              variant="contained"
+              onClick={handleIndiaMapToggle}
+              sx={{
+                backgroundColor: "#8D9DFE",
+                color: "white",
+                marginRight: isSmallScreen ? 0 : "1rem",
+                marginBottom: isSmallScreen ? "1rem" : 0,
+                "&:hover": {
+                  backgroundColor: "#7A8BFD",
+                },
+              }}
             >
-              <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
-                Last 6 Months
-              </MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_3_MONTHS}>
-                Last 3 Months
-              </MenuItem>
-              <MenuItem value={TIME_PERIODS.LAST_1_MONTH}>Last Month</MenuItem>
-            </Select>
-          </FormControl>
+              Back to India Map
+            </Button>
+
+            <FormControl
+              size="small"
+              variant="outlined"
+              style={{ minWidth: 150 }}
+            >
+              <InputLabel id="state-time-period-label">Time Period</InputLabel>
+              <Select
+                labelId="state-time-period-label"
+                id="state-time-period-select"
+                value={localTimePeriod}
+                onChange={handleTimePeriodChange}
+                label="Time Period"
+              >
+                <MenuItem value={TIME_PERIODS.ALL}>All Time</MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_6_MONTHS}>
+                  Last 6 Months
+                </MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_3_MONTHS}>
+                  Last 3 Months
+                </MenuItem>
+                <MenuItem value={TIME_PERIODS.LAST_1_MONTH}>
+                  Last Month
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
       </Box>
 
-      <HighmapsProvider Highcharts={Highmaps}>
-        <HighchartsMapChart
-          map={geojson}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: isSmallScreen ? "column" : "row",
+          gap: 2,
+        }}
+      >
+        {/* Map container */}
+        <Box sx={{ flex: isSmallScreen ? 1 : 3 }}>
+          <HighmapsProvider Highcharts={Highmaps}>
+            <HighchartsMapChart
+              map={geojson}
+              sx={{
+                width: "100%",
+                height: isSmallScreen ? 400 : 600,
+              }}
+            >
+              <Chart
+                height={isSmallScreen ? 400 : 600}
+                backgroundColor="white"
+                sx={{
+                  width: "100%",
+                  maxWidth: "100%",
+                }}
+              />
+              <Title>{totalCountString}</Title>
+
+              <Pane background={{ backgroundColor: "#ffecd1" }} />
+              <Tooltip pointFormat="{point.district}: {point.value}" />
+              <Credits enabled={false} />
+              <MapNavigation>
+                <MapNavigation.ZoomIn />
+                <MapNavigation.ZoomOut />
+              </MapNavigation>
+              <ColorAxis
+                min={Math.min(...seriesData.map((item) => item.value))}
+                max={Math.max(...seriesData.map((item) => item.value))}
+                stops={[
+                  [0, "#ffa600"],
+                  [0.2, "#ff7c43"],
+                  [0.4, "#f95d6a"],
+                  [0.6, "#d45087"],
+                  [0.8, "#a05195"],
+                  [1, "#003f5c"],
+                ]}
+              />
+              <MapSeries
+                name="Certificates Issued"
+                data={seriesData}
+                colorAxis={0}
+                joinBy="district"
+                states={{
+                  hover: {
+                    color: "#ffecd1",
+                  },
+                }}
+                point={{
+                  events: {
+                    click: function () {
+                      handleStateClick(this.district);
+                    },
+                    mouseOver: function () {
+                      const districtName = this.district;
+                      const districtData = filteredMapData.find(
+                        (item) => item.state === districtName
+                      );
+                      setHoveredStateData(districtData);
+                    },
+                  },
+                }}
+                dataLabels={{
+                  enabled: false,
+                  format: "{point.district}: {point.value}",
+                }}
+                colorByPoint={false}
+              />
+            </HighchartsMapChart>
+          </HighmapsProvider>
+        </Box>
+
+        {/* Right sidebar with district info and instructions */}
+        <Box
           sx={{
-            width: "100%",
-            height: isSmallScreen ? 400 : 600,
+            flex: isSmallScreen ? 1 : 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
           }}
         >
-          <Chart
-            height={isSmallScreen ? 400 : 600}
-            backgroundColor="white"
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
-            }}
+          {/* Hover information panel */}
+          <HoverInfoPanel
+            stateData={hoveredStateData}
+            noDataText="district"
+            nameProperty="district"
           />
-          <Title>{totalCountString}</Title>
 
-          <Pane background={{ backgroundColor: "#ffecd1" }} />
-          <Tooltip pointFormat="{point.district}: {point.value}" />
-          <Credits enabled={false} />
-          <MapNavigation>
-            <MapNavigation.ZoomIn />
-            <MapNavigation.ZoomOut />
-          </MapNavigation>
-          <ColorAxis
-            min={Math.min(...seriesData.map((item) => item.value))}
-            max={Math.max(...seriesData.map((item) => item.value))}
-            stops={[
-              [0, "#ffa600"],
-              [0.2, "#ff7c43"],
-              [0.4, "#f95d6a"],
-              [0.6, "#d45087"],
-              [0.8, "#a05195"],
-              [1, "#003f5c"],
-            ]}
-          />
-          <MapSeries
-            name="Certificates Issued"
-            data={seriesData}
-            colorAxis={0} // Reference to the colorAxis by index
-            joinBy="district"
-            states={{
-              hover: {
-                color: "#ffecd1",
-              },
-            }}
-            point={{
-              events: {
-                click: function () {
-                  handleStateClick(this.district);
-                },
-              },
-            }}
-            dataLabels={{
-              enabled: false,
-              format: "{point.district}: {point.value}",
-            }}
-            colorByPoint={false} // Set to false when using colorAxis
-          />
-        </HighchartsMapChart>
-      </HighmapsProvider>
+          {/* Instructions panel */}
+          <InstructionsPanel instructions={mapStateInstructions} />
+        </Box>
+      </Box>
     </div>
   );
 };

@@ -115,6 +115,10 @@ const SystemParameters = ({ onBack }) => {
 
   async function addStateToRegion() {
     try {
+      if (!selectedState) {
+        alert("Please select a state to add!");
+        return;
+      }
       const accessToken = api.getAccessToken();
       if (accessToken) {
         api.setAuthHeader(accessToken);
@@ -232,9 +236,24 @@ const SystemParameters = ({ onBack }) => {
   return (
     <div className="spBody">
       <div className="mainSp">
-      <div className="backClass">
-      <button onClick={onBack} className="backButton">Back</button></div>
-        <h2>Manage System Parameters</h2>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Manage System Parameters</h2>
+          <div style={{ position: "absolute", left: 0 }}>
+          <button onClick={onBack} className="backButton">
+            Back
+          </button>
+          </div>
+        </div>
         <div className="mainContainer">
           <div className="gridContainer">
             <h3>Select Region</h3>

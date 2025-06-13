@@ -1,66 +1,69 @@
 .RightMain {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 0 1rem;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  margin: 11rem 0 0 0;
 }
+
 .ProfileContainer {
-    width: 85%;
-    align-self: center;
-    gap: 1rem;
-    display: flex;
-    flex-direction: column;
-    font-size: 13px;
+  width: 85%;
+  align-self: center;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
 }
 
 .Profile {
-    background:linear-gradient(to bottom, #fff0f5, #ffe4e1);
-    border-radius: 0.7rem;
-    padding: 1rem;
-    text-align: center;
-    height: 35vh;
+  background: linear-gradient(to bottom, #fff0f5, #ffe4e1);
+  border-radius: 0.7rem;
+  padding: 3rem 1rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden; 
 }
 
+.Profile img {
+  width: 5rem;
+  height: auto;
+  border-radius: 50%;
+  object-fit: cover; 
+  margin: 0 auto;
+  display: block;
+}
 
 .ProfileName {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #333;
-}
-.Profile img {
-    transform: translateY(-65%); 
-    width: 7rem;
-    height: 7rem;
-}
-.ProfileData {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transform: translateY(-90px);
-}
-.ProfileStatus span{
-    font-weight: bold;
-    font-size: initial;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-@media screen and (max-width: 1200px) {
-    /* .RightMain {
-        justify-content: flex-start;
-        margin-top: 11rem;
-    } */
+.ProfileData {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  transform: none; 
 }
+
+.ProfileStatus span {
+  font-weight: bold;
+  font-size: initial;
+}
+
+/* @media screen and (max-width: 1200px) {
+
+} */
 
 @media screen and (max-width: 768px) {
-    /* .RightMain {
-        width: 100%;
-        margin-top: 0;
-        order: 1;
-    } */
-    .ProfileContainer {
-        margin-top: 2rem;
-    }
+  .RightMain {
+    margin-top: 1rem;
+  }
+  .ProfileContainer {
+    margin-top: 4rem;
+  }
 }
-.status{
-    font-size: 13px;
+
+.status {
+  font-size: 13px;
 }

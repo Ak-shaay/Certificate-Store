@@ -8,17 +8,15 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import {
-  Alert,
-  Backdrop,
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-} from "@mui/material";
+import Alert from '@mui/material/Alert';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
@@ -429,7 +427,7 @@ export default function DataTable() {
 
   return (
     <div className="TableContainer">
-      <h3>Issued Certificates</h3>
+      <h2 className="cursive">Issued Certificates</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={backdrop}
@@ -855,7 +853,6 @@ export default function DataTable() {
             )}
           </TableBody>
         </Table>
-
         <div className="table-footer">
           <div className="downloadContainer">
             <Button

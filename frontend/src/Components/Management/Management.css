@@ -7,24 +7,23 @@
 .menu-title {
   font-size: 1.875rem; 
   font-weight: bold; 
-  color: #1f2937; 
+  /* color: #1f2937;  */
   margin: 3rem 0; 
+  /* font-family: 'Dancing Script', cursive; */
+  color: rgb(60 87 153);
 }
 
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 4rem; 
+  gap: 2.5rem; 
 
 }
 
 .menu-item {
-  background-color: white; 
-  border-radius: 0.5rem; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-  padding: 1rem; 
-  padding: 1rem;
   background-color: rgba(255, 255, 255, 0.274);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  padding: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.222);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
@@ -40,8 +39,10 @@
 .item-title {
   font-size: 1.125rem; 
   font-weight: bold; 
-  color: #1f2937; 
+  /* color: #1f2937;  */
   margin-bottom: 0.5rem;
+  /* font-family: 'Dancing Script', cursive; */
+  color: rgb(60 87 153);
 }
 
 .item-description {

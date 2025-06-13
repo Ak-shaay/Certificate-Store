@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import MainDash from "../Components/MainDash/MainDash";
-import RightSide from "../Components/RigtSide/RightSide";
 import UploadCertificate from "../Components/UploadCertificate/UploadCertificate";
-import DataTable from "../Components/DataTable/DataTable ";
+import DataTable from "../Components/DataTable/DataTable";
 import Account from "../Components/Account/Account";
 import RightSideAccount from "../Components/RightSideAccount/RightSideAccount";
 import RevokedDataTable from "../Components/RevokedDataTable/RevokedDataTable";
-import UsageDataTable from "../Components/UsageDataTable/UsageDataTable ";
+import UsageDataTable from "../Components/UsageDataTable/UsageDataTable";
 import LogsDataTable from "../Components/LogsDataTable/LogsDataTable";
 import api from "./axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ import Management from "../Components/Management/Management";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
+  const [view, setView] = useState("home");  // Default view can be "home"
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -67,74 +66,83 @@ function Dashboard() {
   const username = decodedToken.name || "";
   const role = decodedToken.role || "";
 
-  // Handle index change for sidebar navigation
-  const handleIndexChange = (newIndex) => {
-    setIndex(newIndex);
-  };
+  // handleViewChange will update the current view when a menu item is clicked
+  // const handleViewChange = (newView) => {
+  //   setView(newView);
+  // };
+  const handleViewChange = (newView) => {
+  setView((prev) => {
+    if (prev === newView && newView === "portalManagement") {
+      setTimeout(() => setView("portalManagement"), 0); // trigger re-mount
+      return "";
+    }
+    return newView;
+  });
+};
 
-  // Use a switch statement outside the JSX to manage different views based on index
-  switch (index) {
-    case 0:
+  switch (view) {
+    case "home":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
-          <MainDash username={username}/>
-          {/* <RightSide /> */}
+          <Sidebar onIndexChange={handleViewChange} role={role} />
+          <MainDash username={username} />
         </div>
       );
-    case 1:
+    case "issuedCertificates":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role}/>
           <DataTable />
         </div>
       );
-    case 2:
+    case "revokedCertificates":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role} />
           <RevokedDataTable />
         </div>
       );
-    case 3:
+    case "dscUsages":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role} />
           <UsageDataTable />
         </div>
       );
-    case 4:
+    case "addCertificate":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role} />
           <UploadCertificate />
         </div>
       );
-    case 5:
+    case "account":
       return (
         <div className="responsive-container container_two">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role} />
           <Account />
           <RightSideAccount />
         </div>
       );
-    case 6:
+    case "logs":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
+          <Sidebar onIndexChange={handleViewChange} role={role} />
           <LogsDataTable />
         </div>
       );
-    case 7:
+    case "portalManagement":
       return (
         <div className="responsive-container">
-          <Sidebar onIndexChange={handleIndexChange} role={role} />
-          <Management />
+          <Sidebar onIndexChange={handleViewChange} role={role} selectedView={view}/>
+<Management selectedView={view} />
         </div>
+        
       );
+    case "signout":
+      return null; // Handle signout logic separately (perhaps redirect or display a message)
     default:
       return null;
   }
 }
-
 export default Dashboard;

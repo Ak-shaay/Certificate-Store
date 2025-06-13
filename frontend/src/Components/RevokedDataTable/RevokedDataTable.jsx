@@ -11,7 +11,8 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import { domain } from "../../Context/config";
-import { Backdrop, Button } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import Button from "@mui/material/Button";
 
 export default function RevokedDataTable() {
   const [controller, setController] = useState({
@@ -205,7 +206,7 @@ export default function RevokedDataTable() {
 
   return (
     <div className="TableContainer">
-      <h3>Revoked Certificate</h3>
+      <h2 className="cursive">Revoked Certificate</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

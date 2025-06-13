@@ -30,6 +30,7 @@ router.post('/getAllUsers',authentication.authenticateUser, authController.getAl
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
 router.post('/getSubType',authentication.authenticateUser, authController.getSubType);
 router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
+router.get('/getAllActions', authController.getAllActions)// logs action  from database
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 router.get('/generatePassword', authController.generatePass)// generate authcode
 

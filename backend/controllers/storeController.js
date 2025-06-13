@@ -273,123 +273,6 @@ async function enableAccount(req, res) {
   }
 }
 
-// // update the user status
-// async function loginAttempt(userExist) {
-//   if (userExist.LoginStatus == "inactive") {
-//     // const currentTime = new Date();
-//     const timeDifferenceMs = currentISTime - userExist.LastAttempt;
-//     const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60); // 1000 milliseconds * 60 seconds * 60 minutes
-
-//     // Check if the time difference is greater than 24 hours
-//     if (timeDifferenceHours > 24) {
-//       //updates the database
-//       await userModel.updateStatus(
-//         userExist.UserEmail,
-//         "active",
-//         2,
-//         currentISTime()
-//       );
-//       return true;
-//     } else {
-//       // console.log("The time difference is not greater than 24 hours.");
-//       return false;
-//     }
-//   } else {
-//     return true;
-//   }
-// }
-
-// async function login(req, res) {
-//   const { username, password, latitude, longitude } = req.body;
-//   try {
-//     const userExist = await userModel.findUserByUsername(username);
-//     if (!userExist.length) {
-//       return res.status(400).json({ error: "User does not exist" });
-//     }
-
-//     const user = userExist[0];
-//     if (user.LoginStatus === "blocked") {
-//       return res.status(403).json({ error: "Your account is blocked" });
-//     }
-
-//     const storedHashedPassword = user.Password;
-//     const passwordMatch = await bcrypt.compare(password, storedHashedPassword);
-
-//     if (passwordMatch && (await loginAttempt(user))) {
-//       // Successful login
-//       const accessToken = generateAccessToken(
-//         user.UserEmail,
-//         user.Name,
-//         user.Role,
-//         user.AuthNo
-//       );
-//       const refreshToken = generateRefreshToken(
-//         user.UserEmail,
-//         user.Name,
-//         user.Role,
-//         user.AuthNo
-//       );
-
-//       req.session.username = user.UserEmail;
-//       req.session.name = user.Name;
-//       req.session.userid = user.AuthNo;
-//       req.session.userRole = user.Role;
-
-//       if (user.LoginStatus == "temporary" && user.Attempts > 0) {
-//         await userModel.logUserAction(
-//           username,
-//           req.ip,
-//           "Login",
-//           "Logged In Using Temporary Password",
-//           latitude,
-//           longitude
-//         );
-//         await userModel.updateStatus(
-//           user.UserEmail,
-//           "tempLogin",
-//           0,
-//           currentISTime()
-//         );
-//         return res.json({ accessToken, refreshToken });
-//       }
-
-//       if (user.LoginStatus == "inactive") {
-//         return res.status(423).json({ timeStamp: user.LastAttempt });
-//       }
-
-//       await userModel.logUserAction(
-//         user.UserEmail,
-//         req.ip,
-//         "Login",
-//         "Logged In",
-//         latitude,
-//         longitude
-//       );
-//       await userModel.updateAttempts(user.UserEmail, 2);
-//       return res.json({ accessToken, refreshToken });
-//     } else {
-//       // Failed login attempt
-//       if (user.Attempts > 0) {
-//         let attempt = (user.Attempts -= 1);
-//         await userModel.updateAttempts(user.UserEmail, attempt);
-//       } else {
-//         await userModel.updateStatus(
-//           user.UserEmail,
-//           "inactive",
-//           0,
-//           currentISTime()
-//         );
-//         return res
-//           .status(423)
-//           .json({ timeStamp: formatDate(user.LastAttempt) });
-//       }
-//       return res.status(401).json({ error: "Incorrect credentials" });
-//     }
-//   } catch (err) {
-//     console.error("Error occurred:", err);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// }
 async function loginAttempt(userExist) {
   if (userExist.LoginStatus === "inactive") {
     const now = new Date();
@@ -437,12 +320,10 @@ async function login(req, res) {
     let user = userExist[0];
 
     if (user.LoginStatus === "blocked") {
-      return res
-        .status(202)
-        .json({
-          message:
-            "Your account has been blocked. Please contact the administrator.",
-        });
+      return res.status(202).json({
+        message:
+          "Your account has been blocked. Please contact the administrator.",
+      });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.Password);
@@ -894,7 +775,7 @@ async function fetchData(req, res) {
           rowsPerPage,
           orderBy,
           order,
-          noPagination
+          noPagination,
         } = req.body;
         const filterCriteria = {};
 
@@ -1143,8 +1024,9 @@ async function profile(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
     if (err) return res.sendStatus(403);
 
-    try {
+    try {     
       const result = await userModel.getLastLogin(user.authNo);
+      
       var data = {
         ip: "---",
         lastLogin: "---",
@@ -1276,11 +1158,30 @@ async function getAllAuths(req, res) {
 }
 async function getAllUsers(req, res) {
   try {
-    const users = await userModel.getAllUsersData();
-    res.json(users);
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+      async (err, userToken) => {
+        if (err) return res.sendStatus(403);
+        else {
+          const { page, rowsPerPage, orderBy, order } = req.body;
+          const { result, count } = await userModel.getAllUsersData(
+            page,
+            rowsPerPage,
+            order,
+            orderBy
+          );
+          res.json({ result, count });
+        }
+      }
+    );
   } catch (error) {
-    console.error("Error fetching authorities & role data:", error);
-    res.sendStatus(500);
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Error." });
   }
 }
 
@@ -1367,11 +1268,6 @@ async function region(req, res) {
     const allRegions = JSON.parse(data);
 
     // Map the keys to the desired format
-    // const result = Object.keys(allRegions).map((item) => ({
-    //   label: item,
-    //   value: item,
-    // }));
-
     const result = Object.keys(allRegions)
       .filter((key) => key != "unassigned")
       .map((item) => ({
@@ -1480,30 +1376,6 @@ async function addRegion(req, res) {
   }
 }
 
-// async function updateRegion(req, res) {
-//   const filePath = "backend/" + statesByRegionPath;
-//   try {
-//     const allRegions = fs.readFileSync(filePath, "utf8");
-//     const data = JSON.parse(allRegions);
-
-//     const { region, newValue } = req.body;
-
-//     if (data[region]) {
-//       data[newValue] = data[region];
-//       delete data[region]; // Remove the old key
-
-//       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-//       res.json({ message: "Key updated successfully" });
-//     } else {
-//       res.status(404).send(`Key "${oldKey}" not found.`);
-//     }
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ error: "An error occurred while processing your request." });
-//   }
-// }
-
 async function updateStatesOfRegion(req, res) {
   const filePath = "backend/" + statesByRegionPath;
   try {
@@ -1524,7 +1396,7 @@ async function updateStatesOfRegion(req, res) {
         if (index !== -1) {
           data[region].splice(index, 1);
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-          return res.json({
+          return res.status(200).json({
             message: "State deleted successfully from unassigned",
           });
         } else {
@@ -1534,7 +1406,7 @@ async function updateStatesOfRegion(req, res) {
         // If state is not provided, handle addition of new state
         data[region].push({ label: newLabel, value: newValue });
         fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-        return res.json({ message: "State added successfully" });
+        return res.status(200).json({ message: "State added successfully" });
       }
     } else {
       // Handle other regions (adding or updating states)
@@ -1543,7 +1415,7 @@ async function updateStatesOfRegion(req, res) {
           // Add new state to the region
           data[region].push({ label: newLabel, value: newValue });
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-          return res.json({ message: "Added successfully" });
+          return res.status(200).json({ message: "Added successfully" });
         } else {
           // Update existing state
           const index = data[region].findIndex(
@@ -1552,7 +1424,7 @@ async function updateStatesOfRegion(req, res) {
           if (index !== -1) {
             data[region][index] = { label: newLabel, value: newValue };
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
-            return res.json({ message: "Updated successfully" });
+            return res.status(200).json({ message: "Updated successfully" });
           } else {
             return res.status(404).send("Entry not found");
           }
@@ -1569,89 +1441,65 @@ async function updateStatesOfRegion(req, res) {
 }
 
 async function moveStatesOfRegion(req, res) {
-  const filePath = "backend/" + statesByRegionPath;
+  const filePath = path.join("backend", statesByRegionPath);
 
   try {
-    const allRegions = fs.readFileSync(filePath, "utf8");
-    const data = JSON.parse(allRegions);
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(fileContent);
 
     const { region, state, action, newRegion } = req.body;
 
-    if (action !== "add" && action !== "remove") {
-      return res.status(400).send("Invalid action");
-    }
-
-    if (!data[newRegion]) {
-      return res.status(404).send("New region not found");
+    if (!["add", "remove"].includes(action)) {
+      return res
+        .status(400)
+        .json({ error: "Invalid action. Use 'add' or 'remove'." });
     }
 
     if (!data[region]) {
-      return res.status(404).send("Current region not found");
+      return res.status(404).json({ error: "Current region not found" });
     }
 
-    const index = data[region].findIndex((item) => item.value === state);
-
-    if (index === -1) {
-      return res.status(404).send("State not found in the current region");
+    const stateIndex = data[region].findIndex((item) => item.value === state);
+    if (stateIndex === -1) {
+      return res
+        .status(404)
+        .json({ error: "State not found in the current region" });
     }
 
-    //hello
+    const [stateItem] = data[region].splice(stateIndex, 1);
+
     if (action === "remove") {
-      if (!data[region]) {
-        return res.status(404).send("Region not found");
-      }
-
-      const index = data[region].findIndex((item) => item.value === state);
-
-      if (index === -1) {
-        return res.status(404).send("State not found in the current region");
-      }
-
-      // Remove the state from the current region
-      const [removedState] = data[region].splice(index, 1);
-
-      // Add the removed state to the 'unassigned' region
-      if (!data["unassigned"]) {
-        data["unassigned"] = [];
-      }
-      data["unassigned"].push(removedState);
-
-      // Write the updated data back to the file
+      // Move to 'unassigned' region
+      data["unassigned"] = data["unassigned"] || [];
+      data["unassigned"].push(stateItem);
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 
-      return res.json({
-        message: "State moved to unassigned region successfully",
+      return res.status(200).json({
+        message: "State moved to 'unassigned' region successfully",
       });
     }
-    //hello end
 
-    const [movedItem] = data[region].splice(index, 1);
+    // Action is 'add'
+    if (!data[newRegion]) {
+      return res.status(404).json({ error: "New region not found" });
+    }
 
-    const index2 = data[newRegion].findIndex((item) => item.value === state);
-
-    if (index2 !== -1) {
-      // console.log("State already exists in the new region");
+    const duplicateInNewRegion = data[newRegion].some(
+      (item) => item.value === state
+    );
+    if (duplicateInNewRegion) {
       return res
         .status(400)
         .json({ error: "State already exists in the new region" });
     }
 
-    // Add the state to the new region whether action is 'add' or 'move'
-    data[newRegion].push(movedItem);
+    data[newRegion].push(stateItem);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 
-    try {
-      const updatedData = JSON.stringify(data, null, 2);
-      fs.writeFileSync(filePath, updatedData, "utf8");
-      res.json({ message: "Updated successfully" });
-    } catch (error) {
-      console.error("Error writing to file:", error);
-      res.status(500).json({ error: "Failed to write to file" });
-    }
+    return res.status(200).json({ message: "State moved successfully" });
   } catch (err) {
-    console.error("Error", err);
-    res
-      .status(500)
-      .json({ error: "An error occurred while processing your request." });
+    console.error("Error processing request:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 async function removeRegion(req, res) {
@@ -1705,6 +1553,20 @@ async function getAllRevocationReasons(req, res) {
     const result = distinctReasons.map((item) => ({
       label: item.Reason,
       value: item.Reason,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.sendStatus(500);
+  }
+}
+async function getAllActions(req, res) {
+  try {
+    const distinctActions = await userModel.getLogActions();
+
+    const result = distinctActions.map((item) => ({
+      label: item.ActionType,
+      value: item.ActionType,
     }));
     res.json(result);
   } catch (error) {
@@ -1968,17 +1830,10 @@ async function getReportData(title, data, auth) {
     }
 
     return result;
-  } else if(title === "Logs") {
+  } else if (title === "Logs") {
     console.log("auth", auth, "title", title);
-    const {
-      user,
-      action,
-      startDate,
-      endDate,
-      orderBy,
-      order,
-      noPagination
-    } = data;
+    const { user, action, startDate, endDate, orderBy, order, noPagination } =
+      data;
     const filterCriteria = {};
     if (user && user.length > 0) {
       filterCriteria.users = user;
@@ -1990,7 +1845,7 @@ async function getReportData(title, data, auth) {
       filterCriteria.startDate = startDate;
       filterCriteria.endDate = endDate;
     }
-    const { result } =  await userModel.getLogsData(
+    const { result } = await userModel.getLogsData(
       filterCriteria,
       auth,
       null,
@@ -2003,38 +1858,28 @@ async function getReportData(title, data, auth) {
       result[i].TimeStamp = formatDate(result[i].TimeStamp);
     }
     return result;
-  }else if(title === "Usage of Certificates"){
-
-    const { usage, startDate, endDate, orderBy, order,noPagination } =
-          data;
-        const filterCriteria = {};
-        if (usage && usage.length > 0) {
-          filterCriteria.usage = usage;
-        }
-        if (startDate && endDate) {
-          filterCriteria.startDate = startDate;
-          filterCriteria.endDate = endDate;
-        }
-    const { result } =  await userModel.getCertUsageData(
+  } else if (title === "Usage of Certificates") {
+    const { usage, startDate, endDate, orderBy, order, noPagination } = data;
+    const filterCriteria = {};
+    if (usage && usage.length > 0) {
+      filterCriteria.usage = usage;
+    }
+    if (startDate && endDate) {
+      filterCriteria.startDate = startDate;
+      filterCriteria.endDate = endDate;
+    }
+    const { result } = await userModel.getCertUsageData(
       filterCriteria,
-          auth,
-          null,
-          null,
-          order,
-          orderBy,
-          noPagination
-    );
-    return result
-  }else if(title === "Revoked Certificates"){
-
-    const {
-      reasons,
-      startDate,
-      endDate,
-      orderBy,
+      auth,
+      null,
+      null,
       order,
+      orderBy,
       noPagination
-    } = data;
+    );
+    return result;
+  } else if (title === "Revoked Certificates") {
+    const { reasons, startDate, endDate, orderBy, order, noPagination } = data;
     const filterCriteria = {};
     if (reasons && reasons.length > 0) {
       filterCriteria.reason = reasons;
@@ -2044,16 +1889,16 @@ async function getReportData(title, data, auth) {
       filterCriteria.endDate = endDate;
     }
 
-    const { result } =  await userModel.getRevokedCertData(
+    const { result } = await userModel.getRevokedCertData(
       filterCriteria,
-          auth,
-          null,
-          null,
-          order,
-          orderBy,
-          noPagination
+      auth,
+      null,
+      null,
+      order,
+      orderBy,
+      noPagination
     );
-    return result
+    return result;
   }
   return null;
 }
@@ -2063,18 +1908,18 @@ async function reportGenerator(req, res) {
 
   const Sender = process.env.ID || "";
   const Secret = process.env.SECRET || "";
+  const domain = process.env.DOMAIN || "";
 
   const uuid = uuidv4();
   const filePath = `./public/reports/${uuid}.pdf`;
-  const link = `http://10.182.3.123:8080/reports/${uuid}.pdf`;
-
+  const link = `http://`+domain+`/reports/${uuid}.pdf`;
   try {
     let email = "";
     const userName = req.session.username;
     const auth = req.session.userid;
     const ccEmail = (await userModel.findEmailByAuth(auth)) || "";
-
-    if (userName === "admin") {
+    
+    if (auth == null) {
       email = process.env.ADMIN || "";
     } else {
       email = userName;
@@ -2083,13 +1928,14 @@ async function reportGenerator(req, res) {
     // Fetch the report data
     const tableData = await getReportData(title, data, auth); // Fetch data from getReportData
     if (!tableData) {
-      return res.status(400).json({ error: "Failed to retrieve data for report." });
+      return res
+        .status(400)
+        .json({ error: "Failed to retrieve data for report." });
     }
 
     // Generate the PDF report
     const result = await pdfGeneration(tableData, title, headers, filePath);
     if (result) {
-      // console.log("email", email, "\ncc mail:", ccEmail);
 
       // Set up the email transporter
       var transporter = nodemailer.createTransport({
@@ -2108,14 +1954,28 @@ async function reportGenerator(req, res) {
         to: email,
         cc: ccEmail,
         subject: "Report generated",
-        text: `Dear Sir/Ma'am,
-
-We have received a ${title} report generation request from your account. Please download the report using the link: ${link}.
-The link will be available for the next 24 hours.
-
-Thanks and Regards,
-Admin
-Certstore`,
+        html: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <p>Dear Sir/Ma'am,</p>
+      
+      <p>
+        We have received a <strong>${title}</strong> report generation request from your account.
+        Please download the report using the link below:
+      </p>
+      
+      <p style="margin: 20px 0;">
+        <a href="${link}" style="background-color: #007bff; color: #ffffff; padding: 8px 12px; text-decoration: none; border-radius: 5px;" target="_blank">
+          Download Report
+        </a>
+      </p>
+      
+      <p>This link will be available for the next <strong>24 hours</strong>.</p>
+      
+      <p>Thanks and Regards,<br>
+      <strong>Admin</strong><br>
+      Certstore</p>
+    </div>
+  `,
       };
 
       // Send the email
@@ -2216,6 +2076,7 @@ module.exports = {
   removeRegion,
   getSubType,
   getAllRevocationReasons,
+  getAllActions,
   generateAuthCode,
   generatePass,
   certInfo,

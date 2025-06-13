@@ -2,10 +2,30 @@ import React, { useState, useEffect } from "react";
 import "./Account.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
-import { Backdrop } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: { xs: "95%", sm: 500, md: 550 },
+  background:
+    "linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255, 202, 113) -46.42%)",
+  boxShadow: "0px 10px 20px 0px rgb(140, 140, 140)",
+  borderRadius: "10px",
+  padding: { xs: "20px", sm: "28px", md: "32px" },
+  color: "black",
+};
 
 const Account = () => {
   const [data, setData] = useState(null);
@@ -13,23 +33,28 @@ const Account = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [updateMsg, setUpdateMsg] = useState("");
+
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowNewPassword = () => setShowNewPassword((show) => !show);
+  const handleClickShowConfirmPassword = () =>
+    setShowConfirmPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => event.preventDefault();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const accessToken = api.getAccessToken();
-        if (accessToken) {
-          api.setAuthHeader(accessToken);
-        }
+        if (accessToken) api.setAuthHeader(accessToken);
         const response = await api.axiosInstance.get("/profileData");
-        if (response.status !== 200) {
-          setTimeout(() => {
-            api.removeTokens();
-            document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            // Redirect to the login page or perform any other necessary actions
-            window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
-          }, 2000);
-          throw new Error("Network response was not ok");
-        }
+        if (response.status !== 200) throw new Error("Invalid response");
         setData(response.data.profile);
       } catch (error) {
         setError(error);
@@ -37,201 +62,225 @@ const Account = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
-  const handlePasswordChange = () => {
-    setOpen(true);
-    const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("accountContainer");
-    // blurFilter.style.filter = "blur(3px)";
-    // blurFilter.style.pointerEvents = "none";
-    filtersElement.style.display = "block";
-  };
-  const handleFilterClose = (e) => {
+
+  const handlePasswordChange = () => setOpen(true);
+  const handleClose = () => {
     setOpen(false);
-    const filtersElement = document.getElementById("filter");
-    // const blurFilter = document.getElementById("accountContainer");
-    // blurFilter.style.filter = "blur(0px)";
-    // blurFilter.style.pointerEvents = "auto";
-    filtersElement.style.display = "none";
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setUpdateMsg("");
   };
-  //update password api call
+
   const updatePassword = async () => {
     const accessToken = api.getAccessToken();
-    if (accessToken) {
-      try {
-        const oldPassword = document.getElementById("oldPassword").value;
-        const newPassword = document.getElementById("newPassword").value;
-        const confirmPassword =
-          document.getElementById("confirmPassword").value;
+    if (!accessToken) {
+      setUpdateMsg("No access token found. Please log in.");
+      return;
+    }
 
-        if (!oldPassword || !newPassword || !confirmPassword) {
-          document.getElementById("updatePasswordMsg").textContent =
-            "Please fill all the details.";
-          setTimeout(() => {
-            document.getElementById("updatePasswordMsg").textContent = "";
-          }, 3000);
-          return;
-        }
-        // Validation: Ensure newPassword and old passwords are different
-        if (oldPassword == newPassword) {
-          document.getElementById("updatePasswordMsg").textContent =
-            "Old password cannot be used as new password.";
-          setTimeout(() => {
-            document.getElementById("updatePasswordMsg").textContent = "";
-          }, 3000);
-          return;
-        }
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setUpdateMsg("Please fill all the details.");
+      return;
+    }
 
-        // Validation: Ensure newPassword and confirmPassword match
-        if (newPassword !== confirmPassword) {
-          document.getElementById("updatePasswordMsg").textContent =
-            "Passwords do not match.";
-          setTimeout(() => {
-            document.getElementById("updatePasswordMsg").textContent = "";
-          }, 3000);
-          return;
-        }
+    if (oldPassword === newPassword) {
+      setUpdateMsg("Old password cannot be used as new password.");
+      return;
+    }
 
-        api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.post("/updatePassword", {
-          oldPassword,
-          newPassword,
-          confirmPassword,
-        });
-        if (response.status == 200) {
-          const passResp = response.data;
-          document.getElementById("updatePasswordMsg").textContent =
-            passResp.message + " Automatic logout processing...";
-          setTimeout(() => {
-            api.removeTokens();
-            document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            // Redirect to the login page or perform any other necessary actions
-            window.location.href = "http://" + domain + ":3000"; // Redirect to landing page
-          }, 3800);
-        }
-      } catch (err) {
-        console.log("this is error: ", err);
-        document.getElementById("updatePasswordMsg").textContent =
-          err.response.data.message;
+    if (newPassword !== confirmPassword) {
+      setUpdateMsg("Passwords do not match.");
+      return;
+    }
+
+    try {
+      api.setAuthHeader(accessToken);
+      const response = await api.axiosInstance.post("/updatePassword", {
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (response.status === 200) {
+        setUpdateMsg(response.data.message + " Logging out...");
         setTimeout(() => {
-          document.getElementById("updatePasswordMsg").textContent = "";
-        }, 8000);
+          api.removeTokens();
+          document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          window.location.href = "http://" + domain + ":3000";
+        }, 3500);
       }
-    } else {
-      document.getElementById("updatePasswordMsg").textContent =
-        "No access token found. Please log in.";
-      setTimeout(() => {
-        document.getElementById("updatePasswordMsg").textContent = "";
-      }, 3000);
+    } catch (err) {
+      setUpdateMsg(
+        err?.response?.data?.message || "Failed to update password."
+      );
     }
   };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="MainAccount">
-      <h3>Account</h3>
-      <Backdrop  sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-  open={open}>
-      <div className="filterWindow" id="filter">
-        <span className="close" onClick={handleFilterClose}>
-          X
-        </span>
-        <h2 className="filter-head">Change Password</h2>
-        <hr className="filter-line" />
-        <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="oldPassword">Current Password</InputLabel>
-          <OutlinedInput
-            className="passwordFrom"
-            id="oldPassword"
-            type="password"
-            name="oldPassword"
-            label="Old Password"
-            required
-          />
-        </FormControl>
-        <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="newPassword">New Password</InputLabel>
-          <OutlinedInput
-            className="passwordFrom"
-            id="newPassword"
-            type="password"
-            name="newPassword"
-            label="New Password"
-            required
-          />
-        </FormControl>
-        <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
-          <OutlinedInput
-            className="passwordFrom"
-            id="confirmPassword"
-            type="password"
-            name="confirmPassword"
-            label="New Password"
-            required
-          />
-        </FormControl>
-        <span id="updatePasswordMsg"></span>
-        <br />
-        <hr />
-        <div className="filter-row">
-          <button
-            className="commonApply-btn cancel"
-            onClick={handleFilterClose}
+      <h2 className="cursive">Account</h2>
+
+      {/* MUI Modal for Password Update */}
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={modalStyle}>
+          <span
+            className="close"
+            onClick={handleClose}
+            style={{ float: "right", cursor: "pointer", fontWeight: "bold" }}
           >
-            Cancel
-          </button>
-          <button className="commonApply-btn" onClick={updatePassword}>
-            Update
-          </button>
-        </div>
-      </div>
-      </Backdrop>
+            X
+          </span>
+          <Typography variant="h6" gutterBottom>
+            Change Password
+          </Typography>
+          <hr className="filter-line" />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel htmlFor="oldPassword">Current Password</InputLabel>
+            <OutlinedInput
+              sx={{
+                backgroundColor: "papayawhip",
+                fontSize: { xs: 14, sm: 16 },
+                paddingY: "10px",
+                height: { xs: 45, sm: 50 },
+              }}
+              id="oldPassword"
+              type={showPassword ? "text" : "password"}
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Current Password"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel htmlFor="newPassword">New Password</InputLabel>
+            <OutlinedInput
+              sx={{
+                backgroundColor: "papayawhip",
+                fontSize: { xs: 14, sm: 16 },
+                paddingY: "10px",
+                height: { xs: 45, sm: 50 },
+              }}
+              id="newPassword"
+              type={showNewPassword ? "text" : "password"}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowNewPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="New Password"
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+            <OutlinedInput
+              sx={{
+                backgroundColor: "papayawhip",
+                fontSize: { xs: 14, sm: 16 },
+                paddingY: "10px",
+                height: { xs: 45, sm: 50 },
+              }}
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleClickShowConfirmPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Confirm Password"
+            />
+          </FormControl>
+
+          <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+            {updateMsg}
+          </Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+            <button className="commonApply-btn cancel" onClick={handleClose}>
+              Cancel
+            </button>
+            <button className="commonApply-btn" onClick={updatePassword}>
+              Update
+            </button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Account Information */}
       <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
-        <hr className="" />
+        <hr />
         <form id="forms">
           <div className="row">
             <div className="column">
-              <label htmlFor="fname">
+              <label>
                 <b>Name : </b>
                 {data.Name}
               </label>
             </div>
             <div className="column">
-              <label htmlFor="email">
+              <label>
                 <b>Email : </b>
                 {data.Email}
               </label>
             </div>
             <div className="column">
-              <label htmlFor="organization">
+              <label>
                 <b>Organization : </b>
                 {data.Organization}
               </label>
             </div>
           </div>
-          <div className="header mg-tp">
-            <b></b>Address
-          </div>
-          <hr className="" />
+          <div className="header mg-tp">Address</div>
+          <hr />
           <div className="row">
             <div className="column">
-              <label htmlFor="address">
+              <label>
                 <b>Locality : </b>
                 {data.Address}
               </label>
             </div>
             <div className="column">
-              <label htmlFor="state">
+              <label>
                 <b>State : </b>
                 {data.State}
               </label>
             </div>
             <div className="column">
-              <label htmlFor="Postal Code">
+              <label>
                 <b>Postal Code : </b>
                 {data.PostalCode}
               </label>

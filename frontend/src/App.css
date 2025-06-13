@@ -18,18 +18,18 @@
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
-  padding: 1rem;
+  /* padding: 0 1rem 0 0; */
   background-color: #ffffff;
   background-image: linear-gradient(315deg, #ffffff 0%, #b4e8ff 54%);
-  /* border-radius: 2rem; */
   overflow: auto;
   transition: margin-left 0.3s ease;
-  margin-left: 300px; /* Drawer width */
+  margin-left: 270px; /* Drawer width */
 }
 .container_two{
   flex-direction: row !important;
   justify-content: space-evenly !important;
-  margin-left: 1rem;
+  margin: 0 0 0 2rem;
+  gap: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -60,6 +60,7 @@
     margin: 0 1rem;
     left: 0
   }
+
 }
 
 .App-header {
@@ -307,7 +308,7 @@ html {
 
 
 .TableContainer {
-  margin-top: 3rem;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
   padding: 0 0.5rem;
@@ -338,6 +339,9 @@ html {
   font-size: 1em;
   color: white !important;
 }
+.MuiTablePagination-root{
+  overflow: visible !important;
+}
 
 /* move to app */
 .filter-button {
@@ -361,8 +365,8 @@ html {
 }
 
 .backButton {
-  left: 10%;
-  position: absolute;
+  /* left: 10%;
+  position: absolute; */
   padding: 8px 10px !important;
   margin-bottom: 1rem;
   border-radius: 8px;

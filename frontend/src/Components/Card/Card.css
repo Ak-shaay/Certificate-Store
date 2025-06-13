@@ -8,6 +8,7 @@
   position: relative;
   cursor: pointer;
 }
+
 .CompactCard:hover {
   box-shadow: none !important;
 }
@@ -20,23 +21,27 @@
   justify-content: flex-end;
   gap: 1rem;
 }
+
 .CircularProgressbar {
   width: 4rem !important;
   overflow: visible;
 }
+
 .CircularProgressbar-path {
   stroke: white !important;
   stroke-width: 12px !important;
   filter: drop-shadow(2px 4px 6px white);
 }
+
 .CircularProgressbar-trail {
   display: none;
 }
+
 .CircularProgressbar-text {
   fill: white !important;
 }
 
-.radialBar > span {
+.radialBar>span {
   font-size: 17px;
   font-weight: bold;
 }
@@ -50,60 +55,52 @@
   justify-content: space-between;
 }
 
-.detail > span:nth-child(2) {
+.detail>span:nth-child(2) {
   font-size: 22px;
   font-weight: bold;
 }
-.detail > span:nth-child(3) {
+
+.detail>span:nth-child(3) {
   font-size: 12px;
 }
 
 /* ExpandedCard */
 .ExpandedCard {
-  position: absolute;
-  width: 60%;
-  height: 70vh;
-  z-index: 9;
-  left: 22rem;
+  width: 90%;
+  height: auto;
+  max-height: 85vh;
   border-radius: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
   padding: 1rem;
-  top: 11rem;
-}
-.ExpandedCard > span:nth-of-type(1) {
-  color: white;
-  font-size: 26px;
-  font-weight: bold;
-  text-shadow: 0px 0px 15px white;
-}
-.ExpandedCard > span:nth-of-type(2) {
-  color: rgb(236, 236, 236);
-  font-size: 15px;
 }
 
 .chartContainer {
-  width: 70%;
+  width: 90%;
 }
-.card-close{
+
+.card-close {
   width: 20px;
   height: 20px;
 }
-@media screen and (max-width: 1200px) {
-  .ExpandedCard {
-    top: 2rem;
-    height: 45vh;
-    left: 6rem;
+
+.cardText {
+  font-size: 1.2rem;
+}
+
+@media screen and (min-width: 1200px) {
+  .chartContainer {
+    width: 60%;
   }
 }
 
-@media screen and (max-width: 768px) {
-  .ExpandedCard {
-    top: 8rem;
-    height: 50%;
-    left: 25px;
-    width: 80%;
-  }
+/* Apex chart Tweaks */
+.apexcharts-menu.apexcharts-menu-open{
+color: black !important;
+}
+.apexcharts-tooltip {
+  background: #fff !important;
+  color: #000 !important;
 }

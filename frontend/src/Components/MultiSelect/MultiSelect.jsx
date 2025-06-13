@@ -29,7 +29,7 @@ const MultiSelect = forwardRef(({ options, placeholder, onChange }, ref) => {
       clearable
       searchable
       className="custom-select"
-      closeOnSelect={false}
+      closeOnSelect={true}
       values={selectedOptions}
       onChange={handleChange}
     />

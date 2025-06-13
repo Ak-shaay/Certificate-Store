@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./UserCreation.css";
 import TextField from "@mui/material/TextField";
-import { InputAdornment, MenuItem } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import MenuItem from "@mui/material/MenuItem";
 import api from "../../Pages/axiosInstance";
 import refreshIcon from "../../Images/Icons/refresh.png";
 
@@ -190,12 +191,24 @@ const UserCreation = ({ onBack }) => {
   return (
     <div className="userCreation">
       <div className="userCreationBody">
-        <div className="backClass">
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Create User</h2>
+          <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
+          </div>
         </div>
-        <h2>Create User</h2>
         <div className="accountCreation">
           <TextField
             required
@@ -259,8 +272,10 @@ const UserCreation = ({ onBack }) => {
             }}
           />
           <div className="messageContainer">
-            <span id="messageText">{message}</span>
-          </div>
+  <span id="messageText">
+    {message ? message : <>&nbsp;</>}
+  </span>
+</div>
           <div className="btnContainer">
             <button type="submit" className="commonBtn" onClick={handleSubmit}>
               Create

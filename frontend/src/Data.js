@@ -1,5 +1,6 @@
 // Sidebar imports
 import homeIcon from "./Images/Icons/home.png";
+import checkIcon from "./Images/Icons/check.png";
 import certIcon from "./Images/Icons/certificate.png";
 import removeIcon from "./Images/Icons/remove.png";
 import signIcon from "./Images/Icons/sign.png";
@@ -7,51 +8,54 @@ import userIcon from "./Images/Icons/user.png";
 import uploadIcon from "./Images/Icons/upload.png";
 import logIcon from "./Images/Icons/history.png";
 import signoutIcon from "./Images/Icons/signout.png";
-import expiredtIcon from "./Images/Icons/expired.png";
 import userManagementIcon from "./Images/Icons/usermanagment.png";
-
-// Recent Card Imports
-import img1 from "./Images/cdac.png";
-import img2 from "./Images/NSDL-eGov.jpg";
-import img3 from "./Images/IDSign.png";
 
 // Sidebar Data
 export const SidebarData = [
   {
     icon: homeIcon,
     heading: "Dashboard",
+    viewName: "home",  // added viewName
   },
   {
     icon: certIcon,
     heading: "Issued Certificates",
+    viewName: "issuedCertificates",  // added viewName
   },
   {
     icon: removeIcon,
     heading: "Revoked Certificates",
+    viewName: "revokedCertificates",  // added viewName
   },
   {
     icon: signIcon,
     heading: "DSC Usages",
+    viewName: "dscUsages",  // added viewName
   },
   {
     icon: uploadIcon,
     heading: "Add Certificate",
+    viewName: "addCertificate",  // added viewName
   },
   {
     icon: userIcon,
     heading: "Account",
+    viewName: "account",  // added viewName
   },
   {
     icon: logIcon,
     heading: "Logs",
+    viewName: "logs",  // added viewName
   },
   {
     icon: userManagementIcon,
-    heading: 'Portal Managment',
+    heading: 'Portal Management',
+    viewName: 'portalManagement',  // added viewName
   },
   {
     icon: signoutIcon,
     heading: 'Signout',
+    viewName: 'signout',  // added viewName
   },
 ];
 
@@ -66,7 +70,7 @@ export const cardsData = [
     },
     // barValue: 60,
     // value: "25,970",
-    png: homeIcon,
+    png: checkIcon,
     // series: [
     //   {
     //     name: "CA",
@@ -101,7 +105,7 @@ export const cardsData = [
     },
     // barValue: 60,
     // value: "4,270",
-    png: expiredtIcon,
+    png: signIcon,
     // series: [
     //   {
     //     name: "Transactions",
@@ -109,28 +113,6 @@ export const cardsData = [
     //   },
     // ],
     layoutId:"2",
-  },
-];
-
-// Recent Update Card Data
-export const UpdatesData = [
-  {
-    img: img1,
-    name: "CDAC",
-    noti: "is now a certified CA.",
-    time: "25 seconds ago",
-  },
-  {
-    img: img2,
-    name: "NSDL-eGov",
-    noti: "is now a certified CA.",
-    time: "30 minutes ago",
-  },
-  {
-    img: img3,
-    name: "ID-Sign",
-    noti: "is now a certified CA.",
-    time: "2 hours ago",
   },
 ];
 

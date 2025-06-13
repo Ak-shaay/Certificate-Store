@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./OrganizationCreation.css";
 import TextField from "@mui/material/TextField";
-import Tooltip from '@mui/material/Tooltip';
-import { Button } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
 import api from "../../Pages/axiosInstance";
 
 const OrganizationCreation = ({ onBack }) => {
@@ -50,7 +50,7 @@ const OrganizationCreation = ({ onBack }) => {
   const handleImageChange = async (e) => {
     const image = e.target.files[0];
     if (image) {
-      const size = image.size / 1024; 
+      const size = image.size / 1024;
       const type = image.type;
 
       if (size > 200) {
@@ -73,8 +73,8 @@ const OrganizationCreation = ({ onBack }) => {
           return;
         }
       }
-        imgSize(img)
-      
+      imgSize(img);
+
       setImage(image);
     }
   };
@@ -185,44 +185,44 @@ const OrganizationCreation = ({ onBack }) => {
       if (image) {
         const size = image.size / 1024;
         const type = image.type;
-    
+
         if (size > 200) {
-            showMessage("Image size must not exceed 200KB");
-            return;
+          showMessage("Image size must not exceed 200KB");
+          return;
         }
-    
+
         if (type !== "image/png") {
-            showMessage("Image must be in PNG format");
-            return;
+          showMessage("Image must be in PNG format");
+          return;
         }
         const imageUrl = URL.createObjectURL(image);
-    
+
         const img = new Image();
         img.src = imageUrl;
-    
+
         // Use a promise to handle image loading
         const loadImage = new Promise((resolve, reject) => {
-            img.onload = () => {
-                resolve(img);
-            };
-            img.onerror = (e) => {
-                reject(new Error("Failed to load image"));
-            };
+          img.onload = () => {
+            resolve(img);
+          };
+          img.onerror = (e) => {
+            reject(new Error("Failed to load image"));
+          };
         });
-    
+
         try {
-            const loadedImage = await loadImage;
-    
-            if (loadedImage.width > 100 || loadedImage.height > 100) {
-                showMessage("Image dimensions must not exceed 100px by 100px");
-                return;
-            }
+          const loadedImage = await loadImage;
+
+          if (loadedImage.width > 100 || loadedImage.height > 100) {
+            showMessage("Image dimensions must not exceed 100px by 100px");
+            return;
+          }
         } catch (error) {
-            console.error(error); 
-            showMessage("There was an error loading the image.");
+          console.error(error);
+          showMessage("There was an error loading the image.");
         }
-    }
-    const base64Img = await convertFileToBase64(image);    
+      }
+      const base64Img = await convertFileToBase64(image);
       const accessToken = api.getAccessToken();
       api.setAuthHeader(accessToken);
 
@@ -234,7 +234,7 @@ const OrganizationCreation = ({ onBack }) => {
         address,
         state,
         postalCode,
-        base64Img
+        base64Img,
       });
       if (response.status === 200) {
         showMessage("Organization created successfully.");
@@ -254,13 +254,25 @@ const OrganizationCreation = ({ onBack }) => {
   return (
     <div className="orgCreation">
       <div className="orgCreationBody">
-        <div className="backClass">
-          <button onClick={onBack} className="backButton">
-            Back
-          </button>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: "1.5rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <h2 style={{ margin: 0 }}>Create Organization</h2>
+          <div style={{ position: "absolute", left: 0 }}>
+            <button onClick={onBack} className="backButton">
+              Back
+            </button>
+          </div>
         </div>
-        <h2>Create Organization</h2>
-        <div className="accountCreation">
+        <div className="orgMain">
           <div className="fileContainer">
             <div
               className={`fileUpload ${dragOver ? "drag-over" : ""}`}
@@ -339,15 +351,23 @@ const OrganizationCreation = ({ onBack }) => {
               onChange={handleInputChange(setPostalCode)}
               placeholder="Enter postal code"
             />
-            <Tooltip  title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px" placement="top">
-            <Button variant="text" size="medium" component="label">
-              <div className="imgBtn">
-                <span className="imgName">{image ? image.name : ""}</span>
-                Upload Image
-                <input type="file" hidden onChange={handleImageChange} />
-              </div>
-            </Button>
-            </Tooltip >
+            <Tooltip
+              title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px"
+              placement="top"
+            >
+              <Button variant="text" size="medium" component="label">
+                <div className="imgBtn">
+                  <span className="imgName">{image ? image.name : ""}</span>
+                  Upload Image
+                  <input
+                    type="file"
+                    accept=".png"
+                    hidden
+                    onChange={handleImageChange}
+                  />
+                </div>
+              </Button>
+            </Tooltip>
           </div>
           <div className="btnContainer">
             <button
@@ -360,7 +380,7 @@ const OrganizationCreation = ({ onBack }) => {
             </button>
             <Button
               type="button"
-               variant="outlined"
+              variant="outlined"
               className="clearBtn"
               onClick={clearForm}
             >

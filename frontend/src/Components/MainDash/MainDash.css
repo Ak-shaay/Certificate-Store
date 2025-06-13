@@ -1,13 +1,14 @@
 .MainDash{
     /* padding-top: 1rem; */
-    margin: 0 1rem;
+    margin:0 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    max-height: 100dvh;
 }
-.cursive{
-    margin-top: 2rem;
-    font-family: 'Dancing Script', cursive;
+.cursive {
+    margin: 2rem 0 1rem 0;
+    /* font-family: 'Dancing Script', cursive; */
     color: rgb(60 87 153);
 }
 @media screen and (max-width: 1200px) {

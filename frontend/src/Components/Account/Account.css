@@ -26,6 +26,8 @@
     font-size: 1.2em;
     margin: 1rem 0 1rem 0;
     justify-content: flex-start;
+    /* font-family: 'Dancing Script', cursive; */
+    color: rgb(60 87 153);
 }
 
 #forms {
@@ -63,7 +65,7 @@
     background: #ffffff00;
 }
 .column{
-    margin-top: 2.5rem;
+    margin-top: 1rem;
 }
 
 

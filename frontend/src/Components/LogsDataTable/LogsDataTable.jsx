@@ -10,7 +10,9 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
-import { Backdrop, Button } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import Button from "@mui/material/Button";
+import { domain } from "../../Context/config";
 
 export default function LogsDataTable() {
   const [controller, setController] = useState({
@@ -28,15 +30,9 @@ export default function LogsDataTable() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState([]);
   const authRef = useRef();
   const actionRef = useRef();
-
-  // remomve and add to backend
-  const options = [
-    { label: "Login", value: "Login" },
-    { label: "Logout", value: "Logout" },
-    { label: "Other", value: "Other" },
-  ];
 
   function createData(
     logID,
@@ -91,6 +87,17 @@ export default function LogsDataTable() {
       setLoading(false);
     }
   }
+    useEffect(() => {
+      fetch(`http://${domain}:8080/getAllActions`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => setOptions(data))
+        .catch((error) => console.error("Error fetching data:", error));
+    }, []);
 
   useEffect(() => {
     fetchData();
@@ -262,7 +269,7 @@ export default function LogsDataTable() {
 
   return (
     <div className="TableContainer">
-      <h3>Activity Logs</h3>
+      <h2 className="cursive">Activity Logs</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

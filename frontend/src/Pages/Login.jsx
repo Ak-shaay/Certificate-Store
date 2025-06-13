@@ -18,7 +18,7 @@ const Login = () => {
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
 
-  const nameRegex =/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const nameRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -53,14 +53,14 @@ const Login = () => {
     //   return;
     // }
 
-    // if(!nameRegex.test(username)){
-    //   setErrMsg("Please enter a valid username");
-    //   return;
-    // }
-    // if(!passRegex.test(password)){
-    //   setErrMsg("Please enter a valid password");
-    //   return;
-    // }
+    if (!nameRegex.test(username)) {
+      setErrMsg("Please enter a valid username");
+      return;
+    }
+    if (!passRegex.test(password)) {
+      setErrMsg("Please enter a valid password");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -79,12 +79,14 @@ const Login = () => {
         setPassword("");
         setErrMsg("");
         navigate(from, { replace: true });
-      } else{
-        if(response.status == 202 && response.data.timestamp){
-          setErrMsg("Maximum attempts reached. Please try again after 24 hours: " + response.data.timestamp);
-        }
-         else {
-          setErrMsg(response.data.message)
+      } else {
+        if (response.status == 202 && response.data.timestamp) {
+          setErrMsg(
+            "Maximum attempts reached. Please try again after 24 hours: " +
+              response.data.timestamp
+          );
+        } else {
+          setErrMsg(response.data.message);
         }
       }
     } catch (err) {
@@ -97,12 +99,12 @@ const Login = () => {
   useEffect(() => {
     if (errMsg) {
       timeoutRef.current = setTimeout(() => {
-        setErrMsg(""); 
+        setErrMsg("");
       }, 3000);
     } else {
       clearTimeout(timeoutRef.current);
     }
-  
+
     return () => {
       clearTimeout(timeoutRef.current);
     };
@@ -140,10 +142,13 @@ const Login = () => {
             <button className="loginbtn" type="submit" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
-            {
-              errMsg ? <Alert sx={{mt:1}}severity="error">{errMsg}</Alert>:<></>
-            }
-            
+            {errMsg ? (
+              <Alert sx={{ mt: 1 }} severity="error">
+                {errMsg}
+              </Alert>
+            ) : (
+              <></>
+            )}
           </form>
         </div>
         <div className="overlay-container">

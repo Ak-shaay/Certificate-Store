@@ -11,7 +11,8 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import api from "../../Pages/axiosInstance";
 import { usageOptions } from "../../Data";
-import { Backdrop, Button } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
+import Button from "@mui/material/Button";
 
 const UsageDataTable = () => {
   const [controller, setController] = useState({
@@ -185,7 +186,7 @@ const UsageDataTable = () => {
 
   return (
     <div className="TableContainer">
-      <h3>Certificate Usage</h3>
+      <h2 className="cursive">Certificate Usage</h2>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={open}

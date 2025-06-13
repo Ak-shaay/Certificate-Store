@@ -3,14 +3,12 @@ import "../Organization/Organization.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import refreshIcon from "../../Images/Icons/refresh.png";
-import {
-  Backdrop,
-  FormControl,
-  InputAdornment,
-  OutlinedInput,
-  TextField,
-  Tooltip,
-} from "@mui/material";
+import Backdrop from '@mui/material/Backdrop';
+import FormControl from '@mui/material/FormControl';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 
 const Organization = ({ onBack }) => {
   const [authData, setAuthData] = useState([]);
@@ -213,15 +211,28 @@ const Organization = ({ onBack }) => {
   return (
     <div className="orgBody">
       <div className="mainOrg">
-        <div className="backClass">
+         <div
+          style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop:'1.5rem',
+            marginBottom:'1rem'
+          }}
+        >
+          <h2 style={{ margin:0 }}>Organizations</h2>
+          <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back
           </button>
+          </div>
         </div>
-        <h2>Manage Organizations</h2>
         <Backdrop
           sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
           open={open}
+          onClick={handlePopupClose}
         >
           <div className="filterWindow filterWidth" id="filter">
             <div className="popup-head">
@@ -233,6 +244,7 @@ const Organization = ({ onBack }) => {
                   <input
                     type="file"
                     name="image"
+                    accept=".png"
                     id="imgUpload"
                     hidden
                     onChange={(e) => handleImage(e, authNo)}

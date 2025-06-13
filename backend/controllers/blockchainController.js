@@ -116,50 +116,56 @@ async function getBlockchainData(req, res) {
 
 async function verifyCertificiate(req, res) {
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) return res.sendStatus(401);
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.split(' ')[1];
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err) => {
-      if (err) {
-        return res.sendStatus(403);
-      } else {
-        const { serialNo, issuerSerialNo, issuerName } = req.body;
-        const data = JSON.stringify({
-          fcn: "verifyCert",
-          args: [serialNo, issuerSerialNo, issuerName, "Final"],
-        });
-        const result = await axios.post(
-          "http://10.244.0.197:9080/fabric/v1/invokecc",
-          data,
-          {
-            headers: {
-              apikey: "d1c0d209b2c00e1cee448a703d639b4a0644a07b",
-              "x-access-token": "",
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (result.data.Status == "Success") {
-            parsedData = JSON.parse(result.data.Data); 
-            const date = moment(parsedData.Metadata.IssuedDate);
-            const issuedDate = date.format('DD-MM-YYYY');
+    if (!token) {
+      return res.sendStatus(401); 
+    }
 
-          res.status(200).json({ message:'Success', 
-            serialNumber: parsedData.Metadata.SerialNumber, 
-            subjectName: parsedData.Metadata.Subject.SubjectName, 
-            issuerSerialNo: parsedData.Metadata.IssuerSlNo,
-            issuedDate: issuedDate,
-            // hash: parsedData.Data.Hash,
-          });
-        } else {
-          res.status(400).json({ error: "Invalid data received from API" });
-        }
-      }
+    try {
+      await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    } catch (err) {
+      return res.sendStatus(403); 
+    }
+
+    const { serialNo, issuerSerialNo, issuerName } = req.body;
+
+    const data = JSON.stringify({
+      fcn: 'verifyCert',
+      args: [serialNo, issuerSerialNo, issuerName, 'Final'],
     });
+
+    const result = await axios.post(
+      'http://10.244.0.197:9080/fabric/v1/invokecc',
+      data,
+      {
+        headers: {
+          apikey: 'd1c0d209b2c00e1cee448a703d639b4a0644a07b',
+          'x-access-token': '', 
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (result.data.Status === 'Success') {
+      const parsedData = JSON.parse(result.data.Data); 
+      const date = moment(parsedData.Metadata.IssuedDate);
+      const issuedDate = date.format('DD-MM-YYYY');
+
+      return res.status(200).json({
+        message: 'Success',
+        serialNumber: parsedData.Metadata.SerialNumber,
+        subjectName: parsedData.Metadata.Subject.SubjectName,
+        issuerSerialNo: parsedData.Metadata.IssuerSlNo,
+        issuedDate: issuedDate,
+      });
+    } else {
+      return res.status(400).json({ error: 'Invalid data received from API' });
+    }
   } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: error.message });
+    console.error('Error:', error.message);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
 module.exports = {
