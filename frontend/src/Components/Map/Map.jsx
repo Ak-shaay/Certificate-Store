@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import MapState from "./MapState"; // Import MapState component
-import Highmaps from "highcharts/highmaps";
+import MapState from "./MapState";
 import Highcharts from "highcharts";
-import {
-  Box,
-  useMediaQuery,
-  useTheme,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import Highmaps from "highcharts/highmaps";
+import accessibilityModule from "highcharts/modules/accessibility";
+import Box from "@mui/material/Box";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from '@mui/material/styles';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import {
   HighchartsMapChart,
   HighmapsProvider,
@@ -68,6 +67,7 @@ const mapInstructions = [
 ];
 
 const Map = () => {
+  accessibilityModule(Highmaps);
   const [geojson, setGeojson] = useState(null);
   const [mapdata, setMapdata] = useState(null);
   const [filteredMapData, setFilteredMapData] = useState(null);
@@ -469,6 +469,9 @@ const Map = () => {
               <HighmapsProvider Highcharts={Highmaps}>
                 <HighchartsMapChart
                   map={geojson}
+                  options={{
+                    accessibility: { enabled: false },
+                  }}
                   sx={{
                     width: "100%",
                     height: isSmallScreen ? 400 : 600,
