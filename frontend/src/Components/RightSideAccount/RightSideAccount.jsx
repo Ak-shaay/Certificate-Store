@@ -68,8 +68,7 @@ const RightSideAccount = () => {
         justifyContent="center"
         minHeight="100vh"
         textAlign="center"
-      >
-      </Box>
+      ></Box>
     );
   }
 
@@ -78,7 +77,12 @@ const RightSideAccount = () => {
       <div className="ProfileContainer">
         <div className="Profile">
           {loading ? (
-            <Skeleton animation="wave" variant="circular" width={50} height={50} />
+            <Skeleton
+              animation="wave"
+              variant="circular"
+              width={50}
+              height={50}
+            />
           ) : (
             <img
               src={currentImgSrc}

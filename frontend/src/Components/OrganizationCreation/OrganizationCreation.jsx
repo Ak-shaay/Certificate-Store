@@ -4,6 +4,9 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
 import api from "../../Pages/axiosInstance";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 
 const OrganizationCreation = ({ onBack }) => {
   const [certificate, setCertificate] = useState(null);
@@ -352,22 +355,32 @@ const OrganizationCreation = ({ onBack }) => {
               placeholder="Enter postal code"
             />
             <Tooltip
-              title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px"
-              placement="top"
-            >
-              <Button variant="text" size="medium" component="label">
-                <div className="imgBtn">
-                  <span className="imgName">{image ? image.name : ""}</span>
-                  Upload Image
-                  <input
-                    type="file"
-                    accept=".png"
-                    hidden
-                    onChange={handleImageChange}
-                  />
-                </div>
-              </Button>
-            </Tooltip>
+  title="Please upload a PNG image with a maximum size of 200KB and dimensions of 150x150px"
+  placement="top"
+>
+  <Button variant="text" size="medium" component="label">
+    <div className="imgBtn">
+      <span className="imgName">
+        {image?.name}
+        {image && (
+          <Tooltip title="Remove">
+            <IconButton onClick={() => setImage(null)} size="small">
+              <DeleteIcon className="deleteIcon" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </span>
+      Upload Image
+      <input
+        type="file"
+        accept=".png"
+        hidden
+        onChange={handleImageChange}
+      />
+    </div>
+  </Button>
+</Tooltip>
+
           </div>
           <div className="btnContainer">
             <button

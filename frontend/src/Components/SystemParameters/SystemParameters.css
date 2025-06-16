@@ -17,13 +17,6 @@
     font-size: 0.8em;
     position: relative;
 }
-.orgcontainer{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
 .mainContainer{
     display: flex;
     flex-direction: row;
