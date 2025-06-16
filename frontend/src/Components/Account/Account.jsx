@@ -12,6 +12,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Skeleton from "@mui/material/Skeleton";
+
 
 const modalStyle = {
   position: "absolute",
@@ -66,7 +68,7 @@ const Account = () => {
   }, []);
 
   const handlePasswordChange = () => setOpen(true);
-  
+
   const handleClose = () => {
     setOpen(false);
     setOldPassword("");
@@ -120,8 +122,22 @@ const Account = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) {
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="100vh"
+      textAlign="center"
+    >
+      <Typography color="error" variant="h6">
+        Error loading the page
+      </Typography>
+    </Box>
+  );
+}
 
   return (
     <div className="MainAccount">
@@ -244,54 +260,57 @@ const Account = () => {
       <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
         <hr />
-        <form id="forms">
-          <div className="row">
-            <div className="column">
-              <label>
-                <b>Name : </b>
-                {data.Name}
-              </label>
-            </div>
-            <div className="column">
-              <label>
-                <b>Email : </b>
-                {data.Email}
-              </label>
-            </div>
-            <div className="column">
-              <label>
-                <b>Organization : </b>
-                {data.Organization}
-              </label>
-            </div>
-          </div>
-          <div className="header mg-tp">Address</div>
-          <hr />
-          <div className="row">
-            <div className="column">
-              <label>
-                <b>Locality : </b>
-                {data.Address}
-              </label>
-            </div>
-            <div className="column">
-              <label>
-                <b>State : </b>
-                {data.State}
-              </label>
-            </div>
-            <div className="column">
-              <label>
-                <b>Postal Code : </b>
-                {data.PostalCode}
-              </label>
-            </div>
-          </div>
-          <br />
-          <span className="forgotPassword" onClick={handlePasswordChange}>
-            Change password?
-          </span>
-        </form>
+       <form id="forms">
+  <div className="row">
+    <div className="column">
+      <label>
+        <b>Name : </b>
+        {loading ? <Skeleton animation="wave" width={150} /> : data.Name}
+      </label>
+    </div>
+    <div className="column">
+      <label>
+        <b>Email : </b>
+        {loading ? <Skeleton animation="wave" width={200} /> : data.Email}
+      </label>
+    </div>
+    <div className="column">
+      <label>
+        <b>Organization : </b>
+        {loading ? <Skeleton animation="wave" width={180} /> : data.Organization}
+      </label>
+    </div>
+  </div>
+
+  <div className="header mg-tp">Address</div>
+  <hr />
+  <div className="row">
+    <div className="column">
+      <label>
+        <b>Locality : </b>
+        {loading ? <Skeleton animation="wave" width={160} /> : data.Address}
+      </label>
+    </div>
+    <div className="column">
+      <label>
+        <b>State : </b>
+        {loading ? <Skeleton animation="wave" width={120} /> : data.State}
+      </label>
+    </div>
+    <div className="column">
+      <label>
+        <b>Postal Code : </b>
+        {loading ? <Skeleton animation="wave" width={80} /> : data.PostalCode}
+      </label>
+    </div>
+  </div>
+  <br />
+  {!loading && (
+    <span className="forgotPassword" onClick={handlePasswordChange}>
+      Change password?
+    </span>
+  )}
+</form>
       </div>
     </div>
   );

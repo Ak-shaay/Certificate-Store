@@ -91,7 +91,7 @@ const Login = () => {
       }
     } catch (err) {
       setErrMsg("Unexpected error occurred. Please try again later.");
-      errRef.current.focus();
+      // errRef.current.focus();
     } finally {
       setLoading(false);
     }
