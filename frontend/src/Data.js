@@ -117,18 +117,18 @@ export const cardsData = [
 ];
 
  // from https://emudhra[dot]com/blog/certificate-revocation-list-crl
- export const revocationReasons = [
-  { label: "Unspecified", value: "Unspecified" },
-  { label: "Key compromise", value: "Key compromise" },
-  { label: "CA Compromise", value: "CA Compromise" },
-  { label: "Affiliation Changed", value: "Affiliation Changed" },
-  { label: "Superseded", value: "Superseded" },
-  { label: "Cessation of Operation", value: "Cessation of Operation" },
-];
+//  export const revocationReasons = [
+//   { label: "Unspecified", value: "Unspecified" },
+//   { label: "Key compromise", value: "Key compromise" },
+//   { label: "CA Compromise", value: "CA Compromise" },
+//   { label: "Affiliation Changed", value: "Affiliation Changed" },
+//   { label: "Superseded", value: "Superseded" },
+//   { label: "Cessation of Operation", value: "Cessation of Operation" },
+// ];
 
-export const usageOptions = [
-  { label: "Signing", value: "Signing" },
-  { label: "Encryption", value: "Encryption" },
-  { label: "Decryption", value: "Decryption" },
-  { label: "other", value: "other" },
-];
+// export const usageOptions = [
+//   { label: "Signing", value: "Signing" },
+//   { label: "Encryption", value: "Encryption" },
+//   { label: "Decryption", value: "Decryption" },
+//   { label: "other", value: "other" },
+// ];

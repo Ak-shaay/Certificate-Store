@@ -191,12 +191,12 @@ async function logUserAction(
 }
 
 async function getCertData(
-  filterCriteria, 
-  authNo, 
-  rows, 
-  page, 
-  orderBy, 
-  order, 
+  filterCriteria,
+  authNo,
+  rows,
+  page,
+  orderBy,
+  order,
   noPagination = false
 ) {
   try {
@@ -315,7 +315,7 @@ async function getRevokedCertData(
   rows,
   order,
   orderBy,
-  noPagination =false
+  noPagination = false
 ) {
   try {
     let query = "";
@@ -375,7 +375,7 @@ async function getCertUsageData(
   rows,
   order,
   orderBy,
-  noPagination=false
+  noPagination = false
 ) {
   try {
     let query = "";
@@ -404,12 +404,10 @@ async function getCertUsageData(
       "UsageDate",
       "Remark",
     ];
-    const sortColumn = validColumns.includes(orderBy)
-      ? orderBy
-      : "UsageDate";
+    const sortColumn = validColumns.includes(orderBy) ? orderBy : "UsageDate";
     const sortOrder = order === "desc" ? "desc" : "asc";
 
-    query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;
     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
     const count = await db.executeQuery(countQuery, authNo);
 
@@ -420,7 +418,6 @@ async function getCertUsageData(
         query += ` LIMIT ${rows} OFFSET ${offset}`;
       }
     }
-
 
     const result = await db.executeQuery(query, authNo);
     return { result, count: count[0].total };
@@ -473,7 +470,7 @@ async function getCertUsageData(
 //       : "TimeStamp";
 //     const sortOrder = order === "desc" ? "desc" : "asc";
 
-//     query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+//     query += ` ORDER BY ${sortColumn} ${sortOrder}`;
 //     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
 //     const count = await db.executeQuery(countQuery, authNo);
 
@@ -485,7 +482,6 @@ async function getCertUsageData(
 //       }
 //     }
 
-
 //     const result = await db.executeQuery(query, authNo);
 //     return { result, count: count[0].total };
 //   } catch (e) {
@@ -493,7 +489,15 @@ async function getCertUsageData(
 //   }
 // }
 
-async function getLogsData(filterCriteria, authNo, page, rows, order, orderBy, noPagination = false) {
+async function getLogsData(
+  filterCriteria,
+  authNo,
+  page,
+  rows,
+  order,
+  orderBy,
+  noPagination = false
+) {
   try {
     let query = `
       SELECT 
@@ -515,7 +519,8 @@ async function getLogsData(filterCriteria, authNo, page, rows, order, orderBy, n
 
     // AuthNo-based filtering
     if (authNo === 1) {
-      query += " AND login.UserEmail NOT IN (SELECT UserEmail FROM login WHERE AuthNo IS NULL)";
+      query +=
+        " AND login.UserEmail NOT IN (SELECT UserEmail FROM login WHERE AuthNo IS NULL)";
     } else if (authNo != null) {
       query += " AND login.AuthNo = ?";
       queryParams.push(authNo);
@@ -574,7 +579,7 @@ async function getLogsData(filterCriteria, authNo, page, rows, order, orderBy, n
       "ActionType",
       "Remark",
       "Lattitude",
-      "Longitude"
+      "Longitude",
     ];
     const sortColumn = validColumns.includes(orderBy) ? orderBy : "TimeStamp";
     const sortOrder = order === "desc" ? "DESC" : "ASC";
@@ -599,8 +604,6 @@ async function getLogsData(filterCriteria, authNo, page, rows, order, orderBy, n
     throw e;
   }
 }
-
-
 
 async function updateStatus(email, status, attempts, last) {
   try {
@@ -694,10 +697,19 @@ async function updatePassword(newPass, authNo) {
 // function to get all authorities
 function findAuthorities() {
   try {
-    let query =
-      'SELECT AuthName FROM authorities';
+    let query = "SELECT AuthName FROM authorities";
     // let query =
     //   'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
+    return db.executeQuery(query);
+  } catch (e) {
+    console.log("Error while fetching data: ", e);
+  }
+}
+
+// find usage options
+function findUsages() {
+  try {
+    let query = "SELECT DISTINCT Remark FROM `cert_usage`";
     return db.executeQuery(query);
   } catch (e) {
     console.log("Error while fetching data: ", e);
@@ -862,7 +874,13 @@ async function getAllAuthsData() {
     console.log("error fetching data", e);
   }
 }
-async function getAllUsersData( page,  rows,  order,  orderBy,noPagination = false) {
+async function getAllUsersData(
+  page,
+  rows,
+  order,
+  orderBy,
+  noPagination = false
+) {
   let query = `SELECT l.UserEmail,l.Name,l.Role,l.LoginStatus,a.AuthName FROM login as l INNER JOIN authorities as a where l.AuthNo =a.AuthNo`;
 
   try {
@@ -873,12 +891,10 @@ async function getAllUsersData( page,  rows,  order,  orderBy,noPagination = fal
       "LoginStatus",
       "AuthName",
     ];
-    const sortColumn = validColumns.includes(orderBy)
-      ? orderBy
-      : "AuthName";
+    const sortColumn = validColumns.includes(orderBy) ? orderBy : "AuthName";
     const sortOrder = order === "desc" ? "desc" : "asc";
 
-    query += ` ORDER BY ${sortColumn} ${sortOrder}`;        
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;
     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
     const count = await db.executeQuery(countQuery);
 
@@ -1279,6 +1295,7 @@ module.exports = {
   getSubjectTypes,
   getRevocationReasons,
   getLogActions,
+  findUsages,
   getCertSerialNumber,
   getNextSerial,
   signup,

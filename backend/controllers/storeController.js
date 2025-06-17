@@ -1188,6 +1188,29 @@ async function organizationList(req, res) {
     }
   });
 }
+async function usageOptions(req, res) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const usageOptions = await userModel.findUsages();
+      formattedUsage = usageOptions.map((usage) => {
+        return {
+          label: usage.Remark,
+          value: usage.Remark,
+        };
+      });
+      res.status(200).json(formattedUsage);
+    } catch (error) {
+      console.error("Error fetching authorities data:", error);
+      res.sendStatus(500);
+    }
+  });
+}
 async function cards(req, res) {
   try {
     const cards = await userModel.getCardsData();
@@ -2133,6 +2156,7 @@ module.exports = {
   authorities,
   organizations,
   organizationList,
+  usageOptions,
   cards,
   compactCard,
   getAllUsers,

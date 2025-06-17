@@ -10,7 +10,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import api from "../../Pages/axiosInstance";
-import { usageOptions } from "../../Data";
+// import { usageOptions } from "../../Data";
 import Backdrop from "@mui/material/Backdrop";
 import Button from "@mui/material/Button";
 
@@ -24,6 +24,7 @@ const UsageDataTable = () => {
   const [orderBy, setOrderBy] = useState("UsageDate");
 
   const [usageData, setUsageData] = useState([]);
+  const [usageOptions, setUsageOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
@@ -92,6 +93,21 @@ const UsageDataTable = () => {
     fetchData();
     handleFilterClose();
   };
+  useEffect(() => {
+    const fetchReasons = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/usageOptions");
+        if (response.data) {
+          setUsageOptions(response.data);
+        }
+      } catch (err) {
+        console.error("error : ", err);
+      }
+    };
+    fetchReasons();
+  }, []);
 
   async function fetchData() {
     try {
