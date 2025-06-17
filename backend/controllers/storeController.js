@@ -1024,9 +1024,9 @@ async function profile(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
     if (err) return res.sendStatus(403);
 
-    try {     
+    try {
       const result = await userModel.getLastLogin(user.authNo);
-      
+
       var data = {
         ip: "---",
         lastLogin: "---",
@@ -1145,9 +1145,7 @@ async function organizations(req, res) {
           value: authority.AuthName,
         };
       });
-      formattedAuthority.unshift(
-        { label: "Admin", value: "Admin" }
-      )
+      formattedAuthority.unshift({ label: "Admin", value: "Admin" });
       res.status(200).json(formattedAuthority);
     } catch (error) {
       console.error("Error fetching authorities data:", error);
@@ -1171,15 +1169,13 @@ async function organizationList(req, res) {
           value: authority.AuthName,
         };
       });
-      if(req.user.authNo==null){
-        formattedAuthority.unshift(
-          { label: "Admin", value: "Admin" }
-        )
-      }
-      else if(req.user.authNo == 1){
+      if (req.user.authNo == null) {
+        formattedAuthority.unshift({ label: "Admin", value: "Admin" });
+      } else if (req.user.authNo == 1) {
         formattedAuthority.pop({
-          label: "CCA", value: "CCA"
-        })
+          label: "CCA",
+          value: "CCA",
+        });
       }
       res.status(200).json(formattedAuthority);
     } catch (error) {
@@ -1616,7 +1612,7 @@ async function removeRegion(req, res) {
 
 // subjectType
 async function getSubType(req, res) {
-  try {    
+  try {
     const distinctSubTypes = await userModel.getSubjectTypes();
 
     let filteredSubTypes = distinctSubTypes;
@@ -1786,18 +1782,19 @@ async function forgotPassword(req, res) {
         timeout: 60000,
       });
       var mailOptions = {
-        from: Sender,
+        from: "CertStore Admin <certstore-admin@cdac.in>",
         to: email,
         subject: "Password Reset Request",
-        text: `Dear Sir/Ma'am,
-      
-      We have received a request to change the password on your account. Please use the temporary password: ${pass} to log in to your account.
-      
-      For security reasons, we recommend that you change your password as soon as you log in.
-      
-      Thank you and regards,  
-      Admin Team
-      Certificate Store`,
+        html: `
+    <p>Dear Sir/Ma'am,</p>
+    <p>We have received a request to change the password on your account.</p>
+    <p>Please use the temporary password: <strong>${pass}</strong> to log in to your account.</p>
+    <p>For security reasons, we recommend that you change your password as soon as you log in.</p>
+    
+    <p>Thanks and Regards,<br>
+      <strong>Admin</strong><br>
+      Certstore</p>
+  `,
       };
 
       transporter.sendMail(mailOptions, function (error, info) {
@@ -2004,13 +2001,13 @@ async function reportGenerator(req, res) {
 
   const uuid = uuidv4();
   const filePath = `./public/reports/${uuid}.pdf`;
-  const link = `http://`+domain+`/reports/${uuid}.pdf`;
+  const link = `http://` + domain + `/reports/${uuid}.pdf`;
   try {
     let email = "";
     const userName = req.session.username;
     const auth = req.session.userid;
     const ccEmail = (await userModel.findEmailByAuth(auth)) || "";
-    
+
     if (auth == null) {
       email = process.env.ADMIN || "";
     } else {
@@ -2028,7 +2025,6 @@ async function reportGenerator(req, res) {
     // Generate the PDF report
     const result = await pdfGeneration(tableData, title, headers, filePath);
     if (result) {
-
       // Set up the email transporter
       var transporter = nodemailer.createTransport({
         host: "smtp.cdac.in",

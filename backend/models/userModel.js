@@ -1213,12 +1213,6 @@ SET Password = ?,
     LoginStatus = 'temporary', 
     Attempts = 1 
 WHERE UserEmail = ?`;
-  //   const query = `
-  //    UPDATE login
-  // SET Password = ?,
-  //     LoginStatus = 'temporary',
-  //     Attempts = 1
-  // WHERE AuthNo = (SELECT AuthNo FROM authorities WHERE Email = ?)`;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.executeQuery(query, [hashedPassword, email]);
