@@ -938,6 +938,21 @@ async function getSubjectTypes() {
   }
 }
 
+async function getCCAAuthCode() {
+  const query = `SELECT AuthCode FROM authorities WHERE AuthNo = 1`;
+  try {
+    const result = await db.executeQuery(query);
+
+    const authCode = result?.[0]?.AuthCode;
+
+    return authCode;
+  } catch (e) {
+    console.log("error fetching data", e);
+    return null; 
+  }
+}
+
+
 async function getRevocationReasons() {
   const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
   try {
@@ -1287,6 +1302,7 @@ module.exports = {
   getAllAuthsData,
   updateAuthsData,
   getSubjectTypes,
+  getCCAAuthCode,
   getRevocationReasons,
   getLogActions,
   findUsages,
