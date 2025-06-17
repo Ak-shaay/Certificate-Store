@@ -1129,6 +1129,65 @@ async function authorities(req, res) {
     }
   });
 }
+async function organizations(req, res) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const authoritiesData = await userModel.findAuthorities();
+      formattedAuthority = authoritiesData.map((authority) => {
+        return {
+          label: authority.AuthName,
+          value: authority.AuthName,
+        };
+      });
+      formattedAuthority.unshift(
+        { label: "Admin", value: "Admin" }
+      )
+      res.status(200).json(formattedAuthority);
+    } catch (error) {
+      console.error("Error fetching authorities data:", error);
+      res.sendStatus(500);
+    }
+  });
+}
+async function organizationList(req, res) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const authoritiesData = await userModel.findAuthorities();
+      formattedAuthority = authoritiesData.map((authority) => {
+        return {
+          label: authority.AuthName,
+          value: authority.AuthName,
+        };
+      });
+      if(req.user.authNo==null){
+        formattedAuthority.unshift(
+          { label: "Admin", value: "Admin" }
+        )
+      }
+      else if(req.user.authNo == 1){
+        formattedAuthority.pop({
+          label: "CCA", value: "CCA"
+        })
+      }
+      res.status(200).json(formattedAuthority);
+    } catch (error) {
+      console.error("Error fetching authorities data:", error);
+      res.sendStatus(500);
+    }
+  });
+}
 async function cards(req, res) {
   try {
     const cards = await userModel.getCardsData();
@@ -1534,9 +1593,19 @@ async function removeRegion(req, res) {
 
 // subjectType
 async function getSubType(req, res) {
-  try {
+  try {    
     const distinctSubTypes = await userModel.getSubjectTypes();
-    const result = distinctSubTypes.map((item) => ({
+
+    let filteredSubTypes = distinctSubTypes;
+
+    // If authNo is not null or 1, remove 'CCA' from the list
+    if (req.user.authNo !== null && req.user.authNo !== 1) {
+      filteredSubTypes = distinctSubTypes.filter(
+        (item) => item.SubjectType !== "CCA"
+      );
+    }
+
+    const result = filteredSubTypes.map((item) => ({
       label: item.SubjectType,
       value: item.SubjectType,
     }));
@@ -2062,6 +2131,8 @@ module.exports = {
   refreshToken,
   updatePasswordController,
   authorities,
+  organizations,
+  organizationList,
   cards,
   compactCard,
   getAllUsers,

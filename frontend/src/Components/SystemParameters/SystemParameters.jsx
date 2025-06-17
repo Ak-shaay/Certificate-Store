@@ -247,7 +247,7 @@ const SystemParameters = ({ onBack }) => {
             marginBottom:'1rem'
           }}
         >
-          <h2 style={{ margin:0 }}>Manage System Parameters</h2>
+          <h2 style={{ margin:0 ,color:'rgb(60 87 153)'}}>Manage System Parameters</h2>
           <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back

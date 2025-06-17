@@ -23,6 +23,8 @@ router.post('/certificateUpload',authentication.authenticateUser,authController.
 router.post('/extractCert',authentication.authenticateUser,authController.extractCert);
 router.post('/updatePassword', authentication.authenticateUser, authController.updatePasswordController);
 router.post('/authorities', authentication.authenticateUser, authController.authorities)
+router.post('/organizations', authentication.authenticateUser, authController.organizations)
+router.post('/orgList', authentication.authenticateUser, authController.organizationList)
 router.post('/cards', authController.cards);
 router.post('/compactCard', authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)

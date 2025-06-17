@@ -33,10 +33,8 @@ const UserCreation = ({ onBack }) => {
       try {
         const accessToken = api.getAccessToken();
         api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.post("/authorities");
+        const response = await api.axiosInstance.post("/organizations");
         if (response.data) {
-          response.data.unshift({ label: "CCA", value: "CCA" });
-          response.data.unshift({ label: "Admin", value: "Admin" });
           setAuthorities(response.data);
         }
       } catch (err) {
@@ -203,7 +201,7 @@ const UserCreation = ({ onBack }) => {
             marginBottom: "1rem",
           }}
         >
-          <h2 style={{ margin: 0 }}>Create User</h2>
+          <h2 style={{ margin: 0 ,color:'rgb(60 87 153)' }}>Create User</h2>
           <div style={{ position: "absolute", left: 0 }}>
             <button onClick={onBack} className="backButton">
               Back

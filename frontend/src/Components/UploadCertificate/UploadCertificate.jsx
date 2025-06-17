@@ -105,11 +105,12 @@ const UploadCertificate = () => {
     <div className="Maindash">
       <div className="upload-files-container">
         <div className="file-area">
-          <h1 className="dynamic-message">Certificate Upload</h1>
+          <h1 className="dynamic-message">CCA Certificate Upload</h1>
           <label className="label">
             <span className="browse-files">
               <input
                 type="file"
+                 accept=".cer"
                 className="default-file-input"
                 ref={fileInputRef}
                 onChange={handleFileChange}

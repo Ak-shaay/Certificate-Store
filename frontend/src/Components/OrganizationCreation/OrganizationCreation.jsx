@@ -268,7 +268,7 @@ const OrganizationCreation = ({ onBack }) => {
             marginBottom: "1rem",
           }}
         >
-          <h2 style={{ margin: 0 }}>Create Organization</h2>
+          <h2 style={{ margin: 0 ,color:'rgb(60 87 153)'}}>Create Organization</h2>
           <div style={{ position: "absolute", left: 0 }}>
             <button onClick={onBack} className="backButton">
               Back

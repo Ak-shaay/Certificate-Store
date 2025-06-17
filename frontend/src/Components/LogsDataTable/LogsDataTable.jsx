@@ -19,6 +19,7 @@ export default function LogsDataTable() {
     page: 0,
     rowsPerPage: 10,
   });
+  const [authNumber, setAuthNumber] = useState("");
   const [count, setCount] = useState(0);
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("TimeStamp");
@@ -69,6 +70,11 @@ export default function LogsDataTable() {
         orderBy,
       };
       const accessToken = api.getAccessToken();
+      const decodedToken = accessToken
+        ? JSON.parse(atob(accessToken.split(".")[1]))
+        : null;
+      const authNo = decodedToken ? decodedToken.authNo : [];
+      setAuthNumber(authNo);
       if (accessToken) {
         api.setAuthHeader(accessToken);
         setLoading(true);
@@ -87,17 +93,17 @@ export default function LogsDataTable() {
       setLoading(false);
     }
   }
-    useEffect(() => {
-      fetch(`http://${domain}:8080/getAllActions`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => setOptions(data))
-        .catch((error) => console.error("Error fetching data:", error));
-    }, []);
+  useEffect(() => {
+    fetch(`http://${domain}:8080/getAllActions`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => setOptions(data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -113,15 +119,8 @@ export default function LogsDataTable() {
           : null;
         const authNo = decodedToken ? decodedToken.authNo : [];
         api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.post("/authorities");
+        const response = await api.axiosInstance.post("/orgList");
         if (response.data) {
-          if (authNo == null) {
-            response.data.push({ label: "CCA", value: "CCA" });
-            response.data.push({ label: "Admin", value: "admin" });
-          }
-          if (authNo == 1) {
-            response.data.push({ label: "CCA", value: "CCA" });
-          }
           setAuthorities(response.data);
         }
       } catch (err) {
@@ -281,12 +280,16 @@ export default function LogsDataTable() {
           <h2 className="filter-head">Filter</h2>
           <hr className="filter-line" />
           <div className="multi-select-row">
-            <MultiSelect
-              options={authorities}
-              placeholder="Select User"
-              onChange={handleUserFilter}
-              ref={authRef}
-            />
+            {authNumber == 1 || authNumber == null ? (
+              <MultiSelect
+                options={authorities}
+                placeholder="Select User"
+                onChange={handleUserFilter}
+                ref={authRef}
+              />
+            ) : (
+              <></>
+            )}
             <MultiSelect
               options={options}
               onChange={handleActtionFIlter}

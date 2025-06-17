@@ -222,7 +222,7 @@ const Organization = ({ onBack }) => {
             marginBottom:'1rem'
           }}
         >
-          <h2 style={{ margin:0 }}>Organizations</h2>
+          <h2 style={{ margin:0,color:'rgb(60 87 153)' }}>Organizations</h2>
           <div style={{ position: "absolute", left: 0 }}>
           <button onClick={onBack} className="backButton">
             Back

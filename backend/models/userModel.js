@@ -429,35 +429,143 @@ async function getCertUsageData(
   }
 }
 //logs data based on logins
-async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy,noPagination = false) {
+// async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy,noPagination = false) {
+//   try {
+//     let query = "";
+//     if (authNo == null) {
+//       query =
+//         "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
+//     } else if (authNo == 1) {
+//       query =
+//         "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE  UserEmail NOT IN (SELECT UserEmail from login WHERE AuthNo IS NULL)";
+//     } else {
+//       query =
+//         "SELECT LogsSrNo , UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs  WHERE UserEmail IN (SELECT UserEmail from login WHERE AuthNo = ?)";
+//     }
+//     if (filterCriteria) {
+//       if (filterCriteria.users && filterCriteria.users.length > 0) {
+//         const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
+//         query += ` AND UserEmail IN (${users})`;
+//       }
+//       if (filterCriteria.actions && filterCriteria.actions.length > 0) {
+//         const actions = filterCriteria.actions
+//           .map((action) => `'${action}'`)
+//           .join(",");
+//         query += ` AND ActionType IN (${actions})`;
+//       }
+
+//       if (filterCriteria.startDate && filterCriteria.endDate) {
+//         query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//       }
+//     }
+//     const validColumns = [
+//       "LogsSrNo",
+//       "UserEmail",
+//       "TimeStamp",
+//       "IpAddress",
+//       "ActionType",
+//       "Remark",
+//       "Lattitude",
+//       "Longitude"
+//     ];
+//     const sortColumn = validColumns.includes(orderBy)
+//       ? orderBy
+//       : "TimeStamp";
+//     const sortOrder = order === "desc" ? "desc" : "asc";
+
+//     query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+//     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+//     const count = await db.executeQuery(countQuery, authNo);
+
+//     // Add pagination with LIMIT and OFFSET
+//     if (!noPagination) {
+//       if (rows && page) {
+//         const offset = (page - 1) * rows;
+//         query += ` LIMIT ${rows} OFFSET ${offset}`;
+//       }
+//     }
+
+
+//     const result = await db.executeQuery(query, authNo);
+//     return { result, count: count[0].total };
+//   } catch (e) {
+//     console.log("Error while fetching certificate details: ", e);
+//   }
+// }
+
+async function getLogsData(filterCriteria, authNo, page, rows, order, orderBy, noPagination = false) {
   try {
-    let query = "";
-    if (authNo == null) {
-      query =
-        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE 1=1";
-    } else if (authNo == 1) {
-      query =
-        "SELECT LogsSrNo, UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs WHERE  UserEmail NOT IN (SELECT UserEmail from login WHERE AuthNo IS NULL)";
-    } else {
-      query =
-        "SELECT LogsSrNo , UserEmail, TimeStamp, IpAddress, ActionType, Remark, Lattitude, Longitude FROM Logs  WHERE UserEmail IN (SELECT UserEmail from login WHERE AuthNo = ?)";
+    let query = `
+      SELECT 
+        Logs.LogsSrNo, 
+        Logs.UserEmail, 
+        Logs.TimeStamp, 
+        Logs.IpAddress, 
+        Logs.ActionType, 
+        Logs.Remark, 
+        Logs.Lattitude, 
+        Logs.Longitude
+      FROM Logs
+      INNER JOIN login ON Logs.UserEmail = login.UserEmail
+      LEFT JOIN authorities ON login.AuthNo = authorities.AuthNo
+      WHERE 1=1
+    `;
+
+    const queryParams = [];
+
+    // AuthNo-based filtering
+    if (authNo === 1) {
+      query += " AND login.UserEmail NOT IN (SELECT UserEmail FROM login WHERE AuthNo IS NULL)";
+    } else if (authNo != null) {
+      query += " AND login.AuthNo = ?";
+      queryParams.push(authNo);
     }
-    if (filterCriteria) {
-      if (filterCriteria.users && filterCriteria.users.length > 0) {
-        const users = filterCriteria.users.map((user) => `'${user}'`).join(",");
-        query += ` AND UserEmail IN (${users})`;
-      }
-      if (filterCriteria.actions && filterCriteria.actions.length > 0) {
-        const actions = filterCriteria.actions
-          .map((action) => `'${action}'`)
-          .join(",");
-        query += ` AND ActionType IN (${actions})`;
+
+    // Filter by AuthName (authorities) or Role (login)
+    if (filterCriteria?.users?.length > 0) {
+      const authNames = [];
+      const roles = [];
+
+      for (const user of filterCriteria.users) {
+        if (["admin"].includes(user.toLowerCase())) {
+          roles.push(user);
+        } else {
+          authNames.push(user);
+        }
       }
 
-      if (filterCriteria.startDate && filterCriteria.endDate) {
-        query += ` AND TimeStamp BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+      const userConditions = [];
+      if (authNames.length > 0) {
+        const placeholders = authNames.map(() => "?").join(",");
+        userConditions.push(`authorities.AuthName IN (${placeholders})`);
+        queryParams.push(...authNames);
+      }
+
+      if (roles.length > 0) {
+        const placeholders = roles.map(() => "?").join(",");
+        userConditions.push(`login.Role IN (${placeholders})`);
+        queryParams.push(...roles);
+      }
+
+      if (userConditions.length > 0) {
+        query += ` AND (${userConditions.join(" OR ")})`;
       }
     }
+
+    // Filter by ActionType
+    if (filterCriteria?.actions?.length > 0) {
+      const placeholders = filterCriteria.actions.map(() => "?").join(",");
+      query += ` AND Logs.ActionType IN (${placeholders})`;
+      queryParams.push(...filterCriteria.actions);
+    }
+
+    // Filter by date range
+    if (filterCriteria?.startDate && filterCriteria?.endDate) {
+      query += ` AND Logs.TimeStamp BETWEEN ? AND ?`;
+      queryParams.push(filterCriteria.startDate, filterCriteria.endDate);
+    }
+
+    // Sorting
     const validColumns = [
       "LogsSrNo",
       "UserEmail",
@@ -468,30 +576,31 @@ async function getLogsData(filterCriteria, authNo,page, rows,  order,  orderBy,n
       "Lattitude",
       "Longitude"
     ];
-    const sortColumn = validColumns.includes(orderBy)
-      ? orderBy
-      : "TimeStamp";
-    const sortOrder = order === "desc" ? "desc" : "asc";
+    const sortColumn = validColumns.includes(orderBy) ? orderBy : "TimeStamp";
+    const sortOrder = order === "desc" ? "DESC" : "ASC";
+    query += ` ORDER BY ${sortColumn} ${sortOrder}`;
 
-    query += ` ORDER BY ${sortColumn} ${sortOrder}`;    
+    // Count total records
     const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
-    const count = await db.executeQuery(countQuery, authNo);
+    const countResult = await db.executeQuery(countQuery, queryParams);
+    const count = countResult[0].total;
 
-    // Add pagination with LIMIT and OFFSET
-    if (!noPagination) {
-      if (rows && page) {
-        const offset = (page - 1) * rows;
-        query += ` LIMIT ${rows} OFFSET ${offset}`;
-      }
+    // Pagination
+    if (!noPagination && rows && page) {
+      const offset = (page - 1) * rows;
+      query += ` LIMIT ? OFFSET ?`;
+      queryParams.push(rows, offset);
     }
 
-
-    const result = await db.executeQuery(query, authNo);
-    return { result, count: count[0].total };
+    const result = await db.executeQuery(query, queryParams);
+    return { result, count };
   } catch (e) {
-    console.log("Error while fetching certificate details: ", e);
+    console.error("Error while fetching log data:", e);
+    throw e;
   }
 }
+
+
 
 async function updateStatus(email, status, attempts, last) {
   try {
@@ -586,7 +695,9 @@ async function updatePassword(newPass, authNo) {
 function findAuthorities() {
   try {
     let query =
-      'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
+      'SELECT AuthName FROM authorities';
+    // let query =
+    //   'SELECT AuthName FROM authorities WHERE AuthName NOT LIKE "CCA"';
     return db.executeQuery(query);
   } catch (e) {
     console.log("Error while fetching data: ", e);
