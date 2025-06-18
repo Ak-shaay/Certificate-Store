@@ -3,12 +3,12 @@ import "../Organization/Organization.css";
 import api from "../../Pages/axiosInstance";
 import { domain } from "../../Context/config";
 import refreshIcon from "../../Images/Icons/refresh.png";
-import Backdrop from '@mui/material/Backdrop';
-import FormControl from '@mui/material/FormControl';
-import InputAdornment from '@mui/material/InputAdornment';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
+import Backdrop from "@mui/material/Backdrop";
+import FormControl from "@mui/material/FormControl";
+import InputAdornment from "@mui/material/InputAdornment";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 
 const Organization = ({ onBack }) => {
   const [authData, setAuthData] = useState([]);
@@ -211,22 +211,23 @@ const Organization = ({ onBack }) => {
   return (
     <div className="orgBody">
       <div className="mainOrg">
-         <div
+        <div
           style={{
             position: "relative",
             width: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop:'1.5rem',
-            marginBottom:'1rem'
+            marginTop: "1.5rem",
+            marginBottom: "1rem",
+            minWidth:'300px'
           }}
         >
-          <h2 style={{ margin:0,color:'rgb(60 87 153)' }}>Organizations</h2>
+          <h2 style={{ margin: 0, color: "rgb(60 87 153)" }}>Organizations</h2>
           <div style={{ position: "absolute", left: 0 }}>
-          <button onClick={onBack} className="backButton">
-            Back
-          </button>
+            <button onClick={onBack} className="backButton">
+              Back
+            </button>
           </div>
         </div>
         <Backdrop
@@ -320,20 +321,26 @@ const Organization = ({ onBack }) => {
           </div>
         </Backdrop>
         <div className="orgcontainer">
-          {authData.map((auth, index) => (
-            <div key={index}>
-              <article className="orgCard" onClick={() => handlePopup(auth)}>
-                <div>
-                  <img
-                    className="orgImg"
-                    src={`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`} // Add imageKey as query param
-                    alt="image"
-                  />
+          {authData.length === 0 ? (
+            <div>No data available</div>
+          ) : (
+            authData.map((auth, index) => (
+              <div key={index}>
+                <article className="orgCard" onClick={() => handlePopup(auth)}>
+                  <div>
+                    <img
+                      className="orgImg"
+                      src={`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`} // Add imageKey as query param
+                      alt="image"
+                    />
+                  </div>
+                </article>
+                <div className="card_name">
+                  {auth.AuthName || "Default Name"}
                 </div>
-              </article>
-              <div className="card_name">{auth.AuthName || "Default Name"}</div>
-            </div>
-          ))}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
