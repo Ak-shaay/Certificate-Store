@@ -445,7 +445,8 @@ async function userSessionInfo(req, res) {
 // CCA Certificate Upload
 async function certificateUpload(req, res) {
   const { base64Cert } = req.body;
-    const domain = process.env.DOMAINVALIDATOR || "";
+  const userName = req.session.username;
+  const domain = process.env.DOMAINVALIDATOR || "";
 
   if (!base64Cert) {
     return res.status(400).json({ error: "No certificate provided" });
@@ -468,17 +469,31 @@ async function certificateUpload(req, res) {
 
     if (response.status === 200) {
       // console.log("Certificate processed successfully:", response.status);
+      await userModel.logUserAction(
+      userName,
+      req.ip,
+      "CCA Certificate Upload",
+      "Uploaded CCA Certificate",
+      req.body.latitude,
+      req.body.longitude)
       return res.status(200).json({ message: "Success" });
     } else {
-      // console.log(
-      //   "Non-200 response from certificate service:",
-      //   response.status,
-      //   response.data
-      // );
+      console.log(
+        "Non-200 response from certificate service:",
+        response.status,
+        response.data
+      );
+      await userModel.logUserAction(
+      userName,
+      req.ip,
+      "CCA Certificate Upload",
+      response.data,
+      req.body.latitude,
+      req.body.longitude)
       return res.status(response.status).json(response.data);
     }
   } catch (err) {
-    const status = err.response?.status || 500;
+    const status = err.response?.status !== 401 ? err.response?.status : 500;
     const errorData = err.response?.data;
     const errorMessage =
       errorData?.error ||
@@ -491,6 +506,13 @@ async function certificateUpload(req, res) {
       error: errorMessage,
       responseData: errorData,
     });
+    await userModel.logUserAction(
+      userName,
+      req.ip,
+      "CCA Certificate Upload",
+      "Upload Error "+errorMessage,
+      req.body.latitude,
+      req.body.longitude)
 
     return res.status(status).json({ error: errorMessage });
   }
@@ -647,67 +669,67 @@ function formatDate(date) {
 
 //   return summaryList;
 // };
-// async function extractCert(req, res) {
-//   let pemCert;
+async function extractCert(req, res) {
+  let pemCert;
 
-//   if (req.body.base64Cert) {
-//     try {
-//       pemCert = Buffer.from(req.body.base64Cert, "base64").toString("utf-8");
-//     } catch (error) {
-//       console.error("Error decoding base64 certificate:", error);
-//       return res.status(400).json({ error: "Invalid base64 certificate" });
-//     }
-//   }
-//   try {
-//     // Parse the certificate
-//     const x509 = new jsrsasign.X509();
-//     x509.readCertPEM(pemCert);
+  if (req.body.base64Cert) {
+    try {
+      pemCert = Buffer.from(req.body.base64Cert, "base64").toString("utf-8");
+    } catch (error) {
+      console.error("Error decoding base64 certificate:", error);
+      return res.status(400).json({ error: "Invalid base64 certificate" });
+    }
+  }
+  try {
+    // Parse the certificate
+    const x509 = new jsrsasign.X509();
+    x509.readCertPEM(pemCert);
 
-//     commonName = x509.getSubjectString().split("/CN=")[1] || "";
-//     issuerName = x509.getIssuerString().split("/CN=")[1] || "";
-//     serialNumber = x509.getSerialNumberHex();
-//     extKeyUsage = x509.getExtKeyUsage();
-//     validFrom = x509.getNotBefore();
-//     validTo = x509.getNotAfter();
-//     const organization =
-//       x509.getSubjectString().split("/O=")[1]?.split("/")[0] || "";
-//     const address1 =
-//       x509.getSubjectString().split("/STREET=")[1]?.split("/")[0] || "";
-//     const address2 =
-//       x509.getSubjectString().split("/2.5.4.51 =")[1]?.split("/")[0] || "";
-//     const address = address1 + address2;
-//     const state = x509.getSubjectString().split("/ST=")[1]?.split("/")[0] || "";
-//     const postalcode =
-//       x509.getSubjectString().split("/postalCode=")[1]?.split("/")[0] || "";
-//     const response = await userModel.getCertSerialNumber(
-//       serialNumber,
-//       issuerName
-//     );
-//     if (!response) {
-//       return res
-//         .status(201)
-//         .json("Certificate does not belong to a registered CA");
-//     } else {
-//       return res.json({
-//         commonName,
-//         issuerName,
-//         serialNumber,
-//         extKeyUsage,
-//         validFrom,
-//         validTo,
-//         organization,
-//         address,
-//         state,
-//         postalcode,
-//       });
-//     }
-//   } catch (error) {
-//     console.error("Error processing certificate:", error);
-//     return res.status(500).json({
-//       error: "Invalid certificate format or error processing the certificate",
-//     });
-//   }
-// }
+    commonName = x509.getSubjectString().split("/CN=")[1] || "";
+    issuerName = x509.getIssuerString().split("/CN=")[1] || "";
+    serialNumber = x509.getSerialNumberHex();
+    extKeyUsage = x509.getExtKeyUsage();
+    validFrom = x509.getNotBefore();
+    validTo = x509.getNotAfter();
+    const organization =
+      x509.getSubjectString().split("/O=")[1]?.split("/")[0] || "";
+    const address1 =
+      x509.getSubjectString().split("/STREET=")[1]?.split("/")[0] || "";
+    const address2 =
+      x509.getSubjectString().split("/2.5.4.51 =")[1]?.split("/")[0] || "";
+    const address = address1 + address2;
+    const state = x509.getSubjectString().split("/ST=")[1]?.split("/")[0] || "";
+    const postalcode =
+      x509.getSubjectString().split("/postalCode=")[1]?.split("/")[0] || "";
+    const response = await userModel.getCertSerialNumber(
+      serialNumber,
+      issuerName
+    );
+    if (!response) {
+      return res
+        .status(201)
+        .json("Certificate does not belong to a registered CA");
+    } else {
+      return res.json({
+        commonName,
+        issuerName,
+        serialNumber,
+        extKeyUsage,
+        validFrom,
+        validTo,
+        organization,
+        address,
+        state,
+        postalcode,
+      });
+    }
+  } catch (error) {
+    console.error("Error processing certificate:", error);
+    return res.status(500).json({
+      error: "Invalid certificate format or error processing the certificate",
+    });
+  }
+}
 
 async function refreshToken(req, res) {
   const refreshToken = req.body.refreshToken;
@@ -745,7 +767,6 @@ async function logout(req, res) {
     }
     userModel.logUserAction(
       userName,
-      // new Date().toISOString().replace("T", " ").slice(0, 19),
       req.ip,
       "Logout",
       "Logged Out",
@@ -1271,6 +1292,7 @@ async function updateAuths(req, res) {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if (!token) return res.sendStatus(401);
+    const userName = req.session.username;
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) return res.sendStatus(403);
@@ -1310,7 +1332,7 @@ async function updateAuths(req, res) {
           remark = " Attempt to Change the data of" + authName;
         }
         userModel.logUserAction(
-          "Admin",
+          userName,
           // new Date().toISOString().replace("T", " ").slice(0, 19),
           req.ip,
           "Update",
@@ -1819,7 +1841,7 @@ async function forgotPassword(req, res) {
     res.status(500).json({ error: "Error Sending Email" });
   }
 }
-async function pdfGeneration(data, title, headers, filePath) {
+async function pdfGeneration(data, title, headers, filePath) {  
   try {
     const dirPath = path.dirname(filePath);
 
@@ -1858,6 +1880,8 @@ async function pdfGeneration(data, title, headers, filePath) {
 }
 
 async function getReportData(title, data, auth) {
+      // console.log("auth", auth, "title", title);
+
   if (title === "Issued Certificates") {
     // Destructure the filter data
     const {
@@ -1916,14 +1940,14 @@ async function getReportData(title, data, auth) {
 
     // Enhance the result data (e.g., formatting dates or adding regions)
     for (let i = 0; i < result.length; i++) {
-      result[i].Region = await getIndianRegion(result[i].State); // If needed
+      result[i].Region = await getIndianRegion(result[i].State) || 'Not Found';  // If needed
       result[i].IssueDate = formatDate(result[i].IssueDate);
       result[i].ExpiryDate = formatDate(result[i].ExpiryDate);
     }
-
+    
     return result;
   } else if (title === "Logs") {
-    console.log("auth", auth, "title", title);
+    // console.log("auth", auth, "title", title);
     const { user, action, startDate, endDate, orderBy, order, noPagination } =
       data;
     const filterCriteria = {};
@@ -2006,17 +2030,20 @@ async function reportGenerator(req, res) {
   const filePath = `./public/reports/${uuid}.pdf`;
   const link = `http://` + domain + `/reports/${uuid}.pdf`;
   try {
-    let email = "";
-    const userName = req.session.username;
+    // const email = req.session.username;
     const auth = req.session.userid;
-    const ccEmail = (await userModel.findEmailByAuth(auth)) || "";
+    const toEmail = [req.session.username];
 
-    if (auth == null) {
-      email = process.env.ADMIN || "";
-    } else {
-      email = userName;
-    }
+    const ccEmailList = (await userModel.findEmailByAuth(auth)) || [];
+    const bcc = await userModel.findBccEmailByAuth(auth) || undefined;
 
+    // Combine and deduplicate
+    const allEmails = [...toEmail, ...ccEmailList, ...bcc];
+    const uniqueEmails = [...new Set(allEmails)];
+
+    // Set To, CC, and BCC
+    const to = toEmail[0]; // Primary recipient
+    const cc = ccEmailList.filter((email) => email !== to); 
     // Fetch the report data
     const tableData = await getReportData(title, data, auth); // Fetch data from getReportData
     if (!tableData) {
@@ -2038,12 +2065,12 @@ async function reportGenerator(req, res) {
         },
         timeout: 60000,
       });
-
       // Prepare email options
       var mailOptions = {
         from: "CertStore Admin <certstore-admin@cdac.in>",
-        to: email,
-        cc: ccEmail,
+        to: to,
+        cc: cc.length ? cc : undefined,
+        bcc: bcc,
         subject: "Report generated",
         html: `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -2143,7 +2170,7 @@ module.exports = {
   userDetails,
   userSessionInfo,
   certificateUpload,
-  // extractCert,
+  extractCert,
   fetchData,
   fetchRevokedData,
   fetchUsageData,

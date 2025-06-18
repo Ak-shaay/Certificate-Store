@@ -382,10 +382,10 @@ export default function DataTable() {
       [
         "Serial No",
         "Name",
+        "State",
+        "Issuer SerialNo",
         "Issuer",
         "Issued Date",
-        "State",
-        "Region",
         "Expiry Date",
         "Subject Type",
       ],

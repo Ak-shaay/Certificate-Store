@@ -47,20 +47,40 @@ function findUserByUsername(email) {
   const query = "SELECT * FROM Login WHERE UserEmail = ?";
   return db.executeQuery(query, [email]);
 }
+
 async function findEmailByAuth(auth) {
-  const query = "SELECT Email FROM authorities WHERE AuthNo = ?";
+  const isNull = auth === null;
+  const query = isNull
+    ? "SELECT DISTINCT UserEmail FROM login WHERE AuthNo IS NULL"
+    : "SELECT DISTINCT UserEmail FROM login WHERE AuthNo = ?";
+  const params = isNull ? [] : [auth];
+
   try {
-    const result = await db.executeQuery(query, [auth]);
-    if (result.length > 0) {
-      return result[0].Email;
-    } else {
-      return null;
-    }
+    const result = await db.executeQuery(query, params);
+    return result.map(row => row.UserEmail);
   } catch (error) {
     console.error("Error executing query:", error);
-    return null; // Return null in case of an error
+    return [];
   }
 }
+
+async function findBccEmailByAuth(auth) {
+  const isNull = auth === null;
+  const query = isNull
+    ? "SELECT Email FROM authorities WHERE AuthNo IS NULL"
+    : "SELECT Email FROM authorities WHERE AuthNo = ?";
+  const params = isNull ? [] : [auth];
+
+  try {
+    const result = await db.executeQuery(query, params);
+    return result.length > 0 ? result[0].Email : null;
+  } catch (error) {
+    console.error("Error executing query:", error);
+    return null;
+  }
+}
+
+
 function findOrgByCN(commonName) {
   const query = "SELECT * FROM Authorities WHERE AuthName = ?";
   return db.executeQuery(query, [commonName]);
@@ -236,9 +256,9 @@ async function getCertData(
       }
     }
 
+    
     // Execute the final query and get the results
     const result = await db.executeQuery(query, authNo);
-
     return { result, count: count[0].total };
   } catch (e) {
     console.log("Error while fetching certificate details: ", e);
@@ -948,10 +968,9 @@ async function getCCAAuthCode() {
     return authCode;
   } catch (e) {
     console.log("error fetching data", e);
-    return null; 
+    return null;
   }
 }
-
 
 async function getRevocationReasons() {
   const queryDistinctReasons = `SELECT DISTINCT Reason FROM revocation_data`;
@@ -1278,6 +1297,7 @@ async function getProfileStatus(userName) {
 module.exports = {
   findUserByUsername,
   findEmailByAuth,
+  findBccEmailByAuth,
   findUserData,
   findUserByAuthNo,
   createUser,
