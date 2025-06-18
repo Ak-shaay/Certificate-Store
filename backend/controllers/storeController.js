@@ -160,6 +160,7 @@ async function emailUser(email, password) {
   email.toLowerCase();
   const Sender = process.env.ID || "";
   const Secret = process.env.SECRET || "";
+  const domain = process.env.DOMAIN || "";
   try {
     var transporter = nodemailer.createTransport({
       host: "smtp.cdac.in",
@@ -172,21 +173,28 @@ async function emailUser(email, password) {
       timeout: 60000,
     });
     var mailOptions = {
-      from: Sender,
+       from: "CertStore Admin <certstore-admin@cdac.in>",
       to: email,
-      subject: "Account has been created successfully",
-      text: `Dear Sir/Ma'am,
-      We are pleased to inform you that your account has been successfully created.
+      subject: "Account Created Successfully",
+      html: `
+          <p>Dear Sir/Ma'am,</p>
 
-      You can now access your account and start using our services. Please use the temporary password : ${password} 
-      
-      for login If you have any questions or need assistance, please feel free to reach out to our support team.
+          <p>We are pleased to inform you that your account has been successfully created.</p>
 
-      We look forward to serving you!
-      
-      Thank you and regards,  
-      Admin Team
-      Certificate Store`,
+          <p>You can now access your account and start using our services. Please <a href="https://${domain}" target="_blank" rel="noopener noreferrer"><strong>click here</strong></a> to visit the site.</p>
+
+          <p><strong>Temporary Password:</strong> <code>${password}</code></p>
+
+          <p>If you have any questions or need assistance, please feel free to contact our support team.</p>
+
+          <p>We look forward to serving you.</p>
+
+          <br>
+
+          <p>Thank you and regards,<br>
+          <strong>Admin Team</strong><br>
+          Certificate Store</p>
+        `,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
