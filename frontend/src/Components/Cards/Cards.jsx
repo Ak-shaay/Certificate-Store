@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./Cards.css";
 import { cardsData } from "../../Data";
-import axios from "axios";
-
 import Card from "../Card/Card";
-import { domain } from "../../Context/config";
+import api from "../../Pages/axiosInstance";
 
 const Cards = () => {
 const [issued,setIssued] = useState([])
@@ -45,49 +43,43 @@ const series = [
   }],
 ]
 // api call 
-useEffect(()=>{
-  async function apiCall() {
-    let config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'http://'+domain+':8080/cards'
-    };
-    
-    await axios.request(config)
-    .then((response) => {
-      // console.log(JSON.stringify(response.data[0]));
-      setIssued(response.data[0]);
-      setRevoked(response.data[1]);
-      setUsed(response.data[2]);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  }
-    async function apiCallforCount() {
-      let config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: 'http://'+domain+':8080/compactCard'
-      };
-      
-      await axios.request(config)
-      .then((response) => {
-        // console.log(JSON.stringify(response.data));
-       setIssuedCount(response.data[0]);
-       setIssuedTotal(response.data[1]);
-       setRevokedCount(response.data[2]);
-       setRevokedTotal(response.data[3]);
-       setUsageCount(response.data[4]);
-       setUsageTotal(response.data[5]);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+
+      const [cardsResponse, compactResponse] = await Promise.all([
+        api.axiosInstance.post("/cards"),
+        api.axiosInstance.post("/compactCard"),
+      ]);
+
+      if (cardsResponse.status === 200) {
+        setIssued(cardsResponse.data[0]);
+        setRevoked(cardsResponse.data[1]);
+        setUsed(cardsResponse.data[2]);
+      }
+
+      if (compactResponse.status === 200) {
+        setIssuedCount(compactResponse.data[0]);
+        setIssuedTotal(compactResponse.data[1]);
+        setRevokedCount(compactResponse.data[2]);
+        setRevokedTotal(compactResponse.data[3]);
+        setUsageCount(compactResponse.data[4]);
+        setUsageTotal(compactResponse.data[5]);
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
     }
-  apiCallforCount();
-  apiCall();
-},[])
+  }
+
+  fetchData();
+}, []);
+
+
+
 
 
   return (

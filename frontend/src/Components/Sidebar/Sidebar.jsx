@@ -81,7 +81,7 @@ const Sidebar = ({ onIndexChange, role , selectedView }) => {
       });
       api.removeTokens();
       document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-      window.location.href = `http://${domain}:3000`;
+      window.location.href = `http://10.182.3.123:3000`;
     } catch (err) {
       console.error("Logout failed:", err);
     }

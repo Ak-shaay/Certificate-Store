@@ -26,8 +26,8 @@ router.post('/authorities', authentication.authenticateUser, authController.auth
 router.post('/organizations', authentication.authenticateUser, authController.organizations)
 router.post('/orgList', authentication.authenticateUser, authController.organizationList)
 router.post('/usageOptions', authentication.authenticateUser, authController.usageOptions)
-router.post('/cards', authController.cards);
-router.post('/compactCard', authController.compactCard);
+router.post('/cards',authentication.authenticateUser, authController.cards);
+router.post('/compactCard',authentication.authenticateUser, authController.compactCard);
 router.post('/getAllAuths',authentication.authenticateUser, authController.getAllAuths)
 router.post('/getAllUsers',authentication.authenticateUser, authController.getAllUsers)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)

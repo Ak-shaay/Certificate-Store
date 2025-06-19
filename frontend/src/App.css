@@ -321,7 +321,7 @@ html {
   width: 100%;
   display: flex;
   justify-content: end;
-  padding: 16px;
+  padding: 0 0 16px 0;
 }
 
 .table-footer {

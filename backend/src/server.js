@@ -8,6 +8,8 @@ const signupRoute = require("../routes/auth");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fileUpload = require("express-fileupload");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 const cron = require("node-cron");
@@ -18,8 +20,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+
 
 //static routes for images
 app.use(express.static(path.join(__dirname, "..", "public")));
@@ -60,7 +61,7 @@ app.use(
 // Serve static files from the public directory
 // app.use(express.static("public"));
 // Routes
-app.use(signupRoute);
+app.use('/api/',signupRoute);
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

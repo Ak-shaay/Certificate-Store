@@ -1,7 +1,8 @@
 import axios from "axios";
 import { domain } from "../Context/config";
 
-const baseURL = `http://${domain}:8080`;
+// const baseURL = `http://${domain}:8080`;
+const baseURL = `${domain}/api`;
 
 const axiosInstance = axios.create({
   baseURL,

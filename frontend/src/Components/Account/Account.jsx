@@ -259,24 +259,24 @@ const Account = () => {
       <div className="AccountContainer" id="accountContainer">
         <div className="header">My Account</div>
         <hr />
-        <form id="forms">
+       <form id="forms">
           <div className="row">
             <div className="column">
               <label>
                 <b>Name : </b>
-                {loading ? <Skeleton width={150} /> : data.Name}
+                {loading ? <Skeleton width={150} /> : data?.Name || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Email : </b>
-                {loading ? <Skeleton width={200} /> : data.Email}
+                {loading ? <Skeleton width={200} /> : data?.Email || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Organization : </b>
-                {loading ? <Skeleton width={180} /> : data.Organization}
+                {loading ? <Skeleton width={180} /> : data?.Organization || "N/A"}
               </label>
             </div>
           </div>
@@ -287,19 +287,19 @@ const Account = () => {
             <div className="column">
               <label>
                 <b>Locality : </b>
-                {loading ? <Skeleton width={160} /> : data.Address}
+                {loading ? <Skeleton width={160} /> : data?.Address || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>State : </b>
-                {loading ? <Skeleton width={120} /> : data.State}
+                {loading ? <Skeleton width={120} /> : data?.State || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Postal Code : </b>
-                {loading ? <Skeleton width={80} /> : data.PostalCode}
+                {loading ? <Skeleton width={80} /> : data?.PostalCode || "N/A"}
               </label>
             </div>
           </div>
