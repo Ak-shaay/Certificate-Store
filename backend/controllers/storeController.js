@@ -1,8 +1,6 @@
 const userModel = require("../models/userModel");
-const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const forge = require("node-forge");
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
@@ -12,7 +10,6 @@ const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
 const { v4: uuidv4 } = require("uuid");
 const jsrsasign = require("jsrsasign");
-const { KJUR, pemtohex } = require("jsrsasign");
 const moment = require("moment");
 const axios = require("axios");
 
@@ -453,30 +450,28 @@ async function userSessionInfo(req, res) {
 // CCA Certificate Upload
 async function certificateUpload(req, res) {
   const { base64Cert } = req.body;
-  const userName = req.session.username;
-  const domain = process.env.DOMAINVALIDATOR || "";
-
+  const userName = req.session.username;  
+  const domainValidator = process.env.DOMAINVALIDATOR || "";
+  
   if (!base64Cert) {
     return res.status(400).json({ error: "No certificate provided" });
   }
-
-  try {
+  
+    try {
     const payload = { file: base64Cert };
     const authCode = await userModel.getCCAAuthCode();
-
     const response = await axios.post(
-      `http://${domain}/process/certificate`,
+      `${domainValidator}/process/certificate`,
       JSON.stringify(payload),
       {
         headers: {
-          Authorization: authCode,
           "Content-Type": "application/json",
-        },
+          authorization: authCode,
+        }
       }
-    );
-
+    );    
     if (response.status === 200) {
-      // console.log("Certificate processed successfully:", response.status);
+      console.log("Certificate processed successfully:");
       await userModel.logUserAction(
       userName,
       req.ip,
@@ -500,8 +495,9 @@ async function certificateUpload(req, res) {
       req.body.longitude)
       return res.status(response.status).json(response.data);
     }
-  } catch (err) {
-    const status = err.response?.status !== 401 ? err.response?.status : 500;
+  } catch (err) {        
+    /* in the case of a network error, DNS issue, or if the request didn’t reach the server at all, then the err.response?.status will also be undefined*/
+    const status = err.response?.status === 401 ? 401 : err.response?.status ?? 500;
     const errorData = err.response?.data;
     const errorMessage =
       errorData?.error ||
@@ -526,157 +522,10 @@ async function certificateUpload(req, res) {
   }
 }
 
-// // Function to parse individual certificates
-// async function parseCertificate(cert) {
-//   try {
-//     const x = new jsrsasign.X509();
-//     x.readCertPEM(cert);
-//     const certInfo = {};
-
-//     certInfo.x509Cert = cert.replace(/\r\n/g, "\n").trim();
-//     certInfo.commonName = extractCertificateField(x.getSubjectString(), "CN");
-//     certInfo.issuerName = extractCertificateField(x.getIssuerString(), "CN");
-//     certInfo.certSerialNumber = x.getSerialNumberHex();
-//     certInfo.validFrom = formatDate(x.getNotBefore());
-//     certInfo.validTo = formatDate(x.getNotAfter());
-//     certInfo.validityPeriod = calculateValidityPeriod(x);
-//     certInfo.organization = extractCertificateField(x.getSubjectString(), "O");
-//     certInfo.city = extractCertificateField(x.getSubjectString(), "L");
-//     certInfo.state = extractCertificateField(x.getSubjectString(), "ST");
-//     certInfo.country = extractCertificateField(x.getSubjectString(), "C");
-//     certInfo.certType = x.getExtKeyUsageString();
-//     certInfo.constraints = x.getExtBasicConstraints();
-//     certInfo.subjectType = determineSubjectType(x);
-//     certInfo.fp = getCertificateFingerprint(cert);
-//     certInfo.email = getCertificateEmail(x);
-
-//     return certInfo;
-//   } catch (err) {
-//     console.error("Error parsing certificate:", err);
-//     return null;
-//   }
-// }
-
-// Extracts the field from the certificate's subject string
-// function extractCertificateField(subjectString, field) {
-//   const regex = new RegExp(`/(${field}=)([^/]+)`);
-//   const match = subjectString.match(regex);
-//   return match ? match[2] : "";
-// }
-
-// Formats date from the certificate
 function formatDate(date) {
   return moment(date, "YYMMDDHHmmssZ").format("YYYY-MM-DD HH:mm:ss");
 }
 
-// // Calculates the validity period of the certificate
-// function calculateValidityPeriod(x) {
-//   return Math.round(
-//     moment(x.getNotAfter(), "YYMMDDHHmmssZ").diff(
-//       moment(x.getNotBefore(), "YYMMDDHHmmssZ"),
-//       "years",
-//       true
-//     )
-//   );
-// }
-
-// // Determines the subject type of the certificate
-// function determineSubjectType(x) {
-//   const basicConstraints = x.getExtBasicConstraints();
-//   if (basicConstraints && basicConstraints.cA) {
-//     if (basicConstraints.pathLen == null) return "CCA";
-//     if (basicConstraints.pathLen >= 1) return "CA";
-//     if (basicConstraints.pathLen === 0) return "Sub-CA";
-//   }
-//   return "End Entity";
-// }
-
-// // Returns the certificate fingerprint
-// function getCertificateFingerprint(cert) {
-//   const hex = pemtohex(cert);
-//   return KJUR.crypto.Util.hashHex(hex, "sha1");
-// }
-
-// // Returns the certificate email (from Subject Alternative Name)
-// function getCertificateEmail(x) {
-//   const san = x.getExtSubjectAltName();
-//   const emailEntry = san && san.array.find((entry) => entry.rfc822);
-//   return emailEntry ? emailEntry.rfc822 : "N/A";
-// }
-
-// // Handles the certificate insertion logic
-// async function handleCertificateInsertion(certificateList, firstCert) {
-//   try {
-//     if (firstCert.subjectType === "CCA") {
-//       firstCert.issuerSlNo = firstCert.certSerialNumber;
-//       // Insert the first certificate into the database
-//       const response = await userModel.insertCertificate(firstCert);
-//       if (response) {
-//         return { status: 200, message: "Successfully inserted certificate" };
-//       }
-//     } else if (firstCert.subjectType === "CA" && certificateList.length > 1) {
-//       const secondCert = certificateList[1];
-//       const exists = await userModel.checkCertificateInDatabase(secondCert);
-//       if (exists) {
-//         const response = await userModel.insertCertificate(firstCert);
-//         if (response) {
-//           return { status: 200, message: "Successfully inserted certificate" };
-//         }
-//       } else {
-//         return {
-//           status: 400,
-//           message: "Issuer Certificate does not exist in the database",
-//         };
-//       }
-//     } else {
-//       return {
-//         status: 400,
-//         message: "Invalid certificate chain or subject type",
-//       };
-//     }
-//   } catch (error) {
-//     console.error("Error in certificate insertion:", error);
-//     return { status: 500, message: error.message };
-//   }
-// }
-// const createCertSummaryList = (certInfos) => {
-//   const summaryList = [];
-//   for (let i = 0; i < certInfos.length; i++) {
-//     const cert = certInfos[i];
-//     const isLastCert = i === certInfos.length - 1;
-
-//     // If it's the last certificate, it issues itself, otherwise, it is issued by the next certificate
-//     const issuerSlNo = isLastCert
-//       ? cert.certSerialNumber
-//       : certInfos[i + 1].certSerialNumber;
-
-//     // Creating the summary for the current certificate
-//     const summary = {
-//       issuerSlNo: issuerSlNo,
-//       x509Cert: cert.x509Cert,
-//       commonName: cert.commonName,
-//       issuerName: cert.issuerName,
-//       certSerialNumber: cert.certSerialNumber,
-//       validFrom: cert.validFrom,
-//       validTo: cert.validTo,
-//       validityPeriod: cert.validityPeriod,
-//       organization: cert.organization,
-//       city: cert.city,
-//       state: cert.state,
-//       country: cert.country,
-//       certType: cert.certType,
-//       constraints: cert.constraints,
-//       subjectType: cert.subjectType,
-//       email: cert.email,
-//       // extensions: cert.extensions,
-//       fp: cert.fp,
-//     };
-
-//     summaryList.push(summary);
-//   }
-
-//   return summaryList;
-// };
 async function extractCert(req, res) {
   let pemCert;
 
@@ -732,7 +581,7 @@ async function extractCert(req, res) {
       });
     }
   } catch (error) {
-    console.error("Error processing certificate:", error);
+    console.error("Error extracting certificate:", error);
     return res.status(500).json({
       error: "Invalid certificate format or error processing the certificate",
     });
@@ -1006,6 +855,7 @@ async function fetchLogsData(req, res) {
 }
 
 async function profileData(req, res, next) {
+  
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
@@ -1014,18 +864,16 @@ async function profileData(req, res, next) {
     if (err) return res.sendStatus(403);
 
     try {
-      const profileData = await userModel.findUserData(user.username);
-
+      const profileData = await userModel.findUserData(user.username);      
       if (profileData.length > 0) {
-        // res.status(200).json({ profile });
         if (profileData[0].AuthNo == null) {
           // // remove values and add dummy values
           const profile = {
             Name: profileData[0].Name,
             Email: profileData[0].UserEmail,
             Organization: "Administrator",
-            Address: "CDAC Bengaluru ,E-city",
-            State: "KA",
+            Address: "CDAC Bengaluru, E-city",
+            State: "Karnataka",
             PostalCode: "560100",
           };
           res.status(200).json({ profile });
@@ -1668,32 +1516,47 @@ async function getSubType(req, res) {
   }
 }
 async function getAllRevocationReasons(req, res) {
-  try {
-    const distinctReasons = await userModel.getRevocationReasons();
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
 
-    const result = distinctReasons.map((item) => ({
-      label: item.Reason,
-      value: item.Reason,
-    }));
-    res.json(result);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.sendStatus(500);
-  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const distinctReasons = await userModel.getRevocationReasons();
+
+      const result = distinctReasons.map((item) => ({
+        label: item.Reason,
+        value: item.Reason,
+      }));
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching authorities data:", error);
+      res.sendStatus(500);
+    }
+  });
 }
 async function getAllActions(req, res) {
-  try {
-    const distinctActions = await userModel.getLogActions();
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.sendStatus(401);
 
-    const result = distinctActions.map((item) => ({
-      label: item.ActionType,
-      value: item.ActionType,
-    }));
-    res.json(result);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.sendStatus(500);
-  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    try {
+      const distinctActions = await userModel.getLogActions();
+      const result = distinctActions.map((item) => ({
+        label: item.ActionType,
+        value: item.ActionType,
+      }));
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      res.sendStatus(500);
+    }
+  });
 }
 
 function generateRandomString(length) {
@@ -2046,7 +1909,7 @@ async function reportGenerator(req, res) {
     const bcc = await userModel.findBccEmailByAuth(auth) || undefined;
 
     // Combine and deduplicate
-    const allEmails = [...toEmail, ...ccEmailList, ...bcc];
+    const allEmails = [...toEmail, ...ccEmailList, bcc];
     const uniqueEmails = [...new Set(allEmails)];
 
     // Set To, CC, and BCC
@@ -2146,7 +2009,6 @@ async function profileImage(req, res) {
     const uploadPath = path.join(__dirname, "..", "public/images", fileName);
     if (fs.existsSync(uploadPath)) {
       fs.unlinkSync(uploadPath); // Delete the existing file
-      // console.log(`Existing file ${fileName} deleted.`);
     }
 
     // Move the file to the desired directory
@@ -2158,7 +2020,6 @@ async function profileImage(req, res) {
           .json({ error: "Failed to upload file", details: err });
       }
 
-      // console.log("ProfileImage", img.name);
       return res.status(200).json("File uploaded successfully.");
     });
   } catch (error) {

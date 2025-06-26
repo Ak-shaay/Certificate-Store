@@ -16,9 +16,7 @@ const Organization = ({ onBack }) => {
   const [authName, setAuthName] = useState("");
   const [authNo, setAuthNo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [imgURL, setImgURL] = useState(
-    "http://" + domain + ":8080/images/null.png"
-  );
+  const [imgURL, setImgURL] = useState(domain + "/images/null.png");
   const [roles, setRoles] = useState([]);
   const [updateMsg, setUpdateMsg] = useState("");
   const [imageKey, setImageKey] = useState(Date.now()); // Initialize with a timestamp to avoid caching
@@ -38,7 +36,7 @@ const Organization = ({ onBack }) => {
     }
     setAuthCode(auth.AuthCode);
     setAuthName(auth.AuthName);
-    setImgURL(`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`);
+    setImgURL(`${domain}/images/${auth.AuthNo}.png?${imageKey}`);
     setAuthNo(auth.AuthNo);
   };
 
@@ -185,7 +183,7 @@ const Organization = ({ onBack }) => {
           data.append("image", blob, file.name);
           data.append("authNo", authNo);
 
-          const response = await fetch(`http://${domain}:8080/profileImage`, {
+          const response = await fetch(`${domain}/api/profileImage`, {
             method: "POST",
             body: data,
             credentials: "include",
@@ -220,7 +218,7 @@ const Organization = ({ onBack }) => {
             alignItems: "center",
             marginTop: "1.5rem",
             marginBottom: "1rem",
-            minWidth:'300px'
+            minWidth: "300px",
           }}
         >
           <h2 style={{ margin: 0, color: "rgb(60 87 153)" }}>Organizations</h2>
@@ -233,7 +231,6 @@ const Organization = ({ onBack }) => {
         <Backdrop
           sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
           open={open}
-          onClick={handlePopupClose}
         >
           <div className="filterWindow filterWidth" id="filter">
             <div className="popup-head">
@@ -330,7 +327,7 @@ const Organization = ({ onBack }) => {
                   <div>
                     <img
                       className="orgImg"
-                      src={`http://${domain}:8080/images/${auth.AuthNo}.png?${imageKey}`} // Add imageKey as query param
+                      src={`${domain}/images/${auth.AuthNo}.png?${imageKey}`} // Add imageKey as query param
                       alt="image"
                     />
                   </div>

@@ -5,8 +5,8 @@ const router = express.Router();
 const authentication = require('../models/userModel');
 
 router.get('/', authController.landingPage)
-router.get('/profile', authentication.authenticateUser, authController.profile);
-router.get('/profileData', authentication.authenticateUser, authController.profileData);
+router.post('/profile', authentication.authenticateUser, authController.profile);
+router.post('/profileData', authentication.authenticateUser, authController.profileData);
 router.post('/login', authController.login);
 router.post('/signup', authentication.authenticateUser, authController.signupController);
 router.post('/signupUser', authentication.authenticateUser, authController.signupUserController);
@@ -32,8 +32,8 @@ router.post('/getAllAuths',authentication.authenticateUser, authController.getAl
 router.post('/getAllUsers',authentication.authenticateUser, authController.getAllUsers)
 router.post('/updateAuths',authentication.authenticateUser, authController.updateAuths)
 router.post('/getSubType',authentication.authenticateUser, authController.getSubType);
-router.get('/getAllRevocationReasons', authController.getAllRevocationReasons)// reasons  from database
-router.get('/getAllActions', authController.getAllActions)// logs action  from database
+router.post('/getAllRevocationReasons',authentication.authenticateUser, authController.getAllRevocationReasons)// reasons  from database
+router.post('/getAllActions',authentication.authenticateUser, authController.getAllActions)// logs action  from database
 router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
 router.get('/generatePassword', authController.generatePass)// generate authcode
 

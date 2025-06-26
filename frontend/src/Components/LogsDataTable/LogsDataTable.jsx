@@ -13,6 +13,7 @@ import MultiSelect from "../MultiSelect/MultiSelect";
 import Backdrop from "@mui/material/Backdrop";
 import Button from "@mui/material/Button";
 import { domain } from "../../Context/config";
+import axios from "axios";
 
 export default function LogsDataTable() {
   const [controller, setController] = useState({
@@ -93,16 +94,21 @@ export default function LogsDataTable() {
       setLoading(false);
     }
   }
+
   useEffect(() => {
-    fetch(`http://${domain}:8080/getAllActions`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+    const fetchActions = async () => {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/getAllActions");
+        if (response.data) {
+          setOptions(response.data);
         }
-        return response.json();
-      })
-      .then((data) => setOptions(data))
-      .catch((error) => console.error("Error fetching data:", error));
+      } catch (err) {
+        console.error("error : ", err);
+      }
+    };
+    fetchActions();
   }, []);
 
   useEffect(() => {
@@ -160,7 +166,7 @@ export default function LogsDataTable() {
       const remark = entry.Remark;
       const ipAddress = entry.IpAddress;
       const timestamp = entry.TimeStamp;
-      const latitude = entry.Latitude;
+      const latitude = entry.Lattitude;
       const longitude = entry.Longitude;
 
       return createData(

@@ -140,3 +140,8 @@ backend/public/reports/*
 
 # frontend env variable removed
 frontend/.env
+
+# build
+frontend/build
+
+backend/public

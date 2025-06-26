@@ -10,16 +10,36 @@ const path = require("path");
 const fileUpload = require("express-fileupload");
 app.use(fileUpload());
 
+const fs = require("fs");
+const https = require("https");
+const http = require("http");
+
 const cron = require("node-cron");
 const findRemoveSync = require("find-remove");
 
-const corsOptions = {
-  origin: "http://10.182.3.123:3000",
-  credentials: true,
-};
-app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+const allowedOrigins = [
+  "http://localhost",
+  "https://localhost",
+  "http://10.182.3.123:3000",
+  "https://10.182.3.123",
+  "https://production-domain.com", // <- add if applicable
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 //static routes for images
 app.use(express.static(path.join(__dirname, "..", "public")));
@@ -45,7 +65,6 @@ cron.schedule("0 */1 * * *", () => {
     console.error("Error removing files: ", error);
   }
 });
-
 // Creating session
 app.use(
   session({
@@ -58,10 +77,29 @@ app.use(
   })
 );
 // Serve static files from the public directory
-// app.use(express.static("public"));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..','public', 'index.html'));
+});
+
 // Routes
-app.use(signupRoute);
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.use('/api/',signupRoute);
+// const PORT = process.env.PORT || 8080;
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+const httpsServer = https.createServer(
+  {
+    key: fs.readFileSync("./src/Key.key"),
+    cert: fs.readFileSync("./src/Certificate.crt"),
+  },
+  app
+);
+const httpServer = http.createServer(app);
+
+httpsServer.listen(443, () => {
+  console.log("HTTPS Server running on port 443");
+});
+httpServer.listen(80, () => {
+  console.log("HTTPS Server running on port 80");
 });

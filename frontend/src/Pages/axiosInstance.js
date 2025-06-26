@@ -1,7 +1,7 @@
 import axios from "axios";
 import { domain } from "../Context/config";
 
-const baseURL = `http://${domain}:8080`;
+const baseURL = `${domain}/api`;
 
 const axiosInstance = axios.create({
   baseURL,
@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 function logout() {
   removeTokens();
   document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  window.location.href = "http://" + domain + ":3000/unauthorized";
+  window.location.href = domain + "/unauthorized";
 }
 
 window.addEventListener("storage", (event) => {

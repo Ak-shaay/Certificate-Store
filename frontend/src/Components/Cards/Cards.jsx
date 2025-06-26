@@ -50,7 +50,8 @@ useEffect(()=>{
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'http://'+domain+':8080/cards'
+      url: domain+'/api/cards',
+      withCredentials: true,
     };
     
     await axios.request(config)
@@ -68,7 +69,8 @@ useEffect(()=>{
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://'+domain+':8080/compactCard'
+        url: domain+'/api/compactCard',
+        withCredentials: true,
       };
       
       await axios.request(config)

@@ -48,10 +48,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // if (latitude === null || longitude === null) {
-    //   alert("Please enable location services to proceed.");
-    //   return;
-    // }
+    if (latitude === null || longitude === null) {
+      alert("Please enable location services to proceed.");
+      return;
+    }
 
     if (!nameRegex.test(username)) {
       setErrMsg("Please enter a valid username");

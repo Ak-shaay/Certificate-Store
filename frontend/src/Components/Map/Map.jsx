@@ -82,7 +82,10 @@ const Map = () => {
   let clickTimer = null;
 
   const fetcher = async (url) => {
-    const res = await fetch(url);
+    const res = await fetch(url,{credentials: "include",
+  headers: {
+    "Content-Type": "application/json",
+  },});
     if (!res.ok) {
       throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
     }
@@ -93,13 +96,13 @@ const Map = () => {
     data: geojsonData,
     error: geojsonError,
     isLoading: geojsonLoading,
-  } = useSWR(`http://${domain}:8080/states/india.json`, fetcher);
+  } = useSWR(`${domain}/states/india.json`, fetcher);
 
   const {
     data: mapdataData,
     error: mapdataError,
     isLoading: mapdataLoading,
-  } = useSWR(`http://${domain}:8080/count/india.json`, fetcher);
+  } = useSWR(`${domain}/count/india.json`, fetcher);
 
   // Process the map data based on the selected time period
   const processMapData = (data, timePeriod) => {

@@ -81,17 +81,21 @@ export default function RevokedDataTable() {
   }, [controller, order, orderBy]);
 
   // get all revocation reasons
-  useEffect(() => {
-    fetch(`http://${domain}:8080/getAllRevocationReasons`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+   useEffect(() => {
+      const fetchReasons = async () => {
+        try {
+          const accessToken = api.getAccessToken();
+          api.setAuthHeader(accessToken);
+          const response = await api.axiosInstance.post("/getAllRevocationReasons");
+          if (response.data) {
+            setRevocationReasons(response.data);
+          }
+        } catch (err) {
+          console.error("error : ", err);
         }
-        return response.json();
-      })
-      .then((data) => setRevocationReasons(data))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+      };
+      fetchReasons();
+    }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";

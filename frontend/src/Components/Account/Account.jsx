@@ -49,22 +49,31 @@ const Account = () => {
 
   const handleMouseDownPassword = (event) => event.preventDefault();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const accessToken = api.getAccessToken();
-        if (accessToken) api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.get("/profileData");
-        if (response.status !== 200) throw new Error("Invalid response");
-        setData(response.data.profile);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
       }
-    };
-    fetchData();
-  }, []);
+
+      const response = await api.axiosInstance.post("/profileData");
+
+      if (response.data && response.data.profile) {
+        setData(response.data.profile);
+      } else {
+        throw new Error("Invalid response data");
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
   const handlePasswordChange = () => setOpen(true);
 
@@ -111,7 +120,7 @@ const Account = () => {
         setTimeout(() => {
           api.removeTokens();
           document.cookie = `certStore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-          window.location.href = "http://" + domain + ":3000";
+          window.location.href = domain+'/login';
         }, 3500);
       }
     } catch (err) {
@@ -264,19 +273,19 @@ const Account = () => {
             <div className="column">
               <label>
                 <b>Name : </b>
-                {loading ? <Skeleton width={150} /> : data.Name}
+                {loading ? <Skeleton width={150} /> : data?.Name || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Email : </b>
-                {loading ? <Skeleton width={200} /> : data.Email}
+                {loading ? <Skeleton width={200} /> : data?.Email || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Organization : </b>
-                {loading ? <Skeleton width={180} /> : data.Organization}
+                {loading ? <Skeleton width={180} /> : data?.Organization || "N/A"}
               </label>
             </div>
           </div>
@@ -287,19 +296,19 @@ const Account = () => {
             <div className="column">
               <label>
                 <b>Locality : </b>
-                {loading ? <Skeleton width={160} /> : data.Address}
+                {loading ? <Skeleton width={160} /> : data?.Address || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>State : </b>
-                {loading ? <Skeleton width={120} /> : data.State}
+                {loading ? <Skeleton width={120} /> : data?.State || "N/A"}
               </label>
             </div>
             <div className="column">
               <label>
                 <b>Postal Code : </b>
-                {loading ? <Skeleton width={80} /> : data.PostalCode}
+                {loading ? <Skeleton width={80} /> : data?.PostalCode || "N/A"}
               </label>
             </div>
           </div>

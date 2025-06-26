@@ -24,13 +24,14 @@ const ForgotPassword = () => {
       const requestOptions = {
         method: "POST",
         headers: myHeaders,
+        credentials: "include",
         body: JSON.stringify({
           email: email,
         }),
         redirect: "follow"
       };
   
-      const response = await fetch("http://" + domain + ":8080/forgotPassword", requestOptions);
+      const response = await fetch(domain + "/api/forgotPassword", requestOptions);
       const result = await response.json();
   
       if (!response.ok) {

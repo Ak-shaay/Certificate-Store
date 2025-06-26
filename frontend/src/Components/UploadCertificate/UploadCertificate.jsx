@@ -11,7 +11,7 @@ const UploadCertificate = () => {
   const [error, setError] = useState(false); // Show error block
   const [success, setSuccess] = useState(false); // Show success block
   const fileInputRef = useRef(null);
-
+  const [loading,setLoading] = useState(false)
   // Handle file input change, update state
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -39,66 +39,124 @@ const UploadCertificate = () => {
     });
 
   // Handle upload button click
+  // const handleFileUpload = async () => {
+  //   if (!file || file.size === 0) {
+  //     setError(true);
+  //     setSuccess(false);
+  //     setMsg("No file selected or the file is empty.");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true)
+  //     const base64Cert = await convertFileToBase64(file);
+  //     const accessToken = api.getAccessToken();
+  //     api.setAuthHeader(accessToken);
+
+  //     const response = await api.axiosInstance.post("/certificateUpload", {
+  //       base64Cert,
+  //     });
+
+  //     setLoading(false)
+  //     if (response.status === 200) {
+  //       setSuccess(true);
+  //       setError(false);
+  //       setMsg("Uploaded certificate successfully");
+  //       // Clear only the file, keep message and success state so the success block shows
+  //       setFile(null);
+  //       if (fileInputRef.current) {
+  //         fileInputRef.current.value = "";
+  //       }
+  //     } else {
+  //       setError(true);
+  //       setSuccess(false);
+  //       //  setMsg("Upload failed with status " + response.status);
+  //       setMsg("Upload failed with status ");
+  //     }
+  //   } catch (err) {
+  //     setLoading(false)
+  //     setSuccess(false);
+  //     setError(true);
+  //     setFile(null);
+  //     if (fileInputRef.current) {
+  //       fileInputRef.current.value = "";
+  //     }
+  //     // Default error message
+  //     let errorMessage = "Server returned an error";
+
+  //     if (err.response) {
+  //       // Server responded with a status outside the 2xx range
+  //       const serverMessage =
+  //         err.response.data?.error || err.response.data?.message;
+
+  //       errorMessage = `Upload failed : ${
+  //         serverMessage || "Internal Server Error"
+  //       }`;
+  //     } else if (err.request) {
+  //       // Request was made but no response received
+  //       errorMessage = "No response from server. Please try again.";
+  //     } else {
+  //       errorMessage = `Unexpected error: ${err.message}`;
+  //     }
+
+  //     setMsg(errorMessage);
+  //   }
+  // };
   const handleFileUpload = async () => {
-    if (!file || file.size === 0) {
-      setError(true);
-      setSuccess(false);
-      setMsg("No file selected or the file is empty.");
-      return;
-    }
+  if (!file || file.size === 0) {
+    setError(true);
+    setSuccess(false);
+    setMsg("No file selected or the file is empty.");
+    return;
+  }
 
-    try {
-      const base64Cert = await convertFileToBase64(file);
-      const accessToken = api.getAccessToken();
-      api.setAuthHeader(accessToken);
+  try {
+    setLoading(true);
 
-      const response = await api.axiosInstance.post("/certificateUpload", {
-        base64Cert,
-      });
+    const base64Cert = await convertFileToBase64(file);
+    const accessToken = api.getAccessToken();
+    api.setAuthHeader(accessToken);
 
-      if (response.status === 200) {
-        setSuccess(true);
-        setError(false);
-        setMsg("Uploaded certificate successfully");
-        // Clear only the file, keep message and success state so the success block shows
-        setFile(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      } else {
-        setError(true);
-        setSuccess(false);
-        //  setMsg("Upload failed with status " + response.status);
-        setMsg("Upload failed with status ");
-      }
-    } catch (err) {
-      setSuccess(false);
-      setError(true);
+    const response = await api.axiosInstance.post("/certificateUpload", {
+      base64Cert,
+    });
+
+    if (response.status === 200) {
+      setSuccess(true);
+      setError(false);
+      setMsg("Uploaded certificate successfully");
+
+      // Clear file input and file state
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      // Default error message
-      let errorMessage = "Server returned an error";
-
-      if (err.response) {
-        // Server responded with a status outside the 2xx range
-        const serverMessage =
-          err.response.data?.error || err.response.data?.message;
-
-        errorMessage = `Upload failed : ${
-          serverMessage || "Internal Server Error"
-        }`;
-      } else if (err.request) {
-        // Request was made but no response received
-        errorMessage = "No response from server. Please try again.";
-      } else {
-        errorMessage = `Unexpected error: ${err.message}`;
-      }
-
-      setMsg(errorMessage);
+    } else {
+      setError(true);
+      setSuccess(false);
+      setMsg(`Upload failed with status ${response.status}`);
     }
-  };
+  } catch (err) {
+    setSuccess(false);
+    setError(true);
+
+    let errorMessage = "Server returned an error";
+
+    if (err.response) {
+      const serverMessage = err.response.data?.error || err.response.data?.message;
+      errorMessage = `Upload failed: ${serverMessage || "Internal Server Error"}`;
+    } else if (err.request) {
+      errorMessage = "No response from server. Please try again.";
+    } else {
+      errorMessage = `Unexpected error: ${err.message}`;
+    }
+
+    setMsg(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Automatically clear messages and success/error flags after 3 seconds
   useEffect(() => {
@@ -168,7 +226,7 @@ const UploadCertificate = () => {
           className="upload-btn"
           onClick={handleFileUpload}
         >
-          Upload
+          {loading ? 'Uploading...' : 'Upload'}
         </button>
       </div>
     </div>

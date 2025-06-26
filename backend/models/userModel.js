@@ -617,7 +617,7 @@ async function getLogsData(
       queryParams.push(rows, offset);
     }
 
-    const result = await db.executeQuery(query, queryParams);
+    const result = await db.executeQuery(query, queryParams);    
     return { result, count };
   } catch (e) {
     console.error("Error while fetching log data:", e);

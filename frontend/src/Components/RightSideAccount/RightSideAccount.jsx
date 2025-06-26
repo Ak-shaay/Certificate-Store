@@ -6,7 +6,7 @@ import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
 
 const RightSideAccount = () => {
-  const defaultImage = "http://" + domain + ":8080/images/null.png";
+  const defaultImage = domain +"/images/null.png";
 
   const [username, setUsername] = useState(null);
   const [authNo, setAuthNo] = useState(null);
@@ -18,7 +18,7 @@ const RightSideAccount = () => {
 
   useEffect(() => {
     if (authNo) {
-      setCurrentImgSrc(`http://${domain}:8080/images/${authNo}.png`);
+      setCurrentImgSrc(`${domain}/images/${authNo}.png`);
     } else {
       setCurrentImgSrc(defaultImage);
     }
@@ -29,35 +29,41 @@ const RightSideAccount = () => {
     setCurrentImgSrc(defaultImage);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const accessToken = api.getAccessToken();
-        if (accessToken) {
-          api.setAuthHeader(accessToken);
-        }
-        const response = await api.axiosInstance.get("/profile");
-        if (response.status !== 200) {
-          throw new Error("Network response was not ok");
-        }
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+      }
+      
+      // Use POST like in fetchReasons
+      const response = await api.axiosInstance.post("/profile");
+      
+      if (response.data) {
+        // Decode JWT token to extract username and authNo
         const base64Url = accessToken.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
         const decodedToken = JSON.parse(atob(base64));
-
+        
         setUsername(decodedToken.name);
         setAuthNo(decodedToken.authNo);
         setIpAddress(response.data.ip);
         setLastLogin(response.data.lastLogin);
-      } catch (err) {
-        console.error("An error occurred while processing", err);
-        setError(true);
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error("No data received");
       }
-    };
+    } catch (err) {
+      console.error("An error occurred while processing", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
+
 
   if (error) {
     return (

@@ -1,1 +1,1 @@
-export const domain = "10.182.3.123";
+export const domain = process.env.REACT_APP_DOMAIN;
