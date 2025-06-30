@@ -161,62 +161,30 @@ justify-content: flex-start;
   }
   
   .upload-btn {
-    font-family: 'Montserrat';
-    padding: 15px 40px;
-    background:linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
-    border: 0;
-    border-radius: 18px;
-    color: #fff;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 3px;
-    position: relative;
-    transition: all .4s cubic-bezier(0.645, 0.045, 0.355, 1);
-    cursor: pointer;
-    display: block;
-    margin: 20px auto;
-  }
-  
-  .upload-btn::after,
-  .upload-btn::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 0px;
-    transform: translateY(-50%);
-    opacity: 0;
-    transition: all .4s cubic-bezier(0.645, 0.045, 0.355, 1);
-  }
-  
-  .upload-btn::after {
-    width: 30px;
-    height: 1px;
-    background: white;
-    transform: translateX(-3px);
-    margin-top: 0px;
-  }
-  
-  .upload-btn::before {
-    content: "";
-    transform: rotate(-135deg) translateX(50%);
-    width: 11px;
-    height: 11px;
-    background: transparent;
-    border-left: 1px solid white;
-    border-bottom: 1px solid white;
-    margin-top: -1px;
-  }
-  
-  
-  .upload-btn:hover {
-    padding: 15px 60px 15px 20px;
-  }
-  
-  .upload-btn:hover::after,
-  .upload-btn:hover::before {
-    opacity: 1;
-    right: 15px;
-  }
+  font-family: 'Montserrat';
+  padding: 15px 40px;
+  background: linear-gradient(rgb(132, 168, 255) 0%, rgb(149, 146, 252) 100%);
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  position: relative;
+}
+
+.upload-btn::after,
+.upload-btn::before {
+  display: none;
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
   .deleteIcon{
     color: #f53636;

@@ -225,6 +225,7 @@ const UploadCertificate = () => {
           id="uploadCertificate"
           className="upload-btn"
           onClick={handleFileUpload}
+          disabled={loading}
         >
           {loading ? 'Uploading...' : 'Upload'}
         </button>
