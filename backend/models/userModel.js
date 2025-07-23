@@ -931,23 +931,33 @@ async function getAllUsersData(
     console.log("Error while fetching certificate details: ", e);
   }
 }
-
-async function updateAuthsData(authCode, authName, authNo) {
-  const authQuery = `UPDATE authorities SET AuthCode = ?, AuthName = ? WHERE AuthNo = ?`;
-  // const loginQuery = `UPDATE login SET password = ? WHERE authno = ?`;
-
+async function updateAuthsData(updateQuery, queryParams) {
   try {
-    const result = await db.executeQuery(authQuery, [
-      authCode,
-      authName,
-      authNo,
-    ]);
+    const result = await db.executeQuery(updateQuery, queryParams);
     return result;
   } catch (e) {
     console.error("Error updating data:", e);
     throw new Error("Database error");
   }
 }
+
+// async function updateAuthsData(authCode, authName, authNo,key) {
+// const authQuery = "UPDATE authorities SET AuthCode = ?, AuthName = ?, `Key` = ? WHERE AuthNo = ?";
+//   // const loginQuery = `UPDATE login SET password = ? WHERE authno = ?`;
+
+//   try {
+//     const result = await db.executeQuery(authQuery, [
+//       authCode,
+//       authName,
+//       key,
+//       authNo,
+//     ]);
+//     return result;
+//   } catch (e) {
+//     console.error("Error updating data:", e);
+//     throw new Error("Database error");
+//   }
+// }
 async function getSubjectTypes() {
   const querySubtypes = `SELECT DISTINCT SubjectType FROM cert`;
   try {

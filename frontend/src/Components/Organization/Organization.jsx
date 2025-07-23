@@ -9,10 +9,12 @@ import InputAdornment from "@mui/material/InputAdornment";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
+import { InputLabel } from "@mui/material";
 
 const Organization = ({ onBack }) => {
   const [authData, setAuthData] = useState([]);
   const [authCode, setAuthCode] = useState("");
+  const [key, setKey] = useState("");
   const [authName, setAuthName] = useState("");
   const [authNo, setAuthNo] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -35,6 +37,7 @@ const Organization = ({ onBack }) => {
       filtersElement.style.display = "block";
     }
     setAuthCode(auth.AuthCode);
+    setKey(auth.Key);
     setAuthName(auth.AuthName);
     setImgURL(`${domain}/images/${auth.AuthNo}.png?${imageKey}`);
     setAuthNo(auth.AuthNo);
@@ -72,7 +75,7 @@ const Organization = ({ onBack }) => {
   }, []);
 
   // Save changes to authority
-  const handleSave = async (authName, authCode, authNo) => {
+  const handleSave = async (authName, authCode, authNo,key) => {
     const respSpan = document.getElementById("respMessage");
 
     try {
@@ -83,12 +86,16 @@ const Organization = ({ onBack }) => {
           authName,
           authCode,
           authNo,
+          key,
+          rotateSalt:true
         });
         if (response.status === 200) {
           respSpan.style.color = "green";
           setUpdateMsg(response.data.message);
+          setKey(response.data.key);
+          setAuthCode(response.data.authCode);
           setIsEditing(false);
-          await getAuthorities();
+          
         }
       }
     } catch (error) {
@@ -106,12 +113,14 @@ const Organization = ({ onBack }) => {
       const accessToken = api.getAccessToken();
       if (accessToken) {
         api.setAuthHeader(accessToken);
-        const response = await api.axiosInstance.get("/generateAuthCode");
+        const response = await api.axiosInstance.post("/generateAuthCode",{authNo,authName});
 
         if (response.status === 200) {
           setAuthCode(response.data.authCode);
           respSpan.style.color = "green";
           setUpdateMsg(response.data.message);
+          await getAuthorities();
+
         }
       }
     } catch (error) {
@@ -120,6 +129,26 @@ const Organization = ({ onBack }) => {
     }
   };
 
+    const handleGenKey = async () => {
+    const respSpan = document.getElementById("respMessage");      
+    try {
+      const accessToken = api.getAccessToken();
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/generateAuthKey",{authNo,authName});
+
+        if (response.status === 200) {
+          setKey(response.data.key);
+          respSpan.style.color = "green";
+          setUpdateMsg(response.data.message);
+          await getAuthorities();
+        }
+      }
+    } catch (error) {
+      respSpan.style.color = "red";
+      setUpdateMsg("Error generating key");
+    }
+  };
   // Handle image upload and processing
   async function handleImage(e, authNo) {
     try {
@@ -262,7 +291,10 @@ const Organization = ({ onBack }) => {
             <div className="managementMsg">
               <span id="respMessage">{updateMsg}</span>
             </div>
-            <FormControl variant="outlined" sx={{ gap: "1rem" }}>
+            <FormControl
+              variant="outlined"
+              sx={{ gap: "1rem", display: "flex", flexDirection: "column" }}
+            >
               <TextField
                 className="managementInput"
                 id="authority"
@@ -270,30 +302,61 @@ const Organization = ({ onBack }) => {
                 value={authName}
                 placeholder="Authority Name"
                 disabled={!isEditing}
+                label="Authority Name"
                 onChange={(e) => setAuthName(e.target.value)}
               />
-              <OutlinedInput
-                className="managementInput"
-                id="authcode"
-                name="authCode"
-                value={authCode}
-                placeholder="AuthCode"
-                disabled={!isEditing}
-                onChange={(e) => setAuthCode(e.target.value)}
-                endAdornment={
-                  isEditing ? (
-                    <InputAdornment position="end">
-                      <button
-                        type="button"
-                        id="smallBtn"
-                        onClick={handleGenAuth}
-                      >
-                        <img src={refreshIcon} alt="regenerate" />
-                      </button>
-                    </InputAdornment>
-                  ) : null
-                }
-              />
+
+              <FormControl variant="outlined" disabled={!isEditing}>
+                <InputLabel htmlFor="authcode">Authority Code</InputLabel>
+                <OutlinedInput
+                  className="managementInput"
+                  id="authcode"
+                  name="authCode"
+                  value={authCode}
+                  onChange={(e) => setAuthCode(e.target.value)}
+                  label="Authority Code"
+                  readOnly 
+                  endAdornment={
+                    isEditing && (
+                      <InputAdornment position="end">
+                        <button
+                          type="button"
+                          id="smallBtn"
+                          onClick={handleGenAuth}
+                        >
+                          <img src={refreshIcon} alt="regenerate" />
+                        </button>
+                      </InputAdornment>
+                    )
+                  }
+                />
+              </FormControl>
+
+              <FormControl variant="outlined" disabled={!isEditing}>
+                <InputLabel htmlFor="key">Key</InputLabel>
+                <OutlinedInput
+                  className="managementInput"
+                  id="key"
+                  name="key"
+                  value={key}
+                  onChange={(e) => setKey(e.target.value)}
+                  label="Key"
+                  readOnly 
+                  endAdornment={
+                    isEditing && (
+                      <InputAdornment position="end">
+                        <button
+                          type="button"
+                          id="smallBtn"
+                          onClick={handleGenKey}
+                        >
+                          <img src={refreshIcon} alt="regenerate" />
+                        </button>
+                      </InputAdornment>
+                    )
+                  }
+                />
+              </FormControl>
             </FormControl>
             <div className="managementBtn">
               {!isEditing ? (
@@ -309,7 +372,7 @@ const Organization = ({ onBack }) => {
                   type="button"
                   id="editBtn"
                   className="submitForm"
-                  onClick={() => handleSave(authName, authCode, authNo)}
+                  onClick={() => handleSave(authName, authCode, authNo, key)}
                 >
                   Save
                 </button>

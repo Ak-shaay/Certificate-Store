@@ -12,6 +12,8 @@ const { v4: uuidv4 } = require("uuid");
 const jsrsasign = require("jsrsasign");
 const moment = require("moment");
 const axios = require("axios");
+const crypto = require("crypto");
+
 
 let refreshTokens = {};
 
@@ -370,6 +372,8 @@ async function login(req, res) {
       req.session.name = user.Name;
       req.session.userid = user.AuthNo;
       req.session.userRole = user.Role;
+      req.session.latitude = latitude;
+      req.session.longitude = longitude;
 
       await userModel.logUserAction(
         user.UserEmail,
@@ -1145,72 +1149,186 @@ async function getAllUsers(req, res) {
 
 async function updateAuths(req, res) {
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    if (!token) return res.sendStatus(401);
-    const userName = req.session.username;
+    const { authNo, authName, key, rotateSalt } = req.body;
+    const userName = req.user.username; // Assuming this is set by a previous middleware
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) return res.sendStatus(403);
+    if (!authNo) {
+      return res.status(400).json({ error: "authNo is a required field" });
+    }
 
-      try {
-        const { authName, authCode, authNo } = req.body;
+    // Get the current state of the authority from the database
+    const [authOld] = await userModel.findUserByAuthNo(authNo);
+    if (!authOld) {
+      return res.status(404).json({ error: "Authority not found" });
+    }
 
-        if (!authCode || !authName || !authNo)
-          return res.status(400).json({ error: "Missing required fields" });
+    let remark = "";
+    let updateQuery = "UPDATE authorities SET ";
+    const queryParams = [];
 
-        const authNameOld = await userModel.findUserByAuthNo(authNo);
-        const result = await userModel.updateAuthsData(
-          authCode,
-          authName,
-          authNo
-        );
-        var remark = "";
-        if (
-          authNameOld[0].AuthName !== authName &&
-          authNameOld[0].AuthCode !== authCode
-        ) {
-          remark = "Updated details of authority " + authNameOld[0].AuthName;
-        } else if (authNameOld[0].AuthName !== authName) {
-          remark =
-            "Updated authority Name of " +
-            authNameOld[0].AuthName +
-            " to " +
-            authName;
-        } else if (authNameOld[0].AuthCode !== authCode) {
-          remark =
-            "Updated Authcode of " +
-            authNameOld[0].AuthCode +
-            " to " +
-            authCode;
-        } else {
-          // remark = "Updated Authcode and Name of authority " + authName;
-          remark = " Attempt to Change the data of" + authName;
-        }
-        userModel.logUserAction(
-          userName,
-          // new Date().toISOString().replace("T", " ").slice(0, 19),
-          req.ip,
-          "Update",
-          remark,
-          req.body.latitude,
-          req.body.longitude
-        );
-        res.status(200).json({ message: "Data updated successfully" });
-        // if (result.affectedRows > 0) {
-        // } else {
-        //   res.status(404).json({ message: 'Data not found' });
-        // }
-      } catch (error) {
-        console.error("Error in updating data:", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-      }
+    // For response
+    let returnedKey = null;
+    let returnedAuthCode = null;
+
+    // Scenario 1: Rotate the secret key
+    if (key && key !== authOld.Key) {
+      const newSalt = generateSalt();
+      const newKeyHash = createHash(key, newSalt);
+
+      updateQuery += "`Key` = ?, Salt = ?, ";
+      queryParams.push(newKeyHash, newSalt);
+      remark += `Key was rotated. `;
+
+      // Prepare values to return
+      returnedKey = key;
+      // Re-hash existing AuthCode with new salt
+      const plainAuthCode = generateAuthCodeFromName(authOld.AuthName);
+      returnedAuthCode = createHash(plainAuthCode, newSalt);
+    }
+
+    // Scenario 2: Rotate the AuthName (and therefore the AuthCode)
+    if (authName && authName !== authOld.AuthName) {
+      const currentSalt = authOld.Salt; // Reuse existing salt
+      const newAuthCode = generateAuthCodeFromName(authName);
+      const newAuthCodeHash = createHash(newAuthCode, currentSalt);
+
+      updateQuery += "AuthName = ?, AuthCode = ?, ";
+      queryParams.push(authName, newAuthCodeHash);
+      remark += `AuthName changed from '${authOld.AuthName}' to '${authName}'. `;
+
+      returnedAuthCode = newAuthCodeHash;
+      returnedKey = authOld.Key; // Key hasn't changed
+    }
+
+    // Scenario 3: Rotate the Salt
+    if (rotateSalt === true && (!key || key === authOld.Key)) {
+      const newSalt = generateSalt();
+      const plainAuthCode = generateAuthCodeFromName(authOld.AuthName);
+      const newAuthCodeHash = createHash(plainAuthCode, newSalt);
+      const newKeyHash = createHash(authOld.Key, newSalt);
+
+      updateQuery += "AuthCode = ?, Salt = ?, `Key` = ?, ";
+      queryParams.push(newAuthCodeHash, newSalt, newKeyHash);
+      remark += `Salt was rotated, invalidating old credentials. `;
+
+      returnedAuthCode = newAuthCodeHash;
+      returnedKey = authOld.Key; // Key remains logically same
+    }
+
+    if (queryParams.length === 0) {
+      return res.status(200).json({ message: "No changes detected." });
+    }
+
+    // Finalize query
+    updateQuery = updateQuery.slice(0, -2);
+    updateQuery += " WHERE AuthNo = ?";
+    queryParams.push(authNo);
+
+    await userModel.updateAuthsData(updateQuery, queryParams);
+
+    await userModel.logUserAction(
+      userName,
+      req.ip,
+      "Update Authority",
+      remark.trim(),
+      req.session.latitude,
+      req.session.longitude
+    );
+
+    res.status(200).json({
+      message: "Authority updated successfully.",
+      key: returnedKey,
+      authCode: returnedAuthCode,
     });
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error("Error in updateAuths:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+// async function updateAuths(req, res) {
+//   try {
+//     const authHeader = req.headers["authorization"];
+//     const token = authHeader && authHeader.split(" ")[1];
+//     if (!token) return res.sendStatus(401);
+//     const userName = req.user.username;    
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+//       if (err) return res.sendStatus(403);
+
+//       try {
+//         const { authName, authCode, authNo, key } = req.body;
+
+//         if (!authCode || !authName || !authNo || !key)
+//           return res.status(400).json({ error: "Missing required fields" });
+
+//         const authOld = await userModel.findUserByAuthNo(authNo);
+
+//         if(authOld[0].AuthName !== authName){
+//           key = generateKey();
+//           const newAuthCode = generateAuthCodeFromName(authName);
+//           authCode = createAuthCodeHash(newAuthCode,key);
+//         }
+
+//         const result = await userModel.updateAuthsData(
+//           authCode,
+//           authName,
+//           authNo,
+//           key
+//         );        
+//         var remark = "";
+//         if (
+//           authOld[0].AuthName !== authName &&
+//           authOld[0].AuthCode !== authCode &&
+//           authOld[0].Key !== key
+//         ) {
+//           remark = "Updated details of authority " + authOld[0].AuthName;
+//         } else if (authOld[0].AuthName !== authName) {
+//           remark =
+//             "Updated authority Name of " +
+//             authOld[0].AuthName +
+//             " to " +
+//             authName;
+//         } else if (authOld[0].Key !== key) {
+//           remark =
+//             "Updated Key of " +
+//             authOld[0].Key +
+//             " to " +
+//             key;
+//             } else if (authOld[0].AuthCode !== authCode) {
+//           remark =
+//             "Updated Authcode of " +
+//             authOld[0].AuthCode +
+//             " to " +
+//             authCode;
+//         } else {
+//           // remark = "Updated Authcode and Name of authority " + authName;
+//           remark = " Attempt to Change the data of" + authName;
+//         }
+//         userModel.logUserAction(
+//           userName,
+//           // new Date().toISOString().replace("T", " ").slice(0, 19),
+//           req.ip,
+//           "Update",
+//           remark,
+//           req.body.latitude,
+//           req.body.longitude
+//         );
+//         res.status(200).json({ message: "Data updated successfully" });
+//         // if (result.affectedRows > 0) {
+//         // } else {
+//         //   res.status(404).json({ message: 'Data not found' });
+//         // }
+//       } catch (error) {
+//         console.error("Error in updating data:", error.message);
+//         res.status(500).json({ error: "Internal Server Error" });
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error:", error.message);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// }
 
 // json files handling API
 
@@ -1571,18 +1689,110 @@ function generateRandomString(length) {
   return result;
 }
 
+
+const iterations = 100000; // PBKDF2 iterations
+const keyLength = 32; // 256 bits for AES-256
+
+function generateKey() {
+  return crypto.randomBytes(32).toString("base64");
+}
+
+function generateSalt() {
+  return crypto.randomBytes(16).toString("hex");
+}
+
+function generateAuthCodeFromName(authName) {
+  const hash = crypto.createHash("sha256");
+  hash.update(authName);
+  return hash.digest("base64");
+}
+
+function createHash(originalValue, salt) {
+  const valueBuffer = Buffer.from(originalValue, "base64");
+  const saltBuffer = Buffer.from(salt, "hex");
+  const hash = crypto.pbkdf2Sync(
+    valueBuffer,
+    saltBuffer,
+    iterations,
+    keyLength,
+    "sha256"
+  );
+  return hash.toString("base64");
+}
+
 async function generateAuthCode(req, res) {
-  try {
-    const randomString = generateRandomString(20);
+  try {    
+    const {authNo,authName}= req.body;
+    const authCode = generateAuthCodeFromName(authName);
+    const salt = generateSalt();
+    const newAuthCode = createHash(authCode,salt)
+    const userName = req.user.username;    
+    let updateQuery = "UPDATE authorities SET AuthCode = ?, Salt = ? WHERE AuthNo = ?";
+    const queryParams = [newAuthCode,salt,authNo];
+    const remark = "Updated Authcode "+authCode+" to "+newAuthCode+" for authority " + authName;
+    const result = await userModel.updateAuthsData(updateQuery, queryParams)
+    if (result.affectedRows > 0) {      
+      await userModel.logUserAction(
+        userName,
+          req.ip,
+          "Update Authority",
+          remark,
+          req.session.latitude,
+          req.session.longitude
+      )
+      
     res.status(200).json({
-      authCode: randomString,
-      message: "Authcode  generated successfully",
+      authCode: newAuthCode,
+      message: "Authcode generated and saved successfully",
     });
+  }
+  else{
+     res.sendStatus(500);
+  }
+    // res.status(200).json({
+    //   authCode: newAuthCode,
+    //   message: "Authcode generated successfully",
+    // });
   } catch (err) {
     console.error("Error generating auth code: ", err);
     res.sendStatus(500);
   }
 }
+async function generateAuthKey(req, res) {
+  try {
+    const key = generateKey();
+    const salt = generateSalt();
+    const {authNo,authName}= req.body;
+    const userName = req.user.username;
+    let updateQuery = "UPDATE authorities SET `Key` = ?, Salt = ? WHERE AuthNo = ?";
+    const queryParams = [key,salt,authNo];
+    const remark = "Updated Key of authority " + authName;
+
+    const result = await userModel.updateAuthsData(updateQuery, queryParams)
+    if (result.affectedRows > 0) {   
+      await userModel.logUserAction(
+        userName,
+          req.ip,
+          "Update Authority",
+          remark,
+          req.session.latitude,
+          req.session.longitude
+      )   
+    res.status(200).json({
+      key: key,
+      message: "Key generated and saved successfully",
+    });
+  }
+  else{
+     res.sendStatus(500);
+  }
+  } catch (err) {
+    console.error("Error generating Key: ", err);
+    res.sendStatus(500);
+  }
+}
+
+
 async function generatePass(req, res) {
   try {
     const randomString = generatePassword(10);
@@ -2068,6 +2278,7 @@ module.exports = {
   getAllRevocationReasons,
   getAllActions,
   generateAuthCode,
+  generateAuthKey,
   generatePass,
   certInfo,
   forgotPassword,

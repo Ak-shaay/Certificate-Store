@@ -27,11 +27,11 @@ export const SidebarData = [
     heading: "Revoked Certificates",
     viewName: "revokedCertificates",  // added viewName
   },
-  {
-    icon: signIcon,
-    heading: "DSC Usages",
-    viewName: "dscUsages",  // added viewName
-  },
+  // {
+  //   icon: signIcon,
+  //   heading: "DSC Usages",
+  //   viewName: "dscUsages",  // added viewName
+  // },
   {
     icon: uploadIcon,
     heading: "Add Certificate",

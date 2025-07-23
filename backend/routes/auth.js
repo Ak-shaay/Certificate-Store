@@ -34,7 +34,8 @@ router.post('/updateAuths',authentication.authenticateUser, authController.updat
 router.post('/getSubType',authentication.authenticateUser, authController.getSubType);
 router.post('/getAllRevocationReasons',authentication.authenticateUser, authController.getAllRevocationReasons)// reasons  from database
 router.post('/getAllActions',authentication.authenticateUser, authController.getAllActions)// logs action  from database
-router.get('/generateAuthCode', authController.generateAuthCode)// generate authcode
+router.post('/generateAuthCode',authentication.authenticateUser, authController.generateAuthCode)// generate authcode
+router.post('/generateAuthKey',authentication.authenticateUser, authController.generateAuthKey)// generate key
 router.get('/generatePassword', authController.generatePass)// generate authcode
 
 // json routes

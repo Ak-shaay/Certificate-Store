@@ -61,37 +61,37 @@ export default function DataTable() {
   const [open, setOpen] = useState(false);
   const [backdrop, setBackdrop] = useState(false);
 
-  const handleVerify = async (row) => {
-    setVerifyData("");
-    setOpen(true);
-    try {
-      const data = {
-        serialNo: row.serialNo,
-        issuerSerialNo: row.issuerSlNo,
-        issuerName: row.issuer,
-      };
+  // const handleVerify = async (row) => {
+  //   setVerifyData("");
+  //   setOpen(true);
+  //   try {
+  //     const data = {
+  //       serialNo: row.serialNo,
+  //       issuerSerialNo: row.issuerSlNo,
+  //       issuerName: row.issuer,
+  //     };
 
-      const accessToken = api.getAccessToken();
-      if (accessToken) {
-        api.setAuthHeader(accessToken);
-        setBcLoading(true);
+  //     const accessToken = api.getAccessToken();
+  //     if (accessToken) {
+  //       api.setAuthHeader(accessToken);
+  //       setBcLoading(true);
 
-        const response = await api.axiosInstance.post(
-          "/blockchain/verify",
-          JSON.stringify(data)
-        );
+  //       const response = await api.axiosInstance.post(
+  //         "/blockchain/verify",
+  //         JSON.stringify(data)
+  //       );
 
-        if (response.status === 200) {
-          setVerifyData(response.data);
-        } else setVerifyData("");
+  //       if (response.status === 200) {
+  //         setVerifyData(response.data);
+  //       } else setVerifyData("");
 
-        setBcLoading(false);
-      }
-    } catch (error) {
-      // console.log(error);
-      setBcLoading(false);
-    }
-  };
+  //       setBcLoading(false);
+  //     }
+  //   } catch (error) {
+  //     // console.log(error);
+  //     setBcLoading(false);
+  //   }
+  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -456,12 +456,12 @@ export default function DataTable() {
               placeholder="Subject Type"
               ref={subTypeRef}
             />
-            <MultiSelect
+            {/* <MultiSelect
               options={regions}
               onChange={handleRegionFilter}
               placeholder="Select Region"
               ref={regionRef}
-            />
+            /> */}
             <MultiSelect
               options={stateByRegion}
               onChange={handleStateFilter}
@@ -693,42 +693,7 @@ export default function DataTable() {
                   Issued Date
                 </TableSortLabel>
               </TableCell>
-              <TableCell
-                align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
-                sortDirection={orderBy === "State" ? order : false}
-              >
-                <TableSortLabel
-                  active={orderBy === "State"}
-                  direction={orderBy === "State" ? order : "asc"}
-                  onClick={(event) => handleRequestSort(event, "State")}
-                >
-                  State
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                align="left"
-                sx={{
-                  padding: "16px",
-                  border: "1px solid #ddd",
-                  color: "white",
-                  backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
-                }}
-              >
-                Region
-              </TableCell>
-              <TableCell
+               <TableCell
                 align="left"
                 sx={{
                   padding: "16px",
@@ -760,6 +725,42 @@ export default function DataTable() {
                   position: "sticky", // fallback in case stickyHeader fails
                   zIndex: 1, // prevent it from being hidden behind other elements
                 }}
+                sortDirection={orderBy === "State" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "State"}
+                  direction={orderBy === "State" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "State")}
+                >
+                  State
+                </TableSortLabel>
+              </TableCell>
+              {/* <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
+              >
+                Region
+              </TableCell>
+              */}
+              <TableCell
+                align="left"
+                sx={{
+                  padding: "16px",
+                  border: "1px solid #ddd",
+                  color: "white",
+                  backgroundColor: "rgba(136,163,254)",
+                  top: 0, // make it sticky at top
+                  position: "sticky", // fallback in case stickyHeader fails
+                  zIndex: 1, // prevent it from being hidden behind other elements
+                }}
                 sortDirection={orderBy === "SubjectType" ? order : false}
               >
                 <TableSortLabel
@@ -770,7 +771,7 @@ export default function DataTable() {
                   Subject Type
                 </TableSortLabel>
               </TableCell>
-              <TableCell
+              {/* <TableCell
                 align="left"
                 sx={{
                   padding: "16px",
@@ -783,7 +784,7 @@ export default function DataTable() {
                 }}
               >
                 Actions
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           </TableHead>
 
@@ -814,18 +815,18 @@ export default function DataTable() {
                     {row.issuedDate}
                   </TableCell>
                   <TableCell align="left" sx={{ padding: "16px" }}>
-                    {row.state}
-                  </TableCell>
-                  <TableCell align="left" sx={{ padding: "16px" }}>
-                    {row.region}
-                  </TableCell>
-                  <TableCell align="left" sx={{ padding: "16px" }}>
                     {row.expiryDate}
                   </TableCell>
                   <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.state}
+                  </TableCell>
+                  {/* <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.region}
+                  </TableCell> */}
+                  <TableCell align="left" sx={{ padding: "16px" }}>
                     {row.subjectType}
                   </TableCell>
-                  <TableCell align="left" sx={{ padding: "16px" }}>
+                  {/* <TableCell align="left" sx={{ padding: "16px" }}>
                     <div className="action-row">
                       <img
                         src={download}
@@ -847,7 +848,7 @@ export default function DataTable() {
                         onClick={() => handleVerify(row)}
                       />
                     </div>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))
             )}
