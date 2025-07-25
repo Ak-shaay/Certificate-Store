@@ -708,8 +708,7 @@ async function fetchData(req, res) {
           result[i].Region = await getIndianRegion(result[i].State);
           result[i].IssueDate = formatDate(result[i].IssueDate);
           result[i].ExpiryDate = formatDate(result[i].ExpiryDate);
-        }
-
+        }        
         res.json({ result, count });
       }
     });
@@ -2237,6 +2236,24 @@ async function profileImage(req, res) {
     return res.status(500).json({ error: "Internal server error" });
   }
 }
+async function getErrorData(req, res) {
+  try {
+    const reqSerialNo = req.body.reqSerialNo;
+
+    const result = await userModel.getErrorBySerial(reqSerialNo);
+
+    if (result && result.length > 0) {
+      return res.status(200).json({ errors: result });
+    } 
+    else {
+       return res.status(500).json({ error: "Error fetching error data" });
+      // return res.status(404).json({ message: "No errors found for the given serial number" });
+    }
+  } catch (err) {
+    console.error("Internal server error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 module.exports = {
   signupController,
@@ -2285,4 +2302,5 @@ module.exports = {
   reportGenerator,
   statusCheck,
   profileImage,
+  getErrorData
 };

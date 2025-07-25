@@ -36,7 +36,7 @@ router.post('/getAllRevocationReasons',authentication.authenticateUser, authCont
 router.post('/getAllActions',authentication.authenticateUser, authController.getAllActions)// logs action  from database
 router.post('/generateAuthCode',authentication.authenticateUser, authController.generateAuthCode)// generate authcode
 router.post('/generateAuthKey',authentication.authenticateUser, authController.generateAuthKey)// generate key
-router.get('/generatePassword', authController.generatePass)// generate authcode
+router.post('/errorData',authentication.authenticateUser,authController.getErrorData)
 
 // json routes
 router.post('/region',authentication.authenticateUser, authController.region);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
@@ -50,6 +50,7 @@ router.post('/removeRegion',authentication.authenticateAdmin, authController.rem
 
 router.post('/certInfo',authController.certInfo);
 router.post('/forgotPassword',authController.forgotPassword);
+router.get('/generatePassword', authController.generatePass)
 router.post('/report',authentication.authenticateUser,authController.reportGenerator);
 router.post('/statusCheck',authentication.authenticateUser,authController.statusCheck);
 router.post('/profileImage',authController.profileImage);

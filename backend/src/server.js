@@ -21,11 +21,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const allowedOrigins = [
-  "http://localhost",
-  "https://localhost",
   "http://10.182.3.123:3000",
   "https://10.182.3.123",
-  "https://production-domain.com", // <- add if applicable
+  // "https://production-domain.com",
 ];
 
 const corsOptions = {
@@ -83,11 +81,6 @@ app.get('*', (req, res) => {
 
 // Routes
 app.use('/api/',signupRoute);
-// const PORT = process.env.PORT || 8080;
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
-
 const httpsServer = https.createServer(
   {
     key: fs.readFileSync("./src/Key.key"),

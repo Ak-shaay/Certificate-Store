@@ -8,21 +8,30 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Alert from '@mui/material/Alert';
-import Backdrop from '@mui/material/Backdrop';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import Typography from '@mui/material/Typography';
+import Alert from "@mui/material/Alert";
+import Backdrop from "@mui/material/Backdrop";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import api from "../../Pages/axiosInstance";
 import MultiSelect from "../MultiSelect/MultiSelect";
 import download from "../../Images/download.png";
 import verify from "../../Images/check-mark.png";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ThumbUpOffAltOutlinedIcon from "@mui/icons-material/ThumbUpOffAltOutlined";
 import "./DataTable.css";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Modal,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function DataTable() {
   const [controller, setController] = useState({
@@ -30,6 +39,12 @@ export default function DataTable() {
     rowsPerPage: 10,
   });
 
+  const severityColorMap = {
+    Critical:"red",
+    High: "orange",
+    Medium: "#d9cc1dfa",
+    Low: "green"
+  };
   const [count, setCount] = useState(0);
 
   const [order, setOrder] = useState("desc");
@@ -61,40 +76,40 @@ export default function DataTable() {
   const [open, setOpen] = useState(false);
   const [backdrop, setBackdrop] = useState(false);
 
-  // const handleVerify = async (row) => {
-  //   setVerifyData("");
-  //   setOpen(true);
-  //   try {
-  //     const data = {
-  //       serialNo: row.serialNo,
-  //       issuerSerialNo: row.issuerSlNo,
-  //       issuerName: row.issuer,
-  //     };
-
-  //     const accessToken = api.getAccessToken();
-  //     if (accessToken) {
-  //       api.setAuthHeader(accessToken);
-  //       setBcLoading(true);
-
-  //       const response = await api.axiosInstance.post(
-  //         "/blockchain/verify",
-  //         JSON.stringify(data)
-  //       );
-
-  //       if (response.status === 200) {
-  //         setVerifyData(response.data);
-  //       } else setVerifyData("");
-
-  //       setBcLoading(false);
-  //     }
-  //   } catch (error) {
-  //     // console.log(error);
-  //     setBcLoading(false);
-  //   }
-  // };
+  const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [backdropError, setBackdropError] = useState(false);
+  const [errorGroups, setErrorGroups] = useState([]);
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleOpenErrorModal = async (row) => {
+    try {
+      const data = { reqSerialNo: row.reqSerialNo };
+      const accessToken = api.getAccessToken();
+
+      if (accessToken) {
+        api.setAuthHeader(accessToken);
+
+        const response = await api.axiosInstance.post("/errorData", data);
+
+        if (response.status === 200) {
+          // console.log("res", response.data);
+          setErrorGroups(response.data.errors);
+          setBackdropError(true);
+          setOpenErrorModal(true);
+        } else {
+          console.log("Error retrieving error data");
+        }
+      }
+    } catch (error) {
+      console.error("API error:", error);
+    }
+  };
+  const handleCloseError = () => {
+    setOpenErrorModal(false);
+    setBackdropError(false);
   };
 
   function createData(
@@ -107,7 +122,9 @@ export default function DataTable() {
     region,
     expiryDate,
     subjectType,
-    rawCertificate
+    errorCount,
+    rawCertificate,
+    reqSerialNo
   ) {
     return {
       serialNo,
@@ -119,7 +136,9 @@ export default function DataTable() {
       region,
       expiryDate,
       subjectType,
+      errorCount,
       rawCertificate,
+      reqSerialNo,
     };
   }
 
@@ -293,7 +312,9 @@ export default function DataTable() {
       const region = entry.Region;
       const expiryDate = entry.ExpiryDate;
       const subjectType = entry.SubjectType;
+      const errorCount = entry.errorCount;
       const rawCertificate = entry.RawCertificate;
+      const reqSerialNo = entry.ReqSerialNo;
 
       return createData(
         serialNo,
@@ -305,12 +326,13 @@ export default function DataTable() {
         region,
         expiryDate,
         subjectType,
-        rawCertificate
+        errorCount,
+        rawCertificate,
+        reqSerialNo
       );
     });
     return rows;
   }, [issuerData, order, orderBy]);
-
   // filters
   const handleFilters = (e) => {
     setBackdrop(true);
@@ -362,14 +384,14 @@ export default function DataTable() {
     fetchData();
     handleFilterClose();
   };
-  const handleDownload = async (rawCertificate, filename) => {
-    const link = document.createElement("a");
-    const file = new Blob([rawCertificate], { type: "text/plain" });
-    link.href = URL.createObjectURL(file);
-    link.download = filename + ".cer";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  };
+  // const handleDownload = async (rawCertificate, filename) => {
+  //   const link = document.createElement("a");
+  //   const file = new Blob([rawCertificate], { type: "text/plain" });
+  //   link.href = URL.createObjectURL(file);
+  //   link.download = filename + ".cer";
+  //   link.click();
+  //   URL.revokeObjectURL(link.href);
+  // };
 
   const handleDownloadReport = async (issuedData) => {
     if (!issuedData.length) {
@@ -534,6 +556,82 @@ export default function DataTable() {
           </div>
         </div>
       </Backdrop>
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={backdropError}
+      >
+        <Modal
+          open={openErrorModal}
+          onClose={handleCloseError}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+          closeAfterTransition
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: {
+                xs: "90vw",
+                sm: 500,
+                md: 600,
+              },
+              maxHeight: {
+                xs: "70vh",
+                sm: "80vh",
+                md: "80vh",
+              },
+              overflowY: "auto",
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              boxShadow: 24,
+              p: { xs: 2, sm: 3, md: 4 },
+            }}
+          >
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+              gutterBottom
+            >
+              Certificate Errors
+            </Typography>
+
+            {errorGroups.length === 0 ? (
+              <Typography>No error data available.</Typography>
+            ) : (
+              errorGroups.map((group, index) => (
+                <Accordion key={index} defaultExpanded>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: "bold",
+                        color: severityColorMap[group.ErrorSeverity] || "black",
+                      }}
+                    >
+                      Severity: {group.ErrorSeverity}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul style={{ paddingLeft: "1.5rem" }}>
+                      {group.Errors.split(" | ").map((err, idx) => (
+                        <li key={idx}>
+                          <Typography variant="body2">{err}</Typography>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              ))
+            )}
+          </Box>
+        </Modal>
+      </Backdrop>
+
+      {/* verify from blockchain
       <Dialog
         open={open}
         onClose={handleClose}
@@ -587,7 +685,7 @@ export default function DataTable() {
             Ok
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
 
       <div className="table-header">
         <button className="filter-button" onClick={handleFilters}>
@@ -616,9 +714,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "SerialNumber" ? order : false}
               >
@@ -637,9 +735,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "SubjectName" ? order : false}
               >
@@ -658,9 +756,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "IssuerName" ? order : false}
               >
@@ -679,9 +777,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "IssueDate" ? order : false}
               >
@@ -693,16 +791,16 @@ export default function DataTable() {
                   Issued Date
                 </TableSortLabel>
               </TableCell>
-               <TableCell
+              <TableCell
                 align="left"
                 sx={{
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "ExpiryDate" ? order : false}
               >
@@ -721,9 +819,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "State" ? order : false}
               >
@@ -742,9 +840,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0, 
+                  position: "sticky", 
+                  zIndex: 1, 
                 }}
               >
                 Region
@@ -757,9 +855,9 @@ export default function DataTable() {
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
                 sortDirection={orderBy === "SubjectType" ? order : false}
               >
@@ -771,20 +869,26 @@ export default function DataTable() {
                   Subject Type
                 </TableSortLabel>
               </TableCell>
-              {/* <TableCell
+              <TableCell
                 align="left"
                 sx={{
                   padding: "16px",
                   border: "1px solid #ddd",
                   color: "white",
                   backgroundColor: "rgba(136,163,254)",
-                  top: 0, // make it sticky at top
-                  position: "sticky", // fallback in case stickyHeader fails
-                  zIndex: 1, // prevent it from being hidden behind other elements
+                  top: 0,
+                  position: "sticky",
+                  zIndex: 1,
                 }}
               >
-                Actions
-              </TableCell> */}
+                <TableSortLabel
+                  active={orderBy === "errorCount"}
+                  direction={orderBy === "errorCount" ? order : "asc"}
+                  onClick={(event) => handleRequestSort(event, "errorCount")}
+                >
+                  Errors
+                </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -825,6 +929,41 @@ export default function DataTable() {
                   </TableCell> */}
                   <TableCell align="left" sx={{ padding: "16px" }}>
                     {row.subjectType}
+                  </TableCell>
+                  <TableCell align="left" sx={{ padding: "16px" }}>
+                    {row.errorCount >= 1 ? (
+                      <div
+                        className="action-row"
+                        onClick={() => {
+                          handleOpenErrorModal(row);
+                        }}
+                        style={{
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                        title="Click to view errors"
+                      >
+                        <ErrorOutlineIcon sx={{ color: "red" }} />
+                        <Typography variant="body2" color="red">
+                          {row.errorCount} Error{row.errorCount > 1 ? "s" : ""}
+                        </Typography>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <ThumbUpOffAltOutlinedIcon sx={{ color: "green" }} />
+                        <Typography variant="body2" color="green">
+                          No Errors
+                        </Typography>
+                      </div>
+                    )}
                   </TableCell>
                   {/* <TableCell align="left" sx={{ padding: "16px" }}>
                     <div className="action-row">

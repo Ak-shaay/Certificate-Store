@@ -235,6 +235,7 @@ async function getCertData(
       "IssueDate",
       "ExpiryDate",
       "SubjectType",
+      "errorCount"
     ];
 
     // Determine valid sorting column and order
@@ -266,23 +267,63 @@ async function getCertData(
   }
 }
 
+// function constructBaseQuery(authNo) {
+//   if (authNo == 1 || authNo == null) {
+//     return "SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate FROM cert WHERE 1=1";
+//   } else {
+//     return `
+//       WITH RECURSIVE CERTLIST AS (
+//         SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate 
+//         FROM cert 
+//         WHERE IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
+//         UNION ALL
+//         SELECT c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+//         FROM cert c
+//         JOIN CERTLIST cl ON c.IssuerSlNo = cl.SerialNumber
+//       )
+//       SELECT * FROM CERTLIST WHERE 1=1
+//     `;
+//   }
+// }
 function constructBaseQuery(authNo) {
   if (authNo == 1 || authNo == null) {
-    return "SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate FROM cert WHERE 1=1";
-  } else {
     return `
-      WITH RECURSIVE CERTLIST AS (
-        SELECT SerialNumber, SubjectName, State, IssuerSlNo, IssuerName, IssueDate, ExpiryDate, SubjectType, RawCertificate 
-        FROM cert 
-        WHERE IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
-        UNION ALL
-        SELECT c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
-        FROM cert c
-        JOIN CERTLIST cl ON c.IssuerSlNo = cl.SerialNumber
-      )
-      SELECT * FROM CERTLIST WHERE 1=1
+      SELECT 
+        c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+        c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate, 
+        COUNT(ce.errorCode) AS errorCount
+      FROM cert c
+      LEFT JOIN cert_error ce ON c.ReqSerialNo = ce.ReqSerialNo
+      WHERE 1=1
+      GROUP BY c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+        c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
     `;
-  }
+  } 
+  // else {
+  //   return `
+  //     WITH RECURSIVE CERTLIST AS (
+  //       SELECT 
+  //         c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+  //         c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+  //       FROM cert c
+  //       WHERE c.IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
+  //       UNION ALL
+  //       SELECT c2.ReqSerialNo, c2.SerialNumber, c2.SubjectName, c2.State, c2.IssuerSlNo, c2.IssuerName, 
+  //         c2.IssueDate, c2.ExpiryDate, c2.SubjectType, c2.RawCertificate
+  //       FROM cert c2
+  //       JOIN CERTLIST cl ON c2.IssuerSlNo = cl.SerialNumber
+  //     )
+  //     SELECT 
+  //       cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
+  //       cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate,
+  //       COUNT(ce.errorCode) AS errorCount
+  //     FROM CERTLIST cl
+  //     LEFT JOIN cert_error ce ON cl.ReqSerialNo = ce.ReqSerialNo
+  //     WHERE 1=1
+  //     GROUP BY cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
+  //       cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate
+  //   `;
+  // }
 }
 
 function applyFilters(query, filterCriteria) {
@@ -1303,6 +1344,28 @@ async function getProfileStatus(userName) {
     return null;
   }
 }
+async function getErrorBySerial(reqSerialNo) {
+  const query = `
+    SELECT 
+      e.ErrorSeverity,
+      GROUP_CONCAT(CONCAT(e.ErrorCode, ': ', e.ErrorDescription) SEPARATOR ' | ') AS Errors
+    FROM error e
+    WHERE e.ErrorCode IN (
+      SELECT ErrorCode
+      FROM cert_error
+      WHERE ReqSerialNo = ?
+    )
+    GROUP BY e.ErrorSeverity;
+  `;
+  try {
+    const result = await db.executeQuery(query, [reqSerialNo]);
+    return result || [];
+  } catch (error) {
+    console.error("Failed to retrieve error codes:", error);
+    throw error; 
+  }
+}
+
 
 module.exports = {
   findUserByUsername,
@@ -1348,4 +1411,5 @@ module.exports = {
   getEmail,
   getProfileStatus,
   getLastLogin,
+  getErrorBySerial
 };

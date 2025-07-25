@@ -12,18 +12,6 @@ const pool = mysql.createPool({
 });
 
 
-// async function createTableDynamically() {
-//     for(let i=0; i<createTableQueries.length; i++){
-//         await new Promise((resolve) => {
-//             pool.query(createTableQueries[i],(err)=>{
-//                 if(err) throw err;
-//                 console.log(`Table ${i+1} created or already exists`);
-//                 resolve();
-//             })
-//         })
-//     }
-// }
-
 // Function to create a table dynamically
 let initialized = false;
 
