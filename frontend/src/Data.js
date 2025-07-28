@@ -3,6 +3,7 @@ import homeIcon from "./Images/Icons/home.png";
 import checkIcon from "./Images/Icons/check.png";
 import certIcon from "./Images/Icons/certificate.png";
 import removeIcon from "./Images/Icons/remove.png";
+import errorIcon from "./Images/Icons/error.png";
 import signIcon from "./Images/Icons/sign.png";
 import userIcon from "./Images/Icons/user.png";
 import uploadIcon from "./Images/Icons/upload.png";
@@ -97,7 +98,7 @@ export const cardsData = [
     layoutId:"1",
   },
   {
-    title: "Certificates Used",
+    title: "Certificates with Error",
     color: {
       backGround:
         "linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255 202 113) -46.42%)",
@@ -105,7 +106,7 @@ export const cardsData = [
     },
     // barValue: 60,
     // value: "4,270",
-    png: signIcon,
+    png: errorIcon,
     // series: [
     //   {
     //     name: "Transactions",

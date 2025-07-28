@@ -1,4 +1,6 @@
-const mysql = require("mysql");
+// const mysql = require("mysql");
+const mysql = require('mysql2');
+
 const createTableQueries = require('./queries');
 
 // Create a connection pool to handle multiple connections

@@ -9,14 +9,18 @@ import { domain } from "../../Context/config";
 const Cards = () => {
 const [issued,setIssued] = useState([])
 const [revoked,setRevoked] = useState([])
-const [used,setUsed] = useState([])
+// const [used,setUsed] = useState([])
+const [errors,setErrors] = useState([])
 
 const [issuedCount,setIssuedCount] = useState('')
 const [issuedTotal,setIssuedTotal] = useState('')
 const [revokedCount,setRevokedCount] = useState('')
 const [revokedTotal,setRevokedTotal] = useState('')
-const [usageCount,setUsageCount] = useState('')
-const [usageTotal,setUsageTotal] = useState('')
+// const [usageCount,setUsageCount] = useState('')
+// const [usageTotal,setUsageTotal] = useState('')
+
+const [errorCount,setErrorCount] = useState('')
+const [errorTotal,setErrorTotal] = useState('')
 
 const counts = [
   {
@@ -28,8 +32,8 @@ const counts = [
     percent: (revokedTotal > 0 ? ((revokedCount / revokedTotal) * 100).toFixed(2) : '0.00')
   },
   {
-    value: usageCount,
-    percent: (usageTotal > 0 ? ((usageCount / usageTotal) * 100).toFixed(2) : '0.00')
+    value: errorCount,
+    percent: (errorTotal > 0 ? ((errorCount / errorTotal) * 100).toFixed(2) : '0.00')
   }
 ];
 
@@ -40,8 +44,8 @@ const series = [
 [{name : "Revoked",
     data : revoked
   }],
-  [{name : "Used",
-    data : used
+  [{name : "Errors",
+    data : errors
   }],
 ]
 // api call 
@@ -59,7 +63,8 @@ useEffect(()=>{
       // console.log(JSON.stringify(response.data[0]));
       setIssued(response.data[0]);
       setRevoked(response.data[1]);
-      setUsed(response.data[2]);
+      // setUsed(response.data[2]);
+      setErrors(response.data[2]);
     })
     .catch((error) => {
       console.log(error);
@@ -80,8 +85,10 @@ useEffect(()=>{
        setIssuedTotal(response.data[1]);
        setRevokedCount(response.data[2]);
        setRevokedTotal(response.data[3]);
-       setUsageCount(response.data[4]);
-       setUsageTotal(response.data[5]);
+      //  setUsageCount(response.data[4]);
+      //  setUsageTotal(response.data[5]);
+       setErrorCount(response.data[4]);
+       setErrorTotal(response.data[5]);
       })
       .catch((error) => {
         console.log(error);

@@ -855,9 +855,37 @@ async function getCardsData() {
     ORDER BY 
     h.hour_start;`;
 
+    let query4 =`WITH RECURSIVE hours AS (
+    SELECT
+        DATE_FORMAT(NOW() - INTERVAL 23 HOUR, '%Y-%m-%d %H:00:00') AS hour_start
+    UNION ALL
+    SELECT
+        DATE_FORMAT(hour_start + INTERVAL 1 HOUR, '%Y-%m-%d %H:00:00')
+    FROM hours
+    WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
+),
+certs_with_error AS (
+    SELECT DISTINCT c.reqSerialNo, DATE_FORMAT(c.timestamp, '%Y-%m-%d %H:00:00') AS hour_start
+    FROM cert c
+    JOIN cert_error ce ON ce.reqSerialNo = c.reqSerialNo
+    WHERE c.timestamp BETWEEN DATE_SUB(NOW(), INTERVAL 24 HOUR) AND NOW()
+)
+SELECT 
+    h.hour_start,
+    COUNT(cwe.reqSerialNo) AS error_count
+FROM 
+    hours h
+LEFT JOIN certs_with_error cwe
+    ON cwe.hour_start = h.hour_start
+GROUP BY 
+    h.hour_start
+ORDER BY 
+    h.hour_start;`
+
     const issued = await db.executeQuery(query);
     const revoked = await db.executeQuery(query2);
-    const used = await db.executeQuery(query3);
+    // const used = await db.executeQuery(query3);
+    const errors = await db.executeQuery(query4);
     const arr1 = [];
     const arr2 = [];
     const arr3 = [];
@@ -867,9 +895,12 @@ async function getCardsData() {
     for (i in revoked) {
       arr2.push(revoked[i].rev_records);
     }
-    for (i in used) {
-      arr3.push(used[i].used_records);
-    }
+    // for (i in used) {
+    //   arr3.push(used[i].used_records);
+    // }
+   for (let i in errors) {
+    arr3.push(errors[i].error_count);
+  }      
     const arr = [];
     arr.push(arr1, arr2, arr3);
     return arr;
@@ -897,23 +928,45 @@ async function getCompactCardData() {
     SELECT Count(*)
     FROM revocation_data `;
     const row2 = await db.executeQuery(query2);
-    let query3 = `
-    SELECT COUNT(*) as usageCount
-    FROM cert_usage  
-    WHERE UsageDate >= NOW() - INTERVAL 1 DAY
-    UNION ALL
-    SELECT Count(*)
-    FROM cert_usage `;
-    const row3 = await db.executeQuery(query3);
+    // let query3 = `
+    // SELECT COUNT(*) as usageCount
+    // FROM cert_usage  
+    // WHERE UsageDate >= NOW() - INTERVAL 1 DAY
+    // UNION ALL
+    // SELECT Count(*)
+    // FROM cert_usage `;
+    // const row3 = await db.executeQuery(query3);
+
+    let query4 = `SELECT
+  (
+    SELECT COUNT(DISTINCT ce.reqSerialNo)
+    FROM cert_error ce
+    JOIN cert c ON ce.reqSerialNo = c.reqSerialNo
+    WHERE c.timestamp >= NOW() - INTERVAL 1 DAY
+  ) AS dailyErrors,
+  
+  (
+    SELECT COUNT(*)
+    FROM cert
+    WHERE timestamp >= NOW() - INTERVAL 1 DAY
+  ) AS total;`;
+
+  const row4 = await db.executeQuery(query4)
+  // console.log("row",row4);
+  
     var result = [];
     result.push(
       row1[0].issuedCount,
       row1[1].issuedCount,
       row2[0].revokedCount,
       row2[1].revokedCount,
-      row3[0].usageCount,
-      row3[1].usageCount
+      // row3[0].usageCount,
+      // row3[1].usageCount
+      row4[0].dailyErrors,
+      row4[0].total
     );
+
+
     return result;
   } catch (e) {
     console.log("Error while fetching count: ", e);
