@@ -208,14 +208,14 @@ const UploadCertificate = () => {
 
         {/* Error message */}
         {error && (
-          <div className="error-block" style={{ display: "flex" }}>
+          <div className="error-block" style={{ display: "flex",color: "red"  }}>
             <span className="error">{msg}</span>
           </div>
         )}
 
         {/* Success message */}
         {success && (
-          <div className="success-block" style={{ display: "flex" }}>
+          <div className="success-block" style={{ display: "flex", color: "green"  }}>
             <span className="success">{msg}</span>
           </div>
         )}

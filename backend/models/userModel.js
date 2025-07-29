@@ -1132,9 +1132,11 @@ async function signup(params) {
     address,
     state,
     postalCode,
+    key,
+    salt
   } = params;
   const query1 =
-    "INSERT into authorities (AuthNo, AuthCode, AuthName, Email, Organization, Address, State, PostalCode) VALUES (?, ?, ?,?,?, ?, ?,?)";
+    "INSERT into authorities (AuthNo, AuthCode, Salt, `Key`, AuthName, Email, Organization, Address, State, PostalCode) VALUES (?, ?,?,?, ?,?,?, ?, ?,?)";
   const query2 = "INSERT into auth_cert VALUES (?,?)";
   try {
     // Start a transaction
@@ -1153,6 +1155,8 @@ async function signup(params) {
                   [
                     authNo,
                     authCode,
+                    salt,
+                    key,
                     commonName,
                     email,
                     organization,

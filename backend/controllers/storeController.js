@@ -120,7 +120,11 @@ async function signupController(req, res) {
   }
   try {
     const authNo = await userModel.getNextSerial();
-    const authCode = generateRandomString(20); //generate authcode
+    // const authCode = generateRandomString(20); //generate authcode
+    const salt = generateSalt();
+    const key = generateKey();
+    const plainAuthCode = generateAuthCodeFromName(commonName);
+    const authCode = createHash(plainAuthCode, salt);
     const params = {
       commonName: commonName,
       authNo: authNo,
@@ -131,6 +135,8 @@ async function signupController(req, res) {
       address: address,
       state: state,
       postalCode: postalCode,
+      salt:salt,
+      key:key,
     };
     const result = await userModel.signup(params);
     const imgState = saveImage(base64Img, authNo);
@@ -546,8 +552,8 @@ async function extractCert(req, res) {
     const x509 = new jsrsasign.X509();
     x509.readCertPEM(pemCert);
 
-    commonName = x509.getSubjectString().split("/CN=")[1] || "";
-    issuerName = x509.getIssuerString().split("/CN=")[1] || "";
+    commonName = x509.getSubjectString().split("/CN=")[1]?.split("/")[0] || "";
+    issuerName = x509.getIssuerString().split("/CN=")[1]?.split("/")[0] || "";
     serialNumber = x509.getSerialNumberHex();
     extKeyUsage = x509.getExtKeyUsage();
     validFrom = x509.getNotBefore();
