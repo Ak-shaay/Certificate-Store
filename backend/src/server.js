@@ -23,6 +23,7 @@ app.use(bodyParser.json());
 const allowedOrigins = [
   "http://10.182.3.123:3000",
   "https://10.182.3.123",
+  "http://10.182.3.123",
   // "https://production-domain.com",
 ];
 

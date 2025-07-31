@@ -285,82 +285,188 @@ async function getCertData(
 //     `;
 //   }
 // }
+// function constructBaseQuery(authNo) {
+//   if (authNo == 1 || authNo == null) {
+//     return `
+//       SELECT 
+//         c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+//         c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate, 
+//         COUNT(ce.errorCode) AS errorCount
+//       FROM cert c
+//       LEFT JOIN cert_error ce ON c.ReqSerialNo = ce.ReqSerialNo
+//       WHERE 1=1
+//       GROUP BY c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+//         c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+//     `;
+//   } 
+//   else {
+//     return `
+//       WITH RECURSIVE CERTLIST AS (
+//         SELECT 
+//           c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+//           c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+//         FROM cert c
+//         WHERE c.IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
+//         UNION ALL
+//         SELECT c2.ReqSerialNo, c2.SerialNumber, c2.SubjectName, c2.State, c2.IssuerSlNo, c2.IssuerName, 
+//           c2.IssueDate, c2.ExpiryDate, c2.SubjectType, c2.RawCertificate
+//         FROM cert c2
+//         JOIN CERTLIST cl ON c2.IssuerSlNo = cl.SerialNumber
+//       )
+//       SELECT 
+//         cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
+//         cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate,
+//         COUNT(ce.errorCode) AS errorCount
+//       FROM CERTLIST cl
+//       LEFT JOIN cert_error ce ON cl.ReqSerialNo = ce.ReqSerialNo
+//       WHERE 1=1
+//       GROUP BY cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
+//         cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate
+//     `;
+//   }
+// }
+
+// function applyFilters(query, filterCriteria) {
+//   if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
+//     query += applyIssuerFilter(filterCriteria.issuers);
+//   }
+//   if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
+//     query += ` AND SubjectType IN (${filterCriteria.subjectType
+//       .map((state) => `'${state}'`)
+//       .join(",")})`;
+//   }
+//   if (filterCriteria.states && filterCriteria.states.length > 0) {
+//     query += ` AND State IN (${filterCriteria.states
+//       .map((state) => `'${state}'`)
+//       .join(",")})`;
+//   }
+//   if (filterCriteria.regions && filterCriteria.regions.length > 0) {
+//     query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
+//   }
+//   if (
+//     filterCriteria.selectedDate === "issued" &&
+//     filterCriteria.startDate &&
+//     filterCriteria.endDate
+//   ) {
+//     query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//   }
+//   if (
+//     filterCriteria.selectedDate === "expiry" &&
+//     filterCriteria.startDate &&
+//     filterCriteria.endDate
+//   ) {
+//     query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+//   }
+//   if (filterCriteria.validity && filterCriteria.validity !== 0) {
+//     query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
+//   }
+
+//   return query;
+// }
+
+
 function constructBaseQuery(authNo) {
   if (authNo == 1 || authNo == null) {
     return `
       SELECT 
         c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
         c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate, 
-        COUNT(ce.errorCode) AS errorCount
+        COUNT(ce.ErrorCode) AS errorCount
       FROM cert c
       LEFT JOIN cert_error ce ON c.ReqSerialNo = ce.ReqSerialNo
+      LEFT JOIN error e ON ce.ErrorCode = e.ErrorCode
       WHERE 1=1
-      GROUP BY c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
-        c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
     `;
-  } 
-  // else {
-  //   return `
-  //     WITH RECURSIVE CERTLIST AS (
-  //       SELECT 
-  //         c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
-  //         c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
-  //       FROM cert c
-  //       WHERE c.IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
-  //       UNION ALL
-  //       SELECT c2.ReqSerialNo, c2.SerialNumber, c2.SubjectName, c2.State, c2.IssuerSlNo, c2.IssuerName, 
-  //         c2.IssueDate, c2.ExpiryDate, c2.SubjectType, c2.RawCertificate
-  //       FROM cert c2
-  //       JOIN CERTLIST cl ON c2.IssuerSlNo = cl.SerialNumber
-  //     )
-  //     SELECT 
-  //       cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
-  //       cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate,
-  //       COUNT(ce.errorCode) AS errorCount
-  //     FROM CERTLIST cl
-  //     LEFT JOIN cert_error ce ON cl.ReqSerialNo = ce.ReqSerialNo
-  //     WHERE 1=1
-  //     GROUP BY cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
-  //       cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate
-  //   `;
-  // }
+  } else {
+    return `
+      WITH RECURSIVE CERTLIST AS (
+        SELECT 
+          c.ReqSerialNo, c.SerialNumber, c.SubjectName, c.State, c.IssuerSlNo, c.IssuerName, 
+          c.IssueDate, c.ExpiryDate, c.SubjectType, c.RawCertificate
+        FROM cert c
+        WHERE c.IssuerSlNo IN (SELECT SerialNumber FROM auth_cert WHERE AuthNo = ?)
+        UNION ALL
+        SELECT c2.ReqSerialNo, c2.SerialNumber, c2.SubjectName, c2.State, c2.IssuerSlNo, c2.IssuerName, 
+          c2.IssueDate, c2.ExpiryDate, c2.SubjectType, c2.RawCertificate
+        FROM cert c2
+        JOIN CERTLIST cl ON c2.IssuerSlNo = cl.SerialNumber
+      )
+      SELECT 
+        cl.ReqSerialNo, cl.SerialNumber, cl.SubjectName, cl.State, cl.IssuerSlNo, cl.IssuerName, 
+        cl.IssueDate, cl.ExpiryDate, cl.SubjectType, cl.RawCertificate,
+        COUNT(ce.ErrorCode) AS errorCount
+      FROM CERTLIST cl
+      LEFT JOIN cert_error ce ON cl.ReqSerialNo = ce.ReqSerialNo
+      LEFT JOIN error e ON ce.ErrorCode = e.ErrorCode
+      WHERE 1=1
+    `;
+  }
 }
 
 function applyFilters(query, filterCriteria) {
+  const alias = query.includes('CERTLIST') ? 'cl' : 'c';
+
   if (filterCriteria.issuers && filterCriteria.issuers.length > 0) {
-    query += applyIssuerFilter(filterCriteria.issuers);
+    query += applyIssuerFilter(filterCriteria.issuers, alias);
   }
   if (filterCriteria.subjectType && filterCriteria.subjectType.length > 0) {
-    query += ` AND SubjectType IN (${filterCriteria.subjectType
-      .map((state) => `'${state}'`)
+    query += ` AND ${alias}.SubjectType IN (${filterCriteria.subjectType
+      .map((type) => `'${type}'`)
       .join(",")})`;
   }
   if (filterCriteria.states && filterCriteria.states.length > 0) {
-    query += ` AND State IN (${filterCriteria.states
+    query += ` AND ${alias}.State IN (${filterCriteria.states
       .map((state) => `'${state}'`)
       .join(",")})`;
   }
   if (filterCriteria.regions && filterCriteria.regions.length > 0) {
-    query += ` AND State IN (${regionMap(filterCriteria.regions)})`;
+    query += ` AND ${alias}.State IN (${regionMap(filterCriteria.regions)})`;
   }
   if (
     filterCriteria.selectedDate === "issued" &&
     filterCriteria.startDate &&
     filterCriteria.endDate
   ) {
-    query += ` AND IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+    query += ` AND ${alias}.IssueDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
   }
   if (
     filterCriteria.selectedDate === "expiry" &&
     filterCriteria.startDate &&
     filterCriteria.endDate
   ) {
-    query += ` AND ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
+    query += ` AND ${alias}.ExpiryDate BETWEEN '${filterCriteria.startDate}' AND '${filterCriteria.endDate}'`;
   }
   if (filterCriteria.validity && filterCriteria.validity !== 0) {
-    query += ` AND TIMESTAMPDIFF(YEAR, IssueDate, ExpiryDate) = '${filterCriteria.validity}'`;
+    query += ` AND TIMESTAMPDIFF(YEAR, ${alias}.IssueDate, ${alias}.ExpiryDate) = '${filterCriteria.validity}'`;
   }
 
+  if (filterCriteria.errorSeverity && filterCriteria.errorSeverity.length > 0) {    
+    query += ` AND e.ErrorSeverity IN (${filterCriteria.errorSeverity
+      .map((sev) => `'${sev}'`)
+      .join(",")})`;
+  }
+//   if (filterCriteria.errorSeverity && filterCriteria.errorSeverity.length > 0) {
+//   const hasNoError = filterCriteria.errorSeverity.includes("NO_ERROR");
+//   const otherSeverities = filterCriteria.errorSeverity.filter(sev => sev !== "NO_ERROR");
+
+//   if (hasNoError && otherSeverities.length > 0) {
+//     // Already handled in frontend - this block might not execute
+//   } else if (hasNoError) {
+//     // Only "NO_ERROR" selected: certificates with no errors
+//     query += ` AND e.ErrorSeverity IS NULL`;
+//   } else {
+//     // Only actual severities selected
+//     query += ` AND e.ErrorSeverity IN (${otherSeverities.map(sev => `'${sev}'`).join(",")})`;
+//   }
+// }
+
+  query += `
+    GROUP BY ${alias}.ReqSerialNo, ${alias}.SerialNumber, ${alias}.SubjectName, ${alias}.State, ${alias}.IssuerSlNo, ${alias}.IssuerName, 
+             ${alias}.IssueDate, ${alias}.ExpiryDate, ${alias}.SubjectType, ${alias}.RawCertificate
+  `;
+
+  // console.log("query", query);
+  
   return query;
 }
 
@@ -368,6 +474,7 @@ function applyIssuerFilter(issuers) {
   const issuerList = issuers.map((issuer) => `'${issuer}'`).join(",");
   return ` AND CAname IN (${issuerList})`;
 }
+
 
 async function getRevokedCertData(
   filterCriteria,
@@ -791,15 +898,15 @@ async function getCardsData() {
     WHERE hour_start < DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00')
     )
     SELECT 
-        COALESCE(COUNT(c.IssueDate), 0) AS issued_records
+        COALESCE(COUNT(c.timestamp), 0) AS issued_records
     FROM 
         hours h
     LEFT JOIN 
         cert c
     ON 
-        DATE_FORMAT(c.IssueDate, '%Y-%m-%d %H:00:00') = h.hour_start
-        AND c.IssueDate >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        AND c.IssueDate <= NOW()
+        DATE_FORMAT(c.timestamp, '%Y-%m-%d %H:00:00') = h.hour_start
+        AND c.timestamp >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        AND c.timestamp <= NOW()
     GROUP BY 
         h.hour_start
     ORDER BY 
@@ -914,7 +1021,7 @@ async function getCompactCardData() {
     let query = `
     SELECT Count(*) as issuedCount
     FROM cert 
-    WHERE IssueDate >= NOW() - INTERVAL 1 DAY
+    WHERE timestamp >= NOW() - INTERVAL 1 DAY
     UNION ALL
     SELECT Count(*)
     FROM cert `;

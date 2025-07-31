@@ -5,10 +5,10 @@ const createTableQueries = require('./queries');
 
 // Create a connection pool to handle multiple connections
 const pool = mysql.createPool({
-  port: 3306,
+  port: 3307,
   host: "localhost",
   user: "root",
-  password: "",
+  password: "Test@123",
   database: "certdb",
   connectionLimit: 10, // Adjust the number of connections based on your needs
 });

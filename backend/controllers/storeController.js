@@ -662,6 +662,7 @@ async function fetchData(req, res) {
           startDate,
           endDate,
           validity,
+          errorSeverity,
           page,
           rowsPerPage,
           orderBy,
@@ -699,6 +700,9 @@ async function fetchData(req, res) {
 
         if (validity && validity !== 0) {
           filterCriteria.validity = validity;
+        }
+        if (errorSeverity && errorSeverity != 0 ) {
+          filterCriteria.errorSeverity = errorSeverity;
         }
 
         const { result, count } = await userModel.getCertData(

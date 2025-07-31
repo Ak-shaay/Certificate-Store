@@ -25,6 +25,8 @@ import verify from "../../Images/check-mark.png";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ThumbUpOffAltOutlinedIcon from "@mui/icons-material/ThumbUpOffAltOutlined";
 import "./DataTable.css";
+
+import { errorSeverity, errorSeverityData } from "../../Data";
 import {
   Accordion,
   AccordionDetails,
@@ -40,10 +42,10 @@ export default function DataTable() {
   });
 
   const severityColorMap = {
-    Critical:"red",
+    Critical: "red",
     High: "orange",
     Medium: "#d9cc1dfa",
-    Low: "green"
+    Low: "green",
   };
   const [count, setCount] = useState(0);
 
@@ -58,6 +60,7 @@ export default function DataTable() {
   const [issuer, setIssuer] = useState([]);
   const [subjectType, setSubjectType] = useState([]);
   const [state, setState] = useState([]);
+  const [errorSeverity, setErrorSeverity] = useState([]);
   const [subType, setSubType] = useState([]);
   const [region, setRegion] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -70,6 +73,7 @@ export default function DataTable() {
   const regionRef = useRef();
   const stateRef = useRef();
   const issuerRef = useRef();
+  const certErrorRef = useRef();
 
   const [verifyData, setVerifyData] = useState("");
 
@@ -153,6 +157,7 @@ export default function DataTable() {
         startDate: startDate,
         endDate: endDate,
         validity: validity,
+        errorSeverity:errorSeverity,
         page: controller.page + 1,
         rowsPerPage: controller.rowsPerPage,
         order,
@@ -354,6 +359,22 @@ export default function DataTable() {
   const handleStateFilter = (selectedItems) => {
     setState(selectedItems.map((item) => item.value));
   };
+// const handleErrorFilter = (selectedItems) => {
+//   let values = selectedItems.map((item) => item.value);
+//   if (values.includes("NO_ERROR") && values.length > 1) {
+//     values = ["NO_ERROR"];
+//     alert("Can not Use No Error Filter with other options.Showing results of No Error")
+//   }
+//   setErrorSeverity(values);
+// };
+const handleErrorFilter = (selectedItems) => {
+  let values = selectedItems.map((item) => item.value);
+  // if (values.includes("NO_ERROR") && values.length > 1) {
+  //   values = ["NO_ERROR"];
+  //   alert("Can not Use No Error Filter with other options.Showing results of No Error")
+  // }
+  setErrorSeverity(values);
+};
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
   };
@@ -374,6 +395,7 @@ export default function DataTable() {
     if (regionRef.current) regionRef.current.resetSelectedValues();
     if (stateRef.current) stateRef.current.resetSelectedValues();
     if (issuerRef.current) issuerRef.current.resetSelectedValues();
+    if (certErrorRef.current) certErrorRef.current.resetSelectedValues();
     setSelectedDate("");
     setStartDate("");
     setEndDate("");
@@ -537,6 +559,14 @@ export default function DataTable() {
               onChange={handleValidity}
             />
             <label className="validityLabel">Year(s)</label>
+          </div>
+          <div className="multi-select-row">
+            <MultiSelect
+              options={errorSeverityData}
+              onChange={handleErrorFilter}
+              placeholder="Select Error Severity"
+              ref={certErrorRef}
+            />
           </div>
           <br />
           <hr />

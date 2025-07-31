@@ -133,3 +133,11 @@ export const cardsData = [
 //   { label: "Decryption", value: "Decryption" },
 //   { label: "other", value: "other" },
 // ];
+
+export const errorSeverityData = [
+  { label: "Critical", value: "Critical" },
+  { label: "High", value: "High" },
+  { label: "Medium", value: "Medium" },
+  { label: "Low", value: "Low" },
+  // { label: "No Error", value: "NO_ERROR" },
+];
