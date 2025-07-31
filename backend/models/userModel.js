@@ -815,6 +815,36 @@ async function toggleLoginAction(email, status) {
     return false;
   }
 }
+async function deleteUser(email) {
+  try {
+    let query = "Delete from Login WHERE UserEmail = ?";
+    const result = await db.executeQuery(query, [email]);
+    if (result && result.affectedRows > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    console.error("Error while deleting:", e);
+    return false;
+  }
+}
+async function changePassword(email, password) {
+  try {
+    let query= "UPDATE Login SET Password = ? WHERE UserEmail = ?";
+    const result = await db.executeQuery(query, [email, password]);
+
+    if (result && result.affectedRows > 0) {
+      return true;
+    } else {
+      // console.log(`No changes made for ${email}: LoginStatus might already be '${status}' or user does not exist.`);
+      return false;
+    }
+  } catch (e) {
+    console.error("Error while changing the Password:", e);
+    return false;
+  }
+}
 
 async function getLastLogin(authNo) {
   let query = "";
@@ -1550,6 +1580,8 @@ module.exports = {
   updateStatus,
   updateAttempts,
   toggleLoginAction,
+  deleteUser,
+  changePassword,
   getProfileStatus,
   updatePassword,
   findAuthorities,

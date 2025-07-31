@@ -285,6 +285,74 @@ async function enableAccount(req, res) {
     return res.status(500).json({ message: "Internal server error" });
   }
 }
+async function deleteUserAccount(req, res) {
+  try {
+    const { userId } = req.body;
+    const userName = req.user.username; 
+     if (!userId) {
+      return res.status(400).json({ message: "Missing User Email." });
+    }
+
+    const result = await userModel.deleteUser(userId);
+
+    if (result) {
+      await userModel.logUserAction(
+        userName,
+        req.ip,
+        "Deletion",
+        `${userId} has been deleted`,
+        req.session.latitude,
+        req.session.longitude
+      );
+
+      return res.json({ message: "Account deleted successfully." });
+    } else {
+      return res.status(400).json({
+        message: "Failed to delete the account.",
+      });
+    }
+  } catch (error) {
+    console.error("Error occurred while deleting account:", error);
+    return res
+      .status(500)
+      .json({ message: "Error occurred while deleting account." });
+  }
+}
+async function resetPassword(req, res) {
+  try {
+    const { userId,password } = req.body;
+    console.log("dsfd",userId,password);
+    
+    const userName = req.user.username; 
+     if (!userId) {
+      return res.status(400).json({ message: "Missing User Email." });
+    }
+
+    const result = await userModel.changePassword(userId,password);
+
+    if (result) {
+      await userModel.logUserAction(
+        userName,
+        req.ip,
+        "Password change",
+        `Password of ${userId} has been Updated.`,
+        req.session.latitude,
+        req.session.longitude
+      );
+
+      return res.json({ message: "Password successfully." });
+    } else {
+      return res.status(400).json({
+        message: "Failed to change the password.",
+      });
+    }
+  } catch (error) {
+    console.error("Error occurred while changing password:", error);
+    return res
+      .status(500)
+      .json({ message: "Error occurred while changing password." });
+  }
+}
 
 async function loginAttempt(userExist) {
   if (userExist.LoginStatus === "inactive") {
@@ -2273,6 +2341,8 @@ module.exports = {
   dashboard,
   logout,
   enableAccount,
+  deleteUserAccount,
+  resetPassword,
   userDetails,
   userSessionInfo,
   certificateUpload,

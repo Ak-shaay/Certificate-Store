@@ -10,6 +10,12 @@ import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import api from "../../Pages/axiosInstance";
 import "./Users.css";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
 const Users = ({ onBack }) => {
   const [controller, setController] = useState({
@@ -22,6 +28,11 @@ const Users = ({ onBack }) => {
   const [authNumber, setAuthNumber] = useState("");
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   function createData(userEmail, name, authName, role, loginStatus) {
     return {
@@ -58,6 +69,61 @@ const Users = ({ onBack }) => {
         alert("Error occurred while performing the action.");
         console.error(error);
       }
+    }
+  };
+  const handleUserDelete = async (userId) => {
+    const message = `Are you sure you want to delete user  ${userId}?`;
+
+    const confirmed = window.confirm(message);
+    if (confirmed) {
+      try {
+        const accessToken = api.getAccessToken();
+        api.setAuthHeader(accessToken);
+        const response = await api.axiosInstance.post("/deleteUser", {
+          userId,
+        });
+
+        if (response.status === 200) {
+          alert(`Successfully deleted user ${userId}`);
+          fetchData();
+        } else {
+          alert("Failed to delete user account.");
+        }
+      } catch (error) {
+        alert("Error occurred while performing the action.");
+        console.error(error);
+      }
+    }
+  };
+  const handlePasswordChangeSubmit = async () => {
+    const passRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#])[A-Za-z\d@$!%*?&.#]{8,}$/;
+
+    if (!passRegex.test(newPassword)) {
+      setPasswordError(
+        "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character."
+      );
+      return;
+    }
+
+    try {
+      const accessToken = api.getAccessToken();
+      api.setAuthHeader(accessToken);
+      const response = await api.axiosInstance.post("/resetPassword", {
+        userId: selectedUserId,
+        newPassword,
+      });
+
+      if (response.status === 200) {
+        alert(`Password successfully reset for ${selectedUserId}`);
+        setOpenDialog(false);
+        fetchData();
+      } else {
+        alert("Failed to reset password.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error occurred while resetting password.");
     }
   };
 
@@ -138,6 +204,39 @@ const Users = ({ onBack }) => {
   return (
     <div className="usersBody">
       <div className="usersMain">
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+          <DialogTitle>Reset Password for {selectedUserId}</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="New Password"
+              type="password"
+              fullWidth
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPasswordError(""); 
+              }}
+              sx={{ mt: 2 }}
+              error={!!passwordError}
+              helperText={
+                passwordError ||
+                "Min 8 characters, with uppercase, lowercase, number, and special character"
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)} color="secondary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePasswordChangeSubmit}
+              color="primary"
+              variant="contained"
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
         <div
           style={{
             position: "relative",
@@ -145,15 +244,15 @@ const Users = ({ onBack }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginTop:'1.5rem',
-            marginBottom:'1rem'
+            marginTop: "1.5rem",
+            marginBottom: "1rem",
           }}
         >
-          <h2 style={{ margin:0 ,color:'rgb(60 87 153)'}}>Users</h2>
+          <h2 style={{ margin: 0, color: "rgb(60 87 153)" }}>Users</h2>
           <div style={{ position: "absolute", left: 0 }}>
-          <button onClick={onBack} className="backButton">
-            Back
-          </button>
+            <button onClick={onBack} className="backButton">
+              Back
+            </button>
           </div>
         </div>
         <TableContainer
@@ -324,7 +423,7 @@ const Users = ({ onBack }) => {
                     <TableCell align="left" sx={{ padding: "16px" }}>
                       {row.loginStatus}
                     </TableCell>
-                    <TableCell align="left" sx={{ padding: "16px" }}>
+                    {/* <TableCell align="left" sx={{ padding: "16px" }}>
                       <div className="action-row">
                         {row.loginStatus !== "active" ? (
                           <>
@@ -349,6 +448,59 @@ const Users = ({ onBack }) => {
                             </button>
                           </>
                         )}
+                      </div>
+                    </TableCell> */}
+                    <TableCell align="left" sx={{ padding: "16px" }}>
+                      <div className="action-row">
+                        {row.loginStatus !== "active" ? (
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            sx={{ mr: 1 }}
+                            onClick={() =>
+                              handleAction("enable", row.userEmail)
+                            }
+                          >
+                            Enable
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            sx={{ mr: 1 }}
+                            onClick={() =>
+                              handleAction("disable", row.userEmail)
+                            }
+                          >
+                            Disable
+                          </Button>
+                        )}
+
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          sx={{ mr: 1 }}
+                          onClick={() => {
+                            setSelectedUserId(row.userEmail);
+                            setNewPassword("");
+                            setPasswordError("");
+                            setOpenDialog(true);
+                          }}
+                        >
+                          Change Password
+                        </Button>
+
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          size="small"
+                          onClick={() => handleUserDelete(row.userEmail)}
+                        >
+                          Delete
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

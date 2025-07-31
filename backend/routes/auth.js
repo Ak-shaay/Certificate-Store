@@ -43,6 +43,8 @@ router.post('/region',authentication.authenticateUser, authController.region);
 router.post('/getStatesByRegion',authentication.authenticateUser, authController.getStatesByRegion);
 
 router.post('/changeStatus',authentication.authenticateAdmin, authController.enableAccount);
+router.post('/deleteUser',authentication.authenticateAdmin, authController.deleteUserAccount);
+router.post('/resetPassword',authentication.authenticateAdmin, authController.resetPassword);
 router.post('/addRegion',authentication.authenticateAdmin, authController.addRegion);
 router.post('/updateStatesOfRegion',authentication.authenticateAdmin, authController.updateStatesOfRegion);
 router.post('/moveStatesOfRegion',authentication.authenticateAdmin, authController.moveStatesOfRegion);
