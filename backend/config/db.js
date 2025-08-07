@@ -10,7 +10,7 @@ const pool = mysql.createPool({
   user: "root",
   password: "Test@123",
   database: "certdb",
-  connectionLimit: 10, // Adjust the number of connections based on your needs
+  connectionLimit: 10, 
 });
 
 

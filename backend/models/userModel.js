@@ -831,13 +831,12 @@ async function deleteUser(email) {
 }
 async function changePassword(email, password) {
   try {
-    let query= "UPDATE Login SET Password = ? WHERE UserEmail = ?";
-    const result = await db.executeQuery(query, [email, password]);
+    const query = "UPDATE Login SET Password = ? WHERE UserEmail = ?";
+    const result = await db.executeQuery(query, [password, email]);
 
     if (result && result.affectedRows > 0) {
       return true;
     } else {
-      // console.log(`No changes made for ${email}: LoginStatus might already be '${status}' or user does not exist.`);
       return false;
     }
   } catch (e) {

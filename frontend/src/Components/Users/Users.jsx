@@ -111,7 +111,7 @@ const Users = ({ onBack }) => {
       api.setAuthHeader(accessToken);
       const response = await api.axiosInstance.post("/resetPassword", {
         userId: selectedUserId,
-        newPassword,
+        password:newPassword,
       });
 
       if (response.status === 200) {

@@ -321,15 +321,15 @@ async function deleteUserAccount(req, res) {
 async function resetPassword(req, res) {
   try {
     const { userId,password } = req.body;
-    console.log("dsfd",userId,password);
+    // console.log("dsfd",userId,password);
     
     const userName = req.user.username; 
      if (!userId) {
       return res.status(400).json({ message: "Missing User Email." });
     }
-
-    const result = await userModel.changePassword(userId,password);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await userModel.changePassword(userId,hashedPassword);
+    
     if (result) {
       await userModel.logUserAction(
         userName,
