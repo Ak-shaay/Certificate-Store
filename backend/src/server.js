@@ -19,7 +19,9 @@ const findRemoveSync = require("find-remove");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+const {
+  updateCityDistrictData,
+} = require("../cronJobs/updateCityDistrictData");
 const allowedOrigins = [
   "http://10.182.3.123:3000",
   "https://10.182.3.123",
@@ -62,6 +64,21 @@ cron.schedule("0 */1 * * *", () => {
     });
   } catch (error) {
     console.error("Error removing files: ", error);
+  }
+});
+// City-District data update cron job - runs daily at 2:00 AM
+
+cron.schedule("0 0 * * *", async () => {
+  try {
+    await updateCityDistrictData();
+    console.log(
+      `[${new Date().toISOString()}] City-district data update cron job completed successfully`
+    );
+  } catch (error) {
+    console.error(
+      `[${new Date().toISOString()}] City-district data update cron job failed:`,
+      error
+    );
   }
 });
 // Creating session
