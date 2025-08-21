@@ -1917,7 +1917,7 @@ function generatePassword(length) {
   const lowercase = "abcdefghijklmnopqrstuvwxyz";
   const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const digits = "0123456789";
-  const specialCharacters = "@$!%*?&.#";
+  const specialCharacters = "@$!%*?&.";
 
   // Ensure at least one of each character type
   const passwordArray = [
